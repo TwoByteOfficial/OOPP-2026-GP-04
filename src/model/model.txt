@@ -1,1 +1,0 @@
-Java classes representing your data/entities
