@@ -9,370 +9,174 @@ import java.util.List;
 
 public class UserDAO {
 
-    // ==============================
-    // CREATE
-    // ==============================
-
-    public boolean addUser(User user) {
+    public boolean insert(User user) {
 
         String sql = """
                 INSERT INTO users
-                (
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                )
+                (username, password_hash, full_name, email, contact_no,
+                 address, profile_picture, department_id, user_status)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(
+                     sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPasswordHash());
-            statement.setString(3, user.getFullName());
-            statement.setString(4, user.getEmail());
-            statement.setString(5, user.getContactNo());
-            statement.setString(6, user.getAddress());
-            statement.setString(7, user.getProfilePicture());
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPasswordHash());
+            ps.setString(3, user.getFullName());
+            ps.setString(4, user.getEmail());
+            ps.setString(5, user.getContactNo());
+            ps.setString(6, user.getAddress());
+            ps.setString(7, user.getProfilePicture());
 
-            if (user.getDepartmentId() != null) {
-                statement.setInt(8, user.getDepartmentId());
-            } else {
-                statement.setNull(8, Types.INTEGER);
-            }
+            if (user.getDepartmentId() != null)
+                ps.setInt(8, user.getDepartmentId());
+            else
+                ps.setNull(8, Types.INTEGER);
 
-            statement.setString(9, user.getUserStatus());
+            ps.setString(9, user.getUserStatus());
 
-            int rows = statement.executeUpdate();
-
-            return rows > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error adding user:");
             e.printStackTrace();
             return false;
         }
     }
 
+    public User findById(Long userId) {
 
-    // ==============================
-    // READ ALL
-    // ==============================
+        String sql = "SELECT * FROM users WHERE user_id = ?";
 
-    public List<User> getAllUsers() {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-        List<User> users = new ArrayList<>();
+            ps.setLong(1, userId);
 
-        String sql = """
-                SELECT
-                    user_id,
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                FROM users
-                ORDER BY user_id
-                """;
+            ResultSet rs = ps.executeQuery();
 
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql);
-                ResultSet resultSet =
-                        statement.executeQuery()
-        ) {
-
-            while (resultSet.next()) {
-
-                User user = mapResultSetToUser(resultSet);
-
-                users.add(user);
+            if (rs.next()) {
+                return mapResultSet(rs);
             }
 
         } catch (SQLException e) {
-            System.out.println("Error retrieving users:");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public User findByUsername(String username) {
+
+        String sql = "SELECT * FROM users WHERE username = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSet(rs);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public List<User> findAll() {
+
+        List<User> users = new ArrayList<>();
+
+        String sql = "SELECT * FROM users ORDER BY user_id";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                users.add(mapResultSet(rs));
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return users;
     }
 
-
-    // ==============================
-    // READ BY ID
-    // ==============================
-
-    public User getUserById(long userId) {
-
-        String sql = """
-                SELECT
-                    user_id,
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                FROM users
-                WHERE user_id = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setLong(1, userId);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-
-                if (resultSet.next()) {
-                    return mapResultSetToUser(resultSet);
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error finding user:");
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-
-    // ==============================
-    // READ BY USERNAME
-    // ==============================
-
-    public User getUserByUsername(String username) {
-
-        String sql = """
-                SELECT
-                    user_id,
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                FROM users
-                WHERE username = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setString(1, username);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-
-                if (resultSet.next()) {
-                    return mapResultSetToUser(resultSet);
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error finding user:");
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-
-    // ==============================
-    // UPDATE
-    // ==============================
-
-    public boolean updateUser(User user) {
+    public boolean update(User user) {
 
         String sql = """
                 UPDATE users
-                SET
-                    username = ?,
-                    full_name = ?,
-                    email = ?,
-                    contact_no = ?,
-                    address = ?,
-                    profile_picture = ?,
-                    department_id = ?,
-                    user_status = ?
+                SET username = ?, password_hash = ?, full_name = ?,
+                    email = ?, contact_no = ?, address = ?,
+                    profile_picture = ?, department_id = ?, user_status = ?
                 WHERE user_id = ?
                 """;
 
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getFullName());
-            statement.setString(3, user.getEmail());
-            statement.setString(4, user.getContactNo());
-            statement.setString(5, user.getAddress());
-            statement.setString(6, user.getProfilePicture());
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPasswordHash());
+            ps.setString(3, user.getFullName());
+            ps.setString(4, user.getEmail());
+            ps.setString(5, user.getContactNo());
+            ps.setString(6, user.getAddress());
+            ps.setString(7, user.getProfilePicture());
 
-            if (user.getDepartmentId() != null) {
-                statement.setInt(7, user.getDepartmentId());
-            } else {
-                statement.setNull(7, Types.INTEGER);
-            }
+            if (user.getDepartmentId() != null)
+                ps.setInt(8, user.getDepartmentId());
+            else
+                ps.setNull(8, Types.INTEGER);
 
-            statement.setString(8, user.getUserStatus());
-            statement.setLong(9, user.getUserId());
+            ps.setString(9, user.getUserStatus());
+            ps.setLong(10, user.getUserId());
 
-            int rows = statement.executeUpdate();
-
-            return rows > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error updating user:");
             e.printStackTrace();
             return false;
         }
     }
 
+    public boolean delete(Long userId) {
 
-    // ==============================
-    // UPDATE PASSWORD
-    // ==============================
+        String sql = "DELETE FROM users WHERE user_id = ?";
 
-    public boolean updatePassword(long userId, String passwordHash) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-        String sql = """
-                UPDATE users
-                SET password_hash = ?
-                WHERE user_id = ?
-                """;
+            ps.setLong(1, userId);
 
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setString(1, passwordHash);
-            statement.setLong(2, userId);
-
-            return statement.executeUpdate() > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error updating password:");
             e.printStackTrace();
             return false;
         }
     }
 
+    private User mapResultSet(ResultSet rs) throws SQLException {
 
-    // ==============================
-    // DELETE
-    // ==============================
-
-    public boolean deleteUser(long userId) {
-
-        String sql = """
-                DELETE FROM users
-                WHERE user_id = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setLong(1, userId);
-
-            return statement.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error deleting user:");
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    // ==============================
-    // HELPER METHOD
-    // ==============================
-
-    private User mapResultSetToUser(ResultSet resultSet)
-            throws SQLException {
-
-        User user = new User();
-
-        user.setUserId(
-                resultSet.getLong("user_id")
+        return new User(
+                rs.getLong("user_id"),
+                rs.getString("username"),
+                rs.getString("password_hash"),
+                rs.getString("full_name"),
+                rs.getString("email"),
+                rs.getString("contact_no"),
+                rs.getString("address"),
+                rs.getString("profile_picture"),
+                (Integer) rs.getObject("department_id"),
+                rs.getString("user_status")
         );
-
-        user.setUsername(
-                resultSet.getString("username")
-        );
-
-        user.setPasswordHash(
-                resultSet.getString("password_hash")
-        );
-
-        user.setFullName(
-                resultSet.getString("full_name")
-        );
-
-        user.setEmail(
-                resultSet.getString("email")
-        );
-
-        user.setContactNo(
-                resultSet.getString("contact_no")
-        );
-
-        user.setAddress(
-                resultSet.getString("address")
-        );
-
-        user.setProfilePicture(
-                resultSet.getString("profile_picture")
-        );
-
-        int departmentId =
-                resultSet.getInt("department_id");
-
-        if (resultSet.wasNull()) {
-            user.setDepartmentId(null);
-        } else {
-            user.setDepartmentId(departmentId);
-        }
-
-        user.setUserStatus(
-                resultSet.getString("user_status")
-        );
-
-        return user;
     }
 }

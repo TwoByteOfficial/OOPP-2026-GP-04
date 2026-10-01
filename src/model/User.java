@@ -13,43 +13,13 @@ public class User {
     private Integer departmentId;
     private String userStatus;
 
-    // Empty constructor
     public User() {
     }
 
-    // Constructor without userId and timestamps
-    public User(String username,
-                String passwordHash,
-                String fullName,
-                String email,
-                String contactNo,
-                String address,
-                String profilePicture,
-                Integer departmentId,
-                String userStatus) {
-
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.fullName = fullName;
-        this.email = email;
-        this.contactNo = contactNo;
-        this.address = address;
-        this.profilePicture = profilePicture;
-        this.departmentId = departmentId;
-        this.userStatus = userStatus;
-    }
-
-    // Full constructor
-    public User(long userId,
-                String username,
-                String passwordHash,
-                String fullName,
-                String email,
-                String contactNo,
-                String address,
-                String profilePicture,
-                Integer departmentId,
-                String userStatus) {
+    public User(long userId, String username, String passwordHash,
+                String fullName, String email, String contactNo,
+                String address, String profilePicture,
+                Integer departmentId, String userStatus) {
 
         this.userId = userId;
         this.username = username;
@@ -62,8 +32,6 @@ public class User {
         this.departmentId = departmentId;
         this.userStatus = userStatus;
     }
-
-    // Getters and Setters
 
     public long getUserId() {
         return userId;
@@ -143,10 +111,5 @@ public class User {
 
     public void setUserStatus(String userStatus) {
         this.userStatus = userStatus;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" + "userId=" + userId + ", username='" + username + '\'' + ", fullName='" + fullName + '\'' + ", email='" + email + '\'' + ", contactNo='" + contactNo + '\'' + ", departmentId=" + departmentId + ", userStatus='" + userStatus + '\'' + '}';
     }
 }
