@@ -3,6 +3,15 @@ public class BMI {
     private double weight;
     private double bmi;
 
+    public BMI() {
+    }
+
+    public BMI(double height, double weight, double bmi) {
+        this.height = height;
+        this.weight = weight;
+        this.bmi = bmi;
+    }
+
     public double calculateMetric(double height, double weight) {
         this.bmi = weight / (height * height);
         return this.bmi;
