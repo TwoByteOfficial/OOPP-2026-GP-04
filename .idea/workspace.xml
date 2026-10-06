@@ -5,7 +5,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/dao/AssessmentMarkDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/dao/AttendanceDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/dao/CourseDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/dao/DepartmentDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/dao/EligibilityGradeDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/dao/EnrollmentDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/dao/NoticeDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/dao/TimetableDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Admin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Assessment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/AttendanceRecord.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/AttendanceSession.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Course.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/CourseLecturer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/CourseMaterial.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Department.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/EligibilityResult.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Enrollment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/GradeScale.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Lecturer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Mark.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Medical.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Notice.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/StudentGPA.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/TechnicalOfficer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/TimetableEntry.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/model/Undergraduate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1/storage_v2/_src_/schema/unimis.Z3vmzQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1/storage_v2/_src_/schema/unimis.Z3vmzQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/UniMIS.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/UniMIS.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/UserDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/model/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/model/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/UserDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/User.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,41 +91,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Main.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "TG2067__Dilvan",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/test-imp/TEST-OOPP-2",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Libraries",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "to.speed.mode.migration.done": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;TG2067__Dilvan&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/dao&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/dao" />
+      <recent name="$PROJECT_DIR$/src/model" />
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="ALTERNATIVE_JRE_PATH" value="25" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />

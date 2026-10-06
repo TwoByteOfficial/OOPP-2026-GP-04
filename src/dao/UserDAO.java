@@ -1,378 +1,131 @@
 package dao;
 
-import model.User;
 import util.DBConnection;
-
+import model.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
 
-    // ==============================
-    // CREATE
-    // ==============================
-
-    public boolean addUser(User user) {
-
-        String sql = """
-                INSERT INTO users
-                (
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPasswordHash());
-            statement.setString(3, user.getFullName());
-            statement.setString(4, user.getEmail());
-            statement.setString(5, user.getContactNo());
-            statement.setString(6, user.getAddress());
-            statement.setString(7, user.getProfilePicture());
-
-            if (user.getDepartmentId() != null) {
-                statement.setInt(8, user.getDepartmentId());
-            } else {
-                statement.setNull(8, Types.INTEGER);
-            }
-
-            statement.setString(9, user.getUserStatus());
-
-            int rows = statement.executeUpdate();
-
-            return rows > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error adding user:");
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    // ==============================
-    // READ ALL
-    // ==============================
-
-    public List<User> getAllUsers() {
-
-        List<User> users = new ArrayList<>();
-
-        String sql = """
-                SELECT
-                    user_id,
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                FROM users
-                ORDER BY user_id
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql);
-                ResultSet resultSet =
-                        statement.executeQuery()
-        ) {
-
-            while (resultSet.next()) {
-
-                User user = mapResultSetToUser(resultSet);
-
-                users.add(user);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error retrieving users:");
-            e.printStackTrace();
+    /**
+     * Authenticates user against MySQL DB using Username, Registration Number, or Staff Code.
+     * Supports case-insensitive matches for student registration numbers like TG/2024/2061 or tg2061.
+     */
+    public User authenticate(String identifier, String password) throws SQLException {
+        if (identifier == null || identifier.trim().isEmpty() || password == null) {
+            return null;
         }
 
-        return users;
-    }
+        String sql = "SELECT * FROM v_users u JOIN users usr ON u.user_id = usr.user_id " +
+                     "WHERE (LOWER(u.username) = LOWER(?) " +
+                     "   OR LOWER(u.registration_no) = LOWER(?) " +
+                     "   OR LOWER(REPLACE(u.registration_no, '/', '')) = LOWER(REPLACE(?, '/', '')) " +
+                     "   OR LOWER(u.admin_code) = LOWER(?) " +
+                     "   OR LOWER(u.lecturer_code) = LOWER(?) " +
+                     "   OR LOWER(u.technical_officer_code) = LOWER(?)) " +
+                     "  AND usr.password_hash = ? AND u.user_status = 'Active'";
 
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String trimmed = identifier.trim();
+            stmt.setString(1, trimmed);
+            stmt.setString(2, trimmed);
+            stmt.setString(3, trimmed);
+            stmt.setString(4, trimmed);
+            stmt.setString(5, trimmed);
+            stmt.setString(6, trimmed);
+            stmt.setString(7, password);
 
-    // ==============================
-    // READ BY ID
-    // ==============================
-
-    public User getUserById(long userId) {
-
-        String sql = """
-                SELECT
-                    user_id,
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                FROM users
-                WHERE user_id = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setLong(1, userId);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-
-                if (resultSet.next()) {
-                    return mapResultSetToUser(resultSet);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
                 }
             }
-
-        } catch (SQLException e) {
-            System.out.println("Error finding user:");
-            e.printStackTrace();
         }
-
         return null;
     }
 
-
-    // ==============================
-    // READ BY USERNAME
-    // ==============================
-
-    public User getUserByUsername(String username) {
-
-        String sql = """
-                SELECT
-                    user_id,
-                    username,
-                    password_hash,
-                    full_name,
-                    email,
-                    contact_no,
-                    address,
-                    profile_picture,
-                    department_id,
-                    user_status
-                FROM users
-                WHERE username = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setString(1, username);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-
-                if (resultSet.next()) {
-                    return mapResultSetToUser(resultSet);
-                }
+    public List<User> getAllUsers() throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM v_users u JOIN users usr ON u.user_id = usr.user_id ORDER BY u.user_id";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSetToUser(rs));
             }
-
-        } catch (SQLException e) {
-            System.out.println("Error finding user:");
-            e.printStackTrace();
         }
-
-        return null;
+        return list;
     }
 
-
-    // ==============================
-    // UPDATE
-    // ==============================
-
-    public boolean updateUser(User user) {
-
-        String sql = """
-                UPDATE users
-                SET
-                    username = ?,
-                    full_name = ?,
-                    email = ?,
-                    contact_no = ?,
-                    address = ?,
-                    profile_picture = ?,
-                    department_id = ?,
-                    user_status = ?
-                WHERE user_id = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getFullName());
-            statement.setString(3, user.getEmail());
-            statement.setString(4, user.getContactNo());
-            statement.setString(5, user.getAddress());
-            statement.setString(6, user.getProfilePicture());
-
-            if (user.getDepartmentId() != null) {
-                statement.setInt(7, user.getDepartmentId());
-            } else {
-                statement.setNull(7, Types.INTEGER);
+    public List<Undergraduate> getAllUndergraduates() throws SQLException {
+        List<Undergraduate> list = new ArrayList<>();
+        String sql = "SELECT * FROM v_users u JOIN users usr ON u.user_id = usr.user_id " +
+                     "JOIN undergraduates ug ON ug.user_id = u.user_id WHERE u.role = 'Undergraduate'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add((Undergraduate) mapResultSetToUser(rs));
             }
-
-            statement.setString(8, user.getUserStatus());
-            statement.setLong(9, user.getUserId());
-
-            int rows = statement.executeUpdate();
-
-            return rows > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error updating user:");
-            e.printStackTrace();
-            return false;
         }
+        return list;
     }
 
-
-    // ==============================
-    // UPDATE PASSWORD
-    // ==============================
-
-    public boolean updatePassword(long userId, String passwordHash) {
-
-        String sql = """
-                UPDATE users
-                SET password_hash = ?
-                WHERE user_id = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setString(1, passwordHash);
-            statement.setLong(2, userId);
-
-            return statement.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error updating password:");
-            e.printStackTrace();
-            return false;
+    public List<Lecturer> getAllLecturers() throws SQLException {
+        List<Lecturer> list = new ArrayList<>();
+        String sql = "SELECT * FROM v_users u JOIN users usr ON u.user_id = usr.user_id " +
+                     "JOIN lecturers l ON l.user_id = u.user_id WHERE u.role = 'Lecturer'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add((Lecturer) mapResultSetToUser(rs));
+            }
         }
+        return list;
     }
 
+    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        String role = rs.getString("role");
+        User u;
 
-    // ==============================
-    // DELETE
-    // ==============================
-
-    public boolean deleteUser(long userId) {
-
-        String sql = """
-                DELETE FROM users
-                WHERE user_id = ?
-                """;
-
-        try (
-                Connection connection = DBConnection.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
-
-            statement.setLong(1, userId);
-
-            return statement.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error deleting user:");
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    // ==============================
-    // HELPER METHOD
-    // ==============================
-
-    private User mapResultSetToUser(ResultSet resultSet)
-            throws SQLException {
-
-        User user = new User();
-
-        user.setUserId(
-                resultSet.getLong("user_id")
-        );
-
-        user.setUsername(
-                resultSet.getString("username")
-        );
-
-        user.setPasswordHash(
-                resultSet.getString("password_hash")
-        );
-
-        user.setFullName(
-                resultSet.getString("full_name")
-        );
-
-        user.setEmail(
-                resultSet.getString("email")
-        );
-
-        user.setContactNo(
-                resultSet.getString("contact_no")
-        );
-
-        user.setAddress(
-                resultSet.getString("address")
-        );
-
-        user.setProfilePicture(
-                resultSet.getString("profile_picture")
-        );
-
-        int departmentId =
-                resultSet.getInt("department_id");
-
-        if (resultSet.wasNull()) {
-            user.setDepartmentId(null);
+        if ("Admin".equalsIgnoreCase(role)) {
+            Admin a = new Admin();
+            a.setAdminCode(rs.getString("admin_code"));
+            u = a;
+        } else if ("Lecturer".equalsIgnoreCase(role)) {
+            Lecturer l = new Lecturer();
+            l.setLecturerCode(rs.getString("lecturer_code"));
+            u = l;
+        } else if ("Technical Officer".equalsIgnoreCase(role)) {
+            TechnicalOfficer t = new TechnicalOfficer();
+            t.setTechnicalOfficerCode(rs.getString("technical_officer_code"));
+            u = t;
+        } else if ("Undergraduate".equalsIgnoreCase(role)) {
+            Undergraduate ug = new Undergraduate();
+            ug.setRegistrationNo(rs.getString("registration_no"));
+            ug.setBatchYear(rs.getInt("batch_year"));
+            ug.setStudentType(rs.getString("student_type"));
+            u = ug;
         } else {
-            user.setDepartmentId(departmentId);
+            u = new User();
         }
 
-        user.setUserStatus(
-                resultSet.getString("user_status")
-        );
+        u.setUserId(rs.getLong("user_id"));
+        u.setUsername(rs.getString("username"));
+        u.setPasswordHash(rs.getString("password_hash"));
+        u.setFullName(rs.getString("full_name"));
+        u.setNic(rs.getString("nic"));
+        u.setEmail(rs.getString("email"));
+        u.setContactNo(rs.getString("contact_no"));
+        u.setAddress(rs.getString("address"));
+        u.setProfilePicture(rs.getString("profile_picture"));
+        u.setDepartmentId((Integer) rs.getObject("department_id"));
+        u.setUserStatus(rs.getString("user_status"));
+        u.setRole(role);
 
-        return user;
+        return u;
     }
 }
