@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="flatlaf-3.6.2.jar" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/lib/flatlaf-3.6.2.jar" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/lib/flatlaf-3.6.2.jar" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

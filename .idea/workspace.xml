@@ -5,8 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
-      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/flatlaf_3_6_2_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/faculty-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/university-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/Login.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/Dashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/OOPP-2026-GP-04.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/OOPP-2026-GP-04.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/gui.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/gui.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +66,8 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Dashboard.executor": "Run",
+    "Application.Login.executor": "Run",
     "Application.Main.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -68,15 +79,18 @@
     "git-widget-placeholder": "TG2067__Dilvan",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/dao",
+    "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/lib/flatlaf-3.6.2.jar",
     "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Libraries",
+    "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true"
   },
   "keyToStringList": {
@@ -93,30 +107,11 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="Main" type="Application" factoryName="Application">
-      <option name="ALTERNATIVE_JRE_PATH" value="25" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="MAIN_CLASS_NAME" value="jdk.jpackage.main.Main" />
-      <module name="OOPP-2026-GP-04" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="UniMIS.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/database/UniMIS.sql" />
       <script-mode>FILE</script-mode>
       <method v="2" />
     </configuration>
-    <configuration name="unimis.sql" type="DatabaseScript" editBeforeRun="true">
-      <script-file value="$PROJECT_DIR$/database/UniMIS.sql" />
-      <script-mode>FILE</script-mode>
-      <method v="2" />
-    </configuration>
-    <list>
-      <item itemvalue="Application.Main" />
-      <item itemvalue="Database Script.UniMIS.sql" />
-      <item itemvalue="Database Script.unimis.sql" />
-    </list>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -143,5 +138,9 @@
     <MESSAGE value="test" />
     <MESSAGE value="models and dao with login main written with AI" />
     <option name="LAST_COMMIT_MESSAGE" value="models and dao with login main written with AI" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
