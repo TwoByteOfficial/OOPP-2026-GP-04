@@ -1,36 +1,62 @@
 package gui.technical;
 
-import gui.Login;
+import gui.login.Login;
+import gui.login.LoginTheme;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * Technical Officer dashboard. Same constructor signature as the other
+ * dashboards, so Login's DashboardFactory map can build it via a method ref.
+ */
 public class TechnicalOfficerDashboard extends JFrame {
 
-    private static final Color MINT   = new Color(0xE8, 0xF5, 0xE9);
-    private static final Color PASTEL = new Color(0xC8, 0xE6, 0xC9);
-    private static final Color FOREST = new Color(0x38, 0x8E, 0x3C);
-    private static final Color DEEP   = new Color(0x1B, 0x5E, 0x20);
-    private static final Color WHITE  = Color.WHITE;
+    private final long userId;
+    private final String username, fullName, email, role;
 
     public TechnicalOfficerDashboard(long userId, String username, String fullName,
                                      String email, String role) {
+        this.userId   = userId;
+        this.username = username;
+        this.fullName = fullName;
+        this.email    = email;
+        this.role     = role;
+
         setTitle("UniMis - Technical Officer Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
         JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(MINT);
+        root.setBackground(LoginTheme.MINT);
+        root.add(buildHeader(), BorderLayout.NORTH);
+        root.add(buildCenter(), BorderLayout.CENTER);
+        root.add(buildFooter(), BorderLayout.SOUTH);
 
+        setContentPane(root);
+        setLocationRelativeTo(null);
+    }
+
+    /* ---------- Header ---------- */
+
+    private JPanel buildHeader() {
         JLabel title = new JLabel("Technical Officer Dashboard", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 42));
-        title.setForeground(FOREST);
+        title.setForeground(LoginTheme.FOREST);
         title.setBorder(new EmptyBorder(50, 20, 10, 20));
-        root.add(title, BorderLayout.NORTH);
 
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(LoginTheme.MINT);
+        header.add(title, BorderLayout.CENTER);
+        return header;
+    }
+
+    /* ---------- Centre : profile card ---------- */
+
+    private JPanel buildCenter() {
         JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(PASTEL);
+        card.setBackground(LoginTheme.PASTEL);
         card.setBorder(new EmptyBorder(30, 60, 30, 60));
 
         GridBagConstraints gc = new GridBagConstraints();
@@ -44,18 +70,15 @@ public class TechnicalOfficerDashboard extends JFrame {
         addRow(card, gc, 4, "Role:",      role);
 
         JPanel wrap = new JPanel(new GridBagLayout());
-        wrap.setBackground(MINT);
+        wrap.setBackground(LoginTheme.MINT);
         wrap.add(card);
-        root.add(wrap, BorderLayout.CENTER);
+        return wrap;
+    }
 
-        JButton logout = new JButton("Logout");
-        logout.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        logout.setForeground(WHITE);
-        logout.setBackground(FOREST);
-        logout.setFocusPainted(false);
-        logout.setBorderPainted(false);
-        logout.setOpaque(true);
-        logout.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    /* ---------- Footer : logout ---------- */
+
+    private JPanel buildFooter() {
+        JButton logout = LoginTheme.button("Logout", LoginTheme.F_LABEL);
         logout.setPreferredSize(new Dimension(150, 44));
         logout.addActionListener(e -> {
             dispose();
@@ -63,26 +86,25 @@ public class TechnicalOfficerDashboard extends JFrame {
         });
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 25));
-        bottom.setBackground(MINT);
+        bottom.setBackground(LoginTheme.MINT);
         bottom.add(logout);
-        root.add(bottom, BorderLayout.SOUTH);
-
-        setContentPane(root);
-        setLocationRelativeTo(null);
+        return bottom;
     }
+
+    /* ---------- Row helper (used inside the card) ---------- */
 
     private static void addRow(JPanel p, GridBagConstraints gc, int row,
                                String label, String value) {
         gc.gridx = 0; gc.gridy = row;
         JLabel l = new JLabel(label);
         l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(DEEP);
+        l.setForeground(LoginTheme.DEEP);
         p.add(l, gc);
 
         gc.gridx = 1;
         JLabel v = new JLabel(value);
         v.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        v.setForeground(DEEP);
+        v.setForeground(LoginTheme.DEEP);
         p.add(v, gc);
     }
 }
