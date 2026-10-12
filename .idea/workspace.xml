@@ -41,7 +41,7 @@
   }
 }</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8,
@@ -86,6 +86,9 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/gui" />
+      <recent name="$PROJECT_DIR$/src/dao" />
+      <recent name="$PROJECT_DIR$/src/model" />
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
@@ -104,16 +107,12 @@
       <script-mode>FILE</script-mode>
       <method v="2" />
     </configuration>
-    <configuration name="unimis.sql" type="DatabaseScript" editBeforeRun="true">
-      <script-file value="$PROJECT_DIR$/database/UniMIS.sql" />
+    <configuration name="unimis.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/database/unimis.sql" />
       <script-mode>FILE</script-mode>
+      <data-source id="9f1d30d3-6aec-4476-b670-2d47085120b1" />
       <method v="2" />
     </configuration>
-    <list>
-      <item itemvalue="Application.Main" />
-      <item itemvalue="Database Script.UniMIS.sql" />
-      <item itemvalue="Database Script.unimis.sql" />
-    </list>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -135,5 +134,14 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="test" />
+    <MESSAGE value="models and dao with login main written with AI" />
+    <option name="LAST_COMMIT_MESSAGE" value="models and dao with login main written with AI" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
