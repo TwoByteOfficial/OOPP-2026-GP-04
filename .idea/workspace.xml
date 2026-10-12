@@ -4,36 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
-      <change afterPath="$PROJECT_DIR$/src/gui/login/ForgotPassword.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/login/LeftPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/login/Login.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/login/LoginTheme.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/login/RightPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/login/TermsDialog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/Main$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/Main$2.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/RoleDashboardFrame.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/Login$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/Login$DashboardFactory.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/Login$User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/Login.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/PasswordHasher.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/admin/AdminDashboard.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/admin/AdminDashboard.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/lecturer/LecturerDashboard.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/lecturer/LecturerDashboard.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/technical/TechnicalOfficerDashboard.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/technical/TechnicalOfficerDashboard.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/undergraduate/UndergraduateDashboard.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/undergraduate/UndergraduateDashboard.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/Login.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/PasswordHasher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/lecturer/LecturerDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/lecturer/LecturerDashboard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/technical/TechnicalOfficerDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/technical/TechnicalOfficerDashboard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/undergraduate/UndergraduateDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/undergraduate/UndergraduateDashboard.java" afterDir="false" />
-    </list>
+    <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
