@@ -5,13 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/model/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/util/DBConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/data_sources_history.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/data_sources_history.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/UniMIS.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/UniMIS.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Main.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +42,65 @@
     &quot;accountId&quot;: &quot;fdb8de63-22aa-472f-a8a0-10c435a02459&quot;
   }
 }</component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.6869577553315303" />
+      <entry key="MS500" value="3.7608749918952573" />
+      <entry key="S2" value="7.0911126756907965" />
+      <entry key="S5" value="11.700654913028703" />
+      <entry key="S10" value="16.046465921321655" />
+      <entry key="S30" value="23.03255569615167" />
+      <entry key="S60" value="26.858352448877238" />
+      <entry key="M2" value="29.543868353227516" />
+      <entry key="M5" value="31.50887781761789" />
+      <entry key="M10" value="32.234769875834864" />
+      <entry key="M15" value="32.4853519639492" />
+      <entry key="M30" value="32.740396887019656" />
+      <entry key="H1" value="32.8696226280599" />
+      <entry key="H2" value="32.934666597688704" />
+      <entry key="H4" value="32.967297023991364" />
+      <entry key="D1" value="32.99454445767472" />
+      <entry key="W1" value="32.99922051312084" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="1.6294144871157823" />
+      <entry key="MS500" value="3.732067778589405" />
+      <entry key="S2" value="7.075689821754919" />
+      <entry key="S5" value="11.688720047408689" />
+      <entry key="S10" value="16.03744504970534" />
+      <entry key="S30" value="23.027280843933585" />
+      <entry key="S60" value="26.854932738926415" />
+      <entry key="M2" value="29.541864675707906" />
+      <entry key="M5" value="31.507987567362758" />
+      <entry key="M10" value="32.23430811251787" />
+      <entry key="M15" value="32.48504027468163" />
+      <entry key="M30" value="32.74023908006121" />
+      <entry key="H1" value="32.86954322659215" />
+      <entry key="H2" value="32.93462677151997" />
+      <entry key="H4" value="32.967277079430325" />
+      <entry key="D1" value="32.99454112919939" />
+      <entry key="W1" value="32.99922003751693" />
+    </decayedShown>
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
   </component>
@@ -69,7 +125,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "TG2067__Dilvan",
+    "git-widget-placeholder": "TG2106__Praveen",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/lib/flatlaf-3.6.2.jar",
@@ -78,7 +134,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Libraries",
+    "project.structure.last.edited": "SDKs",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "to.speed.mode.migration.done": "true"
