@@ -50,14 +50,14 @@ public class Login {
     private static void start() {
         JFrame frame = new JFrame(APP_TITLE);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        frame.setResizable(true);
 
         JPanel root = new JPanel(new GridLayout(1, 2));
         root.add(new LeftPanel());
         root.add(new RightPanel(frame));
         frame.setContentPane(root);
 
-        frame.pack();
+        frame.setSize(1100, 700);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
@@ -79,7 +79,8 @@ public class Login {
         try {
             JFrame dashboard = factory.create(
                     user.id(), user.username(), user.fullName(), user.email(), user.role());
-            dashboard.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            dashboard.setSize(1100, 700);
+            dashboard.setLocationRelativeTo(null);
             dashboard.setVisible(true);
         } catch (RuntimeException ex) {
             ex.printStackTrace();
