@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI" />
+    <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9f1d30d3-6aec-4476-b670-2d47085120b1.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/data_sources_history.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/data_sources_history.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/data_source_mapping.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/UniMIS1.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/login/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/login/Login.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,6 +45,69 @@
     &quot;accountId&quot;: &quot;fdb8de63-22aa-472f-a8a0-10c435a02459&quot;
   }
 }</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0000000310679007" />
+      <entry key="MS500" value="1.0315131660005807" />
+      <entry key="S2" value="1.4890949121133588" />
+      <entry key="S5" value="2.426312623976586" />
+      <entry key="S10" value="3.6376995502768223" />
+      <entry key="S30" value="5.452242185017526" />
+      <entry key="S60" value="6.1527871753566785" />
+      <entry key="M2" value="6.556741232675222" />
+      <entry key="M5" value="7.474842798155738" />
+      <entry key="M10" value="13.44500608183066" />
+      <entry key="M15" value="20.995348415933112" />
+      <entry key="M30" value="37.19639951633673" />
+      <entry key="H1" value="51.310219356807416" />
+      <entry key="H2" value="60.668762915695915" />
+      <entry key="H4" value="66.06364796759635" />
+      <entry key="D1" value="70.97076291768026" />
+      <entry key="W1" value="71.85195967834196" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9265880618903709" />
+      <entry key="MS500" value="0.9848797322489182" />
+      <entry key="S2" value="1.0947425758093912" />
+      <entry key="S5" value="1.88546706938328" />
+      <entry key="S10" value="3.162756455342123" />
+      <entry key="S30" value="5.204076232713177" />
+      <entry key="S60" value="6.012369652078568" />
+      <entry key="M2" value="6.481916429270065" />
+      <entry key="M5" value="7.443711783544378" />
+      <entry key="M10" value="13.429160956722649" />
+      <entry key="M15" value="20.98467452621082" />
+      <entry key="M30" value="37.190969877343875" />
+      <entry key="H1" value="51.30746833973023" />
+      <entry key="H2" value="60.667375863467356" />
+      <entry key="H4" value="66.062951167619" />
+      <entry key="D1" value="70.97064629246809" />
+      <entry key="W1" value="71.85194300503508" />
+    </decayedShown>
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -58,15 +129,18 @@
     "Application.Login.executor": "Run",
     "Application.Main.executor": "Run",
     "Application.PasswordHasher.executor": "Run",
+    "Database Script.UniMIS.sql.executor": "Run",
+    "Database Script.UniMis.sql.executor": "Run",
     "Database Script.unimis.sql.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "TG2067__Dilvan",
+    "git-widget-placeholder": "TG2106__Praveen",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/gui",
@@ -88,6 +162,7 @@
       "mysql"
     ],
     "RunConfigurationTargetLRU": [
+      "9f1d30d3-6aec-4476-b670-2d47085120b1/schema/\"unimis\"",
       "9f1d30d3-6aec-4476-b670-2d47085120b1"
     ]
   }
@@ -101,9 +176,21 @@
     </key>
   </component>
   <component name="RunManager">
+    <configuration name="UniMIS1.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/database/UniMIS1.sql" />
+      <script-mode>FILE</script-mode>
+      <method v="2" />
+    </configuration>
     <configuration name="UniMIS.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/database/UniMIS.sql" />
       <script-mode>FILE</script-mode>
+      <data-source id="9f1d30d3-6aec-4476-b670-2d47085120b1" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UniMis.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/database/UniMis.sql" />
+      <script-mode>FILE</script-mode>
+      <data-source id="9f1d30d3-6aec-4476-b670-2d47085120b1" namespace="schema/&quot;unimis&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="unimis.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
@@ -112,6 +199,18 @@
       <data-source id="9f1d30d3-6aec-4476-b670-2d47085120b1" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Database Script.UniMIS.sql" />
+      <item itemvalue="Database Script.unimis.sql" />
+      <item itemvalue="Database Script.UniMis.sql" />
+      <item itemvalue="Database Script.UniMIS1.sql" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Database Script.UniMis.sql" />
+        <item itemvalue="Database Script.UniMIS1.sql" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

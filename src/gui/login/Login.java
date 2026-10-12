@@ -57,9 +57,9 @@ public class Login {
         root.add(new RightPanel(frame));
         frame.setContentPane(root);
 
+        frame.pack();
         frame.setLocationRelativeTo(null);
-        GraphicsEnvironment.getLocalGraphicsEnvironment()
-                .getDefaultScreenDevice().setFullScreenWindow(frame);
+        frame.setVisible(true);
     }
 
     /* ---- Dashboard routing ---- */
@@ -79,9 +79,8 @@ public class Login {
         try {
             JFrame dashboard = factory.create(
                     user.id(), user.username(), user.fullName(), user.email(), user.role());
+            dashboard.setExtendedState(JFrame.MAXIMIZED_BOTH);
             dashboard.setVisible(true);
-            GraphicsEnvironment.getLocalGraphicsEnvironment()
-                    .getDefaultScreenDevice().setFullScreenWindow(dashboard);
         } catch (RuntimeException ex) {
             ex.printStackTrace();
             LoginTheme.show(null,
