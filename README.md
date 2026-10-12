@@ -55,7 +55,7 @@ FacultyAcademicManagementSystem/
 │   └── flatlaf.jar
 │
 ├── database/
-│   └── UniMIS.sql
+│   └── UniMIS1.sql
 │
 ├── docs/
 │
@@ -94,7 +94,7 @@ lib/flatlaf.jar
 Create the database and import:
 
 ```text
-database/UniMIS.sql
+database/UniMIS1.sql
 ```
 
 ### 5. Configure Database Connection
