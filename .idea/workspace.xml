@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/login/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/login/Login.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/LeftPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/LeftPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/LoginTheme.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/LoginTheme.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/login/LoginTheme.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/login/LoginTheme.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,61 +49,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000026003938085" />
-      <entry key="MS500" value="1.2241416896102622" />
-      <entry key="S2" value="3.8933901988136426" />
-      <entry key="S5" value="7.500112407546273" />
-      <entry key="S10" value="10.990752792695844" />
-      <entry key="S30" value="21.02644450431338" />
-      <entry key="S60" value="36.89047534899892" />
-      <entry key="M2" value="61.59733463781534" />
-      <entry key="M5" value="94.53306381757885" />
-      <entry key="M10" value="113.81352351725351" />
-      <entry key="M15" value="124.63675810581815" />
-      <entry key="M30" value="146.06410194018173" />
-      <entry key="H1" value="167.84600838662104" />
-      <entry key="H2" value="184.4515794605068" />
-      <entry key="H4" value="194.84979734348858" />
-      <entry key="D1" value="204.84000093473156" />
-      <entry key="W1" value="206.68793460788748" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0000000002899454" />
+      <entry key="S5" value="1.000153094175416" />
+      <entry key="S10" value="1.0124792276366015" />
+      <entry key="S30" value="1.2787006763680564" />
+      <entry key="S60" value="1.7109805623745642" />
+      <entry key="M2" value="3.17166157229137" />
+      <entry key="M5" value="18.813891342976962" />
+      <entry key="M10" value="53.535668889002984" />
+      <entry key="M15" value="83.30017272641031" />
+      <entry key="M30" value="141.9638766388706" />
+      <entry key="H1" value="197.4849246882189" />
+      <entry key="H2" value="239.04444909815592" />
+      <entry key="H4" value="265.174914871888" />
+      <entry key="D1" value="290.49174661294256" />
+      <entry key="W1" value="295.20337216239705" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="0.0" />
-      <entry key="S5" value="0.0" />
-      <entry key="S10" value="0.0" />
-      <entry key="S30" value="0.0" />
-      <entry key="S60" value="0.0" />
-      <entry key="M2" value="0.0" />
-      <entry key="M5" value="0.0" />
-      <entry key="M10" value="0.0" />
-      <entry key="M15" value="0.0" />
-      <entry key="M30" value="0.0" />
-      <entry key="H1" value="0.0" />
-      <entry key="H2" value="0.0" />
-      <entry key="H4" value="0.0" />
-      <entry key="D1" value="0.0" />
-      <entry key="W1" value="0.0" />
+      <entry key="MS100" value="1.4572693979491583E-38" />
+      <entry key="MS500" value="2.7083698405281283E-8" />
+      <entry key="S2" value="0.01282853289801911" />
+      <entry key="S5" value="0.17509381158485807" />
+      <entry key="S10" value="0.41844212453439494" />
+      <entry key="S30" value="0.7479603005350076" />
+      <entry key="S60" value="0.8653757629609288" />
+      <entry key="M2" value="0.9624896043363732" />
+      <entry key="M5" value="1.3563709067466685" />
+      <entry key="M10" value="1.8630691441220648" />
+      <entry key="M15" value="2.145154967977549" />
+      <entry key="M30" value="2.514899877738199" />
+      <entry key="H1" value="2.7409863349437593" />
+      <entry key="H2" value="2.8660899990113458" />
+      <entry key="H4" value="2.931906104950459" />
+      <entry key="D1" value="2.988489496138113" />
+      <entry key="W1" value="2.9983516423636116" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.0014522479705727498" />
-      <entry key="MS500" value="0.4915353523925303" />
-      <entry key="S2" value="3.6038047278349787" />
-      <entry key="S5" value="7.369043075305755" />
-      <entry key="S10" value="10.921579457824372" />
-      <entry key="S30" value="21.001729076367287" />
-      <entry key="S60" value="36.87714908553052" />
-      <entry key="M2" value="61.58987655125881" />
-      <entry key="M5" value="94.52894087331424" />
-      <entry key="M10" value="113.80934381244302" />
-      <entry key="M15" value="124.63251577422156" />
-      <entry key="M30" value="146.0605777882938" />
-      <entry key="H1" value="167.84367215206572" />
-      <entry key="H2" value="184.45022577032213" />
-      <entry key="H4" value="194.8490675780701" />
-      <entry key="D1" value="204.83987133032977" />
-      <entry key="W1" value="206.68791588890275" />
+      <entry key="MS100" value="0.005299235654092465" />
+      <entry key="MS500" value="0.3506248128312787" />
+      <entry key="S2" value="0.7731180807304932" />
+      <entry key="S5" value="1.0061318035013231" />
+      <entry key="S10" value="1.2856347595014792" />
+      <entry key="S30" value="1.9441510385640326" />
+      <entry key="S60" value="2.525855985020806" />
+      <entry key="M2" value="4.104603100775091" />
+      <entry key="M5" value="20.154326747100615" />
+      <entry key="M10" value="55.388004133768376" />
+      <entry key="M15" value="85.4366193469811" />
+      <entry key="M30" value="144.47264525246055" />
+      <entry key="H1" value="200.22191652183" />
+      <entry key="H2" value="241.90818919512367" />
+      <entry key="H4" value="268.1055361052201" />
+      <entry key="D1" value="293.4800044184318" />
+      <entry key="W1" value="298.2016902432554" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -118,50 +121,50 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Dashboard.executor": "Run",
-    "Application.Login.executor": "Run",
-    "Application.Main.executor": "Run",
-    "Application.PasswordHasher.executor": "Run",
-    "Database Script.UniMIS.sql.executor": "Run",
-    "Database Script.UniMis.sql.executor": "Run",
-    "Database Script.unimis.sql.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "TG2106__Praveen",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/gui",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.jshint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.jshint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Dashboard.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Login.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PasswordHasher.executor&quot;: &quot;Run&quot;,
+    &quot;Database Script.UniMIS.sql.executor&quot;: &quot;Run&quot;,
+    &quot;Database Script.UniMis.sql.executor&quot;: &quot;Run&quot;,
+    &quot;Database Script.unimis.sql.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;TG2106__Praveen&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/gui&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ],
-    "RunConfigurationTargetLRU": [
-      "9f1d30d3-6aec-4476-b670-2d47085120b1/schema/\"unimis\"",
-      "9f1d30d3-6aec-4476-b670-2d47085120b1"
+    &quot;RunConfigurationTargetLRU&quot;: [
+      &quot;9f1d30d3-6aec-4476-b670-2d47085120b1/schema/\&quot;unimis\&quot;&quot;,
+      &quot;9f1d30d3-6aec-4476-b670-2d47085120b1&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/gui" />
@@ -210,8 +213,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-a203e0a19954-intellij.indexing.shared.core-IU-262.10968.63" />
-        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.10968.63" />
+        <option value="bundled-jdk-30f59d01ecdd-a203e0a19954-intellij.indexing.shared.core-IU-262.10315.125" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.10315.125" />
       </set>
     </attachedChunks>
   </component>

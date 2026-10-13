@@ -20,7 +20,7 @@ public final class LoginTheme {
     public static final Color WHITE  = Color.WHITE;
 
     /* ---- Assets ---- */
-    public static final String ASSETS_DIR   = "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/assets/";
+    public static final String ASSETS_DIR   = "C:\\Users\\User\\Documents\\2 GitHub\\Java project\\assets\\";
     public static final String UNI_LOGO     = ASSETS_DIR + "university-logo.png";
     public static final String FACULTY_LOGO = ASSETS_DIR + "faculty-logo.png";
 
