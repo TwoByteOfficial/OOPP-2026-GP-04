@@ -1,110 +1,127 @@
 package gui.admin;
 
+import gui.admin.pages.*;
 import gui.login.Login;
-import gui.login.LoginTheme;
+import model.Admin;
+import model.User;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Admin dashboard. Same constructor signature as the other dashboards,
- * so Login's DashboardFactory map can build it via a method reference.
+ * Admin dashboard: fixed left sidebar + top bar + swappable content.
+ * Replaces the old single-panel placeholder.
  */
 public class AdminDashboard extends JFrame {
 
-    private final long userId;
-    private final String username, fullName, email, role;
+    private final User   currentUser;
+    private final long   userId;
+    private final String fullName, email, role;
 
-    public AdminDashboard(long userId, String username, String fullName,
-                          String email, String role) {
-        this.userId   = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email    = email;
-        this.role     = role;
+    private final AdminSidebar sidebar;
+    private final AdminTopBar  topBar = new AdminTopBar();
+    private final JPanel       contentArea = new JPanel(new BorderLayout());
+
+//    public AdminDashboard(long userId, String username, String fullName,
+//                          String email, String role) {
+//        this(new Admin(userId, username, fullName, email, role));
+//    }
+
+    public AdminDashboard(Admin admin) {
+        this.currentUser = admin;
+        this.userId   = admin.getUserId();
+        this.fullName = admin.getFullName();
+        this.email    = admin.getEmail();
+        this.role     = admin.getRole();
 
         setTitle("UniMis - Admin Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+        setMinimumSize(new Dimension(1200, 720));
 
-        JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(LoginTheme.MINT);
-        root.add(buildHeader(), BorderLayout.NORTH);
-        root.add(buildCenter(), BorderLayout.CENTER);
-        root.add(buildFooter(), BorderLayout.SOUTH);
+        sidebar = new AdminSidebar(fullName, this::showPage, this::doLogout);
 
-        setContentPane(root);
+        contentArea.setBackground(AdminTheme.LIGHT);
+
+        JPanel right = new JPanel(new BorderLayout());
+        right.setBackground(AdminTheme.LIGHT);
+        right.add(topBar, BorderLayout.NORTH);
+        right.add(contentArea, BorderLayout.CENTER);
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidebar, right);
+        split.setDividerSize(0);
+        split.setBorder(null);
+        split.setResizeWeight(0);
+        setContentPane(split);
+
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
+
+        topBar.setUser(fullName, role, initialsOf(fullName));
+        refreshNotificationCount();
+        showPage("dashboard");
     }
 
-    /* ---------- Header ---------- */
+    /* ---------- Navigation ---------- */
 
-    private JPanel buildHeader() {
-        JLabel title = new JLabel("Admin Dashboard", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 42));
-        title.setForeground(LoginTheme.FOREST);
-        title.setBorder(new EmptyBorder(50, 20, 10, 20));
+    public void showPage(String key) {
+        contentArea.removeAll();
+        JPanel page = switch (key) {
+            case "users"      -> new UsersPage(this);
+            case "courses"    -> new CoursesPage(this);
+            //case "notices"    -> new NoticesPage(this);
+            //case "timetables" -> new TimetablePage(this);
+            //case "reports"    -> new ReportsPage(this);
+            //case "settings"   -> new SettingsPage(this);
+            default           -> new DashboardPage(this);
+        };
+        contentArea.add(page, BorderLayout.CENTER);
+        contentArea.revalidate();
+        contentArea.repaint();
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(LoginTheme.MINT);
-        header.add(title, BorderLayout.CENTER);
-        return header;
+        String[] titles = switch (key) {
+            case "users"      -> new String[]{"User Profile Management", "Create, update and maintain system users"};
+            case "courses"    -> new String[]{"Course Management",       "Create and maintain course module details"};
+            case "notices"    -> new String[]{"Notice Management",       "Publish announcements for the faculty"};
+            case "timetables" -> new String[]{"Timetable Management",    "Create and maintain department timetables"};
+            case "reports"    -> new String[]{"Academic Reports",        "Attendance, CA, eligibility, grades, SGPA and CGPA"};
+            case "settings"   -> new String[]{"System Settings",         "Configure academic parameters"};
+            default           -> new String[]{"Admin Dashboard",         "Overview of Faculty of Technology academic activities"};
+        };
+        topBar.setTitle(titles[0], titles[1]);
+        sidebar.setActive(key);
+        if ("notices".equals(key)) refreshNotificationCount();
     }
 
-    /* ---------- Centre : profile card ---------- */
+    /* ---------- Session ---------- */
 
-    private JPanel buildCenter() {
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(LoginTheme.PASTEL);
-        card.setBorder(new EmptyBorder(30, 60, 30, 60));
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(8, 12, 8, 12);
-        gc.anchor = GridBagConstraints.WEST;
-
-        addRow(card, gc, 0, "User ID:",   String.valueOf(userId));
-        addRow(card, gc, 1, "Username:",  username);
-        addRow(card, gc, 2, "Full Name:", fullName);
-        addRow(card, gc, 3, "Email:",     email);
-        addRow(card, gc, 4, "Role:",      role);
-
-        JPanel wrap = new JPanel(new GridBagLayout());
-        wrap.setBackground(LoginTheme.MINT);
-        wrap.add(card);
-        return wrap;
-    }
-
-    /* ---------- Footer : logout ---------- */
-
-    private JPanel buildFooter() {
-        JButton logout = LoginTheme.button("Logout", LoginTheme.F_LABEL);
-        logout.setPreferredSize(new Dimension(150, 44));
-        logout.addActionListener(e -> {
+    private void doLogout() {
+        if (AdminTheme.confirm(this, "Log out of the system?")) {
             dispose();
             Login.showLogin();
-        });
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 25));
-        bottom.setBackground(LoginTheme.MINT);
-        bottom.add(logout);
-        return bottom;
+        }
     }
 
-    /* ---------- Row helper (used inside the card) ---------- */
+    public void refreshNotificationCount() {
+        // Simple: count of published notices. Replace with unread count later.
+        try {
+            int n = new dao.NoticeDAO().getAllNotices().size();
+            topBar.setNotificationCount(n);
+        } catch (Exception ignored) {}
+    }
 
-    private static void addRow(JPanel p, GridBagConstraints gc, int row,
-                               String label, String value) {
-        gc.gridx = 0; gc.gridy = row;
-        JLabel l = new JLabel(label);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(LoginTheme.DEEP);
-        p.add(l, gc);
+    /* ---------- Accessors for pages ---------- */
 
-        gc.gridx = 1;
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        v.setForeground(LoginTheme.DEEP);
-        p.add(v, gc);
+    public User   getUser()   { return currentUser; }
+    public long   getUserId() { return userId; }
+    public String getFullName() { return fullName; }
+    public String getEmail()    { return email; }
+    public String getRole()     { return role; }
+
+    private static String initialsOf(String name) {
+        if (name == null || name.isBlank()) return "AD";
+        String[] parts = name.trim().split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Math.min(2, parts.length); i++) sb.append(Character.toUpperCase(parts[i].charAt(0)));
+        return sb.toString();
     }
 }

@@ -26,10 +26,10 @@ public class Login {
 
     private static final Map<String, DashboardFactory> DASHBOARDS = new HashMap<>();
     static {
-        DASHBOARDS.put("admin",            AdminDashboard::new);
-        DASHBOARDS.put("lecturer",         LecturerDashboard::new);
+        DASHBOARDS.put("admin", AdminDashboard::new);
+        DASHBOARDS.put("lecturer", LecturerDashboard::new);
         DASHBOARDS.put("technicalofficer", TechnicalOfficerDashboard::new);
-        DASHBOARDS.put("undergraduate",    UndergraduateDashboard::new);
+        DASHBOARDS.put("undergraduate", UndergraduateDashboard::new);
     }
 
     private static String roleKey(String role) {
@@ -70,8 +70,7 @@ public class Login {
         DashboardFactory factory = DASHBOARDS.get(roleKey(user.role()));
         if (factory == null) {
             LoginTheme.show(null,
-                    "Unknown role: \"" + user.role() + "\".\nContact the administrator.",
-                    "Login", JOptionPane.ERROR_MESSAGE);
+                    "Unknown role: \"" + user.role() + "\".\nContact the administrator.", "Login", JOptionPane.ERROR_MESSAGE);
             showLogin();
             return;
         }

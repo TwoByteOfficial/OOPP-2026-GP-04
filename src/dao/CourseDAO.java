@@ -80,4 +80,7 @@ public class CourseDAO {
         c.setCreatedAt(rs.getTimestamp("created_at"));
         return c;
     }
+
+//    public boolean saveCourse(Course c, boolean isNew) throws SQLException { /* INSERT or UPDATE */ }
+//    public boolean deleteCourse(int courseId) throws SQLException { /* DELETE */ }
 }

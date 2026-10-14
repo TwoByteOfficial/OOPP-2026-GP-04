@@ -35,4 +35,8 @@ public class TimetableDAO {
         }
         return list;
     }
+
+//    public List<TimetableEntry> getAllTimetable() throws SQLException { /* SELECT * FROM timetable_entries */ }
+//    public boolean saveTimetable(TimetableEntry t, boolean isNew) throws SQLException { /* INSERT/UPDATE */ }
+//    public boolean deleteTimetable(long id) throws SQLException { /* DELETE */ }
 }

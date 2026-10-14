@@ -234,4 +234,12 @@ public class UserDAO {
 
         return u;
     }
+
+    public boolean deleteUser(long userId) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM users WHERE user_id = ?")) {
+            ps.setLong(1, userId);
+            return ps.executeUpdate() > 0;
+        }
+    }
 }
