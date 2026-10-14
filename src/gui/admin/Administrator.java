@@ -1,15 +1,13 @@
 package gui.admin;
 
 import gui.login.Login;
-import service.AuthService.AuthUser;   // if you need to fetch fresh user data
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Administrator dashboard.
- * Only users whose role resolves to "admin" are allowed to open this frame.
+ * Main Administrator frame.
+ * Hosts the sidebar + content area and routes between admin pages.
  */
 public class Administrator extends JFrame {
 
@@ -20,19 +18,25 @@ public class Administrator extends JFrame {
     private final String email;
     private final String role;
 
-    /* ---- UI components that display the user details ---- */
-    private JLabel welcomeLabel;
-    private JLabel idValueLabel;
-    private JLabel userValueLabel;
-    private JLabel nameValueLabel;
-    private JLabel emailValueLabel;
-    private JLabel roleValueLabel;
+    /* ---- UI ---- */
+    private AdminSidebar sidebar;
+    private JPanel       contentArea;
+    private CardLayout   contentLayout;
+
+    /* ---- Pages (lazy references) ---- */
+    private AdminDashboard    pageDashboard;
+//    private AdminUserProfiles pageUsers;
+//    private AdminCourses      pageCourses;
+//    private AdminNotices      pageNotices;
+//    private AdminTimetable    pageTimetable;
+//    private AdminReports      pageReports;
+//    private AdminSettings     pageSettings;
 
     /* ------------------------------------------------------------------ */
     /*  Constructors                                                      */
     /* ------------------------------------------------------------------ */
 
-    /** No-arg constructor kept for compatibility (e.g. form previews). */
+    /** No-arg constructor kept for compatibility. */
     public Administrator() {
         this(0L, "-", "-", "-", "admin");
     }
@@ -49,10 +53,10 @@ public class Administrator extends JFrame {
         this.email    = email;
         this.role     = role;
 
-        // Role-based authorisation: refuse anyone who is not an admin.
+        // Role-based authorization
         if (!isAdmin(role)) {
             showAccessDeniedAndLogout(role);
-            return; // frame is disposed; do not build the rest of the UI
+            return;
         }
 
         initUI();
@@ -87,169 +91,57 @@ public class Administrator extends JFrame {
 
     private void initUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setBackground(AdminTheme.LIGHT_BG);
         setLayout(new BorderLayout());
 
-        add(buildHeader(),  BorderLayout.NORTH);
-        add(buildBody(),    BorderLayout.CENTER);
-        add(buildFooter(),  BorderLayout.SOUTH);
+        /* Sidebar */
+        sidebar = new AdminSidebar();
+        sidebar.setOnNavigate(this::navigateTo);
+        sidebar.setOnLogout(this::onLogout);
+        add(sidebar, BorderLayout.WEST);
 
+        /* Content Area (switchable pages) */
+        contentLayout = new CardLayout();
+        contentArea   = new JPanel(contentLayout);
+        contentArea.setBackground(AdminTheme.LIGHT_BG);
+        add(contentArea, BorderLayout.CENTER);
+
+        buildPages();
+
+        setMinimumSize(new Dimension(1100, 650));
         pack();
         setLocationRelativeTo(null);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        // Default page
+        navigateTo(AdminSidebar.PAGE_DASHBOARD);
     }
 
-    private JPanel buildHeader() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(30, 60, 120));
-        header.setBorder(new EmptyBorder(15, 25, 15, 25));
+    private void buildPages() {
+        pageDashboard = new AdminDashboard(userId, username, fullName, email, role);
+//        pageUsers     = new AdminUserProfiles(userId, username, fullName, email, role);
+//        pageCourses   = new AdminCourses(userId, username, fullName, email, role);
+//        pageNotices   = new AdminNotices(userId, username, fullName, email, role);
+//        pageTimetable = new AdminTimetable(userId, username, fullName, email, role);
+//        pageReports   = new AdminReports(userId, username, fullName, email, role);
+//        pageSettings  = new AdminSettings(userId, username, fullName, email, role);
 
-        JLabel title = new JLabel("Administrator Dashboard");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setForeground(Color.WHITE);
-
-        welcomeLabel = new JLabel("Welcome, " + safe(fullName));
-        welcomeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        welcomeLabel.setForeground(Color.WHITE);
-
-        header.add(title,        BorderLayout.WEST);
-        header.add(welcomeLabel, BorderLayout.EAST);
-        return header;
-    }
-
-    private JPanel buildBody() {
-        JPanel body = new JPanel(new BorderLayout(20, 20));
-        body.setBorder(new EmptyBorder(30, 40, 30, 40));
-        body.setBackground(new Color(245, 247, 250));
-
-        // Left: user details card
-        body.add(buildUserDetailsCard(), BorderLayout.WEST);
-
-        // Center: admin actions
-        body.add(buildActionsCard(), BorderLayout.CENTER);
-
-        return body;
-    }
-
-    private JPanel buildUserDetailsCard() {
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(210, 215, 225)),
-                new EmptyBorder(20, 25, 20, 25)));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        JLabel heading = new JLabel("Your Account");
-        heading.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        card.add(heading, gbc);
-        gbc.gridwidth = 1;
-
-        idValueLabel   = new JLabel();
-        userValueLabel = new JLabel();
-        nameValueLabel = new JLabel();
-        emailValueLabel= new JLabel();
-        roleValueLabel = new JLabel();
-
-        int row = 1;
-        addRow(card, gbc, row++, "User ID:",   idValueLabel);
-        addRow(card, gbc, row++, "Username:",  userValueLabel);
-        addRow(card, gbc, row++, "Full name:", nameValueLabel);
-        addRow(card, gbc, row++, "Email:",     emailValueLabel);
-        addRow(card, gbc, row,   "Role:",      roleValueLabel);
-
-        refreshUserDetails();
-        return card;
-    }
-
-    private void addRow(JPanel parent, GridBagConstraints gbc, int row,
-                        String labelText, JLabel valueLabel) {
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 13));
-
-        valueLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        valueLabel.setForeground(new Color(50, 55, 70));
-
-        gbc.gridx = 0; gbc.gridy = row; parent.add(label,      gbc);
-        gbc.gridx = 1; gbc.gridy = row; parent.add(valueLabel, gbc);
-    }
-
-    /** Fill the labels with the currently-stored user info. */
-    private void refreshUserDetails() {
-        idValueLabel   .setText(String.valueOf(userId));
-        userValueLabel .setText(safe(username));
-        nameValueLabel .setText(safe(fullName));
-        emailValueLabel.setText(safe(email));
-        roleValueLabel .setText(safe(role));
-        if (welcomeLabel != null) welcomeLabel.setText("Welcome, " + safe(fullName));
-    }
-
-    private JPanel buildActionsCard() {
-        JPanel card = new JPanel(new GridLayout(0, 1, 10, 10));
-        card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(210, 215, 225)),
-                new EmptyBorder(20, 25, 20, 25)));
-
-        JLabel heading = new JLabel("Administrative Actions");
-        heading.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        card.add(heading);
-
-        card.add(actionButton("Manage Users",        this::onManageUsers));
-        card.add(actionButton("Manage Courses",      this::onManageCourses));
-        card.add(actionButton("Assign Lecturers",    this::onAssignLecturers));
-        card.add(actionButton("View Reports",        this::onViewReports));
-        card.add(actionButton("System Settings",     this::onSystemSettings));
-
-        // push buttons to top
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setBackground(new Color(245, 247, 250));
-        wrapper.add(card, BorderLayout.NORTH);
-        return wrapper;
-    }
-
-    private JButton actionButton(String text, Runnable onClick) {
-        JButton b = new JButton(text);
-        b.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        b.setFocusPainted(false);
-        b.setPreferredSize(new Dimension(220, 40));
-        b.addActionListener(e -> onClick.run());
-        return b;
-    }
-
-    private JPanel buildFooter() {
-        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        footer.setBackground(new Color(240, 242, 246));
-        footer.setBorder(new EmptyBorder(8, 15, 8, 15));
-
-        JLabel signedIn = new JLabel("Signed in as " + safe(username) + "  |  ");
-        signedIn.setForeground(new Color(80, 85, 100));
-
-        JButton logout = new JButton("Logout");
-        logout.setFocusPainted(false);
-        logout.addActionListener(e -> onLogout());
-
-        footer.add(signedIn);
-        footer.add(logout);
-        return footer;
+        contentArea.add(pageDashboard, AdminSidebar.PAGE_DASHBOARD);
+//        contentArea.add(pageUsers,     AdminSidebar.PAGE_USERS);
+//        contentArea.add(pageCourses,   AdminSidebar.PAGE_COURSES);
+//        contentArea.add(pageNotices,   AdminSidebar.PAGE_NOTICES);
+//        contentArea.add(pageTimetable, AdminSidebar.PAGE_TIMETABLE);
+//        contentArea.add(pageReports,   AdminSidebar.PAGE_REPORTS);
+//        contentArea.add(pageSettings,  AdminSidebar.PAGE_SETTINGS);
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Action handlers                                                   */
+    /*  Navigation                                                        */
     /* ------------------------------------------------------------------ */
 
-    private void onManageUsers()     { placeholder("Manage Users"); }
-    private void onManageCourses()   { placeholder("Manage Courses"); }
-    private void onAssignLecturers() { placeholder("Assign Lecturers"); }
-    private void onViewReports()     { placeholder("View Reports"); }
-    private void onSystemSettings()  { placeholder("System Settings"); }
-
-    private void placeholder(String action) {
-        JOptionPane.showMessageDialog(this,
-                action + " — not implemented yet.",
-                "Administrator", JOptionPane.INFORMATION_MESSAGE);
+    private void navigateTo(String key) {
+        contentLayout.show(contentArea, key);
+        sidebar.setActive(key);
     }
 
     private void onLogout() {
@@ -265,10 +157,12 @@ public class Administrator extends JFrame {
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Helpers                                                           */
+    /*  Getters (so pages can read logged-in user info if needed)         */
     /* ------------------------------------------------------------------ */
 
-    private static String safe(String s) {
-        return (s == null || s.isBlank()) ? "-" : s;
-    }
+    public long   getUserId()   { return userId;   }
+    public String getUsername() { return username; }
+    public String getFullName() { return fullName; }
+    public String getEmail()    { return email;    }
+    public String getRole()     { return role;     }
 }

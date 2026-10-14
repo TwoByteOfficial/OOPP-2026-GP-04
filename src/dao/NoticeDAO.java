@@ -66,7 +66,4 @@ public class NoticeDAO {
         n.setStatus(rs.getString("status"));
         return n;
     }
-
-//    public boolean updateNotice(Notice n) throws SQLException { /* UPDATE notices SET ... */ }
-//    public boolean deleteNotice(long noticeId) throws SQLException { /* DELETE */ }
 }

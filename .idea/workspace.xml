@@ -5,15 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/Administrator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/AttendanceSummary.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/DashboardTitleBar.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/NoticesSummary.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/SimpleAnalyticView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/StatCard.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/StatusSummary.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/UserSummary.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/pages/CoursesPage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/pages/DashboardPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/cmponents/DashboardPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/pages/UsersPage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/login/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/login/Login.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dao/NoticeDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/NoticeDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dao/TimetableDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/TimetableDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminTheme.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminTheme.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminTopBar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/Administrator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/Administrator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
