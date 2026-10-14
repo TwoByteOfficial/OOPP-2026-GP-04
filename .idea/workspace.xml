@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminTheme.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminTopBar.java" afterDir="false" />
@@ -18,10 +19,17 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/UniMIS1.sql" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/Main.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/NoticeDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/UserDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/admin/AdminDashboard.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/Login.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/Login.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/TimetableDAO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/UserDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/admin/AdminDashboard.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/admin/AdminDashboard.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/LeftPanel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/Login$DashboardFactory.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/Login.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/login/RightPanel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/model/CourseLecturer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/model/Enrollment.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/model/Medical.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/model/TimetableEntry.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/service/AuthService.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/service/AuthService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/dao/CourseDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/CourseDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/dao/NoticeDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/NoticeDAO.java" afterDir="false" />
