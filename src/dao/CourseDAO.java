@@ -62,6 +62,134 @@ public class CourseDAO {
         return list;
     }
 
+    public boolean addCourseMaterial(CourseMaterial material)
+            throws SQLException {
+
+        String sql = """
+            INSERT INTO course_materials
+            (
+                course_id,
+                lecturer_id,
+                title,
+                description,
+                material_type,
+                file_path,
+                external_url
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+        try (
+                Connection conn =
+                        DBConnection.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(
+                    1,
+                    material.getCourseId()
+            );
+
+            stmt.setLong(
+                    2,
+                    material.getLecturerId()
+            );
+
+            stmt.setString(
+                    3,
+                    material.getTitle()
+            );
+
+            stmt.setString(
+                    4,
+                    material.getDescription()
+            );
+
+            stmt.setString(
+                    5,
+                    material.getMaterialType()
+            );
+
+            stmt.setString(
+                    6,
+                    material.getFilePath()
+            );
+
+            stmt.setString(
+                    7,
+                    material.getExternalUrl()
+            );
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+
+    public boolean updateCourseMaterial(
+            CourseMaterial material
+    ) throws SQLException {
+
+        String sql = """
+            UPDATE course_materials
+            SET
+                title = ?,
+                description = ?,
+                material_type = ?,
+                file_path = ?,
+                external_url = ?
+            WHERE material_id = ?
+              AND lecturer_id = ?
+            """;
+
+        try (
+                Connection conn =
+                        DBConnection.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(
+                    1,
+                    material.getTitle()
+            );
+
+            stmt.setString(
+                    2,
+                    material.getDescription()
+            );
+
+            stmt.setString(
+                    3,
+                    material.getMaterialType()
+            );
+
+            stmt.setString(
+                    4,
+                    material.getFilePath()
+            );
+
+            stmt.setString(
+                    5,
+                    material.getExternalUrl()
+            );
+
+            stmt.setLong(
+                    6,
+                    material.getMaterialId()
+            );
+
+            stmt.setLong(
+                    7,
+                    material.getLecturerId()
+            );
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
     private Course mapResultSetToCourse(ResultSet rs) throws SQLException {
         Course c = new Course();
         c.setCourseId(rs.getInt("course_id"));
