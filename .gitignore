@@ -1,0 +1,9 @@
+# IntelliJ local settings
+.idea/
+
+# Compiled Java output
+out/
+*.class
+
+# Logs
+*.log
