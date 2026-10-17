@@ -21,7 +21,6 @@ public class AdminSidebar extends JPanel {
     public static final String PAGE_COURSES   = "courses";
     public static final String PAGE_NOTICES   = "notices";
     public static final String PAGE_TIMETABLE = "timetables";
-    public static final String PAGE_REPORTS   = "reports";
     public static final String PAGE_SETTINGS  = "settings";
 
     private final Map<String, MenuItem> items = new LinkedHashMap<>();
@@ -127,7 +126,6 @@ public class AdminSidebar extends JPanel {
         addMenuItem(wrapper, PAGE_COURSES,   "📖", "Courses");
         addMenuItem(wrapper, PAGE_NOTICES,   "📢", "Notices");
         addMenuItem(wrapper, PAGE_TIMETABLE, "📅", "Timetables");
-        addMenuItem(wrapper, PAGE_REPORTS,   "📄", "Academic Reports");
         addMenuItem(wrapper, PAGE_SETTINGS,  "⚙",  "Settings");
 
         JPanel scrollPaneWrap = new JPanel(new BorderLayout());

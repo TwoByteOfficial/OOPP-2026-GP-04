@@ -25,12 +25,11 @@ public class Administrator extends JFrame {
 
     /* ---- Pages (lazy references) ---- */
     private AdminDashboard    pageDashboard;
-//    private AdminUserProfiles pageUsers;
-//    private AdminCourses      pageCourses;
-//    private AdminNotices      pageNotices;
-//    private AdminTimetable    pageTimetable;
-//    private AdminReports      pageReports;
-//    private AdminSettings     pageSettings;
+    private AdminUserProfiles pageUsers;
+    private AdminCourses      pageCourses;
+    private AdminNotices      pageNotices;
+    private AdminTimetable    pageTimetable;
+    private AdminSettings     pageSettings;
 
     /* ------------------------------------------------------------------ */
     /*  Constructors                                                      */
@@ -119,20 +118,18 @@ public class Administrator extends JFrame {
 
     private void buildPages() {
         pageDashboard = new AdminDashboard(userId, username, fullName, email, role);
-//        pageUsers     = new AdminUserProfiles(userId, username, fullName, email, role);
-//        pageCourses   = new AdminCourses(userId, username, fullName, email, role);
-//        pageNotices   = new AdminNotices(userId, username, fullName, email, role);
-//        pageTimetable = new AdminTimetable(userId, username, fullName, email, role);
-//        pageReports   = new AdminReports(userId, username, fullName, email, role);
-//        pageSettings  = new AdminSettings(userId, username, fullName, email, role);
+        pageUsers     = new AdminUserProfiles(userId, username, fullName, email, role);
+        pageCourses   = new AdminCourses(userId, username, fullName, email, role);
+        pageNotices   = new AdminNotices(userId, username, fullName, email, role);
+        pageTimetable = new AdminTimetable(userId, username, fullName, email, role);
+        pageSettings  = new AdminSettings(userId, username, fullName, email, role);
 
         contentArea.add(pageDashboard, AdminSidebar.PAGE_DASHBOARD);
-//        contentArea.add(pageUsers,     AdminSidebar.PAGE_USERS);
-//        contentArea.add(pageCourses,   AdminSidebar.PAGE_COURSES);
-//        contentArea.add(pageNotices,   AdminSidebar.PAGE_NOTICES);
-//        contentArea.add(pageTimetable, AdminSidebar.PAGE_TIMETABLE);
-//        contentArea.add(pageReports,   AdminSidebar.PAGE_REPORTS);
-//        contentArea.add(pageSettings,  AdminSidebar.PAGE_SETTINGS);
+        contentArea.add(pageUsers,     AdminSidebar.PAGE_USERS);
+        contentArea.add(pageCourses,   AdminSidebar.PAGE_COURSES);
+        contentArea.add(pageNotices,   AdminSidebar.PAGE_NOTICES);
+        contentArea.add(pageTimetable, AdminSidebar.PAGE_TIMETABLE);
+        contentArea.add(pageSettings,  AdminSidebar.PAGE_SETTINGS);
     }
 
     /* ------------------------------------------------------------------ */

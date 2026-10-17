@@ -5,31 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/AttendanceSummary.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/DashboardTitleBar.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/NoticesSummary.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/SimpleAnalyticView.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/StatCard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/StatusSummary.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/UserSummary.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dao/NoticeDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/NoticeDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dao/TimetableDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/TimetableDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminReports.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/Administrator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/Administrator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminReports.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminTheme.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminTheme.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminTopBar.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/admin/Administrator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/Administrator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/DBConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/DBConnection.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="DatabaseLocalColorSettings">
-    <colors>
-      <entry key="9f1d30d3-6aec-4476-b670-2d47085120b1" value="" />
-    </colors>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -68,47 +59,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.Dashboard.executor": "Run",
-    "Application.Login.executor": "Run",
-    "Application.Main.executor": "Run",
-    "Application.PasswordHasher.executor": "Run",
-    "Database Script.unimis.sql.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "TG2067__Dilvan",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/lib/mysql-connector-j-9.4.0.jar",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.jshint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.jshint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Application.Dashboard.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Login.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PasswordHasher.executor&quot;: &quot;Run&quot;,
+    &quot;Database Script.unimis.sql.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;TG2067__Dilvan&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/lib/mysql-connector-j-9.4.0.jar&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ],
-    "RunConfigurationTargetLRU": [
-      "9f1d30d3-6aec-4476-b670-2d47085120b1"
+    &quot;RunConfigurationTargetLRU&quot;: [
+      &quot;9f1d30d3-6aec-4476-b670-2d47085120b1&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/gui" />
