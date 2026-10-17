@@ -5,16 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminCourses.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminNotices.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminReports.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminSettings.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminTimetable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/AdminUserProfiles.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminReports.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/gui/admin/Administrator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/Administrator.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dao/CourseDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/CourseDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminReports.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/admin/Administrator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/Administrator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/DBConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/DBConnection.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

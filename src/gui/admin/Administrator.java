@@ -29,7 +29,6 @@ public class Administrator extends JFrame {
     private AdminCourses      pageCourses;
     private AdminNotices      pageNotices;
     private AdminTimetable    pageTimetable;
-    private AdminReports      pageReports;
     private AdminSettings     pageSettings;
 
     /* ------------------------------------------------------------------ */
@@ -123,7 +122,6 @@ public class Administrator extends JFrame {
         pageCourses   = new AdminCourses(userId, username, fullName, email, role);
         pageNotices   = new AdminNotices(userId, username, fullName, email, role);
         pageTimetable = new AdminTimetable(userId, username, fullName, email, role);
-        pageReports   = new AdminReports(userId, username, fullName, email, role);
         pageSettings  = new AdminSettings(userId, username, fullName, email, role);
 
         contentArea.add(pageDashboard, AdminSidebar.PAGE_DASHBOARD);
@@ -131,7 +129,6 @@ public class Administrator extends JFrame {
         contentArea.add(pageCourses,   AdminSidebar.PAGE_COURSES);
         contentArea.add(pageNotices,   AdminSidebar.PAGE_NOTICES);
         contentArea.add(pageTimetable, AdminSidebar.PAGE_TIMETABLE);
-        contentArea.add(pageReports,   AdminSidebar.PAGE_REPORTS);
         contentArea.add(pageSettings,  AdminSidebar.PAGE_SETTINGS);
     }
 
