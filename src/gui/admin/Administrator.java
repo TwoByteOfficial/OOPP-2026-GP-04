@@ -9,6 +9,8 @@ import java.awt.*;
  * Main Administrator frame.
  * Hosts the sidebar + content area and routes between admin pages.
  */
+
+
 public class Administrator extends JFrame {
 
     /* ---- Logged-in user info ---- */

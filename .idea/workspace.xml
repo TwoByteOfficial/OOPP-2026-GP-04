@@ -5,17 +5,73 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
+      <change afterPath="$PROJECT_DIR$/src/gui/admin/TestAdminDirect.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminReports.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/Administrator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/Administrator.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminReports.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Main.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminCourseDAO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminDashboardDAO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminNoticeDAO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminTimetableDAO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminUserDAO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminCourses.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminDashboard.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminNotices.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSettings.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminTheme.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminTimetable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminUserProfiles.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/Administrator.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/AttendanceSummary.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/DashboardTitleBar.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/NoticesSummary.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/SimpleAnalyticView.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/StatCard.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/StatusSummary.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/UserSummary.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/lecturer/LecturerDashboard.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/ForgotPassword.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/LeftPanel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/Login$DashboardFactory.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/Login.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/LoginTheme$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/LoginTheme.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/PasswordHasher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/RightPanel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/login/TermsDialog.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/technical/TechnicalOfficerDashboard.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/undergraduate/UndergraduateDashboard.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Admin.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Assessment.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/AttendanceRecord.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/AttendanceSession.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Course.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/CourseLecturer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/CourseMaterial.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Department.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/EligibilityResult.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Enrollment.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/GradeScale.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Lecturer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Mark.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Medical.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Notice.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/StudentGPA.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/TechnicalOfficer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/TimetableEntry.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/Undergraduate.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/model/User.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/UserDAO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/admin/AdminDashboard.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/service/AuthService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/service/AuthService$AuthUser.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/service/AuthService$LoginResult.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/service/AuthService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/util/DBConnection.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/admin/Administrator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/Administrator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/util/DBConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/DBConnection.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,48 +115,50 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Application.Dashboard.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Login.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Application.PasswordHasher.executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.unimis.sql.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;TG2067__Dilvan&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/lib/mysql-connector-j-9.4.0.jar&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Application.Administrator.executor": "Run",
+    "Application.Dashboard.executor": "Run",
+    "Application.Login.executor": "Run",
+    "Application.Main.executor": "Run",
+    "Application.PasswordHasher.executor": "Run",
+    "Application.TestAdminDirect.executor": "Run",
+    "Database Script.unimis.sql.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "TG2067__Dilvan",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/lib/mysql-connector-j-9.4.0.jar",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ],
-    &quot;RunConfigurationTargetLRU&quot;: [
-      &quot;9f1d30d3-6aec-4476-b670-2d47085120b1&quot;
+    "RunConfigurationTargetLRU": [
+      "9f1d30d3-6aec-4476-b670-2d47085120b1"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/gui" />
