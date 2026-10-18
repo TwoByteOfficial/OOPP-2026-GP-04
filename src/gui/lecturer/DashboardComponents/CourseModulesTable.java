@@ -67,6 +67,7 @@ public class CourseModulesTable extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+
     public void setCourses(List<Object[]> courses) {
 
         tableModel.setRowCount(0);
@@ -77,13 +78,18 @@ public class CourseModulesTable extends JPanel {
 
         for (Object[] course : courses) {
 
-            Object[] row = course.clone();
-
-            if (row[3] != null) {
-                row[3] = row[3].toString() + "%";
-            }
+            Object[] row = {
+                    course[1],  // Course Code
+                    course[2],  // Course Name
+                    course[3],  // Total Credits
+                    course[6] == null
+                            ? "N/A"
+                            : course[6].toString() + "%", // CA Weight
+                    course[7]   // Student Count
+            };
 
             tableModel.addRow(row);
         }
     }
+
 }
