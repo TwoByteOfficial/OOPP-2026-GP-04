@@ -1,64 +1,94 @@
 package gui.admin;
 
-/* ---- Explicit Sub-Component Import Framework Declarations ---- */
 import gui.admin.DashboardComponents.*;
-
-/* ---- Core Java GUI System Libraries ---- */
+import dao.admin.AdminDashboardDAO; // Added Import
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
+import java.util.HashMap;
 
-/**
- * Main coordinated layout manager panel mapping grid components side-by-side.
- * Sub-panels are declared as private instance variables with explicit import definitions.
- */
 public class AdminDashboard extends JPanel {
 
-    /* ---- Private Sub-Panel Component Fields ---- */
     private DashboardTitleBar   titleBar;
     private SimpleAnalyticView  analyticsRow;
     private StatusSummary       statusPanel;
     private AttendanceSummary   attendancePanel;
     private UserSummary         userPanel;
     private NoticesSummary      noticesPanel;
+    private AdminDashboardDAO   dashboardDAO; // Added Instance Node
 
     public AdminDashboard(long userId, String username, String fullName, String email, String role) {
-        // Enforce absolute layouts to map coordinates precisely side-by-side
         setLayout(null);
-
-        // Total view canvas footprint space (Frame width 1920 - Sidebar 260 = 1660 Content window)
         setBounds(0, 0, 1660, 1080);
         setOpaque(false);
 
-        /* 1. Row 1: Header Context Title Bar Component */
+        // 1. Initialize DB Operations Layer safely
+        dashboardDAO = new AdminDashboardDAO();
+        Map<String, Integer> dbMetrics = loadLiveDatabaseMetrics();
+
+        /* ========================================================================== */
+        /*  ROW 1: TITLE BAR                                                          */
+        /* ========================================================================== */
         titleBar = new DashboardTitleBar(fullName);
-        titleBar.setLocation(20, 20); // Pin grid offsets
+        titleBar.setLocation(20, 20);
         add(titleBar);
 
-        /* 2. Row 2: Analytics Cards Module Component Block */
-        analyticsRow = new SimpleAnalyticView();
+        /* ========================================================================== */
+        /*  ROW 2: ANALYTICS CARDS (Start X: 20, End X: 1620)                         */
+        /* ========================================================================== */
+        // Pass metrics map straight into the analytical visual block layout
+        analyticsRow = new SimpleAnalyticView(dbMetrics);
         analyticsRow.setLocation(20, 130);
         add(analyticsRow);
 
-        /* 3. Row 3: Middle Grid Cards Stacked Side-by-Side */
-        // Card A: Status summary log details
+        /* ========================================================================== */
+        /*  ROW 3: PROGRESS TRACKERS (Height: 260px)                                  */
+        /* ========================================================================== */
+        // Status Panel (Left Block: X=20, Width=780)
         statusPanel = new StatusSummary();
-        statusPanel.setLocation(20, 290);
+        statusPanel.setLocation(40, 270);
         add(statusPanel);
 
-        // Card B: Attendance tracking panel overview
-        attendancePanel = new AttendanceSummary();
-        attendancePanel.setLocation(550, 290); // Left offset (20 + 510 width + 20 spacing)
+        // Attendance Panel (Right Block: X=820, Width=780)
+        // Pass metrics map straight into quick system administrative counts row
+        attendancePanel = new AttendanceSummary(dbMetrics);
+        attendancePanel.setLocation(820, 270);
         add(attendancePanel);
 
-        // Card C: User database role breakdown tracking directory
+        /* ========================================================================== */
+        /*  ROW 4: DATA TABLES (Height: 410px)                                        */
+        /* ========================================================================== */
+        // User Profiles Summary (Left Block: X=20, Width=780)
         userPanel = new UserSummary();
-        userPanel.setLocation(1080, 290); // Left offset (550 + 510 width + 20 spacing)
+        userPanel.setLocation(40, 550);
         add(userPanel);
 
-        /* 4. Row 4: Wide Announcement Board Component Container */
+        // Notices Summary (Right Block: X=820, Width=780)
         noticesPanel = new NoticesSummary();
-        noticesPanel.setLocation(20, 560);
+        noticesPanel.setLocation(820, 550);
         add(noticesPanel);
     }
 
+    /**
+     * Executes safe transaction queries to fetch aggregate system status values.
+     */
+    private Map<String, Integer> loadLiveDatabaseMetrics() {
+        try {
+            return dashboardDAO.getDashboardSummaryCounts();
+        } catch (Exception e) {
+            System.err.println("[Dashboard DB Error] Failed to aggregate system summary counts.");
+            e.printStackTrace();
+
+            // Build absolute empty state mapping defaults to isolate layout runtime breakage
+            Map<String, Integer> fallbacks = new HashMap<>();
+            fallbacks.put("admins", 0);
+            fallbacks.put("lecturers", 0);
+            fallbacks.put("technical_officers", 0);
+            fallbacks.put("undergraduates", 0);
+            fallbacks.put("courses", 0);
+            fallbacks.put("notices", 0);
+            fallbacks.put("timetables", 0);
+            return fallbacks;
+        }
+    }
 }

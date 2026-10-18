@@ -9,6 +9,7 @@ import java.awt.*;
  * Central theme constants and helpers for the Administrator UI.
  * Mirrors ~85% of the web admin dashboard CSS (green palette, Poppins-like fonts).
  */
+
 public final class AdminTheme {
 
     private AdminTheme() {}

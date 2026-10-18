@@ -29,7 +29,7 @@ public class AdminSidebar extends JPanel {
     private final Color WARNING       = new Color(0xF0, 0xAD, 0x4E);
     private final Color INFO          = FOREST_GREEN;
 
-    private final Color LIGHT_BG      = MINT;
+    private final Color LIGHT_BG      = MEDIUM_GREEN;
     private final Color WHITE         = Color.WHITE;
     private final Color TEXT          = DEEP_GREEN;
     private final Color MUTED         = new Color(0x4F, 0x6B, 0x52);
@@ -58,7 +58,6 @@ public class AdminSidebar extends JPanel {
         // Match the fixed layout configuration limits
         setBounds(0, 0, 260, 1080);
         setBackground(LIGHT_BG);
-        setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, BORDER));
 
         /* 1. Project Title Brand Header Component */
         JLabel logoLabel = new JLabel("UniMis");
@@ -77,7 +76,7 @@ public class AdminSidebar extends JPanel {
             JButton btn = createMenuButton(routeKey, false);
 
             // Increment placement vertically using manual absolute adjustments
-            btn.setBounds(12, initialY + (i * buttonSpacing), 236, 46);
+            btn.setBounds(12, initialY + (i * buttonSpacing), 248, 46);
             btn.addActionListener(e -> {
                 if (onNavigate != null) {
                     onNavigate.accept(routeKey);
@@ -136,7 +135,7 @@ public class AdminSidebar extends JPanel {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (btn != activeInterfaceButton) {
-                    btn.setBackground(WHITE);
+                    btn.setBackground(MINT);
                     btn.setForeground(isLogout ? DANGER : TEXT);
                 }
             }
@@ -167,7 +166,7 @@ public class AdminSidebar extends JPanel {
         JButton currentTarget = menuButtons.get(key);
         if (currentTarget != null) {
             activeInterfaceButton = currentTarget;
-            activeInterfaceButton.setBackground(Color.WHITE); // Keeps selection white persistently
+            activeInterfaceButton.setBackground(MINT); // Keeps selection white persistently
             activeInterfaceButton.setForeground(TEXT);        // Keeps text dark green
         }
     }
