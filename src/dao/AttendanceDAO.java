@@ -1,4 +1,5 @@
 package dao;
+import model.AttendanceSession;
 
 import util.DBConnection;
 import model.AttendanceRecord;
@@ -6,6 +7,7 @@ import model.Medical;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class AttendanceDAO {
 
@@ -37,6 +39,102 @@ public class AttendanceDAO {
         }
         return success;
     }
+
+
+
+
+    public List<AttendanceSession> getSessionsByCourse(
+            int courseId, String component) throws SQLException {
+
+        List<AttendanceSession> sessions = new ArrayList<>();
+
+        String sql = "SELECT * FROM attendance_sessions " +
+                "WHERE course_id = ? AND component = ? " +
+                "ORDER BY session_no";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, courseId);
+            stmt.setString(2, component);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AttendanceSession session = new AttendanceSession();
+
+                    session.setAttendanceSessionId(
+                            rs.getLong("attendance_session_id"));
+                    session.setCourseId(rs.getInt("course_id"));
+                    session.setComponent(rs.getString("component"));
+                    session.setSessionNo(rs.getInt("session_no"));
+                    session.setSessionDate(rs.getDate("session_date"));
+                    session.setStartTime(rs.getTime("start_time"));
+                    session.setEndTime(rs.getTime("end_time"));
+                    session.setDurationHours(
+                            rs.getBigDecimal("duration_hours"));
+
+                    long conductedBy = rs.getLong("conducted_by");
+                    session.setConductedBy(
+                            rs.wasNull() ? null : conductedBy);
+
+                    session.setTopic(rs.getString("topic"));
+
+                    sessions.add(session);
+                }
+            }
+        }
+
+        return sessions;
+    }
+
+
+
+
+    public List<AttendanceRecord> getAttendanceBySession(
+            long sessionId) throws SQLException {
+
+        List<AttendanceRecord> records = new ArrayList<>();
+
+        String sql = "SELECT attendance_record_id, attendance_session_id, " +
+                "student_id, attendance_status, remarks, recorded_by, recorded_at " +
+                "FROM attendance_records " +
+                "WHERE attendance_session_id = ? " +
+                "ORDER BY student_id";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, sessionId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AttendanceRecord record = new AttendanceRecord();
+
+                    record.setAttendanceRecordId(
+                            rs.getLong("attendance_record_id"));
+                    record.setAttendanceSessionId(
+                            rs.getLong("attendance_session_id"));
+                    record.setStudentId(rs.getLong("student_id"));
+                    record.setAttendanceStatus(
+                            rs.getString("attendance_status"));
+                    record.setRemarks(rs.getString("remarks"));
+
+                    long recordedBy = rs.getLong("recorded_by");
+                    record.setRecordedBy(
+                            rs.wasNull() ? null : recordedBy);
+
+                    record.setRecordedAt(rs.getTimestamp("recorded_at"));
+
+                    records.add(record);
+                }
+            }
+        }
+
+        return records;
+    }
+
+
+
 
     public boolean approveMedical(long medicalId, long reviewerId, String comment) throws SQLException {
         Connection conn = DBConnection.getConnection();
