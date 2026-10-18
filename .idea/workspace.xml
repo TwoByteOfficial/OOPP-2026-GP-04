@@ -5,73 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="427fe282-4955-446a-8ae2-99d9614c7ca2" name="Changes" comment="models and dao with login main written with AI">
-      <change afterPath="$PROJECT_DIR$/src/gui/admin/TestAdminDirect.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/Main.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminCourseDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminDashboardDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminNoticeDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminTimetableDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/dao/admin/AdminUserDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminCourses.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminDashboard.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminNotices.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSettings.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminDashboard.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminDashboard.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem$1.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar$MenuItem.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminTheme.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminTimetable.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminUserProfiles.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/Administrator.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/AttendanceSummary.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/DashboardTitleBar.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/NoticesSummary.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/SimpleAnalyticView.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminSidebar.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/AdminTheme.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/AdminTheme.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/Administrator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/Administrator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/AttendanceSummary.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/AttendanceSummary.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/DashboardTitleBar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/DashboardTitleBar.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/NoticesSummary.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/NoticesSummary.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/SimpleAnalyticView.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/SimpleAnalyticView.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/StatCard.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/StatusSummary.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/UserSummary.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/lecturer/LecturerDashboard.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/ForgotPassword.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/LeftPanel.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/Login$DashboardFactory.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/Login.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/LoginTheme$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/LoginTheme.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/PasswordHasher.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/RightPanel.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/login/TermsDialog.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/technical/TechnicalOfficerDashboard.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/gui/undergraduate/UndergraduateDashboard.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Admin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Assessment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/AttendanceRecord.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/AttendanceSession.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Course.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/CourseLecturer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/CourseMaterial.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Department.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/EligibilityResult.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Enrollment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/GradeScale.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Lecturer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Mark.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Medical.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Notice.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/StudentGPA.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/TechnicalOfficer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/TimetableEntry.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/Undergraduate.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/model/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/dao/UserDAO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/gui/admin/AdminDashboard.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/OOPP-2026-GP-04/service/AuthService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/service/AuthService$AuthUser.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/service/AuthService$LoginResult.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/service/AuthService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/util/DBConnection.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/StatusSummary.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/StatusSummary.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/UserSummary.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/DashboardComponents/UserSummary.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/gui/admin/TestAdminDirect.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/gui/admin/TestAdminDirect.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminSidebar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/AdminTheme.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/AdminTheme.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/admin/Administrator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/Administrator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/AttendanceSummary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/AttendanceSummary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/DashboardTitleBar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/DashboardTitleBar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/NoticesSummary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/NoticesSummary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/SimpleAnalyticView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/SimpleAnalyticView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/StatCard.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/StatusSummary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/StatusSummary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/UserSummary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/DashboardComponents/UserSummary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/admin/TestAdminDirect.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/admin/TestAdminDirect.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

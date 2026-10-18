@@ -13,7 +13,6 @@ public final class AdminTheme {
 
     private AdminTheme() {}
 
-    /* ---------- Palette (from styles.css) ---------- */
     public static final Color MINT          = new Color(0xE8, 0xF5, 0xE9);
     public static final Color PASTEL_GREEN  = new Color(0xC8, 0xE6, 0xC9);
     public static final Color FRESH_GREEN   = new Color(0xA5, 0xD6, 0xA7);
@@ -45,16 +44,16 @@ public final class AdminTheme {
         return new Font(FONT_FAMILY, style, size);
     }
 
-    public static final Font FONT_H1        = font(Font.BOLD,  24);
-    public static final Font FONT_H2        = font(Font.BOLD,  20);
-    public static final Font FONT_H3        = font(Font.BOLD,  16);
-    public static final Font FONT_BODY      = font(Font.PLAIN, 13);
-    public static final Font FONT_BODY_BOLD = font(Font.BOLD,  13);
-    public static final Font FONT_SMALL     = font(Font.PLAIN, 12);
-    public static final Font FONT_TINY      = font(Font.PLAIN, 11);
-    public static final Font FONT_MENU      = font(Font.PLAIN, 14);
-    public static final Font FONT_LOGO      = font(Font.BOLD,  22);
-    public static final Font FONT_STAT      = font(Font.BOLD,  22);
+    public static final Font FONT_H1        = font(Font.BOLD,  28);
+    public static final Font FONT_H2        = font(Font.BOLD,  24);
+    public static final Font FONT_H3        = font(Font.BOLD,  20);
+    public static final Font FONT_BODY      = font(Font.PLAIN, 17);
+    public static final Font FONT_BODY_BOLD = font(Font.BOLD,  17);
+    public static final Font FONT_SMALL     = font(Font.PLAIN, 16);
+    public static final Font FONT_TINY      = font(Font.PLAIN, 15);
+    public static final Font FONT_MENU      = font(Font.PLAIN, 18);
+    public static final Font FONT_LOGO      = font(Font.BOLD,  26);
+    public static final Font FONT_STAT      = font(Font.BOLD,  26);
 
     /* ---------- Borders / helpers ---------- */
     public static Border emptyBorder(int t, int l, int b, int r) {

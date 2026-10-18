@@ -19,9 +19,9 @@ public class TestAdminDirect {
         // Run on the Event Dispatch Thread (EDT) for Swing thread-safety
         SwingUtilities.invokeLater(() -> {
             // Hardcoded mock user credentials to pass authorization checks
-            long testUserId = 9999L;
+            long testUserId = 1;
             String testUsername = "dev_admin";
-            String testFullName = "System Administrator (Dev Mode)";
+            String testFullName = "System Dev Administrator";
             String testEmail = "admin.dev@unimis.edu";
             String testRole = "admin"; // Must match your 'isAdmin' verification string
 
