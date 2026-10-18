@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class AttendanceDAO {
 
     public boolean recordAttendanceBatch(List<AttendanceRecord> records) throws SQLException {
@@ -85,6 +86,53 @@ public class AttendanceDAO {
 
         return sessions;
     }
+
+
+
+
+    public List<AttendanceRecord> getAttendanceBySession(
+            long sessionId) throws SQLException {
+
+        List<AttendanceRecord> records = new ArrayList<>();
+
+        String sql = "SELECT attendance_record_id, attendance_session_id, " +
+                "student_id, attendance_status, remarks, recorded_by, recorded_at " +
+                "FROM attendance_records " +
+                "WHERE attendance_session_id = ? " +
+                "ORDER BY student_id";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, sessionId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AttendanceRecord record = new AttendanceRecord();
+
+                    record.setAttendanceRecordId(
+                            rs.getLong("attendance_record_id"));
+                    record.setAttendanceSessionId(
+                            rs.getLong("attendance_session_id"));
+                    record.setStudentId(rs.getLong("student_id"));
+                    record.setAttendanceStatus(
+                            rs.getString("attendance_status"));
+                    record.setRemarks(rs.getString("remarks"));
+
+                    long recordedBy = rs.getLong("recorded_by");
+                    record.setRecordedBy(
+                            rs.wasNull() ? null : recordedBy);
+
+                    record.setRecordedAt(rs.getTimestamp("recorded_at"));
+
+                    records.add(record);
+                }
+            }
+        }
+
+        return records;
+    }
+
 
 
 
