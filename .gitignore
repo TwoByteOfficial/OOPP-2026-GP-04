@@ -3,4 +3,4 @@ out/
 
 # JetBrains IDE configuration directory
 .idea/
-*.iml
+out/production/
