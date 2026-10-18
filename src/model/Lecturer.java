@@ -9,6 +9,9 @@ public class Lecturer extends User {
         setRole("Lecturer");
     }
 
+    public Lecturer(long userId, String lecturerCode, String title, String specialization) {
+    }
+
     public String getLecturerCode() { return lecturerCode; }
     public void setLecturerCode(String lecturerCode) { this.lecturerCode = lecturerCode; }
     public String getTitle() { return title; }

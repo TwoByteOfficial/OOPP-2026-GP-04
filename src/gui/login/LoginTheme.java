@@ -20,10 +20,9 @@ public final class LoginTheme {
     public static final Color WHITE  = Color.WHITE;
 
     /* ---- Assets ---- */
-    public static final String ASSETS_DIR   = "/home/dulsha-hemini/myApps/OOPP-2026-GP-04/assets/";
+    public static final String ASSETS_DIR   = "assets/";
     public static final String UNI_LOGO     = ASSETS_DIR + "university-logo.png";
     public static final String FACULTY_LOGO = ASSETS_DIR + "faculty-logo.png";
-
     /* ---- Fonts ---- */
     private static final String FONT = "Segoe UI";
     public static final Font F_TITLE  = new Font(FONT, Font.BOLD, 50);

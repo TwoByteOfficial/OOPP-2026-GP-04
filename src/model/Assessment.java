@@ -17,6 +17,9 @@ public class Assessment {
 
     public Assessment() {}
 
+    public Assessment(long assessmentId, int courseId, String assessmentName, String assessmentCategory, String assessmentType, String component, BigDecimal weightPercent, BigDecimal maxMark, Date assessmentDate, Long createdBy) {
+    }
+
     public long getAssessmentId() { return assessmentId; }
     public void setAssessmentId(long assessmentId) { this.assessmentId = assessmentId; }
     public int getCourseId() { return courseId; }

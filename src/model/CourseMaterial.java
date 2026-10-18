@@ -15,6 +15,9 @@ public class CourseMaterial {
 
     public CourseMaterial() {}
 
+    public CourseMaterial(long materialId, int courseId, long lecturerId, String title, String description, String materialType, String filePath, String externalUrl, Timestamp uploadedAt, Timestamp updatedAt) {
+    }
+
     public long getMaterialId() { return materialId; }
     public void setMaterialId(long materialId) { this.materialId = materialId; }
     public int getCourseId() { return courseId; }
