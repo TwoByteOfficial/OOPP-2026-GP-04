@@ -81,6 +81,12 @@ public class LecturerDashboard extends JFrame {
                 "Dashboard"
         );
 
+// Real My Courses page
+        pageContainer.add(
+                new MyCourses(userId),
+                "MyCourses"
+        );
+
         addPlaceholderPages();
 
         setLayout(new BorderLayout());
@@ -285,7 +291,6 @@ public class LecturerDashboard extends JFrame {
 
     private void addPlaceholderPages() {
         String[][] pages = {
-                {"My Courses", "MyCourses"},
                 {"Course Materials", "CourseMaterials"},
                 {"Marks & Grades", "MarksGrades"},
                 {"Undergraduates", "Undergraduates"},

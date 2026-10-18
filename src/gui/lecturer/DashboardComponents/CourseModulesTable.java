@@ -76,7 +76,14 @@ public class CourseModulesTable extends JPanel {
         }
 
         for (Object[] course : courses) {
-            tableModel.addRow(course);
+
+            Object[] row = course.clone();
+
+            if (row[3] != null) {
+                row[3] = row[3].toString() + "%";
+            }
+
+            tableModel.addRow(row);
         }
     }
 }
