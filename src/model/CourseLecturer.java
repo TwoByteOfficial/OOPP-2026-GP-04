@@ -10,6 +10,9 @@ public class CourseLecturer {
 
     public CourseLecturer() {}
 
+    public CourseLecturer(int courseId, long lecturerId, String responsibility, Timestamp assignedAt) {
+    }
+
     public int getCourseId() { return courseId; }
     public void setCourseId(int courseId) { this.courseId = courseId; }
     public long getLecturerId() { return lecturerId; }

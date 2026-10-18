@@ -3,6 +3,7 @@ package model;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
 
 public class AttendanceSession {
     private long attendanceSessionId;
@@ -17,6 +18,9 @@ public class AttendanceSession {
     private String topic;
 
     public AttendanceSession() {}
+
+    public AttendanceSession(long attendanceSessionId, int courseId, String component, int sessionNo, Date sessionDate, Time startTime, Time endTime, BigDecimal durationHours, Long conductedBy, String topic, Timestamp createdAt) {
+    }
 
     public long getAttendanceSessionId() { return attendanceSessionId; }
     public void setAttendanceSessionId(long attendanceSessionId) { this.attendanceSessionId = attendanceSessionId; }

@@ -18,6 +18,9 @@ public class TimetableEntry {
 
     public TimetableEntry() {}
 
+    public TimetableEntry(long timetableId, int departmentId, int courseId, Long lecturerId, int batchYear, String component, String dayOfWeek, Time startTime, Time endTime, String venue, String academicYear, String semester) {
+    }
+
     public long getTimetableId() { return timetableId; }
     public void setTimetableId(long timetableId) { this.timetableId = timetableId; }
     public int getDepartmentId() { return departmentId; }
