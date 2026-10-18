@@ -1,2 +1,6 @@
+# Build output directory
+out/
+
+# JetBrains IDE configuration directory
 .idea/
-out/production/
+*.iml
