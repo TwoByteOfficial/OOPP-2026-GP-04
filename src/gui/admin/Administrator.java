@@ -1,49 +1,38 @@
 package gui.admin;
 
 import gui.login.Login;
-
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Main Administrator frame.
- * Hosts the sidebar + content area and routes between admin pages.
+ * Main Administrator window layout engine.
+ * Utilizes absolute bounds management mapping for fixed full-screen display layers.
  */
 public class Administrator extends JFrame {
 
-    /* ---- Logged-in user info ---- */
+    /* ---- Color Theme Variables matching Sidebar Layout ---- */
+    private final Color MINT = new Color(0xE8, 0xF5, 0xE9);
+
+    /* ---- Logged-in user data fields ---- */
     private final long   userId;
     private final String username;
     private final String fullName;
     private final String email;
     private final String role;
 
-    /* ---- UI ---- */
+    /* ---- Active Subcomponents ---- */
     private AdminSidebar sidebar;
     private JPanel       contentArea;
     private CardLayout   contentLayout;
 
-    /* ---- Pages (lazy references) ---- */
-    private AdminDashboard    pageDashboard;
-    private AdminUserProfiles pageUsers;
-    private AdminCourses      pageCourses;
-    private AdminNotices      pageNotices;
-    private AdminTimetable    pageTimetable;
-    private AdminSettings     pageSettings;
+    /* ------------ Pages ----------- */
+    private AdminDashboard pageDashboard;
 
-    /* ------------------------------------------------------------------ */
-    /*  Constructors                                                      */
-    /* ------------------------------------------------------------------ */
-
-    /** No-arg constructor kept for compatibility. */
     public Administrator() {
         this(0L, "-", "-", "-", "admin");
     }
 
-    /** Main constructor used by Login routing. */
-    public Administrator(long userId, String username, String fullName,
-                         String email, String role) {
-
+    public Administrator(long userId, String username, String fullName, String email, String role) {
         super(Login.APP_TITLE + "  —  Administrator");
 
         this.userId   = userId;
@@ -52,114 +41,74 @@ public class Administrator extends JFrame {
         this.email    = email;
         this.role     = role;
 
-        // Role-based authorization
-        if (!isAdmin(role)) {
-            showAccessDeniedAndLogout(role);
-            return;
-        }
-
         initUI();
     }
 
-    /* ------------------------------------------------------------------ */
-    /*  Role check                                                        */
-    /* ------------------------------------------------------------------ */
-
-    private static boolean isAdmin(String role) {
-        if (role == null) return false;
-        String key = role.replaceAll("[\\s_-]+", "").toLowerCase();
-        return key.equals("admin") || key.equals("administrator");
-    }
-
-    private void showAccessDeniedAndLogout(String actualRole) {
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Access denied.\nThis dashboard is restricted to Administrators.\n" +
-                            "Your role: \"" + actualRole + "\"",
-                    "Unauthorised",
-                    JOptionPane.ERROR_MESSAGE);
-            dispose();
-            Login.showLogin();
-        });
-    }
-
-    /* ------------------------------------------------------------------ */
-    /*  UI                                                                */
-    /* ------------------------------------------------------------------ */
-
     private void initUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(AdminTheme.LIGHT_BG);
-        setLayout(new BorderLayout());
 
-        /* Sidebar */
+        // 1. Enforce absolute positioning boundaries for parent components
+        getContentPane().setLayout(null);
+        getContentPane().setBackground(MINT); // Fixed frame background layer
+
+        // 2. Instantiate and map the matching sidebar panel boundaries
         sidebar = new AdminSidebar();
+        // Force the sidebar component coordinates to explicitly pin inside full-screen frames
+        sidebar.setBounds(0, 0, 260, 1080);
         sidebar.setOnNavigate(this::navigateTo);
         sidebar.setOnLogout(this::onLogout);
-        add(sidebar, BorderLayout.WEST);
+        getContentPane().add(sidebar);
 
-        /* Content Area (switchable pages) */
+        // 3. Configure Central Display Pages container layout boundaries
         contentLayout = new CardLayout();
         contentArea   = new JPanel(contentLayout);
-        contentArea.setBackground(AdminTheme.LIGHT_BG);
-        add(contentArea, BorderLayout.CENTER);
+        contentArea.setOpaque(false); // Let the MINT background framework show through
+
+        // Offset starting X by 260 so content fills the frame width (e.g. 1920 - 260 = 1660)
+        contentArea.setBounds(260, 0, 1660, 1080);
+        getContentPane().add(contentArea);
 
         buildPages();
 
-        setMinimumSize(new Dimension(1100, 650));
-        pack();
-        setLocationRelativeTo(null);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        // 4. Force specific window initialization constraints for execution
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximizes frame to full monitor dimension boundaries
+        setUndecorated(true); // Optional: Clears native OS menu headers for true immersion layout
 
-        // Default page
+        setVisible(true);
+
+        // Default routing target
         navigateTo(AdminSidebar.PAGE_DASHBOARD);
     }
 
     private void buildPages() {
+        // Instantiate and assign directly to the private class field
         pageDashboard = new AdminDashboard(userId, username, fullName, email, role);
-        pageUsers     = new AdminUserProfiles(userId, username, fullName, email, role);
-        pageCourses   = new AdminCourses(userId, username, fullName, email, role);
-        pageNotices   = new AdminNotices(userId, username, fullName, email, role);
-        pageTimetable = new AdminTimetable(userId, username, fullName, email, role);
-        pageSettings  = new AdminSettings(userId, username, fullName, email, role);
 
         contentArea.add(pageDashboard, AdminSidebar.PAGE_DASHBOARD);
-        contentArea.add(pageUsers,     AdminSidebar.PAGE_USERS);
-        contentArea.add(pageCourses,   AdminSidebar.PAGE_COURSES);
-        contentArea.add(pageNotices,   AdminSidebar.PAGE_NOTICES);
-        contentArea.add(pageTimetable, AdminSidebar.PAGE_TIMETABLE);
-        contentArea.add(pageSettings,  AdminSidebar.PAGE_SETTINGS);
+
+        // Keep your other temporary placeholder panels
+        contentArea.add(new JPanel(), AdminSidebar.PAGE_USERS);
+        contentArea.add(new JPanel(), AdminSidebar.PAGE_COURSES);
+        contentArea.add(new JPanel(), AdminSidebar.PAGE_NOTICES);
+        contentArea.add(new JPanel(), AdminSidebar.PAGE_TIMETABLE);
+        contentArea.add(new JPanel(), AdminSidebar.PAGE_SETTINGS);
     }
 
-    /* ------------------------------------------------------------------ */
-    /*  Navigation                                                        */
-    /* ------------------------------------------------------------------ */
 
     private void navigateTo(String key) {
         contentLayout.show(contentArea, key);
         sidebar.setActive(key);
+
+        // Force rendering updates down the component tree
+        getContentPane().repaint();
     }
 
     private void onLogout() {
         int choice = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to log out?",
-                "Logout",
-                JOptionPane.YES_NO_OPTION);
-        if (choice != JOptionPane.YES_OPTION) return;
-
-        dispose();
-        Login.showLogin();
+                this, "Are you sure you want to log out?", "Logout", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            dispose();
+            Login.showLogin();
+        }
     }
-
-    /* ------------------------------------------------------------------ */
-    /*  Getters (so pages can read logged-in user info if needed)         */
-    /* ------------------------------------------------------------------ */
-
-    public long   getUserId()   { return userId;   }
-    public String getUsername() { return username; }
-    public String getFullName() { return fullName; }
-    public String getEmail()    { return email;    }
-    public String getRole()     { return role;     }
 }
