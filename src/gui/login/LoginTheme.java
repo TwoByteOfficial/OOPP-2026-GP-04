@@ -5,10 +5,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /** Shared colours, fonts, assets and small Swing helpers for the login screens. */
 public final class LoginTheme {
@@ -24,8 +20,7 @@ public final class LoginTheme {
     public static final Color WHITE  = Color.WHITE;
 
     /* ---- Assets ---- */
-    // Use project-relative assets instead of a developer-specific Windows path.
-    public static final String ASSETS_DIR   = "assets" + File.separator;
+    public static final String ASSETS_DIR   = "/home/dulsha-hemini/myApps/OOPP-2026-GP-04/assets/";
     public static final String UNI_LOGO     = ASSETS_DIR + "university-logo.png";
     public static final String FACULTY_LOGO = ASSETS_DIR + "faculty-logo.png";
 
@@ -127,36 +122,12 @@ public final class LoginTheme {
         return label;
     }
     private static ImageIcon loadIcon(String path, int maxW, int maxH) {
-        try {
-            String fileName = new File(path).getName();
-            Image image = null;
-
-            // First support assets packaged on the classpath (e.g. a future JAR build).
-            URL resource = LoginTheme.class.getResource("/assets/" + fileName);
-            if (resource != null) image = new ImageIcon(resource).getImage();
-
-            // In IntelliJ, assets live in the project root and are not necessarily resources.
-            if (image == null || new ImageIcon(image).getIconWidth() <= 0) {
-                Path candidate = Path.of("assets", fileName).toAbsolutePath().normalize();
-                if (Files.isRegularFile(candidate)) image = new ImageIcon(candidate.toString()).getImage();
-            }
-            if (image == null || new ImageIcon(image).getIconWidth() <= 0) {
-                Path candidate = Path.of(System.getProperty("user.dir", "."), "assets", fileName)
-                        .toAbsolutePath().normalize();
-                if (Files.isRegularFile(candidate)) image = new ImageIcon(candidate.toString()).getImage();
-            }
-
-            if (image == null) return null;
-            ImageIcon original = new ImageIcon(image);
-            int w = original.getIconWidth(), h = original.getIconHeight();
-            if (w <= 0 || h <= 0) return null;
-            double scale = Math.min((double) maxW / w, (double) maxH / h);
-            return new ImageIcon(original.getImage().getScaledInstance(
-                    Math.max(1, (int) (w * scale)), Math.max(1, (int) (h * scale)), Image.SCALE_SMOOTH));
-        } catch (RuntimeException ex) {
-            System.err.println("Could not load login logo '" + path + "': " + ex.getMessage());
-            return null;
-        }
+        ImageIcon original = new ImageIcon(path);
+        int w = original.getIconWidth(), h = original.getIconHeight();
+        if (w <= 0 || h <= 0) return null;
+        double scale = Math.min((double) maxW / w, (double) maxH / h);
+        return new ImageIcon(original.getImage().getScaledInstance(
+                (int) (w * scale), (int) (h * scale), Image.SCALE_SMOOTH));
     }
 
     /* ---- Dialogs ---- */

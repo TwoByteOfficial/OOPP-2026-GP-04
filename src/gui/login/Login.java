@@ -1,10 +1,11 @@
 package gui.login;
 
-import gui.admin.AdminDashboard;
+//import gui.admin.AdminDashboard;
+import gui.admin.Administrator;
 import gui.lecturer.LecturerDashboard;
 import gui.technical.TechnicalOfficerDashboard;
-import service.AuthService.AuthUser;
 import gui.undergraduate.UndergraduateDashboard;
+import service.AuthService.AuthUser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,10 +27,10 @@ public class Login {
 
     private static final Map<String, DashboardFactory> DASHBOARDS = new HashMap<>();
     static {
-        DASHBOARDS.put("admin",            AdminDashboard::new);
-        DASHBOARDS.put("lecturer",         LecturerDashboard::new);
+        DASHBOARDS.put("admin", Administrator::new);
+        DASHBOARDS.put("lecturer", LecturerDashboard::new);
         DASHBOARDS.put("technicalofficer", TechnicalOfficerDashboard::new);
-        DASHBOARDS.put("undergraduate",    UndergraduateDashboard::new);
+        DASHBOARDS.put("undergraduate", UndergraduateDashboard::new);
     }
 
     private static String roleKey(String role) {
@@ -38,7 +39,7 @@ public class Login {
 
     /* ---- Entry points ---- */
 
-    public static void main(String[] args) {
+    public static void main() {
         SwingUtilities.invokeLater(Login::start);
     }
 
@@ -50,16 +51,16 @@ public class Login {
     private static void start() {
         JFrame frame = new JFrame(APP_TITLE);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(true);
+        frame.setResizable(false);
 
         JPanel root = new JPanel(new GridLayout(1, 2));
         root.add(new LeftPanel());
         root.add(new RightPanel(frame));
         frame.setContentPane(root);
 
-        frame.setSize(1100, 700);
         frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice().setFullScreenWindow(frame);
     }
 
     /* ---- Dashboard routing ---- */
@@ -70,8 +71,7 @@ public class Login {
         DashboardFactory factory = DASHBOARDS.get(roleKey(user.role()));
         if (factory == null) {
             LoginTheme.show(null,
-                    "Unknown role: \"" + user.role() + "\".\nContact the administrator.",
-                    "Login", JOptionPane.ERROR_MESSAGE);
+                    "Unknown role: \"" + user.role() + "\".\nContact the administrator.", "Login", JOptionPane.ERROR_MESSAGE);
             showLogin();
             return;
         }
@@ -79,9 +79,9 @@ public class Login {
         try {
             JFrame dashboard = factory.create(
                     user.id(), user.username(), user.fullName(), user.email(), user.role());
-            dashboard.setSize(1100, 700);
-            dashboard.setLocationRelativeTo(null);
             dashboard.setVisible(true);
+            GraphicsEnvironment.getLocalGraphicsEnvironment()
+                    .getDefaultScreenDevice().setFullScreenWindow(dashboard);
         } catch (RuntimeException ex) {
             ex.printStackTrace();
             LoginTheme.show(null,

@@ -1,42 +1,18 @@
 package model;
 
-public class TechnicalOfficer {
-
-    private Long userId;
+public class TechnicalOfficer extends User {
     private String technicalOfficerCode;
     private String designation;
+    private String assignedLabs;
 
     public TechnicalOfficer() {
+        setRole("Technical Officer");
     }
 
-    public TechnicalOfficer(Long userId, String technicalOfficerCode,
-                            String designation) {
-        this.userId = userId;
-        this.technicalOfficerCode = technicalOfficerCode;
-        this.designation = designation;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getTechnicalOfficerCode() {
-        return technicalOfficerCode;
-    }
-
-    public void setTechnicalOfficerCode(String technicalOfficerCode) {
-        this.technicalOfficerCode = technicalOfficerCode;
-    }
-
-    public String getDesignation() {
-        return designation;
-    }
-
-    public void setDesignation(String designation) {
-        this.designation = designation;
-    }
+    public String getTechnicalOfficerCode() { return technicalOfficerCode; }
+    public void setTechnicalOfficerCode(String technicalOfficerCode) { this.technicalOfficerCode = technicalOfficerCode; }
+    public String getDesignation() { return designation; }
+    public void setDesignation(String designation) { this.designation = designation; }
+    public String getAssignedLabs() { return assignedLabs; }
+    public void setAssignedLabs(String assignedLabs) { this.assignedLabs = assignedLabs; }
 }
