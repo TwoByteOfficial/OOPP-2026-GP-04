@@ -1,4 +1,5 @@
 package dao;
+import model.AttendanceSession;
 
 import util.DBConnection;
 import model.AttendanceRecord;
@@ -37,6 +38,55 @@ public class AttendanceDAO {
         }
         return success;
     }
+
+
+
+
+    public List<AttendanceSession> getSessionsByCourse(
+            int courseId, String component) throws SQLException {
+
+        List<AttendanceSession> sessions = new ArrayList<>();
+
+        String sql = "SELECT * FROM attendance_sessions " +
+                "WHERE course_id = ? AND component = ? " +
+                "ORDER BY session_no";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, courseId);
+            stmt.setString(2, component);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AttendanceSession session = new AttendanceSession();
+
+                    session.setAttendanceSessionId(
+                            rs.getLong("attendance_session_id"));
+                    session.setCourseId(rs.getInt("course_id"));
+                    session.setComponent(rs.getString("component"));
+                    session.setSessionNo(rs.getInt("session_no"));
+                    session.setSessionDate(rs.getDate("session_date"));
+                    session.setStartTime(rs.getTime("start_time"));
+                    session.setEndTime(rs.getTime("end_time"));
+                    session.setDurationHours(
+                            rs.getBigDecimal("duration_hours"));
+
+                    long conductedBy = rs.getLong("conducted_by");
+                    session.setConductedBy(
+                            rs.wasNull() ? null : conductedBy);
+
+                    session.setTopic(rs.getString("topic"));
+
+                    sessions.add(session);
+                }
+            }
+        }
+
+        return sessions;
+    }
+
+
 
     public boolean approveMedical(long medicalId, long reviewerId, String comment) throws SQLException {
         Connection conn = DBConnection.getConnection();
