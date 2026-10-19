@@ -108,4 +108,33 @@ public class CourseMaterialDAO {
             return statement.executeUpdate() > 0;
         }
     }
+
+
+    // Update a material belonging to this lecturer.
+    public boolean updateMaterial(CourseMaterial material)
+            throws SQLException {
+
+        String sql =
+                "UPDATE course_materials SET " +
+                        "course_id = ?, title = ?, description = ?, " +
+                        "material_type = ?, file_path = ?, external_url = ? " +
+                        "WHERE material_id = ? AND lecturer_id = ?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(1, material.getCourseId());
+            statement.setString(2, material.getTitle());
+            statement.setString(3, material.getDescription());
+            statement.setString(4, material.getMaterialType());
+            statement.setString(5, material.getFilePath());
+            statement.setString(6, material.getExternalUrl());
+            statement.setLong(7, material.getMaterialId());
+            statement.setLong(8, material.getLecturerId());
+
+            return statement.executeUpdate() > 0;
+        }
+    }
+
 }

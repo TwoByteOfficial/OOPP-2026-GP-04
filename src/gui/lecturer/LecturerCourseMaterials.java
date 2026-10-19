@@ -17,7 +17,6 @@ import java.util.List;
 public class LecturerCourseMaterials extends JPanel {
 
     private final long lecturerId;
-
     private final CourseDAO courseDAO;
     private final CourseMaterialDAO materialDAO;
 
@@ -56,19 +55,37 @@ public class LecturerCourseMaterials extends JPanel {
                 e -> openUploadDialog()
         );
 
+        // Connect the Edit and Delete buttons.
+        materialTable.setActionListener(
+                new CourseMaterialTable.MaterialActionListener() {
+
+                    @Override
+                    public void onEdit(CourseMaterial material) {
+                        editMaterial(material);
+                    }
+
+                    @Override
+                    public void onDelete(CourseMaterial material) {
+                        confirmDelete(material);
+                    }
+                }
+        );
+
         statusLabel = new JLabel(" ");
         statusLabel.setForeground(Color.GRAY);
-        statusLabel.setFont(new Font(
-                "SansSerif", Font.PLAIN, 12
-        ));
+        statusLabel.setFont(
+                new Font("SansSerif", Font.PLAIN, 12)
+        );
 
-        JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
+        JPanel centerPanel = new JPanel(
+                new BorderLayout(0, 10)
+        );
         centerPanel.setBackground(Color.WHITE);
 
         JLabel sectionTitle = new JLabel("Learning Materials");
-        sectionTitle.setFont(new Font(
-                "SansSerif", Font.BOLD, 17
-        ));
+        sectionTitle.setFont(
+                new Font("SansSerif", Font.BOLD, 17)
+        );
         sectionTitle.setForeground(new Color(27, 94, 32));
 
         centerPanel.add(sectionTitle, BorderLayout.NORTH);
@@ -86,7 +103,7 @@ public class LecturerCourseMaterials extends JPanel {
                     courseDAO.getCoursesByLecturer(lecturerId);
 
         } catch (SQLException ex) {
-            showDatabaseError("courses", ex);
+            showDatabaseError("load courses", ex);
         }
     }
 
@@ -101,15 +118,15 @@ public class LecturerCourseMaterials extends JPanel {
             statusLabel.setText(
                     materials.isEmpty()
                             ? "No course materials found."
-                            : materials.size() +
-                            " material(s) available"
+                            : materials.size() + " material(s) available"
             );
 
         } catch (SQLException ex) {
-            showDatabaseError("materials", ex);
+            showDatabaseError("load materials", ex);
         }
     }
 
+    // Upload a new material.
     private void openUploadDialog() {
 
         if (lecturerCourses.isEmpty()) {
@@ -135,11 +152,9 @@ public class LecturerCourseMaterials extends JPanel {
 
         CourseMaterial material = dialog.getMaterial();
 
-        if (material == null) {
-            return;
+        if (material != null) {
+            saveMaterial(material);
         }
-
-        saveMaterial(material);
     }
 
     private void saveMaterial(CourseMaterial material) {
@@ -171,24 +186,67 @@ public class LecturerCourseMaterials extends JPanel {
         }
     }
 
-    private void showDatabaseError(
-            String operation,
-            SQLException ex) {
+    // Open the dialog with the selected material's existing details.
+    private void editMaterial(CourseMaterial material) {
 
-        ex.printStackTrace();
+        if (lecturerCourses.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No courses are available for editing.",
+                    "No Courses Available",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
 
-        statusLabel.setText("Unable to load " + operation + ".");
+        Window owner = SwingUtilities.getWindowAncestor(this);
 
-        JOptionPane.showMessageDialog(
-                this,
-                "A database error occurred while trying to " +
-                        operation + ".\n" + ex.getMessage(),
-                "Database Error",
-                JOptionPane.ERROR_MESSAGE
-        );
+        UploadMaterialDialog dialog =
+                new UploadMaterialDialog(
+                        owner,
+                        lecturerId,
+                        lecturerCourses,
+                        material
+                );
+
+        dialog.setVisible(true);
+
+        CourseMaterial updatedMaterial = dialog.getMaterial();
+
+        // The user cancelled the dialog.
+        if (updatedMaterial == null) {
+            return;
+        }
+
+        try {
+            boolean updated =
+                    materialDAO.updateMaterial(updatedMaterial);
+
+            if (updated) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Course material updated successfully.",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                loadMaterials();
+
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "The material could not be updated.",
+                        "Update Failed",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+
+        } catch (SQLException ex) {
+            showDatabaseError("update material", ex);
+        }
     }
 
-
+    // Ask for confirmation before deleting.
     private void confirmDelete(CourseMaterial material) {
 
         int choice = JOptionPane.showConfirmDialog(
@@ -201,8 +259,58 @@ public class LecturerCourseMaterials extends JPanel {
         );
 
         if (choice == JOptionPane.YES_OPTION) {
-            // We will add the database delete operation here.
+            deleteMaterial(material);
         }
     }
 
+    private void deleteMaterial(CourseMaterial material) {
+
+        try {
+            boolean deleted = materialDAO.deleteMaterial(
+                    material.getMaterialId(),
+                    lecturerId
+            );
+
+            if (deleted) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Course material deleted successfully.",
+                        "Deleted",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                loadMaterials();
+
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "The material could not be deleted.",
+                        "Delete Failed",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+
+        } catch (SQLException ex) {
+            showDatabaseError("delete material", ex);
+        }
+    }
+
+    private void showDatabaseError(
+            String operation,
+            SQLException ex) {
+
+        ex.printStackTrace();
+
+        if (statusLabel != null) {
+            statusLabel.setText("Unable to " + operation + ".");
+        }
+
+        JOptionPane.showMessageDialog(
+                this,
+                "A database error occurred while trying to "
+                        + operation + ".\n" + ex.getMessage(),
+                "Database Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
 }

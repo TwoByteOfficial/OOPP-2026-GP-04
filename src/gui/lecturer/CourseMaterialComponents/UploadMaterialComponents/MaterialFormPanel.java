@@ -97,6 +97,8 @@ public class MaterialFormPanel extends JPanel {
         add(field, gbc);
     }
 
+    // Existing getter methods
+
     public CourseOption getSelectedCourse() {
         return (CourseOption) courseComboBox.getSelectedItem();
     }
@@ -122,7 +124,53 @@ public class MaterialFormPanel extends JPanel {
         return url.isEmpty() ? null : url;
     }
 
+    // New setter methods for Edit Material
+
+    public void setSelectedCourseId(int courseId) {
+
+        for (int i = 0; i < courseComboBox.getItemCount(); i++) {
+
+            CourseOption option = courseComboBox.getItemAt(i);
+
+            if (option.getCourseId() == courseId) {
+                courseComboBox.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    public void setTitle(String title) {
+        titleField.setText(title == null ? "" : title);
+    }
+
+    public void setDescription(String description) {
+        descriptionArea.setText(
+                description == null ? "" : description
+        );
+    }
+
+    public void setMaterialType(String materialType) {
+        if (materialType != null) {
+            typeComboBox.setSelectedItem(materialType);
+        }
+    }
+
+    public void setExternalUrl(String externalUrl) {
+        externalUrlField.setText(
+                externalUrl == null ? "" : externalUrl
+        );
+    }
+
+    public void setFilePath(String filePath) {
+        if (filePath != null && !filePath.trim().isEmpty()) {
+            filePicker.setSelectedFilePath(filePath);
+        } else {
+            filePicker.clearSelection();
+        }
+    }
+
     public void clearForm() {
+
         titleField.setText("");
         descriptionArea.setText("");
         filePicker.clearSelection();

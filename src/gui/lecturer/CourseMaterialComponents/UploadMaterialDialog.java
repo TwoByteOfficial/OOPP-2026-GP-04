@@ -17,31 +17,57 @@ public class UploadMaterialDialog extends JDialog {
 
     private final long lecturerId;
     private final MaterialFormPanel formPanel;
+    private final boolean editMode;
 
     private CourseMaterial material;
 
+    // Upload a new material.
     public UploadMaterialDialog(
             Window owner,
             long lecturerId,
             List<Object[]> courses) {
 
-        super(owner, "Upload Course Material",
-                ModalityType.APPLICATION_MODAL);
+        this(owner, lecturerId, courses, null);
+    }
+
+    // Upload or edit a material.
+    public UploadMaterialDialog(
+            Window owner,
+            long lecturerId,
+            List<Object[]> courses,
+            CourseMaterial existingMaterial) {
+
+        super(
+                owner,
+                existingMaterial == null
+                        ? "Upload Course Material"
+                        : "Edit Course Material",
+                ModalityType.APPLICATION_MODAL
+        );
 
         this.lecturerId = lecturerId;
-        this.formPanel = new MaterialFormPanel(courses);
+        this.editMode = existingMaterial != null;
+        this.material = existingMaterial;
+
+        formPanel = new MaterialFormPanel(courses);
+
+        if (editMode) {
+            loadMaterialDetails(existingMaterial);
+        }
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(560, 650);
         setMinimumSize(new Dimension(500, 600));
-        setLocationRelativeTo(owner);
-
         createLayout();
+        setLocationRelativeTo(owner);
     }
 
     private void createLayout() {
 
-        JPanel mainPanel = new JPanel(new BorderLayout(0, 18));
+        JPanel mainPanel = new JPanel(
+                new BorderLayout(0, 18)
+        );
+
         mainPanel.setBackground(Color.WHITE);
         mainPanel.setBorder(
                 BorderFactory.createEmptyBorder(22, 25, 22, 25)
@@ -62,17 +88,29 @@ public class UploadMaterialDialog extends JDialog {
     private JPanel createHeader() {
 
         JPanel header = new JPanel();
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        header.setLayout(
+                new BoxLayout(header, BoxLayout.Y_AXIS)
+        );
         header.setBackground(Color.WHITE);
 
-        JLabel title = new JLabel("Upload Learning Material");
+        JLabel title = new JLabel(
+                editMode
+                        ? "Edit Learning Material"
+                        : "Upload Learning Material"
+        );
+
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
         title.setForeground(DEEP_GREEN);
 
         JLabel description = new JLabel(
-                "Add learning resources for your assigned courses."
+                editMode
+                        ? "Update the details of this learning resource."
+                        : "Add learning resources for your assigned courses."
         );
-        description.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        description.setFont(
+                new Font("SansSerif", Font.PLAIN, 13)
+        );
         description.setForeground(Color.GRAY);
 
         header.add(title);
@@ -87,12 +125,20 @@ public class UploadMaterialDialog extends JDialog {
         JPanel buttonPanel = new JPanel(
                 new FlowLayout(FlowLayout.RIGHT, 10, 0)
         );
+
         buttonPanel.setBackground(Color.WHITE);
 
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(e -> dispose());
 
-        JButton saveButton = new JButton("Save Material");
+        cancelButton.addActionListener(e -> {
+            material = null;
+            dispose();
+        });
+
+        JButton saveButton = new JButton(
+                editMode ? "Update Material" : "Save Material"
+        );
+
         saveButton.setBackground(DEEP_GREEN);
         saveButton.setForeground(Color.WHITE);
         saveButton.setFocusPainted(false);
@@ -105,6 +151,34 @@ public class UploadMaterialDialog extends JDialog {
         buttonPanel.add(saveButton);
 
         return buttonPanel;
+    }
+
+    private void loadMaterialDetails(
+            CourseMaterial existingMaterial) {
+
+        formPanel.setSelectedCourseId(
+                existingMaterial.getCourseId()
+        );
+
+        formPanel.setTitle(
+                existingMaterial.getTitle()
+        );
+
+        formPanel.setDescription(
+                existingMaterial.getDescription()
+        );
+
+        formPanel.setMaterialType(
+                existingMaterial.getMaterialType()
+        );
+
+        formPanel.setFilePath(
+                existingMaterial.getFilePath()
+        );
+
+        formPanel.setExternalUrl(
+                existingMaterial.getExternalUrl()
+        );
     }
 
     private void saveMaterial() {
@@ -133,10 +207,13 @@ public class UploadMaterialDialog extends JDialog {
             return;
         }
 
-        material = new CourseMaterial();
+        if (!editMode) {
+            material = new CourseMaterial();
+            material.setLecturerId(lecturerId);
+        }
 
+        // Preserve the existing material ID when editing.
         material.setCourseId(selectedCourse.getCourseId());
-        material.setLecturerId(lecturerId);
         material.setTitle(title);
         material.setDescription(formPanel.getDescription());
         material.setMaterialType(formPanel.getMaterialType());

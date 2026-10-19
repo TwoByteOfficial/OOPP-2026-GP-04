@@ -39,8 +39,7 @@ public class MaterialFilePicker extends JPanel {
 
         if (result == JFileChooser.APPROVE_OPTION) {
 
-            File selectedFile =
-                    fileChooser.getSelectedFile();
+            File selectedFile = fileChooser.getSelectedFile();
 
             filePathField.setText(
                     selectedFile.getAbsolutePath()
@@ -53,6 +52,14 @@ public class MaterialFilePicker extends JPanel {
         String path = filePathField.getText().trim();
 
         return path.isEmpty() ? null : path;
+    }
+
+    // Set an existing file path when editing a material.
+    public void setSelectedFilePath(String filePath) {
+
+        filePathField.setText(
+                filePath == null ? "" : filePath
+        );
     }
 
     public void clearSelection() {

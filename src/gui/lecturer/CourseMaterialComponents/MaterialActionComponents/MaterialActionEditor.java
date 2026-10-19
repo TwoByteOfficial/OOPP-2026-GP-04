@@ -6,39 +6,35 @@ import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
+import java.util.function.IntConsumer;
 
 public class MaterialActionEditor extends AbstractCellEditor
         implements TableCellEditor {
 
     private final MaterialActionPanel panel;
-
-    private Runnable editAction;
-    private Runnable deleteAction;
+    private int editingRow = -1;
 
     public MaterialActionEditor(
-            Runnable editAction,
-            Runnable deleteAction) {
-
-        this.editAction = editAction;
-        this.deleteAction = deleteAction;
+            IntConsumer editAction,
+            IntConsumer deleteAction) {
 
         panel = new MaterialActionPanel();
 
         panel.getEditButton().addActionListener(e -> {
-            Runnable action = this.editAction;
+            int row = editingRow;
             fireEditingStopped();
 
-            if (action != null) {
-                action.run();
+            if (row >= 0) {
+                editAction.accept(row);
             }
         });
 
         panel.getDeleteButton().addActionListener(e -> {
-            Runnable action = this.deleteAction;
+            int row = editingRow;
             fireEditingStopped();
 
-            if (action != null) {
-                action.run();
+            if (row >= 0) {
+                deleteAction.accept(row);
             }
         });
     }
@@ -51,6 +47,7 @@ public class MaterialActionEditor extends AbstractCellEditor
             int row,
             int column) {
 
+        editingRow = row;
         return panel;
     }
 

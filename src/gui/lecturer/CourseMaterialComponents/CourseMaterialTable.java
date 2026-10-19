@@ -135,11 +135,11 @@ public class CourseMaterialTable extends JPanel {
         }
     }
 
-    private CourseMaterial getMaterialAtEditingRow() {
+    private CourseMaterial getMaterialAtRow(int viewRow) {
 
-        int viewRow = materialsTable.getEditingRow();
-
-        if (viewRow < 0 || materials == null) {
+        if (materials == null
+                || viewRow < 0
+                || viewRow >= materialsTable.getRowCount()) {
             return null;
         }
 
@@ -153,18 +153,18 @@ public class CourseMaterialTable extends JPanel {
         return null;
     }
 
-    private void editMaterial() {
+    private void editMaterial(int row) {
 
-        CourseMaterial material = getMaterialAtEditingRow();
+        CourseMaterial material = getMaterialAtRow(row);
 
         if (material != null && actionListener != null) {
             actionListener.onEdit(material);
         }
     }
 
-    private void deleteMaterial() {
+    private void deleteMaterial(int row) {
 
-        CourseMaterial material = getMaterialAtEditingRow();
+        CourseMaterial material = getMaterialAtRow(row);
 
         if (material != null && actionListener != null) {
             actionListener.onDelete(material);
