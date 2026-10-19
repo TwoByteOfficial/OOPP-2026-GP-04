@@ -2,21 +2,20 @@ package gui.admin.DashboardComponents;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Map; // Added Import
+import java.util.Map;
 
 public class SimpleAnalyticView extends JPanel {
+
     private final Color WHITE        = Color.WHITE;
     private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
     private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
     private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
 
-    // Modified Constructor Signature to ingest live database state
     public SimpleAnalyticView(Map<String, Integer> metrics) {
         setLayout(null);
         setBounds(0, 0, 1620, 130);
         setOpaque(false);
 
-        // Derive structural math sums for cumulative totals
         int totalUsers = metrics.getOrDefault("admins", 0)
                 + metrics.getOrDefault("lecturers", 0)
                 + metrics.getOrDefault("technical_officers", 0)
@@ -26,14 +25,13 @@ public class SimpleAnalyticView extends JPanel {
         int totalLecturers = metrics.getOrDefault("lecturers", 0);
         int totalCourses = metrics.getOrDefault("courses", 0);
 
-        // Renders dynamic updates straight from schema tracking metrics tables
-        addCustomStatCard("Total Users", totalUsers + " Users Active", 20, 0, "fa-users");
-        addCustomStatCard("Undergraduates", totalUG + " Students Registered", 420, 0, "fa-user-graduate");
-        addCustomStatCard("Lecturers", totalLecturers + " Staff Active", 820, 0, "fa-chalkboard-user");
-        addCustomStatCard("Active Courses", totalCourses + " Modules Live", 1220, 0, "fa-book-open");
+        addCustomStatCard("Total Users", totalUsers + " Users Active", 0, 0);
+        addCustomStatCard("Undergraduates", totalUG + " Students Registered", 413, 0);
+        addCustomStatCard("Lecturers", totalLecturers + " Staff Active", 826, 0);
+        addCustomStatCard("Active Courses", totalCourses + " Modules Live", 1240, 0);
     }
 
-    private void addCustomStatCard(String title, String countValue, int x, int y, String mockIcon) {
+    private void addCustomStatCard(String title, String countValue, int x, int y) {
         JPanel card = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -46,7 +44,7 @@ public class SimpleAnalyticView extends JPanel {
                 g2.dispose();
             }
         };
-        card.setBounds(x, y, 380, 110);
+        card.setBounds(x, y, 377, 110);
         card.setOpaque(false);
 
         JPanel iconPlaceholder = new JPanel(null) {
@@ -70,7 +68,7 @@ public class SimpleAnalyticView extends JPanel {
         card.add(valueLabel);
 
         JLabel labelText = new JLabel(title);
-        labelText.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        labelText.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         labelText.setForeground(MUTED);
         labelText.setBounds(88, 56, 270, 20);
         card.add(labelText);
