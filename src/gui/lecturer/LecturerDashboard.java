@@ -81,10 +81,14 @@ public class LecturerDashboard extends JFrame {
                 "Dashboard"
         );
 
-// Real My Courses page
         pageContainer.add(
                 new MyCourses(userId),
                 "MyCourses"
+        );
+
+        pageContainer.add(
+                new LecturerCourseMaterials(userId),
+                "CourseMaterials"
         );
 
         addPlaceholderPages();
@@ -289,9 +293,10 @@ public class LecturerDashboard extends JFrame {
         return button;
     }
 
+
     private void addPlaceholderPages() {
+
         String[][] pages = {
-                {"Course Materials", "CourseMaterials"},
                 {"Marks & Grades", "MarksGrades"},
                 {"Undergraduates", "Undergraduates"},
                 {"Eligibility", "Eligibility"},
@@ -301,9 +306,11 @@ public class LecturerDashboard extends JFrame {
         };
 
         for (String[] page : pages) {
+
             JPanel placeholder = new JPanel(
                     new BorderLayout()
             );
+
             placeholder.setBackground(PALE_GREEN);
             placeholder.setBorder(
                     new EmptyBorder(30, 30, 30, 30)
@@ -318,6 +325,7 @@ public class LecturerDashboard extends JFrame {
             JLabel message = new JLabel(
                     "This page will be implemented separately."
             );
+
             message.setFont(
                     new Font("SansSerif", Font.PLAIN, 14)
             );
