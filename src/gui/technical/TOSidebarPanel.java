@@ -1,5 +1,6 @@
 
 package gui.technical;
+import gui.theme.UniMisTheme;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
