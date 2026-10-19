@@ -1,11 +1,15 @@
 
 package gui.technical.dashboard.summary;
 
-import java.awt.Color;
+import gui.theme.UniMisTheme;
 
 public class UndergraduateSummaryCard extends SummaryCardPanel {
+
     public UndergraduateSummaryCard(String value) {
-        super("Department Undergraduates", value,
-                new Color(43, 99, 235));
+        super(
+                "Department Undergraduates",
+                value,
+                UniMisTheme.PRIMARY
+        );
     }
 }
