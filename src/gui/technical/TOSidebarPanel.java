@@ -45,7 +45,7 @@ public class TOSidebarPanel extends JPanel {
 
         JLabel subtitle = new JLabel("  Technical Officer");
         subtitle.setFont(UniMisTheme.FONT_TINY);
-        subtitle.setForeground(new Color(210, 222, 238));
+        subtitle.setForeground(UniMisTheme.PASTEL_GREEN);
 
         brand.add(title);
         brand.add(Box.createVerticalStrut(7));
@@ -83,8 +83,9 @@ public class TOSidebarPanel extends JPanel {
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setOpaque(true);
-        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
-        button.setPreferredSize(new Dimension(220, 48));
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
+        button.setPreferredSize(
+                new Dimension(UniMisTheme.SIDEBAR_WIDTH - 24, 46));
         button.setBorder(new EmptyBorder(8, 14, 8, 8));
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
@@ -101,6 +102,7 @@ public class TOSidebarPanel extends JPanel {
         parent.add(Box.createVerticalStrut(5));
     }
 
+
     private void setSelectedButton(JButton button) {
         if (selectedButton != null) {
             selectedButton.setBackground(NAVY);
@@ -112,6 +114,20 @@ public class TOSidebarPanel extends JPanel {
         selectedButton.setForeground(UniMisTheme.TEXT);
     }
 
+    public void selectPage(String pageName) {
+        for (Component component : getComponents()) {
+            if (component instanceof JPanel panel) {
+                for (Component item : panel.getComponents()) {
+                    if (item instanceof JButton button
+                            && button.getText().equals(pageName)) {
+                        setSelectedButton(button);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     private JPanel buildFooter(Runnable logoutHandler) {
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
@@ -120,8 +136,17 @@ public class TOSidebarPanel extends JPanel {
         logout.setFont(UniMisTheme.FONT_BODY_BOLD);
         logout.setForeground(Color.WHITE);
         logout.setBackground(NAVY);
+
+        logout.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UniMisTheme.BORDER),
+                new EmptyBorder(8, 14, 8, 14)
+        ));
+
+        logout.setPreferredSize(new Dimension(200, 44));
+        logout.setOpaque(true);
         logout.setFocusPainted(false);
-        logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        logout.setCursor(
+                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         logout.addActionListener(e -> logoutHandler.run());
 
