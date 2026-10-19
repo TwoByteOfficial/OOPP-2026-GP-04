@@ -3,6 +3,7 @@ package gui.undergraduate;
 import gui.admin.AdminTheme;
 import gui.login.Login;
 import gui.undergraduate.dashboard.UGDashboardPanel;
+import gui.undergraduate.courses.UGCoursesPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,11 +51,11 @@ public class UndergraduateDashboard extends JFrame {
         // Content Area (CardLayout)
         contentCards.setOpaque(false);
 
-        // 1.1 - Dashboard View එකතු කිරීම
+        // 1.1 - Dashboard View add
         contentCards.add(new UGDashboardPanel(userId, username, fullName, role, this::navigateTo), "dashboard");
 
-        // අනෙක් tabs සඳහා placeholders
-        contentCards.add(createPlaceholderPanel("My Courses & Evaluation Criteria"), "courses");
+        //  tabs  placeholders
+        contentCards.add(new UGCoursesPanel(userId, username), "courses");
         contentCards.add(createPlaceholderPanel("Attendance & Eligibility Details"), "attendance");
         contentCards.add(createPlaceholderPanel("Grades, SGPA & CGPA Records"), "grades");
         contentCards.add(createPlaceholderPanel("Medical Records Submission & Status"), "medicals");
