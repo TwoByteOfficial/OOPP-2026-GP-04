@@ -2,20 +2,19 @@ package gui.admin.DashboardComponents;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Map; // Added Import
+import java.util.Map;
 
 public class AttendanceSummary extends JPanel {
 
-    private final Color WHITE = Color.WHITE;
+    private final Color WHITE        = Color.WHITE;
     private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
-    private final Color DEEP_GREEN = new Color(0x1B, 0x5E, 0x20);
-    private final Color MUTED = new Color(0x4F, 0x6B, 0x52);
+    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
+    private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
     private final Color PASTEL_GREEN = new Color(0xC8, 0xE6, 0xC9);
 
-    // Modified Constructor Signature to receive data variables
     public AttendanceSummary(Map<String, Integer> metrics) {
         setLayout(null);
-        setBounds(0, 0, 770, 260);
+        setBounds(0, 0, 790, 260);
         setOpaque(false);
 
         JPanel container = new JPanel(null) {
@@ -32,40 +31,26 @@ public class AttendanceSummary extends JPanel {
             }
         };
 
-        container.setBounds(0, 0, 770, 260);
+        container.setBounds(0, 0, 790, 260);
         container.setOpaque(false);
 
         JLabel title = new JLabel("Administrative Quick Status");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(FOREST_GREEN);
         title.setBounds(25, 20, 450, 30);
         container.add(title);
 
-        addStatusRow(
-                container,
-                "Pending Medical Submissions",
-                "2 Pending",
-                70,
-                new Color(0xF0, 0xAD, 0x4E)
-        );
+        JLabel subtitle = new JLabel("System alert counters and active operational entries");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(MUTED);
+        subtitle.setBounds(25, 48, 500, 20);
+        container.add(subtitle);
 
-        addStatusRow(
-                container,
-                "Undergraduates Below 40% CA",
-                "5 Students",
-                130,
-                new Color(0xDC, 0x35, 0x45)
-        );
+        addStatusRow(container, "Pending Medical Submissions", "2 Pending", 80, new Color(0xF0, 0xAD, 0x4E));
+        addStatusRow(container, "Undergraduates Below 40% CA", "5 Students", 140, new Color(0xDC, 0x35, 0x45));
 
-        // Bound to real live dataset counter retrieved from 'timetable_entries' table
         int activeTimetables = metrics.getOrDefault("timetables", 0);
-        addStatusRow(
-                container,
-                "Active Timetable Entries",
-                activeTimetables + " Entries",
-                190,
-                FOREST_GREEN
-        );
+        addStatusRow(container, "Active Timetable Entries", activeTimetables + " Entries", 200, FOREST_GREEN);
 
         add(container);
     }
@@ -77,20 +62,20 @@ public class AttendanceSummary extends JPanel {
         panel.add(indicator);
 
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         titleLabel.setForeground(MUTED);
-        titleLabel.setBounds(45, y, 390, 24);
+        titleLabel.setBounds(45, y, 420, 24);
         panel.add(titleLabel);
 
         JLabel valueLabel = new JLabel(value, SwingConstants.RIGHT);
-        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         valueLabel.setForeground(DEEP_GREEN);
-        valueLabel.setBounds(435, y, 310, 24);
+        valueLabel.setBounds(480, y, 285, 24);
         panel.add(valueLabel);
 
         JSeparator separator = new JSeparator();
         separator.setForeground(PASTEL_GREEN);
-        separator.setBounds(25, y + 32, 720, 1);
+        separator.setBounds(25, y + 30, 740, 1);
         panel.add(separator);
     }
 }
