@@ -10,9 +10,9 @@ import java.util.function.Consumer;
 public class TOSidebarPanel extends JPanel {
 
     private final Consumer<String> navigationHandler;
-    private final Color NAVY = new Color(24, 58, 99);
-    private final Color SELECTED = new Color(53, 83, 122);
-    private final Color ACCENT = new Color(245, 166, 35);
+    private final Color NAVY = UniMisTheme.PRIMARY_DARK;
+    private final Color SELECTED = UniMisTheme.PASTEL_GREEN;
+    private final Color ACCENT = UniMisTheme.PRIMARY;
 
     private JButton selectedButton;
 
@@ -26,7 +26,8 @@ public class TOSidebarPanel extends JPanel {
         setLayout(new BorderLayout(0, 20));
         setBackground(NAVY);
         setBorder(new EmptyBorder(20, 12, 16, 12));
-        setPreferredSize(new Dimension(250, 0));
+        setPreferredSize(
+                new Dimension(UniMisTheme.SIDEBAR_WIDTH, 0));
 
         add(buildBrand(), BorderLayout.NORTH);
         add(buildNavigation(), BorderLayout.CENTER);
@@ -39,11 +40,11 @@ public class TOSidebarPanel extends JPanel {
         brand.setLayout(new BoxLayout(brand, BoxLayout.Y_AXIS));
 
         JLabel title = new JLabel("  FoT Portal");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setFont(UniMisTheme.FONT_LOGO);
         title.setForeground(Color.WHITE);
 
         JLabel subtitle = new JLabel("  Technical Officer");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        subtitle.setFont(UniMisTheme.FONT_TINY);
         subtitle.setForeground(new Color(210, 222, 238));
 
         brand.add(title);
@@ -74,8 +75,9 @@ public class TOSidebarPanel extends JPanel {
 
         JButton button = new JButton(label);
 
-        button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        button.setForeground(Color.WHITE);
+        button.setFont(UniMisTheme.FONT_MENU);
+        button.setForeground(
+                selected ? UniMisTheme.TEXT : UniMisTheme.WHITE);
         button.setBackground(selected ? SELECTED : NAVY);
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setFocusPainted(false);
@@ -102,10 +104,12 @@ public class TOSidebarPanel extends JPanel {
     private void setSelectedButton(JButton button) {
         if (selectedButton != null) {
             selectedButton.setBackground(NAVY);
+            selectedButton.setForeground(UniMisTheme.WHITE);
         }
 
         selectedButton = button;
         selectedButton.setBackground(SELECTED);
+        selectedButton.setForeground(UniMisTheme.TEXT);
     }
 
     private JPanel buildFooter(Runnable logoutHandler) {
@@ -113,7 +117,7 @@ public class TOSidebarPanel extends JPanel {
         footer.setOpaque(false);
 
         JButton logout = new JButton("Logout");
-        logout.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        logout.setFont(UniMisTheme.FONT_BODY_BOLD);
         logout.setForeground(Color.WHITE);
         logout.setBackground(NAVY);
         logout.setFocusPainted(false);
