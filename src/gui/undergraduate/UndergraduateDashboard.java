@@ -5,6 +5,7 @@ import gui.login.Login;
 import gui.undergraduate.dashboard.UGDashboardPanel;
 import gui.undergraduate.courses.UGCoursesPanel;
 import gui.undergraduate.attendance.UGAttendancePanel;
+import gui.undergraduate.grades.UGGradesPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,7 +59,7 @@ public class UndergraduateDashboard extends JFrame {
         //  tabs  placeholders
         contentCards.add(new UGCoursesPanel(userId, username), "courses");
         contentCards.add(new UGAttendancePanel(userId, username), "attendance");
-        contentCards.add(createPlaceholderPanel("Grades, SGPA & CGPA Records"), "grades");
+        contentCards.add(new UGGradesPanel(userId, username), "grades");
         contentCards.add(createPlaceholderPanel("Medical Records Submission & Status"), "medicals");
         contentCards.add(createPlaceholderPanel("Weekly Lecture & Lab Timetable"), "timetable");
         contentCards.add(createPlaceholderPanel("Academic Notices & Announcements"), "notices");
