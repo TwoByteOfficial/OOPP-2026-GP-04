@@ -3,6 +3,8 @@ package gui.technical.attendance;
 import dao.EnrollmentDAO;
 import model.Undergraduate;
 import javax.swing.table.DefaultTableModel;
+import dao.AttendanceDAO;
+import model.AttendanceSession;
 
 import dao.CourseDAO;
 import model.Course;
@@ -18,6 +20,8 @@ public class AttendancePanel extends JPanel {
 
     private JComboBox<String> courseComboBox;
     private JTable studentTable;
+    private JComboBox<String> componentComboBox;
+    private JComboBox<AttendanceSession> sessionComboBox;
     private List<Course> courses = new ArrayList<>();
 
     public AttendancePanel() {
@@ -44,25 +48,36 @@ public class AttendancePanel extends JPanel {
         courseComboBox.setPreferredSize(new Dimension(350, 30));
         coursePanel.add(courseComboBox);
 
+
         JPanel sessionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         sessionPanel.setBackground(Color.WHITE);
 
-        JLabel sessionLabel = new JLabel("Select Session:");
+        JLabel componentLabel = new JLabel("Select Component:");
 
-        String[] sessions = {
-                "Select a session",
+        String[] components = {
+                "Select a component",
                 "Lecture",
                 "Practical",
                 "Tutorial"
         };
 
-        JComboBox<String> sessionComboBox = new JComboBox<>(sessions);
+        componentComboBox = new JComboBox<>(components);
 
+        JLabel sessionLabel = new JLabel("Select Session:");
+
+        sessionComboBox = new JComboBox<>();
+
+        sessionPanel.add(componentLabel);
+        sessionPanel.add(componentComboBox);
         sessionPanel.add(sessionLabel);
         sessionPanel.add(sessionComboBox);
 
+
         topPanel.add(coursePanel);
         topPanel.add(sessionPanel);
+
+        courseComboBox.addActionListener(e -> loadSessions());
+        componentComboBox.addActionListener(e -> loadSessions());
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -187,4 +202,38 @@ public class AttendancePanel extends JPanel {
             );
         }
     }
+
+
+    private void loadSessions() {
+        int selectedIndex = courseComboBox.getSelectedIndex();
+        String component = (String) componentComboBox.getSelectedItem();
+
+        sessionComboBox.removeAllItems();
+
+        if (selectedIndex <= 0 || component == null
+                || component.equals("Select a component")) {
+            return;
+        }
+
+        try {
+            Course selectedCourse = courses.get(selectedIndex - 1);
+
+            List<AttendanceSession> sessions =
+                    new AttendanceDAO().getSessionsByCourse(
+                            selectedCourse.getCourseId(), component);
+
+            for (AttendanceSession session : sessions) {
+                sessionComboBox.addItem(session);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Could not load sessions: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
 }
