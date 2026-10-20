@@ -1,4 +1,3 @@
-
 package gui.lecturer;
 
 import dao.Lecturer.CourseDAO;
@@ -18,12 +17,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class LecturerDashboard extends JPanel {
-
-    private static final Color PALE_GREEN =
-            new Color(232, 245, 233);
-
-    private static final Color BORDER_GREEN =
-            new Color(200, 230, 201);
 
     private final long userId;
     private final String lecturerName;
@@ -71,8 +64,11 @@ public class LecturerDashboard extends JPanel {
                 new JPanel(new GridLayout(1, 4, 18, 0));
         statisticsPanel.setOpaque(false);
 
-        assignedCoursesCard =
-                new StatCard("Assigned Courses", "--", "▣");
+        addRow(card, gc, 0, "User ID:",   String.valueOf(userId));
+        addRow(card, gc, 1, "Username:",  username);
+        addRow(card, gc, 2, "Full Name:", fullName);
+        addRow(card, gc, 3, "Email:",     email);
+        addRow(card, gc, 4, "Role:",      role);
 
         undergraduatesCard =
                 new StatCard("Undergraduates", "--", "♙");
@@ -209,7 +205,10 @@ public class LecturerDashboard extends JPanel {
             }
         });
 
-        return button;
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 25));
+        bottom.setBackground(LoginTheme.MINT);
+        bottom.add(logout);
+        return bottom;
     }
 
     private void loadAssignedCourses() {

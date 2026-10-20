@@ -8,6 +8,9 @@ public class Admin extends User {
         setRole("Admin");
     }
 
+    public Admin(long userId, String adminCode, String designation) {
+    }
+
     public String getAdminCode() { return adminCode; }
     public void setAdminCode(String adminCode) { this.adminCode = adminCode; }
     public String getDesignation() { return designation; }

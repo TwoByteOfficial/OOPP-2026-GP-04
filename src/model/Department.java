@@ -12,6 +12,9 @@ public class Department {
 
     public Department() {}
 
+    public Department(int departmentId, String departmentCode, String departmentName, String description, String status, Timestamp createdAt) {
+    }
+
     public int getDepartmentId() { return departmentId; }
     public void setDepartmentId(int departmentId) { this.departmentId = departmentId; }
     public String getDepartmentCode() { return departmentCode; }

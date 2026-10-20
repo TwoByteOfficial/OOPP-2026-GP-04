@@ -19,6 +19,9 @@ public class Medical {
 
     public Medical() {}
 
+    public Medical(long medicalId, long studentId, int courseId, Long attendanceRecordId, Date medicalDate, String reason, String documentPath, String approvalStatus, Timestamp submittedAt, Long reviewedBy, Timestamp reviewedAt, String reviewComment) {
+    }
+
     public long getMedicalId() { return medicalId; }
     public void setMedicalId(long medicalId) { this.medicalId = medicalId; }
     public long getStudentId() { return studentId; }

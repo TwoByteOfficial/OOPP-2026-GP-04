@@ -6,7 +6,7 @@ import gui.admin.Administrator;
 import gui.lecturer.Lecturer;
 import gui.technical.TechnicalOfficerDashboard;
 import gui.undergraduate.UndergraduateDashboard;
-import service.AuthService.AuthUser;
+import services.AuthService.AuthUser;
 
 import javax.swing.*;
 import java.awt.*;
