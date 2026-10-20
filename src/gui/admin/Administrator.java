@@ -4,6 +4,9 @@ import gui.login.Login;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Main Administrator window layout frame.
+ */
 public class Administrator extends JFrame {
 
     private final Color MINT = new Color(0xE8, 0xF5, 0xE9);

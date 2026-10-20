@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
 
+/**
+ * Top 4 metric cards row with live database aggregations.
+ */
 public class SimpleAnalyticView extends JPanel {
 
     private final Color WHITE        = Color.WHITE;
@@ -44,7 +47,7 @@ public class SimpleAnalyticView extends JPanel {
                 g2.dispose();
             }
         };
-        card.setBounds(x, y, 377, 110);
+        card.setBounds(x, y, 380, 110);
         card.setOpaque(false);
 
         JPanel iconPlaceholder = new JPanel(null) {
@@ -62,15 +65,15 @@ public class SimpleAnalyticView extends JPanel {
         card.add(iconPlaceholder);
 
         JLabel valueLabel = new JLabel(countValue);
-        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 24)); // 22 -> 24
         valueLabel.setForeground(DEEP_GREEN);
-        valueLabel.setBounds(88, 24, 270, 32);
+        valueLabel.setBounds(88, 22, 280, 34);
         card.add(valueLabel);
 
         JLabel labelText = new JLabel(title);
-        labelText.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        labelText.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // 12 -> 14
         labelText.setForeground(MUTED);
-        labelText.setBounds(88, 56, 270, 20);
+        labelText.setBounds(88, 58, 280, 22);
         card.add(labelText);
 
         add(card);
