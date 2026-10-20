@@ -16,6 +16,9 @@ public class Notice {
 
     public Notice() {}
 
+    public Notice(long noticeId, String title, String content, String noticeType, String targetRole, Integer departmentId, Long publishedBy, Timestamp publishedAt, Timestamp expiresAt, String status) {
+    }
+
     public long getNoticeId() { return noticeId; }
     public void setNoticeId(long noticeId) { this.noticeId = noticeId; }
     public String getTitle() { return title; }

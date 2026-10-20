@@ -13,6 +13,9 @@ public class Mark {
 
     public Mark() {}
 
+    public Mark(long markId, long assessmentId, long studentId, BigDecimal mark, Long enteredBy, Timestamp enteredAt, Timestamp updatedAt) {
+    }
+
     public long getMarkId() { return markId; }
     public void setMarkId(long markId) { this.markId = markId; }
     public long getAssessmentId() { return assessmentId; }

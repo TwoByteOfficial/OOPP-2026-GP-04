@@ -1,6 +1,6 @@
 package gui.login;
 
-import service.AuthService;
+import services.AuthService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
