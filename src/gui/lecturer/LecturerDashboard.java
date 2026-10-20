@@ -1,67 +1,68 @@
 package gui.lecturer;
 
-import gui.login.Login;
-import gui.login.LoginTheme;
+import dao.Lecturer.CourseDAO;
+import dao.Lecturer.DashboardStatsDAO;
+import dao.Lecturer.NoticeDAO;
+
+import gui.lecturer.DashboardComponents.CourseModulesTable;
+import gui.lecturer.DashboardComponents.DashboardTitleBar;
+import gui.lecturer.DashboardComponents.RecentNotices;
+import gui.lecturer.DashboardComponents.StatCard;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.function.Consumer;
 
-/**
- * Lecturer dashboard. Same constructor signature as the other dashboards,
- * so Login's DashboardFactory map can build it via a method reference.
- */
-public class LecturerDashboard extends JFrame {
+public class LecturerDashboard extends JPanel {
 
     private final long userId;
-    private final String username, fullName, email, role;
+    private final String lecturerName;
+    private final Consumer<String> onNavigate;
 
-    public LecturerDashboard(long userId, String username, String fullName,
-                             String email, String role) {
-        this.userId   = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email    = email;
-        this.role     = role;
+    private final CourseModulesTable courseModulesTable;
+    private final RecentNotices recentNotices;
 
-        setTitle("UniMis - Lecturer Dashboard");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+    private StatCard assignedCoursesCard;
+    private StatCard undergraduatesCard;
+    private StatCard pendingMarksCard;
+    private StatCard newNoticesCard;
 
-        JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(LoginTheme.MINT);
-        root.add(buildHeader(), BorderLayout.NORTH);
-        root.add(buildCenter(), BorderLayout.CENTER);
-        root.add(buildFooter(), BorderLayout.SOUTH);
+    public LecturerDashboard(
+            long userId,
+            String lecturerName,
+            Consumer<String> onNavigate) {
 
-        setContentPane(root);
-        setLocationRelativeTo(null);
+        this.userId = userId;
+        this.lecturerName = lecturerName;
+        this.onNavigate = onNavigate;
+
+        setLayout(new BorderLayout(0, 24));
+        setBackground(PALE_GREEN);
+        setBorder(new EmptyBorder(28, 30, 30, 30));
+
+        courseModulesTable = new CourseModulesTable();
+        recentNotices = new RecentNotices();
+
+        add(createDashboardContent(), BorderLayout.CENTER);
+
+        loadAssignedCourses();
+        loadDashboardStats();
+        loadRecentNotices();
     }
 
-    /* ---------- Header ---------- */
+    private JPanel createDashboardContent() {
+        JPanel content = new JPanel(new BorderLayout(0, 24));
+        content.setOpaque(false);
 
-    private JPanel buildHeader() {
-        JLabel title = new JLabel("Lecturer Dashboard", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 42));
-        title.setForeground(LoginTheme.FOREST);
-        title.setBorder(new EmptyBorder(50, 20, 10, 20));
+        DashboardTitleBar titleBar =
+                new DashboardTitleBar(lecturerName);
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(LoginTheme.MINT);
-        header.add(title, BorderLayout.CENTER);
-        return header;
-    }
-
-    /* ---------- Centre : profile card ---------- */
-
-    private JPanel buildCenter() {
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(LoginTheme.PASTEL);
-        card.setBorder(new EmptyBorder(30, 60, 30, 60));
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(8, 12, 8, 12);
-        gc.anchor = GridBagConstraints.WEST;
+        JPanel statisticsPanel =
+                new JPanel(new GridLayout(1, 4, 18, 0));
+        statisticsPanel.setOpaque(false);
 
         addRow(card, gc, 0, "User ID:",   String.valueOf(userId));
         addRow(card, gc, 1, "Username:",  username);
@@ -69,20 +70,139 @@ public class LecturerDashboard extends JFrame {
         addRow(card, gc, 3, "Email:",     email);
         addRow(card, gc, 4, "Role:",      role);
 
-        JPanel wrap = new JPanel(new GridBagLayout());
-        wrap.setBackground(LoginTheme.MINT);
-        wrap.add(card);
-        return wrap;
+        undergraduatesCard =
+                new StatCard("Undergraduates", "--", "♙");
+
+        pendingMarksCard =
+                new StatCard("Pending Marks", "--", "☷");
+
+        newNoticesCard =
+                new StatCard("New Notices", "--", "♧");
+
+        statisticsPanel.add(assignedCoursesCard);
+        statisticsPanel.add(undergraduatesCard);
+        statisticsPanel.add(pendingMarksCard);
+        statisticsPanel.add(newNoticesCard);
+
+        JPanel lowerPanels =
+                new JPanel(new GridLayout(1, 2, 22, 0));
+        lowerPanels.setOpaque(false);
+
+        lowerPanels.add(courseModulesTable);
+        lowerPanels.add(recentNotices);
+
+        JPanel middleContent =
+                new JPanel(new BorderLayout(0, 24));
+        middleContent.setOpaque(false);
+
+        middleContent.add(
+                statisticsPanel,
+                BorderLayout.NORTH
+        );
+
+        JPanel lowerContent =
+                new JPanel(new BorderLayout(0, 24));
+        lowerContent.setOpaque(false);
+        lowerContent.add(
+                lowerPanels,
+                BorderLayout.CENTER
+        );
+
+        lowerContent.add(
+                createQuickActions(),
+                BorderLayout.SOUTH
+        );
+
+        middleContent.add(
+                lowerContent,
+                BorderLayout.CENTER
+        );
+
+        content.add(titleBar, BorderLayout.NORTH);
+        content.add(middleContent, BorderLayout.CENTER);
+
+        return content;
     }
 
-    /* ---------- Footer : logout ---------- */
+    private JPanel createQuickActions() {
+        JPanel panel = new JPanel(new BorderLayout(0, 14));
+        panel.setBackground(Color.WHITE);
 
-    private JPanel buildFooter() {
-        JButton logout = LoginTheme.button("Logout", LoginTheme.F_LABEL);
-        logout.setPreferredSize(new Dimension(150, 44));
-        logout.addActionListener(e -> {
-            dispose();
-            Login.showLogin();
+        panel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_GREEN, 1, true
+                        ),
+                        new EmptyBorder(18, 20, 18, 20)
+                )
+        );
+
+        JLabel title = new JLabel("Quick Actions");
+        title.setFont(
+                new Font("SansSerif", Font.BOLD, 18)
+        );
+        title.setForeground(new Color(27, 94, 32));
+
+        JPanel buttons =
+                new JPanel(new GridLayout(1, 3, 16, 0));
+        buttons.setOpaque(false);
+
+        buttons.add(
+                createQuickActionButton(
+                        "Enter Marks", "MarksGrades"
+                )
+        );
+
+        buttons.add(
+                createQuickActionButton(
+                        "Add Material", "CourseMaterials"
+                )
+        );
+
+        buttons.add(
+                createQuickActionButton(
+                        "Check Eligibility", "Eligibility"
+                )
+        );
+
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(buttons, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JButton createQuickActionButton(
+            String label,
+            String targetPage) {
+
+        JButton button = new JButton(label);
+
+        button.setFont(
+                new Font("SansSerif", Font.BOLD, 14)
+        );
+        button.setForeground(new Color(27, 94, 32));
+        button.setBackground(PALE_GREEN);
+        button.setFocusPainted(false);
+
+        button.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_GREEN, 1, true
+                        ),
+                        new EmptyBorder(16, 12, 16, 12)
+                )
+        );
+
+        button.setCursor(
+                Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.addActionListener(event -> {
+            if (onNavigate != null) {
+                onNavigate.accept(targetPage);
+            }
         });
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 25));
@@ -91,20 +211,87 @@ public class LecturerDashboard extends JFrame {
         return bottom;
     }
 
-    /* ---------- Row helper (used inside the card) ---------- */
+    private void loadAssignedCourses() {
+        try {
+            CourseDAO courseDAO = new CourseDAO();
 
-    private static void addRow(JPanel p, GridBagConstraints gc, int row,
-                               String label, String value) {
-        gc.gridx = 0; gc.gridy = row;
-        JLabel l = new JLabel(label);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(LoginTheme.DEEP);
-        p.add(l, gc);
+            List<Object[]> courses =
+                    courseDAO.getCoursesByLecturer(userId);
 
-        gc.gridx = 1;
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        v.setForeground(LoginTheme.DEEP);
-        p.add(v, gc);
+            courseModulesTable.setCourses(courses);
+
+            assignedCoursesCard.setValue(
+                    String.valueOf(courses.size())
+            );
+
+        } catch (SQLException exception) {
+            courseModulesTable.setCourses(List.of());
+            assignedCoursesCard.setValue("--");
+
+            System.err.println(
+                    "Unable to load assigned courses: "
+                            + exception.getMessage()
+            );
+
+            exception.printStackTrace();
+        }
+    }
+
+    private void loadDashboardStats() {
+        DashboardStatsDAO statsDAO =
+                new DashboardStatsDAO();
+
+        try {
+            undergraduatesCard.setValue(
+                    String.valueOf(
+                            statsDAO.getUndergraduateCount(userId)
+                    )
+            );
+
+            pendingMarksCard.setValue(
+                    String.valueOf(
+                            statsDAO.getPendingMarksCount(userId)
+                    )
+            );
+
+            newNoticesCard.setValue(
+                    String.valueOf(
+                            statsDAO.getNewNoticesCount()
+                    )
+            );
+
+        } catch (SQLException exception) {
+            undergraduatesCard.setValue("--");
+            pendingMarksCard.setValue("--");
+            newNoticesCard.setValue("--");
+
+            System.err.println(
+                    "Unable to load dashboard statistics: "
+                            + exception.getMessage()
+            );
+
+            exception.printStackTrace();
+        }
+    }
+
+    private void loadRecentNotices() {
+        try {
+            NoticeDAO noticeDAO = new NoticeDAO();
+
+            List<String[]> notices =
+                    noticeDAO.getRecentNotices();
+
+            recentNotices.showNotices(notices);
+
+        } catch (SQLException exception) {
+            recentNotices.showNotices(List.of());
+
+            System.err.println(
+                    "Unable to load recent notices: "
+                            + exception.getMessage()
+            );
+
+            exception.printStackTrace();
+        }
     }
 }

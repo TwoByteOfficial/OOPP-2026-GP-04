@@ -2,7 +2,8 @@ package gui.login;
 
 //import gui.admin.AdminDashboard;
 import gui.admin.Administrator;
-//import gui.lecturer.LecturerDashboard;
+//import gui.lecturer.LecturerDashboard
+import gui.lecturer.Lecturer;
 import gui.technical.TechnicalOfficerDashboard;
 import gui.undergraduate.UndergraduateDashboard;
 import services.AuthService.AuthUser;
@@ -28,7 +29,7 @@ public class Login {
     private static final Map<String, DashboardFactory> DASHBOARDS = new HashMap<>();
     static {
         DASHBOARDS.put("admin", Administrator::new);
-        //DASHBOARDS.put("lecturer", LecturerDashboard::new);
+        DASHBOARDS.put("lecturer", Lecturer::new);
         DASHBOARDS.put("technicalofficer", TechnicalOfficerDashboard::new);
         DASHBOARDS.put("undergraduate", UndergraduateDashboard::new);
     }
