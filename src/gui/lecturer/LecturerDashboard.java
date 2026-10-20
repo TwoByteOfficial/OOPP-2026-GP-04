@@ -5,22 +5,19 @@ import dao.Lecturer.CourseDAO;
 import dao.Lecturer.DashboardStatsDAO;
 import dao.Lecturer.NoticeDAO;
 
-import gui.login.Login;
 import gui.lecturer.DashboardComponents.CourseModulesTable;
 import gui.lecturer.DashboardComponents.DashboardTitleBar;
 import gui.lecturer.DashboardComponents.RecentNotices;
 import gui.lecturer.DashboardComponents.StatCard;
-import gui.lecturer.SharedComponents.LecturerSidebar;
-import gui.lecturer.SharedComponents.LecturerTopbar;
-
-import java.sql.SQLException;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.function.Consumer;
 
-public class LecturerDashboard extends JFrame {
+public class LecturerDashboard extends JPanel {
 
     private static final Color PALE_GREEN =
             new Color(232, 245, 233);
@@ -29,15 +26,8 @@ public class LecturerDashboard extends JFrame {
             new Color(200, 230, 201);
 
     private final long userId;
-    private final String username;
-    private final String fullName;
-    private final String email;
-    private final String role;
-
-    private final LecturerSidebar sidebar;
-    private final LecturerTopbar topbar;
-    private final CardLayout cardLayout;
-    private final JPanel pageContainer;
+    private final String lecturerName;
+    private final Consumer<String> onNavigate;
 
     private final CourseModulesTable courseModulesTable;
     private final RecentNotices recentNotices;
@@ -49,99 +39,36 @@ public class LecturerDashboard extends JFrame {
 
     public LecturerDashboard(
             long userId,
-            String username,
-            String fullName,
-            String email,
-            String role) {
+            String lecturerName,
+            Consumer<String> onNavigate) {
 
         this.userId = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email = email;
-        this.role = role;
+        this.lecturerName = lecturerName;
+        this.onNavigate = onNavigate;
 
-        setTitle("UniMIS - Lecturer Portal");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(1200, 750));
-        setSize(1440, 850);
-        setLocationRelativeTo(null);
-
-        sidebar = new LecturerSidebar();
-        topbar = new LecturerTopbar(getLecturerName());
-
-        cardLayout = new CardLayout();
-        pageContainer = new JPanel(cardLayout);
-        pageContainer.setBackground(PALE_GREEN);
+        setLayout(new BorderLayout(0, 24));
+        setBackground(PALE_GREEN);
+        setBorder(new EmptyBorder(28, 30, 30, 30));
 
         courseModulesTable = new CourseModulesTable();
         recentNotices = new RecentNotices();
 
-        pageContainer.add(
-                createDashboardPage(),
-                "Dashboard"
-        );
-
-        pageContainer.add(
-                new MyCourses(userId),
-                "MyCourses"
-        );
-
-        pageContainer.add(
-                new LecturerCourseMaterials(userId),
-                "CourseMaterials"
-        );
-
-        addPlaceholderPages();
-
-        setLayout(new BorderLayout());
-        add(sidebar, BorderLayout.WEST);
-        add(createMainArea(), BorderLayout.CENTER);
-
-        connectNavigation();
+        add(createDashboardContent(), BorderLayout.CENTER);
 
         loadAssignedCourses();
         loadDashboardStats();
         loadRecentNotices();
-
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
-    private String getLecturerName() {
-        if (fullName != null && !fullName.isBlank()) {
-            return fullName;
-        }
-
-        if (username != null && !username.isBlank()) {
-            return username;
-        }
-
-        return "Lecturer";
-    }
-
-    private JPanel createMainArea() {
-        JPanel mainArea = new JPanel(new BorderLayout());
-        mainArea.setBackground(PALE_GREEN);
-
-        topbar.setPreferredSize(new Dimension(0, 100));
-
-        mainArea.add(topbar, BorderLayout.NORTH);
-        mainArea.add(pageContainer, BorderLayout.CENTER);
-
-        return mainArea;
-    }
-
-    private JPanel createDashboardPage() {
-        JPanel page = new JPanel(new BorderLayout(0, 24));
-        page.setBackground(PALE_GREEN);
-        page.setBorder(new EmptyBorder(28, 30, 30, 30));
+    private JPanel createDashboardContent() {
+        JPanel content = new JPanel(new BorderLayout(0, 24));
+        content.setOpaque(false);
 
         DashboardTitleBar titleBar =
-                new DashboardTitleBar(getLecturerName());
+                new DashboardTitleBar(lecturerName);
 
-        // Four statistic cards
-        JPanel statisticsPanel = new JPanel(
-                new GridLayout(1, 4, 18, 0)
-        );
+        JPanel statisticsPanel =
+                new JPanel(new GridLayout(1, 4, 18, 0));
         statisticsPanel.setOpaque(false);
 
         assignedCoursesCard =
@@ -161,21 +88,15 @@ public class LecturerDashboard extends JFrame {
         statisticsPanel.add(pendingMarksCard);
         statisticsPanel.add(newNoticesCard);
 
-        // Course modules on the left, recent notices on the right
-        JPanel lowerPanels = new JPanel(
-                new GridLayout(1, 2, 22, 0)
-        );
+        JPanel lowerPanels =
+                new JPanel(new GridLayout(1, 2, 22, 0));
         lowerPanels.setOpaque(false);
 
         lowerPanels.add(courseModulesTable);
         lowerPanels.add(recentNotices);
 
-        // Quick Actions underneath both panels
-        JPanel quickActions = createQuickActions();
-
-        JPanel middleContent = new JPanel(
-                new BorderLayout(0, 24)
-        );
+        JPanel middleContent =
+                new JPanel(new BorderLayout(0, 24));
         middleContent.setOpaque(false);
 
         middleContent.add(
@@ -183,18 +104,16 @@ public class LecturerDashboard extends JFrame {
                 BorderLayout.NORTH
         );
 
-        JPanel lowerContent = new JPanel(
-                new BorderLayout(0, 24)
-        );
+        JPanel lowerContent =
+                new JPanel(new BorderLayout(0, 24));
         lowerContent.setOpaque(false);
-
         lowerContent.add(
                 lowerPanels,
                 BorderLayout.CENTER
         );
 
         lowerContent.add(
-                quickActions,
+                createQuickActions(),
                 BorderLayout.SOUTH
         );
 
@@ -203,23 +122,14 @@ public class LecturerDashboard extends JFrame {
                 BorderLayout.CENTER
         );
 
-        JPanel content = new JPanel(
-                new BorderLayout(0, 24)
-        );
-        content.setOpaque(false);
-
         content.add(titleBar, BorderLayout.NORTH);
         content.add(middleContent, BorderLayout.CENTER);
 
-        page.add(content, BorderLayout.CENTER);
-
-        return page;
+        return content;
     }
 
     private JPanel createQuickActions() {
-        JPanel panel = new JPanel(
-                new BorderLayout(0, 14)
-        );
+        JPanel panel = new JPanel(new BorderLayout(0, 14));
         panel.setBackground(Color.WHITE);
 
         panel.setBorder(
@@ -237,19 +147,27 @@ public class LecturerDashboard extends JFrame {
         );
         title.setForeground(new Color(27, 94, 32));
 
-        JPanel buttons = new JPanel(
-                new GridLayout(1, 3, 16, 0)
-        );
+        JPanel buttons =
+                new JPanel(new GridLayout(1, 3, 16, 0));
         buttons.setOpaque(false);
 
-        buttons.add(createQuickActionButton(
-                "Enter Marks", "MarksGrades"));
+        buttons.add(
+                createQuickActionButton(
+                        "Enter Marks", "MarksGrades"
+                )
+        );
 
-        buttons.add(createQuickActionButton(
-                "Add Material", "CourseMaterials"));
+        buttons.add(
+                createQuickActionButton(
+                        "Add Material", "CourseMaterials"
+                )
+        );
 
-        buttons.add(createQuickActionButton(
-                "Check Eligibility", "Eligibility"));
+        buttons.add(
+                createQuickActionButton(
+                        "Check Eligibility", "Eligibility"
+                )
+        );
 
         panel.add(title, BorderLayout.NORTH);
         panel.add(buttons, BorderLayout.CENTER);
@@ -285,121 +203,13 @@ public class LecturerDashboard extends JFrame {
                 )
         );
 
-        button.addActionListener(e -> {
-            sidebar.selectPage(targetPage);
-            cardLayout.show(pageContainer, targetPage);
+        button.addActionListener(event -> {
+            if (onNavigate != null) {
+                onNavigate.accept(targetPage);
+            }
         });
 
         return button;
-    }
-
-
-    private void addPlaceholderPages() {
-
-        String[][] pages = {
-                {"Marks & Grades", "MarksGrades"},
-                {"Undergraduates", "Undergraduates"},
-                {"Eligibility", "Eligibility"},
-                {"Attendance", "Attendance"},
-                {"Notices", "Notices"},
-                {"My Profile", "Profile"}
-        };
-
-        for (String[] page : pages) {
-
-            JPanel placeholder = new JPanel(
-                    new BorderLayout()
-            );
-
-            placeholder.setBackground(PALE_GREEN);
-            placeholder.setBorder(
-                    new EmptyBorder(30, 30, 30, 30)
-            );
-
-            JLabel title = new JLabel(page[0]);
-            title.setFont(
-                    new Font("SansSerif", Font.BOLD, 26)
-            );
-            title.setForeground(new Color(27, 94, 32));
-
-            JLabel message = new JLabel(
-                    "This page will be implemented separately."
-            );
-
-            message.setFont(
-                    new Font("SansSerif", Font.PLAIN, 14)
-            );
-
-            JPanel content = new JPanel();
-            content.setLayout(
-                    new BoxLayout(content, BoxLayout.Y_AXIS)
-            );
-            content.setOpaque(false);
-
-            content.add(title);
-            content.add(Box.createVerticalStrut(12));
-            content.add(message);
-
-            placeholder.add(content, BorderLayout.NORTH);
-
-            pageContainer.add(placeholder, page[1]);
-        }
-    }
-
-    private void connectNavigation() {
-
-        sidebar.addPropertyChangeListener(
-                "pageSelected",
-                event -> {
-                    String selectedPage =
-                            (String) event.getNewValue();
-
-                    if (selectedPage != null) {
-                        cardLayout.show(
-                                pageContainer,
-                                selectedPage
-                        );
-                    }
-                }
-        );
-
-        sidebar.addPropertyChangeListener(
-                "logoutRequested",
-                event -> {
-                    if (Boolean.TRUE.equals(
-                            event.getNewValue())) {
-
-                        int choice =
-                                JOptionPane.showConfirmDialog(
-                                        this,
-                                        "Are you sure you want to log out?",
-                                        "Confirm Logout",
-                                        JOptionPane.YES_NO_OPTION
-                                );
-
-                        if (choice == JOptionPane.YES_OPTION) {
-                            dispose();
-                            Login.showLogin();
-                        }
-                    }
-                }
-        );
-
-        topbar.addPropertyChangeListener(
-                "notificationsRequested",
-                event -> {
-                    if (Boolean.TRUE.equals(
-                            event.getNewValue())) {
-
-                        JOptionPane.showMessageDialog(
-                                this,
-                                "Your notifications will be displayed here.",
-                                "Notifications",
-                                JOptionPane.INFORMATION_MESSAGE
-                        );
-                    }
-                }
-        );
     }
 
     private void loadAssignedCourses() {
@@ -417,15 +227,11 @@ public class LecturerDashboard extends JFrame {
 
         } catch (SQLException exception) {
             courseModulesTable.setCourses(List.of());
+            assignedCoursesCard.setValue("--");
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Unable to load assigned courses.\n"
-                            + "Please check your database connection "
-                            + "and course assignments.\n\n"
-                            + "Details: " + exception.getMessage(),
-                    "Course Loading Error",
-                    JOptionPane.WARNING_MESSAGE
+            System.err.println(
+                    "Unable to load assigned courses: "
+                            + exception.getMessage()
             );
 
             exception.printStackTrace();
