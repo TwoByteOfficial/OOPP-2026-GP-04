@@ -8,29 +8,23 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.sql.Date;
-import java.sql.SQLException;
 
 /**
- * UserProfileForm - Re-organized & Theme-Protected Modal Dialog.
- * Enforces explicit White/Mint background colors and crisp Black foreground text colors
- * across all input components, drop-downs, labels, and panels to prevent OS Dark Theme
- * text contrast artifacts and gray backgrounds.
+ * UserProfileForm - Dynamic Modal Dialog for registering new users or editing accounts.
  */
 public class UserProfileForm extends JDialog {
 
-    /* ---- Color Theme Constants ---- */
     private final Color MINT          = new Color(0xE8, 0xF5, 0xE9);
     private final Color PASTEL_GREEN  = new Color(0xC8, 0xE6, 0xC9);
     private final Color FOREST_GREEN  = new Color(0x38, 0x8E, 0x3C);
     private final Color DEEP_GREEN    = new Color(0x1B, 0x5E, 0x20);
-    private final Color WHITE         = MINT;
-    private final Color BLACK         = new Color(0, 0, 0);
+    private final Color WHITE         = Color.WHITE;
+    private final Color BLACK         = Color.BLACK;
 
     private final AdminUserDAO userDAO;
-    private final User editUser; // null if registering new user
+    private final User editUser;
     private final Runnable onSuccess;
 
-    /* ---- Form Base Components ---- */
     private JComboBox<String> cmbRole;
     private JTextField txtUsername;
     private JPasswordField txtPassword;
@@ -44,25 +38,20 @@ public class UserProfileForm extends JDialog {
     private JComboBox<String> cmbDepartment;
     private JComboBox<String> cmbStatus;
 
-    /* ---- Dynamic Role Panel Components ---- */
     private CardLayout roleCardLayout;
     private JPanel roleCardPanel;
 
-    // Admin Specific Fields
     private JTextField txtAdminCode;
     private JTextField txtAdminDesignation;
 
-    // Lecturer Specific Fields
     private JTextField txtLecturerCode;
     private JComboBox<String> cmbLecturerTitle;
     private JTextField txtSpecialization;
 
-    // Technical Officer Specific Fields
     private JTextField txtToCode;
     private JTextField txtToDesignation;
     private JTextField txtAssignedLabs;
 
-    // Undergraduate Specific Fields
     private JTextField txtRegNo;
     private JTextField txtIndexNo;
     private JTextField txtBatchYear;
@@ -93,40 +82,30 @@ public class UserProfileForm extends JDialog {
     }
 
     private void initUI() {
-        /* ========================================================================== */
-        /*  HEADER PANEL                                                              */
-        /* ========================================================================== */
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 24, 16));
         headerPanel.setBackground(DEEP_GREEN);
 
         JLabel lblHeader = new JLabel(editUser == null ? "Register New Faculty User Account" : "Modify User Account Details");
-        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 22)); // 20 -> 22
+        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblHeader.setForeground(WHITE);
         headerPanel.add(lblHeader);
 
         add(headerPanel, BorderLayout.NORTH);
 
-        /* ========================================================================== */
-        /*  SCROLLABLE CONTENT CONTAINER                                              */
-        /* ========================================================================== */
         JPanel mainScrollContainer = new JPanel();
         mainScrollContainer.setLayout(new BoxLayout(mainScrollContainer, BoxLayout.Y_AXIS));
         mainScrollContainer.setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
         mainScrollContainer.setBackground(MINT);
 
-        /* -------------------------------------------------------------------------- */
-        /*  SECTION 1: BASE CREDENTIALS & CONTACT INFORMATION                         */
-        /* -------------------------------------------------------------------------- */
         JPanel pnlBase = new JPanel(new GridLayout(6, 4, 14, 12));
         pnlBase.setBackground(WHITE);
         pnlBase.setOpaque(true);
         pnlBase.setBorder(createTitledSectionBorder("Base Credentials & Contact Info"));
 
-        // Row 1: Role & Username
         pnlBase.add(createLabel("Role:"));
         cmbRole = createComboBox(new String[]{ "Undergraduate", "Lecturer", "Technical Officer", "Admin" });
         if (editUser != null) {
-            cmbRole.setEnabled(false); // Locked during edit mode
+            cmbRole.setEnabled(false);
         }
         cmbRole.addActionListener(e -> switchRoleCard((String) cmbRole.getSelectedItem()));
         pnlBase.add(cmbRole);
@@ -139,7 +118,6 @@ public class UserProfileForm extends JDialog {
         }
         pnlBase.add(txtUsername);
 
-        // Row 2: Password & Full Name
         pnlBase.add(createLabel("Password:"));
         txtPassword = createPasswordField();
         if (editUser != null) {
@@ -151,7 +129,6 @@ public class UserProfileForm extends JDialog {
         txtFullName = createTextField("");
         pnlBase.add(txtFullName);
 
-        // Row 3: NIC & DOB
         pnlBase.add(createLabel("NIC No:"));
         txtNic = createTextField("");
         pnlBase.add(txtNic);
@@ -160,7 +137,6 @@ public class UserProfileForm extends JDialog {
         txtDob = createTextField("2000-01-01");
         pnlBase.add(txtDob);
 
-        // Row 4: Gender & Email
         pnlBase.add(createLabel("Gender:"));
         cmbGender = createComboBox(new String[]{ "Male", "Female", "Other" });
         pnlBase.add(cmbGender);
@@ -169,7 +145,6 @@ public class UserProfileForm extends JDialog {
         txtEmail = createTextField("");
         pnlBase.add(txtEmail);
 
-        // Row 5: Contact No & Address
         pnlBase.add(createLabel("Contact No:"));
         txtContactNo = createTextField("");
         pnlBase.add(txtContactNo);
@@ -178,7 +153,6 @@ public class UserProfileForm extends JDialog {
         txtAddress = createTextField("");
         pnlBase.add(txtAddress);
 
-        // Row 6: Department & Status
         pnlBase.add(createLabel("Department:"));
         cmbDepartment = createComboBox(new String[]{ "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" });
         pnlBase.add(cmbDepartment);
@@ -190,16 +164,13 @@ public class UserProfileForm extends JDialog {
         mainScrollContainer.add(pnlBase);
         mainScrollContainer.add(Box.createVerticalStrut(16));
 
-        /* -------------------------------------------------------------------------- */
-        /*  SECTION 2: DYNAMIC ROLE-SPECIFIC INFORMATION CARDS                        */
-        /* -------------------------------------------------------------------------- */
         roleCardLayout = new CardLayout();
         roleCardPanel = new JPanel(roleCardLayout);
         roleCardPanel.setBackground(WHITE);
         roleCardPanel.setOpaque(true);
         roleCardPanel.setBorder(createTitledSectionBorder("Role Specific Information"));
 
-        // --- Admin Card ---
+        // Admin Card
         JPanel pnlAdmin = new JPanel(new GridLayout(2, 2, 14, 12));
         pnlAdmin.setBackground(WHITE);
         pnlAdmin.setOpaque(true);
@@ -212,7 +183,7 @@ public class UserProfileForm extends JDialog {
         pnlAdmin.add(txtAdminDesignation);
         roleCardPanel.add(pnlAdmin, "Admin");
 
-        // --- Lecturer Card ---
+        // Lecturer Card
         JPanel pnlLecturer = new JPanel(new GridLayout(3, 2, 14, 12));
         pnlLecturer.setBackground(WHITE);
         pnlLecturer.setOpaque(true);
@@ -229,7 +200,7 @@ public class UserProfileForm extends JDialog {
         pnlLecturer.add(txtSpecialization);
         roleCardPanel.add(pnlLecturer, "Lecturer");
 
-        // --- Technical Officer Card ---
+        // Technical Officer Card
         JPanel pnlTO = new JPanel(new GridLayout(3, 2, 14, 12));
         pnlTO.setBackground(WHITE);
         pnlTO.setOpaque(true);
@@ -246,7 +217,7 @@ public class UserProfileForm extends JDialog {
         pnlTO.add(txtAssignedLabs);
         roleCardPanel.add(pnlTO, "Technical Officer");
 
-        // --- Undergraduate Card ---
+        // Undergraduate Card
         JPanel pnlUG = new JPanel(new GridLayout(6, 2, 14, 10));
         pnlUG.setBackground(WHITE);
         pnlUG.setOpaque(true);
@@ -293,7 +264,6 @@ public class UserProfileForm extends JDialog {
 
         mainScrollContainer.add(roleCardPanel);
 
-        // Wrap Container in Scroll Pane
         JScrollPane scrollPane = new JScrollPane(mainScrollContainer);
         scrollPane.getViewport().setBackground(MINT);
         scrollPane.setBackground(MINT);
@@ -301,15 +271,12 @@ public class UserProfileForm extends JDialog {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        /* ========================================================================== */
-        /*  FOOTER PANEL WITH ACTION BUTTONS                                          */
-        /* ========================================================================== */
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 14));
         footerPanel.setBackground(WHITE);
         footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, PASTEL_GREEN));
 
         JButton btnSave = new JButton(editUser == null ? "Save Account" : "Update Profile");
-        btnSave.setFont(new Font("Segoe UI", Font.BOLD, 16)); // 14 -> 16
+        btnSave.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnSave.setBackground(FOREST_GREEN);
         btnSave.setForeground(WHITE);
         btnSave.setFocusPainted(false);
@@ -318,7 +285,7 @@ public class UserProfileForm extends JDialog {
         btnSave.addActionListener(e -> saveUserAccount());
 
         JButton btnCancel = new JButton("Cancel");
-        btnCancel.setFont(new Font("Segoe UI", Font.BOLD, 16)); // 14 -> 16
+        btnCancel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnCancel.setBackground(PASTEL_GREEN);
         btnCancel.setForeground(DEEP_GREEN);
         btnCancel.setFocusPainted(false);
@@ -333,13 +300,9 @@ public class UserProfileForm extends JDialog {
         switchRoleCard("Undergraduate");
     }
 
-    /* ============================================================================== */
-    /*  THEME STYLING HELPER FACTORIES                                                */
-    /* ============================================================================== */
-
     private JLabel createLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 15)); // 13 -> 15
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lbl.setForeground(BLACK);
         return lbl;
     }
@@ -357,7 +320,7 @@ public class UserProfileForm extends JDialog {
     }
 
     private void styleInputComponent(JTextField tf) {
-        tf.setFont(new Font("Segoe UI", Font.PLAIN, 16)); // 14 -> 16
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         tf.setBackground(WHITE);
         tf.setForeground(BLACK);
         tf.setCaretColor(BLACK);
@@ -369,7 +332,7 @@ public class UserProfileForm extends JDialog {
 
     private <T> JComboBox<T> createComboBox(T[] items) {
         JComboBox<T> combo = new JComboBox<>(items);
-        combo.setFont(new Font("Segoe UI", Font.PLAIN, 16)); // 14 -> 16
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         combo.setBackground(WHITE);
         combo.setForeground(BLACK);
         combo.setFocusable(false);
@@ -386,8 +349,8 @@ public class UserProfileForm extends JDialog {
                     l.setForeground(BLACK);
                 }
                 l.setOpaque(true);
-                l.setFont(new Font("Segoe UI", Font.PLAIN, 16)); // 14 -> 16
-                l.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                l.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+                l.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
                 return l;
             }
         });
@@ -401,7 +364,7 @@ public class UserProfileForm extends JDialog {
                 " " + title + " ",
                 TitledBorder.LEADING,
                 TitledBorder.TOP,
-                new Font("Segoe UI", Font.BOLD, 16), // 14 -> 16
+                new Font("Segoe UI", Font.BOLD, 15),
                 DEEP_GREEN
         );
         return BorderFactory.createCompoundBorder(
@@ -409,10 +372,6 @@ public class UserProfileForm extends JDialog {
                 BorderFactory.createEmptyBorder(12, 16, 16, 16)
         );
     }
-
-    /* ============================================================================== */
-    /*  BUSINESS LOGIC & EVENT HANDLERS                                              */
-    /* ============================================================================== */
 
     private void switchRoleCard(String roleName) {
         if (roleCardLayout != null && roleCardPanel != null) {

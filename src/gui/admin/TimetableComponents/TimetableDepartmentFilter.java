@@ -1,0 +1,31 @@
+package gui.admin.TimetableComponents;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.function.Consumer;
+
+public class TimetableDepartmentFilter extends JPanel {
+    private JComboBox<String> cmbDept;
+
+    public TimetableDepartmentFilter(Consumer<String> onFilterChange) {
+        setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        setOpaque(false);
+
+        JLabel lbl = new JLabel("Department:");
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lbl.setForeground(Color.BLACK);
+        add(lbl);
+
+        String[] depts = { "All Departments", "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" };
+        cmbDept = new JComboBox<>(depts);
+        cmbDept.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        cmbDept.setBackground(Color.WHITE);
+        cmbDept.setForeground(Color.BLACK);
+        cmbDept.setFocusable(false);
+        cmbDept.addActionListener(e -> onFilterChange.accept((String) cmbDept.getSelectedItem()));
+        add(cmbDept);
+    }
+
+    public String getSelectedDepartment() { return (String) cmbDept.getSelectedItem(); }
+    public void reset() { cmbDept.setSelectedIndex(0); }
+}
