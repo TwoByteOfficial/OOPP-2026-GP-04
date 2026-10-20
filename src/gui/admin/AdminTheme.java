@@ -7,9 +7,8 @@ import java.awt.*;
 
 /**
  * Central theme constants and helpers for the Administrator UI.
- * Mirrors ~85% of the web admin dashboard CSS (green palette, Poppins-like fonts).
+ * Mirrors green palette with Poppins/Segoe UI typography.
  */
-
 public final class AdminTheme {
 
     private AdminTheme() {}
@@ -32,45 +31,46 @@ public final class AdminTheme {
     public static final Color LIGHT_BG      = MINT;
     public static final Color WHITE         = Color.WHITE;
     public static final Color TEXT          = DEEP_GREEN;
+    public static final Color DARK_TEXT     = new Color(0x21, 0x25, 0x29);
     public static final Color MUTED         = new Color(0x4F, 0x6B, 0x52);
     public static final Color BORDER        = PASTEL_GREEN;
 
     /* ---------- Dimensions ---------- */
     public static final int SIDEBAR_WIDTH   = 260;
 
-    /* ---------- Fonts ---------- */
-    public static final String FONT_FAMILY  = "Segoe UI"; // closest cross-platform match to Poppins
+    /* ---------- Fonts (H1 kept at 28px; other fonts incremented by 2px) ---------- */
+    public static final String FONT_FAMILY  = "Segoe UI";
 
     public static Font font(int style, int size) {
         return new Font(FONT_FAMILY, style, size);
     }
 
-    public static final Font FONT_H1        = font(Font.BOLD,  28);
-    public static final Font FONT_H2        = font(Font.BOLD,  24);
-    public static final Font FONT_H3        = font(Font.BOLD,  20);
-    public static final Font FONT_BODY      = font(Font.PLAIN, 17);
-    public static final Font FONT_BODY_BOLD = font(Font.BOLD,  17);
-    public static final Font FONT_SMALL     = font(Font.PLAIN, 16);
-    public static final Font FONT_TINY      = font(Font.PLAIN, 15);
-    public static final Font FONT_MENU      = font(Font.PLAIN, 18);
-    public static final Font FONT_LOGO      = font(Font.BOLD,  26);
-    public static final Font FONT_STAT      = font(Font.BOLD,  26);
+    public static final Font FONT_H1        = font(Font.BOLD,  28); // Kept H1
+    public static final Font FONT_H2        = font(Font.BOLD,  26); // 24 -> 26
+    public static final Font FONT_H3        = font(Font.BOLD,  22); // 20 -> 22
+    public static final Font FONT_BODY      = font(Font.PLAIN, 19); // 17 -> 19
+    public static final Font FONT_BODY_BOLD = font(Font.BOLD,  19); // 17 -> 19
+    public static final Font FONT_SMALL     = font(Font.PLAIN, 18); // 16 -> 18
+    public static final Font FONT_TINY      = font(Font.PLAIN, 17); // 15 -> 17
+    public static final Font FONT_MENU      = font(Font.PLAIN, 20); // 18 -> 20
+    public static final Font FONT_LOGO      = font(Font.BOLD,  28); // 26 -> 28
+    public static final Font FONT_STAT      = font(Font.BOLD,  28); // 26 -> 28
 
     /* ---------- Borders / helpers ---------- */
     public static Border emptyBorder(int t, int l, int b, int r) {
         return new EmptyBorder(t, l, b, r);
     }
 
-    /** Card: white panel, soft border, inner padding. */
     public static Border cardBorder() {
         return BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0xD2, 0xD7, 0xE1)),
+                BorderFactory.createLineBorder(PASTEL_GREEN),
                 new EmptyBorder(20, 22, 20, 22));
     }
 
     public static JPanel card() {
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(WHITE);
+        p.setOpaque(true);
         p.setBorder(cardBorder());
         return p;
     }
@@ -78,6 +78,7 @@ public final class AdminTheme {
     public static JPanel card(LayoutManager lm) {
         JPanel p = new JPanel(lm);
         p.setBackground(WHITE);
+        p.setOpaque(true);
         p.setBorder(cardBorder());
         return p;
     }
@@ -108,7 +109,8 @@ public final class AdminTheme {
         JButton b = new JButton(text);
         b.setFont(FONT_BODY);
         b.setFocusPainted(false);
-        b.setBorder(new EmptyBorder(10, 15, 10, 15));
+        b.setOpaque(true);
+        b.setBorder(new EmptyBorder(10, 16, 10, 16));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return b;
     }
@@ -131,7 +133,7 @@ public final class AdminTheme {
     public static JLabel body(String text) {
         JLabel l = new JLabel(text);
         l.setFont(FONT_BODY);
-        l.setForeground(TEXT);
+        l.setForeground(DARK_TEXT);
         return l;
     }
 

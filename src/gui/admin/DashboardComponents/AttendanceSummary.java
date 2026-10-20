@@ -4,6 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
 
+/**
+ * Quick Status & Alert counters (Row 3 Right).
+ * Corrected Width: 790px x 260px.
+ */
 public class AttendanceSummary extends JPanel {
 
     private final Color WHITE        = Color.WHITE;
@@ -35,15 +39,15 @@ public class AttendanceSummary extends JPanel {
         container.setOpaque(false);
 
         JLabel title = new JLabel("Administrative Quick Status");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20)); // 18 -> 20
         title.setForeground(FOREST_GREEN);
-        title.setBounds(25, 20, 450, 30);
+        title.setBounds(25, 18, 450, 32);
         container.add(title);
 
         JLabel subtitle = new JLabel("System alert counters and active operational entries");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // 12 -> 14
         subtitle.setForeground(MUTED);
-        subtitle.setBounds(25, 48, 500, 20);
+        subtitle.setBounds(25, 48, 500, 22);
         container.add(subtitle);
 
         addStatusRow(container, "Pending Medical Submissions", "2 Pending", 80, new Color(0xF0, 0xAD, 0x4E));
@@ -58,24 +62,24 @@ public class AttendanceSummary extends JPanel {
     private void addStatusRow(JPanel panel, String title, String value, int y, Color indicatorColor) {
         JPanel indicator = new JPanel();
         indicator.setBackground(indicatorColor);
-        indicator.setBounds(25, y + 3, 8, 18);
+        indicator.setBounds(25, y + 3, 8, 20);
         panel.add(indicator);
 
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16)); // 14 -> 16
         titleLabel.setForeground(MUTED);
-        titleLabel.setBounds(45, y, 420, 24);
+        titleLabel.setBounds(45, y, 420, 26);
         panel.add(titleLabel);
 
         JLabel valueLabel = new JLabel(value, SwingConstants.RIGHT);
-        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 16)); // 14 -> 16
         valueLabel.setForeground(DEEP_GREEN);
-        valueLabel.setBounds(480, y, 285, 24);
+        valueLabel.setBounds(480, y, 285, 26);
         panel.add(valueLabel);
 
         JSeparator separator = new JSeparator();
         separator.setForeground(PASTEL_GREEN);
-        separator.setBounds(25, y + 30, 740, 1);
+        separator.setBounds(25, y + 32, 740, 1);
         panel.add(separator);
     }
 }

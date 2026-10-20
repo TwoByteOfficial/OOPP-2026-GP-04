@@ -7,6 +7,9 @@ import java.awt.*;
 import java.util.Map;
 import java.util.HashMap;
 
+/**
+ * Primary central administrative dashboard panel.
+ */
 public class AdminDashboard extends JPanel {
 
     private DashboardTitleBar   titleBar;
@@ -25,14 +28,17 @@ public class AdminDashboard extends JPanel {
         dashboardDAO = new AdminDashboardDAO();
         Map<String, Integer> dbMetrics = loadLiveDatabaseMetrics();
 
+        // ROW 1: TITLE BAR
         titleBar = new DashboardTitleBar(fullName);
         titleBar.setLocation(20, 20);
         add(titleBar);
 
+        // ROW 2: ANALYTICS CARDS
         analyticsRow = new SimpleAnalyticView(dbMetrics);
         analyticsRow.setLocation(20, 120);
         add(analyticsRow);
 
+        // ROW 3: PROGRESS TRACKERS & QUICK STATUS
         statusPanel = new StatusSummary();
         statusPanel.setLocation(20, 270);
         add(statusPanel);
@@ -41,6 +47,7 @@ public class AdminDashboard extends JPanel {
         attendancePanel.setLocation(830, 270);
         add(attendancePanel);
 
+        // ROW 4: DATA TABLES
         userPanel = new UserSummary();
         userPanel.setLocation(20, 550);
         add(userPanel);

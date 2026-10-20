@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * NoticesSummary - Recently Published Announcements table (Row 4 Right).
+ */
 public class NoticesSummary extends JPanel {
 
     private final Color WHITE        = Color.WHITE;
@@ -55,15 +58,15 @@ public class NoticesSummary extends JPanel {
         container.setOpaque(false);
 
         JLabel title = new JLabel("Recent Notices & Announcements");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20)); // 18 -> 20
         title.setForeground(FOREST_GREEN);
-        title.setBounds(25, 20, 420, 30);
+        title.setBounds(25, 18, 420, 32);
         container.add(title);
 
         JLabel subtitle = new JLabel("Latest administrative announcements active on system board");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // 12 -> 14
         subtitle.setForeground(MUTED);
-        subtitle.setBounds(25, 48, 500, 20);
+        subtitle.setBounds(25, 48, 500, 22);
         container.add(subtitle);
 
         JPanel tableHeader = new JPanel(null) {
@@ -77,7 +80,7 @@ public class NoticesSummary extends JPanel {
             }
         };
 
-        tableHeader.setBounds(25, 75, 740, 38);
+        tableHeader.setBounds(25, 75, 740, 40);
         tableHeader.setOpaque(false);
 
         String[] columnHeaders = { "Notice Title", "Type", "Target Role", "Date Published", "Status" };
@@ -86,9 +89,9 @@ public class NoticesSummary extends JPanel {
         int currentX = 15;
         for (int i = 0; i < columnHeaders.length; i++) {
             JLabel header = new JLabel(columnHeaders[i]);
-            header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            header.setFont(new Font("Segoe UI", Font.BOLD, 15)); // 13 -> 15
             header.setForeground(FOREST_GREEN);
-            header.setBounds(currentX, 0, columnWidths[i], 38);
+            header.setBounds(currentX, 0, columnWidths[i], 40);
             tableHeader.add(header);
             currentX += columnWidths[i];
         }
@@ -112,16 +115,16 @@ public class NoticesSummary extends JPanel {
 
             JPanel rowPanel = new JPanel(null);
             rowPanel.setOpaque(false);
-            rowPanel.setBounds(25, 120 + (row * 58), 740, 54);
+            rowPanel.setBounds(25, 122 + (row * 58), 740, 54);
 
             int cellX = 15;
             for (int col = 0; col < liveRowData.length; col++) {
                 JLabel cell = new JLabel(liveRowData[col]);
-                cell.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+                cell.setFont(new Font("Segoe UI", Font.PLAIN, 15)); // 13 -> 15
                 cell.setForeground(col == 0 ? DEEP_GREEN : MUTED);
 
                 if (col == 4) {
-                    cell.setFont(new Font("Segoe UI", Font.BOLD, 16));
+                    cell.setFont(new Font("Segoe UI", Font.BOLD, 15)); // 13 -> 15
                     if ("Published".equalsIgnoreCase(liveRowData[col])) {
                         cell.setForeground(FOREST_GREEN);
                     } else if ("Draft".equalsIgnoreCase(liveRowData[col])) {
@@ -146,7 +149,7 @@ public class NoticesSummary extends JPanel {
 
         if (recentNotices.isEmpty()) {
             JLabel emptyLabel = new JLabel("No notices found in system database board.", SwingConstants.CENTER);
-            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 17));
+            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 16));
             emptyLabel.setForeground(MUTED);
             emptyLabel.setBounds(25, 180, 740, 40);
             container.add(emptyLabel);
