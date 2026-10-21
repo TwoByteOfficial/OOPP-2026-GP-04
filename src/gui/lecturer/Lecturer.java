@@ -1,6 +1,10 @@
 
 package gui.lecturer;
 
+import gui.lecturer.CourseMaterial.LecturerCourseMaterials;
+import gui.lecturer.Dashboard.LecturerDashboard;
+import gui.lecturer.LecturerMarksGrades.LecturerMarksGrades;
+import gui.lecturer.MyCourse.MyCourses;
 import gui.login.Login;
 import gui.lecturer.SharedComponents.LecturerSidebar;
 import gui.lecturer.SharedComponents.LecturerTopbar;
@@ -69,6 +73,11 @@ public class Lecturer extends JFrame {
                 "CourseMaterials"
         );
 
+        pageContainer.add(
+                new LecturerMarksGrades(userId),
+                "MarksGrades"
+        );
+
         addPlaceholderPages();
 
         // Main layout
@@ -117,9 +126,9 @@ public class Lecturer extends JFrame {
         cardLayout.show(pageContainer, pageName);
     }
 
+
     private void addPlaceholderPages() {
         String[][] pages = {
-                {"Marks & Grades", "MarksGrades"},
                 {"Undergraduates", "Undergraduates"},
                 {"Eligibility", "Eligibility"},
                 {"Attendance", "Attendance"},
