@@ -73,7 +73,7 @@ public class Lecturer extends JFrame {
                 "CourseMaterials"
         );
 
-        pageContainer.add(
+       pageContainer.add(
                 new LecturerMarksGrades(userId),
                 "MarksGrades"
         );

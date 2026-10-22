@@ -19,7 +19,7 @@ public class ShowButtonRenderer extends JButton
 
     public ShowButtonRenderer() {
 
-        setText("Show");
+        setText("Show Details");
         setOpaque(true);
         setFocusPainted(false);
         setBackground(PALE_GREEN);
@@ -43,7 +43,7 @@ public class ShowButtonRenderer extends JButton
             int row,
             int column) {
 
-        setText(value == null ? "Show" : value.toString());
+        setText(value == null ? "Show Details" : value.toString());
 
         return this;
     }

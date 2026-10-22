@@ -18,7 +18,7 @@ public class ShowButtonEditor extends AbstractCellEditor
     private static final Color BORDER_GREEN =
             new Color(200, 230, 201);
 
-    private final JButton button = new JButton("Show");
+    private final JButton button = new JButton("Show Details");
     private final IntConsumer onShowCourse;
 
     private int modelRow;
@@ -59,13 +59,13 @@ public class ShowButtonEditor extends AbstractCellEditor
 
         modelRow = table.convertRowIndexToModel(row);
 
-        button.setText("Show");
+        button.setText("Show Details");
 
         return button;
     }
 
     @Override
     public Object getCellEditorValue() {
-        return "Show";
+        return "Show Details";
     }
 }

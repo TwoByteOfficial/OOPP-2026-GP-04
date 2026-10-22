@@ -9,7 +9,10 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CourseMaterialTable extends JPanel {
 
@@ -22,26 +25,35 @@ public class CourseMaterialTable extends JPanel {
     private JTable materialsTable;
     private DefaultTableModel tableModel;
 
-    private List<CourseMaterial> materials;
+    private JComboBox<CourseOption> courseFilter;
+
+    // All materials loaded from the database.
+    private List<CourseMaterial> materials = new ArrayList<>();
+
+    // Materials currently displayed after filtering.
+    private List<CourseMaterial> visibleMaterials = new ArrayList<>();
+
+    private MaterialActionListener actionListener;
 
     public interface MaterialActionListener {
         void onEdit(CourseMaterial material);
         void onDelete(CourseMaterial material);
     }
 
-    private MaterialActionListener actionListener;
-
     public CourseMaterialTable() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(0, 10));
         setBackground(Color.WHITE);
+
         createTable();
     }
 
     private void createTable() {
 
+        // Table columns.
         String[] columns = {
-                "Material Title",
-                "Course ID",
+                "Course Code",
+                "Course Name",
+                "Title",
                 "Type",
                 "Uploaded Date",
                 "Action"
@@ -50,7 +62,7 @@ public class CourseMaterialTable extends JPanel {
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 4;
+                return column == 5;
             }
         };
 
@@ -63,6 +75,7 @@ public class CourseMaterialTable extends JPanel {
         materialsTable.setSelectionForeground(Color.BLACK);
         materialsTable.setShowVerticalLines(false);
         materialsTable.setGridColor(new Color(230, 230, 230));
+        materialsTable.setAutoCreateRowSorter(true);
 
         materialsTable.getTableHeader().setFont(
                 new Font("SansSerif", Font.BOLD, 13)
@@ -73,24 +86,62 @@ public class CourseMaterialTable extends JPanel {
                 new Dimension(0, 40)
         );
 
+        // Action column: index 5.
         materialsTable.getColumnModel()
-                .getColumn(4)
+                .getColumn(5)
                 .setCellRenderer(new MaterialActionRenderer());
 
         materialsTable.getColumnModel()
-                .getColumn(4)
+                .getColumn(5)
                 .setCellEditor(new MaterialActionEditor(
                         this::editMaterial,
                         this::deleteMaterial
                 ));
 
+        // Column widths.
         materialsTable.getColumnModel()
-                .getColumn(4)
-                .setPreferredWidth(170);
+                .getColumn(0).setPreferredWidth(110);
 
-        JScrollPane scrollPane =
-                new JScrollPane(materialsTable);
+        materialsTable.getColumnModel()
+                .getColumn(1).setPreferredWidth(220);
 
+        materialsTable.getColumnModel()
+                .getColumn(2).setPreferredWidth(200);
+
+        materialsTable.getColumnModel()
+                .getColumn(3).setPreferredWidth(100);
+
+        materialsTable.getColumnModel()
+                .getColumn(4).setPreferredWidth(130);
+
+        materialsTable.getColumnModel()
+                .getColumn(5).setPreferredWidth(170);
+
+        // Course filter.
+        JPanel filterPanel = new JPanel(new FlowLayout(
+                FlowLayout.LEFT, 10, 8
+        ));
+        filterPanel.setBackground(Color.WHITE);
+
+        JLabel filterLabel = new JLabel("Filter by Course:");
+        filterLabel.setFont(
+                new Font("SansSerif", Font.BOLD, 13)
+        );
+        filterLabel.setForeground(DEEP_GREEN);
+
+        courseFilter = new JComboBox<>();
+        courseFilter.setFont(
+                new Font("SansSerif", Font.PLAIN, 13)
+        );
+        courseFilter.setPreferredSize(new Dimension(320, 34));
+        courseFilter.setBackground(Color.WHITE);
+
+        courseFilter.addActionListener(e -> applyCourseFilter());
+
+        filterPanel.add(filterLabel);
+        filterPanel.add(courseFilter);
+
+        JScrollPane scrollPane = new JScrollPane(materialsTable);
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
                         new Color(220, 230, 220)
@@ -98,6 +149,7 @@ public class CourseMaterialTable extends JPanel {
         );
         scrollPane.getViewport().setBackground(Color.WHITE);
 
+        add(filterPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
     }
 
@@ -106,16 +158,106 @@ public class CourseMaterialTable extends JPanel {
         this.actionListener = listener;
     }
 
+    // Load materials and refresh the course filter.
     public void setMaterials(List<CourseMaterial> materials) {
 
-        this.materials = materials;
+        CourseOption previousSelection =
+                (CourseOption) courseFilter.getSelectedItem();
 
+        int previousCourseId = previousSelection == null
+                ? -1
+                : previousSelection.courseId;
+
+        this.materials = materials == null
+                ? new ArrayList<>()
+                : new ArrayList<>(materials);
+
+        refreshCourseFilter(previousCourseId);
+        applyCourseFilter();
+    }
+
+    private void refreshCourseFilter(int previousCourseId) {
+
+        courseFilter.removeAllItems();
+
+        courseFilter.addItem(
+                new CourseOption(-1, "All Courses")
+        );
+
+        // Keep each course only once.
+        Map<Integer, CourseOption> uniqueCourses =
+                new LinkedHashMap<>();
+
+        for (CourseMaterial material : materials) {
+
+            int courseId = material.getCourseId();
+
+            String courseCode = material.getCourseCode();
+            String courseName = material.getCourseName();
+
+            if (courseCode == null || courseCode.isBlank()) {
+                courseCode = "Course " + courseId;
+            }
+
+            if (courseName == null || courseName.isBlank()) {
+                courseName = "Unnamed Course";
+            }
+
+            String label = courseCode + " - " + courseName;
+
+            uniqueCourses.putIfAbsent(
+                    courseId,
+                    new CourseOption(courseId, label)
+            );
+        }
+
+        for (CourseOption option : uniqueCourses.values()) {
+            courseFilter.addItem(option);
+        }
+
+        // Keep the previous selection after refreshing, if possible.
+        int selectedIndex = 0;
+
+        for (int i = 0; i < courseFilter.getItemCount(); i++) {
+            CourseOption option = courseFilter.getItemAt(i);
+
+            if (option.courseId == previousCourseId) {
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        courseFilter.setSelectedIndex(selectedIndex);
+    }
+
+    // Display all materials or only the selected course's materials.
+    private void applyCourseFilter() {
+
+        if (tableModel == null || courseFilter == null) {
+            return;
+        }
+
+        CourseOption selected =
+                (CourseOption) courseFilter.getSelectedItem();
+
+        int selectedCourseId = selected == null
+                ? -1
+                : selected.courseId;
+
+        visibleMaterials = new ArrayList<>();
         tableModel.setRowCount(0);
 
         SimpleDateFormat dateFormat =
                 new SimpleDateFormat("yyyy-MM-dd");
 
         for (CourseMaterial material : materials) {
+
+            if (selectedCourseId != -1
+                    && material.getCourseId() != selectedCourseId) {
+                continue;
+            }
+
+            visibleMaterials.add(material);
 
             String uploadedDate = "-";
 
@@ -126,8 +268,9 @@ public class CourseMaterialTable extends JPanel {
             }
 
             tableModel.addRow(new Object[]{
+                    material.getCourseCode(),
+                    material.getCourseName(),
                     material.getTitle(),
-                    material.getCourseId(),
                     material.getMaterialType(),
                     uploadedDate,
                     "Actions"
@@ -137,8 +280,7 @@ public class CourseMaterialTable extends JPanel {
 
     private CourseMaterial getMaterialAtRow(int viewRow) {
 
-        if (materials == null
-                || viewRow < 0
+        if (viewRow < 0
                 || viewRow >= materialsTable.getRowCount()) {
             return null;
         }
@@ -146,8 +288,8 @@ public class CourseMaterialTable extends JPanel {
         int modelRow =
                 materialsTable.convertRowIndexToModel(viewRow);
 
-        if (modelRow >= 0 && modelRow < materials.size()) {
-            return materials.get(modelRow);
+        if (modelRow >= 0 && modelRow < visibleMaterials.size()) {
+            return visibleMaterials.get(modelRow);
         }
 
         return null;
@@ -179,17 +321,31 @@ public class CourseMaterialTable extends JPanel {
 
         int selectedRow = materialsTable.getSelectedRow();
 
-        if (selectedRow == -1 || materials == null) {
+        if (selectedRow == -1) {
             return -1;
         }
 
-        int modelRow =
-                materialsTable.convertRowIndexToModel(selectedRow);
+        CourseMaterial material = getMaterialAtRow(selectedRow);
 
-        if (modelRow >= 0 && modelRow < materials.size()) {
-            return materials.get(modelRow).getMaterialId();
+        return material == null
+                ? -1
+                : material.getMaterialId();
+    }
+
+    // Represents one course in the dropdown.
+    private static class CourseOption {
+
+        private final int courseId;
+        private final String label;
+
+        private CourseOption(int courseId, String label) {
+            this.courseId = courseId;
+            this.label = label;
         }
 
-        return -1;
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 }

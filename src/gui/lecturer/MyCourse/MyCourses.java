@@ -100,7 +100,7 @@ public class MyCourses extends JPanel {
                                 ? "N/A"
                                 : course[6] + "%",
                         course[7],             // Enrolled students
-                        "Show"                 // Action button
+                        "Show Details"                 // Action button
                 });
             }
 
