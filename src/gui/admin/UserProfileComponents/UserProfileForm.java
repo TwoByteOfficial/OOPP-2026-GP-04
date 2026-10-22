@@ -10,7 +10,9 @@ import java.awt.*;
 import java.sql.Date;
 
 /**
- * UserProfileForm - Dynamic Modal Dialog for registering new users or editing accounts.
+ * UserProfileForm - Compact & Neatly Aligned Modal Dialog.
+ * Uses GridBagLayout to align labels and text fields precisely in 2 columns.
+ * Size: 780px x 600px.
  */
 public class UserProfileForm extends JDialog {
 
@@ -41,17 +43,21 @@ public class UserProfileForm extends JDialog {
     private CardLayout roleCardLayout;
     private JPanel roleCardPanel;
 
+    // Admin
     private JTextField txtAdminCode;
     private JTextField txtAdminDesignation;
 
+    // Lecturer
     private JTextField txtLecturerCode;
     private JComboBox<String> cmbLecturerTitle;
     private JTextField txtSpecialization;
 
+    // Technical Officer
     private JTextField txtToCode;
     private JTextField txtToDesignation;
     private JTextField txtAssignedLabs;
 
+    // Undergraduate
     private JTextField txtRegNo;
     private JTextField txtIndexNo;
     private JTextField txtBatchYear;
@@ -68,7 +74,7 @@ public class UserProfileForm extends JDialog {
         this.editUser = userToEdit;
         this.onSuccess = onSuccess;
 
-        setSize(880, 750);
+        setSize(780, 600);
         setLocationRelativeTo(parent);
         setResizable(false);
         getContentPane().setBackground(MINT);
@@ -82,88 +88,56 @@ public class UserProfileForm extends JDialog {
     }
 
     private void initUI() {
-        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 24, 16));
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 12));
         headerPanel.setBackground(DEEP_GREEN);
 
         JLabel lblHeader = new JLabel(editUser == null ? "Register New Faculty User Account" : "Modify User Account Details");
-        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblHeader.setForeground(WHITE);
         headerPanel.add(lblHeader);
 
         add(headerPanel, BorderLayout.NORTH);
 
-        JPanel mainScrollContainer = new JPanel();
-        mainScrollContainer.setLayout(new BoxLayout(mainScrollContainer, BoxLayout.Y_AXIS));
-        mainScrollContainer.setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
-        mainScrollContainer.setBackground(MINT);
+        JPanel mainContainer = new JPanel();
+        mainContainer.setLayout(new BoxLayout(mainContainer, BoxLayout.Y_AXIS));
+        mainContainer.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+        mainContainer.setBackground(MINT);
 
-        JPanel pnlBase = new JPanel(new GridLayout(6, 4, 14, 12));
+        // Section 1: Base Credentials
+        JPanel pnlBase = new JPanel(new GridBagLayout());
         pnlBase.setBackground(WHITE);
         pnlBase.setOpaque(true);
         pnlBase.setBorder(createTitledSectionBorder("Base Credentials & Contact Info"));
 
-        pnlBase.add(createLabel("Role:"));
-        cmbRole = createComboBox(new String[]{ "Undergraduate", "Lecturer", "Technical Officer", "Admin" });
-        if (editUser != null) {
-            cmbRole.setEnabled(false);
-        }
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 8, 4, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Row 0: Role & Username
+        addGridRow(pnlBase, gbc, 0, "Role:", cmbRole = createComboBox(new String[]{ "Undergraduate", "Lecturer", "Technical Officer", "Admin" }), "Username:", txtUsername = createTextField(""));
+        if (editUser != null) cmbRole.setEnabled(false);
         cmbRole.addActionListener(e -> switchRoleCard((String) cmbRole.getSelectedItem()));
-        pnlBase.add(cmbRole);
+        if (editUser != null) { txtUsername.setEditable(false); txtUsername.setBackground(MINT); }
 
-        pnlBase.add(createLabel("Username:"));
-        txtUsername = createTextField("");
-        if (editUser != null) {
-            txtUsername.setEditable(false);
-            txtUsername.setBackground(MINT);
-        }
-        pnlBase.add(txtUsername);
+        // Row 1: Password & Full Name
+        addGridRow(pnlBase, gbc, 1, "Password:", txtPassword = createPasswordField(), "Full Name:", txtFullName = createTextField(""));
 
-        pnlBase.add(createLabel("Password:"));
-        txtPassword = createPasswordField();
-        if (editUser != null) {
-            txtPassword.setToolTipText("Leave blank to retain current password");
-        }
-        pnlBase.add(txtPassword);
+        // Row 2: NIC & DOB
+        addGridRow(pnlBase, gbc, 2, "NIC No:", txtNic = createTextField(""), "DOB (YYYY-MM-DD):", txtDob = createTextField("2000-01-01"));
 
-        pnlBase.add(createLabel("Full Name:"));
-        txtFullName = createTextField("");
-        pnlBase.add(txtFullName);
+        // Row 3: Gender & Email
+        addGridRow(pnlBase, gbc, 3, "Gender:", cmbGender = createComboBox(new String[]{ "Male", "Female", "Other" }), "Email:", txtEmail = createTextField(""));
 
-        pnlBase.add(createLabel("NIC No:"));
-        txtNic = createTextField("");
-        pnlBase.add(txtNic);
+        // Row 4: Contact No & Address
+        addGridRow(pnlBase, gbc, 4, "Contact No:", txtContactNo = createTextField(""), "Address:", txtAddress = createTextField(""));
 
-        pnlBase.add(createLabel("Date of Birth (YYYY-MM-DD):"));
-        txtDob = createTextField("2000-01-01");
-        pnlBase.add(txtDob);
+        // Row 5: Department & Status
+        addGridRow(pnlBase, gbc, 5, "Department:", cmbDepartment = createComboBox(new String[]{ "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" }), "Account Status:", cmbStatus = createComboBox(new String[]{ "Active", "Inactive" }));
 
-        pnlBase.add(createLabel("Gender:"));
-        cmbGender = createComboBox(new String[]{ "Male", "Female", "Other" });
-        pnlBase.add(cmbGender);
+        mainContainer.add(pnlBase);
+        mainContainer.add(Box.createVerticalStrut(10));
 
-        pnlBase.add(createLabel("Email:"));
-        txtEmail = createTextField("");
-        pnlBase.add(txtEmail);
-
-        pnlBase.add(createLabel("Contact No:"));
-        txtContactNo = createTextField("");
-        pnlBase.add(txtContactNo);
-
-        pnlBase.add(createLabel("Address:"));
-        txtAddress = createTextField("");
-        pnlBase.add(txtAddress);
-
-        pnlBase.add(createLabel("Department:"));
-        cmbDepartment = createComboBox(new String[]{ "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" });
-        pnlBase.add(cmbDepartment);
-
-        pnlBase.add(createLabel("Account Status:"));
-        cmbStatus = createComboBox(new String[]{ "Active", "Inactive" });
-        pnlBase.add(cmbStatus);
-
-        mainScrollContainer.add(pnlBase);
-        mainScrollContainer.add(Box.createVerticalStrut(16));
-
+        // Section 2: Role Cards
         roleCardLayout = new CardLayout();
         roleCardPanel = new JPanel(roleCardLayout);
         roleCardPanel.setBackground(WHITE);
@@ -171,126 +145,58 @@ public class UserProfileForm extends JDialog {
         roleCardPanel.setBorder(createTitledSectionBorder("Role Specific Information"));
 
         // Admin Card
-        JPanel pnlAdmin = new JPanel(new GridLayout(2, 2, 14, 12));
+        JPanel pnlAdmin = new JPanel(new GridBagLayout());
         pnlAdmin.setBackground(WHITE);
-        pnlAdmin.setOpaque(true);
-        pnlAdmin.add(createLabel("Admin Code:"));
-        txtAdminCode = createTextField("ADM-001");
-        pnlAdmin.add(txtAdminCode);
-
-        pnlAdmin.add(createLabel("Designation:"));
-        txtAdminDesignation = createTextField("System Administrator");
-        pnlAdmin.add(txtAdminDesignation);
+        addGridRow(pnlAdmin, gbc, 0, "Admin Code:", txtAdminCode = createTextField("ADM-001"), "Designation:", txtAdminDesignation = createTextField("System Administrator"));
         roleCardPanel.add(pnlAdmin, "Admin");
 
         // Lecturer Card
-        JPanel pnlLecturer = new JPanel(new GridLayout(3, 2, 14, 12));
+        JPanel pnlLecturer = new JPanel(new GridBagLayout());
         pnlLecturer.setBackground(WHITE);
-        pnlLecturer.setOpaque(true);
-        pnlLecturer.add(createLabel("Lecturer Code:"));
-        txtLecturerCode = createTextField("LEC-001");
-        pnlLecturer.add(txtLecturerCode);
-
-        pnlLecturer.add(createLabel("Title:"));
-        cmbLecturerTitle = createComboBox(new String[]{ "Dr.", "Prof.", "Mr.", "Ms." });
-        pnlLecturer.add(cmbLecturerTitle);
-
-        pnlLecturer.add(createLabel("Specialization:"));
-        txtSpecialization = createTextField("Software Engineering");
-        pnlLecturer.add(txtSpecialization);
+        addGridRow(pnlLecturer, gbc, 0, "Lecturer Code:", txtLecturerCode = createTextField("LEC-001"), "Title:", cmbLecturerTitle = createComboBox(new String[]{ "Dr.", "Prof.", "Mr.", "Ms." }));
+        addSingleGridRow(pnlLecturer, gbc, 1, "Specialization:", txtSpecialization = createTextField("Software Engineering"));
         roleCardPanel.add(pnlLecturer, "Lecturer");
 
         // Technical Officer Card
-        JPanel pnlTO = new JPanel(new GridLayout(3, 2, 14, 12));
+        JPanel pnlTO = new JPanel(new GridBagLayout());
         pnlTO.setBackground(WHITE);
-        pnlTO.setOpaque(true);
-        pnlTO.add(createLabel("TO Code:"));
-        txtToCode = createTextField("TO-001");
-        pnlTO.add(txtToCode);
-
-        pnlTO.add(createLabel("Designation:"));
-        txtToDesignation = createTextField("Senior Technical Officer");
-        pnlTO.add(txtToDesignation);
-
-        pnlTO.add(createLabel("Assigned Labs:"));
-        txtAssignedLabs = createTextField("Software Lab 1, Network Lab");
-        pnlTO.add(txtAssignedLabs);
+        addGridRow(pnlTO, gbc, 0, "TO Code:", txtToCode = createTextField("TO-001"), "Designation:", txtToDesignation = createTextField("Senior Technical Officer"));
+        addSingleGridRow(pnlTO, gbc, 1, "Assigned Labs:", txtAssignedLabs = createTextField("Software Lab 1, Network Lab"));
         roleCardPanel.add(pnlTO, "Technical Officer");
 
         // Undergraduate Card
-        JPanel pnlUG = new JPanel(new GridLayout(6, 2, 14, 10));
+        JPanel pnlUG = new JPanel(new GridBagLayout());
         pnlUG.setBackground(WHITE);
-        pnlUG.setOpaque(true);
-        pnlUG.add(createLabel("Registration No:"));
-        txtRegNo = createTextField("TG/2024/001");
-        pnlUG.add(txtRegNo);
-
-        pnlUG.add(createLabel("Index No:"));
-        txtIndexNo = createTextField("TG001");
-        pnlUG.add(txtIndexNo);
-
-        pnlUG.add(createLabel("Batch Year:"));
-        txtBatchYear = createTextField("2024");
-        pnlUG.add(txtBatchYear);
-
-        pnlUG.add(createLabel("Academic Year:"));
-        txtAcademicYear = createTextField("2024/2025");
-        pnlUG.add(txtAcademicYear);
-
-        pnlUG.add(createLabel("Student Type / Intake:"));
-        cmbStudentType = createComboBox(new String[]{ "Regular", "Repeat", "Direct Intake" });
-        pnlUG.add(cmbStudentType);
-
-        pnlUG.add(createLabel("Current Level & Semester:"));
-        JPanel pnlLvlSem = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        pnlLvlSem.setBackground(WHITE);
-        pnlLvlSem.setOpaque(true);
-        pnlLvlSem.add(createLabel("Lvl:"));
-        cmbLevel = createComboBox(new Integer[]{ 1, 2, 3, 4 });
-        pnlLvlSem.add(cmbLevel);
-        pnlLvlSem.add(createLabel("Sem:"));
-        cmbSemester = createComboBox(new Integer[]{ 1, 2 });
-        pnlLvlSem.add(cmbSemester);
-        pnlUG.add(pnlLvlSem);
-
-        pnlUG.add(createLabel("Guardian Name:"));
-        txtGuardianName = createTextField("");
-        pnlUG.add(txtGuardianName);
-
-        pnlUG.add(createLabel("Guardian Contact:"));
-        txtGuardianContact = createTextField("");
-        pnlUG.add(txtGuardianContact);
+        addGridRow(pnlUG, gbc, 0, "Reg No:", txtRegNo = createTextField("TG/2024/001"), "Index No:", txtIndexNo = createTextField("TG001"));
+        addGridRow(pnlUG, gbc, 1, "Batch Year:", txtBatchYear = createTextField("2024"), "Academic Year:", txtAcademicYear = createTextField("2024/2025"));
+        addGridRow(pnlUG, gbc, 2, "Student Type:", cmbStudentType = createComboBox(new String[]{ "Regular", "Repeat", "Direct Intake" }), "Lvl & Sem:", createLvlSemPanel());
+        addGridRow(pnlUG, gbc, 3, "Guardian Name:", txtGuardianName = createTextField(""), "Guardian Contact:", txtGuardianContact = createTextField(""));
         roleCardPanel.add(pnlUG, "Undergraduate");
 
-        mainScrollContainer.add(roleCardPanel);
+        mainContainer.add(roleCardPanel);
 
-        JScrollPane scrollPane = new JScrollPane(mainScrollContainer);
+        JScrollPane scrollPane = new JScrollPane(mainContainer);
         scrollPane.getViewport().setBackground(MINT);
-        scrollPane.setBackground(MINT);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 14));
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 10));
         footerPanel.setBackground(WHITE);
         footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, PASTEL_GREEN));
 
         JButton btnSave = new JButton(editUser == null ? "Save Account" : "Update Profile");
-        btnSave.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnSave.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnSave.setBackground(FOREST_GREEN);
         btnSave.setForeground(WHITE);
         btnSave.setFocusPainted(false);
-        btnSave.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 22));
-        btnSave.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnSave.addActionListener(e -> saveUserAccount());
 
         JButton btnCancel = new JButton("Cancel");
-        btnCancel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnCancel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnCancel.setBackground(PASTEL_GREEN);
         btnCancel.setForeground(DEEP_GREEN);
         btnCancel.setFocusPainted(false);
-        btnCancel.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 22));
-        btnCancel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnCancel.addActionListener(e -> dispose());
 
         footerPanel.add(btnSave);
@@ -300,77 +206,101 @@ public class UserProfileForm extends JDialog {
         switchRoleCard("Undergraduate");
     }
 
+    private JPanel createLvlSemPanel() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        p.setBackground(WHITE);
+        p.add(new JLabel("Lvl:"));
+        cmbLevel = createComboBox(new Integer[]{ 1, 2, 3, 4 });
+        p.add(cmbLevel);
+        p.add(new JLabel("Sem:"));
+        cmbSemester = createComboBox(new Integer[]{ 1, 2 });
+        p.add(cmbSemester);
+        return p;
+    }
+
+    private void addGridRow(JPanel panel, GridBagConstraints gbc, int row, String lbl1, JComponent comp1, String lbl2, JComponent comp2) {
+        gbc.gridy = row;
+
+        gbc.gridx = 0; gbc.weightx = 0.15;
+        panel.add(createLabel(lbl1), gbc);
+
+        gbc.gridx = 1; gbc.weightx = 0.35;
+        panel.add(comp1, gbc);
+
+        gbc.gridx = 2; gbc.weightx = 0.15;
+        panel.add(createLabel(lbl2), gbc);
+
+        gbc.gridx = 3; gbc.weightx = 0.35;
+        panel.add(comp2, gbc);
+    }
+
+    private void addSingleGridRow(JPanel panel, GridBagConstraints gbc, int row, String lbl, JComponent comp) {
+        gbc.gridy = row;
+
+        gbc.gridx = 0; gbc.weightx = 0.15;
+        panel.add(createLabel(lbl), gbc);
+
+        gbc.gridx = 1; gbc.gridwidth = 3; gbc.weightx = 0.85;
+        panel.add(comp, gbc);
+
+        gbc.gridwidth = 1; // reset
+    }
+
     private JLabel createLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lbl.setForeground(BLACK);
         return lbl;
     }
 
-    private JTextField createTextField(String initialValue) {
-        JTextField tf = new JTextField(initialValue);
-        styleInputComponent(tf);
+    private JTextField createTextField(String val) {
+        JTextField tf = new JTextField(val);
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tf.setBackground(WHITE);
+        tf.setForeground(BLACK);
+        tf.setCaretColor(BLACK);
+        tf.setPreferredSize(new Dimension(160, 30));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(PASTEL_GREEN, 1),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)
+        ));
         return tf;
     }
 
     private JPasswordField createPasswordField() {
         JPasswordField pf = new JPasswordField();
-        styleInputComponent(pf);
-        return pf;
-    }
-
-    private void styleInputComponent(JTextField tf) {
-        tf.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        tf.setBackground(WHITE);
-        tf.setForeground(BLACK);
-        tf.setCaretColor(BLACK);
-        tf.setBorder(BorderFactory.createCompoundBorder(
+        pf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        pf.setBackground(WHITE);
+        pf.setForeground(BLACK);
+        pf.setCaretColor(BLACK);
+        pf.setPreferredSize(new Dimension(160, 30));
+        pf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(PASTEL_GREEN, 1),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
+        return pf;
     }
 
     private <T> JComboBox<T> createComboBox(T[] items) {
         JComboBox<T> combo = new JComboBox<>(items);
-        combo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         combo.setBackground(WHITE);
         combo.setForeground(BLACK);
+        combo.setPreferredSize(new Dimension(160, 30));
         combo.setFocusable(false);
-
-        combo.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (isSelected) {
-                    l.setBackground(PASTEL_GREEN);
-                    l.setForeground(DEEP_GREEN);
-                } else {
-                    l.setBackground(WHITE);
-                    l.setForeground(BLACK);
-                }
-                l.setOpaque(true);
-                l.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-                l.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
-                return l;
-            }
-        });
-
         return combo;
     }
 
     private Border createTitledSectionBorder(String title) {
-        TitledBorder titledBorder = BorderFactory.createTitledBorder(
+        TitledBorder border = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(PASTEL_GREEN, 1),
                 " " + title + " ",
                 TitledBorder.LEADING,
                 TitledBorder.TOP,
-                new Font("Segoe UI", Font.BOLD, 15),
+                new Font("Segoe UI", Font.BOLD, 13),
                 DEEP_GREEN
         );
-        return BorderFactory.createCompoundBorder(
-                titledBorder,
-                BorderFactory.createEmptyBorder(12, 16, 16, 16)
-        );
+        return BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(8, 12, 10, 12));
     }
 
     private void switchRoleCard(String roleName) {
@@ -383,9 +313,7 @@ public class UserProfileForm extends JDialog {
         txtUsername.setText(editUser.getUsername());
         txtFullName.setText(editUser.getFullName());
         txtNic.setText(editUser.getNic());
-        if (editUser.getDateOfBirth() != null) {
-            txtDob.setText(editUser.getDateOfBirth().toString());
-        }
+        if (editUser.getDateOfBirth() != null) txtDob.setText(editUser.getDateOfBirth().toString());
         cmbGender.setSelectedItem(editUser.getGender());
         txtEmail.setText(editUser.getEmail());
         txtContactNo.setText(editUser.getContactNo());
@@ -436,18 +364,12 @@ public class UserProfileForm extends JDialog {
             }
 
             Date dob;
-            try {
-                dob = Date.valueOf(txtDob.getText().trim());
-            } catch (Exception parseEx) {
-                dob = Date.valueOf("2000-01-01");
-            }
+            try { dob = Date.valueOf(txtDob.getText().trim()); } catch (Exception parseEx) { dob = Date.valueOf("2000-01-01"); }
 
             int deptId = cmbDepartment.getSelectedIndex() + 1;
 
             if (editUser == null) {
-                if (password.isEmpty()) {
-                    password = "Password123";
-                }
+                if (password.isEmpty()) password = "Password123";
 
                 if ("Admin".equalsIgnoreCase(role)) {
                     Admin a = new Admin();
@@ -477,11 +399,7 @@ public class UserProfileForm extends JDialog {
                     bindBaseFields(ug, username, password, fullName, dob, deptId);
                     ug.setRegistrationNo(txtRegNo.getText().trim());
                     ug.setIndexNo(txtIndexNo.getText().trim());
-                    try {
-                        ug.setBatchYear(Integer.parseInt(txtBatchYear.getText().trim()));
-                    } catch (Exception ignored) {
-                        ug.setBatchYear(2024);
-                    }
+                    try { ug.setBatchYear(Integer.parseInt(txtBatchYear.getText().trim())); } catch (Exception ignored) { ug.setBatchYear(2024); }
                     ug.setAcademicYear(txtAcademicYear.getText().trim());
                     ug.setStudentType((String) cmbStudentType.getSelectedItem());
                     ug.setCurrentLevel((Integer) cmbLevel.getSelectedItem());
@@ -508,9 +426,7 @@ public class UserProfileForm extends JDialog {
                 JOptionPane.showMessageDialog(this, "User profile updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
 
-            if (onSuccess != null) {
-                onSuccess.run();
-            }
+            if (onSuccess != null) onSuccess.run();
             dispose();
 
         } catch (Exception ex) {

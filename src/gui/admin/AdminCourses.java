@@ -1,172 +1,158 @@
 package gui.admin;
 
 import dao.admin.AdminCourseDAO;
+import dao.admin.AdminUserDAO;
 import gui.admin.CourseComponents.*;
 import model.Course;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import java.util.ArrayList;
 
 public class AdminCourses extends JPanel {
 
-    private final long userId;
-    private final String username;
-    private final String fullName;
-    private final String email;
-    private final String role;
-
-    private AdminCourseDAO courseDAO;
-    private List<Course> masterList = new ArrayList<>();
+    private final AdminCourseDAO courseDAO;
+    private final AdminUserDAO userDAO;
 
     private CourseTitleBar titleBar;
     private CourseFilterSet filterSet;
     private CourseActions actionToolbar;
-    private CourseList courseListView;
+    private CourseList tableContainer;
+    private CourseTable courseTable;
 
     public AdminCourses(long userId, String username, String fullName, String email, String role) {
-        this.userId = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email = email;
-        this.role = role;
-
-        setLayout(null);
-        setBounds(0, 0, 1660, 1080);
+        setLayout(new BorderLayout(0, 12));
         setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBorder(BorderFactory.createEmptyBorder(60, 40, 60, 40));
 
-        courseDAO = new AdminCourseDAO();
+        this.courseDAO = new AdminCourseDAO();
+        this.userDAO = new AdminUserDAO();
 
-        // Title Bar
-        titleBar = new CourseTitleBar();
-        titleBar.setLocation(20, 20);
-        add(titleBar);
-
-        // Filter Bar
-        filterSet = new CourseFilterSet(this::applyFilters);
-        filterSet.setBounds(20, 120, 1620, 60);
-        add(filterSet);
-
-        // Actions Toolbar
-        actionToolbar = new CourseActions(
-                this::openAddDialog,
-                this::openViewDialog,
-                this::openEditDialog,
-                this::deleteCourse,
-                this::openAssignLecturerDialog,
-                this::loadCoursesFromDB
-        );
-        actionToolbar.setBounds(20, 190, 1620, 60);
-        add(actionToolbar);
-
-        // Course List Table View
-        courseListView = new CourseList();
-        courseListView.setBounds(20, 260, 1620, 780);
-        add(courseListView);
-
-        loadCoursesFromDB();
+        initUI();
+        loadCourses();
     }
 
-    private void loadCoursesFromDB() {
+    private void initUI() {
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setOpaque(false);
+
+        titleBar = new CourseTitleBar();
+        topPanel.add(titleBar);
+        topPanel.add(Box.createVerticalStrut(10));
+
+        filterSet = new CourseFilterSet(this::onFilterChanged);
+        topPanel.add(filterSet);
+        topPanel.add(Box.createVerticalStrut(10));
+
+        actionToolbar = new CourseActions(
+                this::onAddCourse,
+                this::onViewDetails,
+                this::onEditCourse,
+                this::onDeleteCourse,
+                this::onAssignLecturer,
+                this::loadCourses
+        );
+        topPanel.add(actionToolbar);
+
+        add(topPanel, BorderLayout.NORTH);
+
+        courseTable = new CourseTable();
+        tableContainer = new CourseList(courseTable);
+        add(tableContainer, BorderLayout.CENTER);
+    }
+
+    private void loadCourses() {
         try {
-            masterList = courseDAO.getAllCourses();
-            titleBar.updateCourseCount(masterList.size());
-            applyFilters();
+            List<Course> list = courseDAO.getAllCourses();
+            courseTable.setCourses(list);
+            titleBar.updateCount(list.size());
         } catch (Exception e) {
-            System.err.println("[AdminCourses Error] Could not load courses: " + e.getMessage());
+            System.err.println("[AdminCourses] Error loading courses: " + e.getMessage());
+        }
+    }
+
+    private void onFilterChanged() {
+        String query = filterSet.getSearchQuery().toLowerCase();
+        int deptId = filterSet.getSelectedDepartmentId();
+        String sem = filterSet.getSelectedSemester();
+
+        try {
+            List<Course> list = courseDAO.getAllCourses();
+            List<Course> filtered = list.stream().filter(c -> {
+                boolean mQuery = query.isEmpty() ||
+                        c.getCourseCode().toLowerCase().contains(query) ||
+                        c.getCourseName().toLowerCase().contains(query);
+                boolean mDept = (deptId == 0 || c.getDepartmentId() == deptId);
+                boolean mSem = ("All Semesters".equals(sem) || sem.equalsIgnoreCase(c.getSemester()));
+                return mQuery && mDept && mSem;
+            }).toList();
+
+            courseTable.setCourses(filtered);
+            titleBar.updateCount(filtered.size());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void applyFilters() {
-        String query = filterSet.getSearchQuery().toLowerCase();
-        String dept = filterSet.getSelectedDepartment();
-        String sem = filterSet.getSelectedSemester();
-
-        List<Course> filtered = new ArrayList<>();
-        for (Course c : masterList) {
-            boolean matchesSearch = query.isEmpty()
-                    || (c.getCourseCode() != null && c.getCourseCode().toLowerCase().contains(query))
-                    || (c.getCourseName() != null && c.getCourseName().toLowerCase().contains(query));
-
-            boolean matchesDept = "All Departments".equalsIgnoreCase(dept);
-            if (!matchesDept) {
-                if (dept.startsWith("1") && c.getDepartmentId() == 1) matchesDept = true;
-                else if (dept.startsWith("2") && c.getDepartmentId() == 2) matchesDept = true;
-                else if (dept.startsWith("3") && c.getDepartmentId() == 3) matchesDept = true;
-            }
-
-            boolean matchesSem = "All Semesters".equalsIgnoreCase(sem)
-                    || (c.getSemester() != null && c.getSemester().equalsIgnoreCase(sem));
-
-            if (matchesSearch && matchesDept && matchesSem) {
-                filtered.add(c);
-            }
-        }
-        courseListView.setCourses(filtered);
-    }
-
-    private void openAddDialog() {
-        Frame topFrame = (Frame) SwingUtilities.getWindowAncestor(this);
-        CourseForm form = new CourseForm(topFrame, courseDAO, null, this::loadCoursesFromDB);
+    private void onAddCourse() {
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        CourseForm form = new CourseForm(owner, courseDAO, null, this::loadCourses);
         form.setVisible(true);
     }
 
-    private void openViewDialog() {
-        Course selected = courseListView.getSelectedCourse();
+    private void onViewDetails() {
+        Course selected = courseTable.getSelectedCourse();
         if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a course to view details.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a course module from the table.", "Selection Required", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        Frame topFrame = (Frame) SwingUtilities.getWindowAncestor(this);
-        CourseDetails details = new CourseDetails(topFrame, selected);
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        CourseDetails details = new CourseDetails(owner, selected);
         details.setVisible(true);
     }
 
-    private void openEditDialog() {
-        Course selected = courseListView.getSelectedCourse();
+    private void onEditCourse() {
+        Course selected = courseTable.getSelectedCourse();
         if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a course to edit.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a course module from the table to edit.", "Selection Required", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        Frame topFrame = (Frame) SwingUtilities.getWindowAncestor(this);
-        CourseForm form = new CourseForm(topFrame, courseDAO, selected, this::loadCoursesFromDB);
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        CourseForm form = new CourseForm(owner, courseDAO, selected, this::loadCourses);
         form.setVisible(true);
     }
 
-    private void openAssignLecturerDialog() {
-        Course selected = courseListView.getSelectedCourse();
+    private void onDeleteCourse() {
+        Course selected = courseTable.getSelectedCourse();
         if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a course to assign a lecturer.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a course module from the table to delete.", "Selection Required", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        Frame topFrame = (Frame) SwingUtilities.getWindowAncestor(this);
-        AssignLecturerDialog dialog = new AssignLecturerDialog(topFrame, courseDAO, selected, this::loadCoursesFromDB);
-        dialog.setVisible(true);
-    }
 
-    private void deleteCourse() {
-        Course selected = courseListView.getSelectedCourse();
-        if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a course to delete.", "Selection Required", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        int choice = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to delete course " + selected.getCourseCode() + "?",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
+        int choice = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete course " + selected.getCourseCode() + " (" + selected.getCourseName() + ")?",
+                "Delete Course", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
         if (choice == JOptionPane.YES_OPTION) {
             try {
                 courseDAO.deleteCourse(selected.getCourseId());
-                JOptionPane.showMessageDialog(this, "Course deleted successfully!", "Deleted", JOptionPane.INFORMATION_MESSAGE);
-                loadCoursesFromDB();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error deleting course: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Course deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                loadCourses();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error deleting course: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    private void onAssignLecturer() {
+        Course selected = courseTable.getSelectedCourse();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select a course module from the table to assign a lecturer.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        AssignLecturerDialog dialog = new AssignLecturerDialog(owner, courseDAO, userDAO, selected, this::loadCourses);
+        dialog.setVisible(true);
     }
 }

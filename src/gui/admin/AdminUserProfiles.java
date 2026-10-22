@@ -9,12 +9,9 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * AdminUserProfiles - Primary User Profiles management view panel.
- */
 public class AdminUserProfiles extends JPanel {
 
-    private final Color MINT  = new Color(0xE8, 0xF5, 0xE9);
+    private final Color MINT = new Color(0xE8, 0xF5, 0xE9);
 
     private final AdminUserDAO userDAO;
     private List<User> allLoadedUsers = new ArrayList<>();
@@ -25,9 +22,9 @@ public class AdminUserProfiles extends JPanel {
     private UserProfileUserList userList;
 
     public AdminUserProfiles(long userId, String username, String fullName, String email, String role) {
-        setLayout(null);
-        setBounds(0, 0, 1660, 1080);
+        setLayout(new BorderLayout(0, 12));
         setBackground(MINT);
+        setBorder(BorderFactory.createEmptyBorder(60, 40, 60, 40));
 
         userDAO = new AdminUserDAO();
 
@@ -36,17 +33,18 @@ public class AdminUserProfiles extends JPanel {
     }
 
     private void initUI() {
-        // 1. Header Title Bar
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setOpaque(false);
+
         titleBar = new UserProfileTitleBar(0);
-        titleBar.setLocation(20, 25);
-        add(titleBar);
+        topPanel.add(titleBar);
+        topPanel.add(Box.createVerticalStrut(10));
 
-        // 2. Filter Controls Row
         filterSet = new UserProfileFilterSet(this::applyFilters);
-        filterSet.setLocation(20, 120);
-        add(filterSet);
+        topPanel.add(filterSet);
+        topPanel.add(Box.createVerticalStrut(10));
 
-        // 3. Action Toolbar Buttons
         actionToolbar = new UserProfileActions(
                 this::openAddUserDialog,
                 this::openViewDetailsDialog,
@@ -54,13 +52,12 @@ public class AdminUserProfiles extends JPanel {
                 this::deleteSelectedUser,
                 this::loadUsersFromDatabase
         );
-        actionToolbar.setLocation(20, 190);
-        add(actionToolbar);
+        topPanel.add(actionToolbar);
 
-        // 4. Data Table Container
+        add(topPanel, BorderLayout.NORTH);
+
         userList = new UserProfileUserList();
-        userList.setBounds(20, 255, 1620, 750);
-        add(userList);
+        add(userList, BorderLayout.CENTER);
     }
 
     public void loadUsersFromDatabase() {
@@ -84,17 +81,14 @@ public class AdminUserProfiles extends JPanel {
         List<User> filtered = new ArrayList<>();
 
         for (User u : allLoadedUsers) {
-            // Role Filter
             if (!"All Roles".equalsIgnoreCase(roleFilter) && !roleFilter.equalsIgnoreCase(u.getRole())) {
                 continue;
             }
 
-            // Status Filter
             if (!"All Statuses".equalsIgnoreCase(statusFilter) && !statusFilter.equalsIgnoreCase(u.getUserStatus())) {
                 continue;
             }
 
-            // Search Query Filter
             if (!query.isEmpty()) {
                 boolean matchName = u.getFullName() != null && u.getFullName().toLowerCase().contains(query);
                 boolean matchUsername = u.getUsername() != null && u.getUsername().toLowerCase().contains(query);

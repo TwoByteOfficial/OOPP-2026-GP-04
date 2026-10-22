@@ -7,9 +7,6 @@ import java.awt.*;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Primary central administrative dashboard panel.
- */
 public class AdminDashboard extends JPanel {
 
     private DashboardTitleBar   titleBar;
@@ -21,40 +18,48 @@ public class AdminDashboard extends JPanel {
     private AdminDashboardDAO   dashboardDAO;
 
     public AdminDashboard(long userId, String username, String fullName, String email, String role) {
-        setLayout(null);
-        setBounds(0, 0, 1660, 1080);
-        setOpaque(false);
+        setLayout(new BorderLayout(0, 16));
+        setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
 
         dashboardDAO = new AdminDashboardDAO();
         Map<String, Integer> dbMetrics = loadLiveDatabaseMetrics();
 
-        // ROW 1: TITLE BAR
         titleBar = new DashboardTitleBar(fullName);
-        titleBar.setLocation(20, 20);
-        add(titleBar);
+        add(titleBar, BorderLayout.NORTH);
 
-        // ROW 2: ANALYTICS CARDS
+        JPanel body = new JPanel(null);
+        body.setOpaque(false);
+        //body.setPreferredSize(new Dimension(1620, 960));
+
         analyticsRow = new SimpleAnalyticView(dbMetrics);
-        analyticsRow.setLocation(20, 120);
-        add(analyticsRow);
+        analyticsRow.setBounds(0, 0, 1620, 130);
+        body.add(analyticsRow);
 
-        // ROW 3: PROGRESS TRACKERS & QUICK STATUS
+        //--------------------------------------------------------
+
         statusPanel = new StatusSummary();
-        statusPanel.setLocation(20, 270);
-        add(statusPanel);
+        statusPanel.setBounds(0, 125, 778, 260);
+        body.add(statusPanel);
 
         attendancePanel = new AttendanceSummary(dbMetrics);
-        attendancePanel.setLocation(830, 270);
-        add(attendancePanel);
+        attendancePanel.setBounds(798, 125, 778, 260);
+        body.add(attendancePanel);
 
-        // ROW 4: DATA TABLES
         userPanel = new UserSummary();
-        userPanel.setLocation(20, 550);
-        add(userPanel);
+        userPanel.setBounds(0, 400, 778, 450);
+        body.add(userPanel);
 
         noticesPanel = new NoticesSummary();
-        noticesPanel.setLocation(830, 550);
-        add(noticesPanel);
+        noticesPanel.setBounds(798, 400, 778, 450);
+        body.add(noticesPanel);
+
+        JScrollPane scrollPane = new JScrollPane(body);
+        scrollPane.getViewport().setBackground(new Color(0xE8, 0xF5, 0xE9));
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private Map<String, Integer> loadLiveDatabaseMetrics() {

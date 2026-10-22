@@ -8,45 +8,36 @@ import java.awt.*;
 
 public class AdminSettings extends JPanel {
 
-    private final long userId;
-    private final String username;
-    private final String fullName;
-    private final String email;
-    private final String role;
-
-    private AdminUserDAO userDAO;
+    private final AdminUserDAO userDAO;
 
     public AdminSettings(long userId, String username, String fullName, String email, String role) {
-        this.userId = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email = email;
-        this.role = role;
-
-        setLayout(null);
-        setBounds(0, 0, 1660, 1080);
+        setLayout(new BorderLayout(0, 16));
         setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBorder(BorderFactory.createEmptyBorder(60, 40, 60, 40));
 
-        userDAO = new AdminUserDAO();
+        this.userDAO = new AdminUserDAO();
 
         SettingsTitleBar titleBar = new SettingsTitleBar();
-        titleBar.setLocation(20, 20);
-        add(titleBar);
+        add(titleBar, BorderLayout.NORTH);
 
-        JPanel pnlGrid = new JPanel(new GridLayout(2, 2, 20, 20));
-        pnlGrid.setOpaque(false);
-        pnlGrid.setBounds(20, 120, 1620, 920);
+        JPanel mainCard = new JPanel(new GridLayout(1, 2, 20, 0));
+        mainCard.setBackground(Color.WHITE);
+        mainCard.setPreferredSize(new Dimension(880, 600));
+        mainCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0xC8, 0xE6, 0xC9), 1),
+                BorderFactory.createEmptyBorder(24, 28, 24, 28)
+        ));
 
-        GeneralSettings general = new GeneralSettings(userId, fullName, email, userDAO);
-        AccountSettings account = new AccountSettings(username);
-        AppearanceSettings appearance = new AppearanceSettings();
-        SystemSettings system = new SystemSettings();
+        GeneralSettings profileSettings = new GeneralSettings(userId, fullName, email, userDAO);
+        AccountSettings accountSettings = new AccountSettings(username);
 
-        pnlGrid.add(general);
-        pnlGrid.add(account);
-        pnlGrid.add(appearance);
-        pnlGrid.add(system);
+        mainCard.add(profileSettings);
+        mainCard.add(accountSettings);
 
-        add(pnlGrid);
+        JPanel centerWrapper = new JPanel(new GridBagLayout());
+        centerWrapper.setOpaque(false);
+        centerWrapper.add(mainCard);
+
+        add(centerWrapper, BorderLayout.CENTER);
     }
 }

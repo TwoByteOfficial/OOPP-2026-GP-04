@@ -26,6 +26,10 @@ public class NoticeForm extends JDialog {
     private JComboBox<String> cmbDepartment;
     private JComboBox<String> cmbStatus;
 
+    public NoticeForm(Frame parent, AdminNoticeDAO dao, Notice noticeToEdit, Runnable onSuccess) {
+        this(parent, dao, noticeToEdit, 1L, onSuccess);
+    }
+
     public NoticeForm(Frame parent, AdminNoticeDAO dao, Notice noticeToEdit, long adminUserId, Runnable onSuccess) {
         super(parent, (noticeToEdit == null ? "Post New Notice Announcement" : "Edit Notice Announcement"), true);
         this.noticeDAO = dao;
@@ -67,14 +71,12 @@ public class NoticeForm extends JDialog {
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Row 1: Title
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.2;
         pnlForm.add(createLabel("Notice Title:"), gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         txtTitle = createTextField("");
         pnlForm.add(txtTitle, gbc);
 
-        // Row 2: Content
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.2;
         pnlForm.add(createLabel("Content / Body:"), gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
@@ -88,7 +90,6 @@ public class NoticeForm extends JDialog {
         spContent.setBorder(BorderFactory.createLineBorder(PASTEL_GREEN, 1));
         pnlForm.add(spContent, gbc);
 
-        // Row 3: Notice Type
         gbc.gridx = 0; gbc.gridy = 2;
         pnlForm.add(createLabel("Notice Type:"), gbc);
         gbc.gridx = 1;
@@ -96,7 +97,6 @@ public class NoticeForm extends JDialog {
         styleCombo(cmbType);
         pnlForm.add(cmbType, gbc);
 
-        // Row 4: Target Role
         gbc.gridx = 0; gbc.gridy = 3;
         pnlForm.add(createLabel("Target Role:"), gbc);
         gbc.gridx = 1;
@@ -104,17 +104,15 @@ public class NoticeForm extends JDialog {
         styleCombo(cmbTargetRole);
         pnlForm.add(cmbTargetRole, gbc);
 
-        // Row 5: Department
         gbc.gridx = 0; gbc.gridy = 4;
-        pnlForm.add(createLabel("Department Scope:"), gbc);
+        pnlForm.add(createLabel("Target Department:"), gbc);
         gbc.gridx = 1;
-        cmbDepartment = new JComboBox<>(new String[]{ "All Departments (Faculty-Wide)", "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" });
+        cmbDepartment = new JComboBox<>(new String[]{ "Faculty-Wide (All Depts)", "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" });
         styleCombo(cmbDepartment);
         pnlForm.add(cmbDepartment, gbc);
 
-        // Row 6: Status
         gbc.gridx = 0; gbc.gridy = 5;
-        pnlForm.add(createLabel("Status:"), gbc);
+        pnlForm.add(createLabel("Notice Status:"), gbc);
         gbc.gridx = 1;
         cmbStatus = new JComboBox<>(new String[]{ "Published", "Draft", "Archived" });
         styleCombo(cmbStatus);
@@ -126,7 +124,7 @@ public class NoticeForm extends JDialog {
         footerPanel.setBackground(WHITE);
         footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, PASTEL_GREEN));
 
-        JButton btnSave = new JButton(editNotice == null ? "Publish Notice" : "Update Notice");
+        JButton btnSave = new JButton(editNotice == null ? "Post Notice" : "Update Announcement");
         btnSave.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnSave.setBackground(FOREST_GREEN);
         btnSave.setForeground(WHITE);

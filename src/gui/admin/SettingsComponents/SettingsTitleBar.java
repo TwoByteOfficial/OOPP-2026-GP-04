@@ -9,19 +9,20 @@ public class SettingsTitleBar extends JPanel {
 
     public SettingsTitleBar() {
         setLayout(null);
-        setBounds(0, 0, 1620, 90);
+        setPreferredSize(new Dimension(1620, 80));
+        setMinimumSize(new Dimension(1620, 80));
         setOpaque(false);
 
         JLabel lblTitle = new JLabel("System Administrator Settings & Account Control");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
         lblTitle.setForeground(DEEP_GREEN);
-        lblTitle.setBounds(20, 15, 800, 40);
+        lblTitle.setBounds(0, 5, 800, 38);
         add(lblTitle);
 
         JLabel lblSub = new JLabel("Manage admin profile, contact settings, security preferences, and system parameters");
         lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         lblSub.setForeground(MUTED);
-        lblSub.setBounds(20, 55, 1000, 24);
+        lblSub.setBounds(0, 45, 1000, 24);
         add(lblSub);
     }
 }

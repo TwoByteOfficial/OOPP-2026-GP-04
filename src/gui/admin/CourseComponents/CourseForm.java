@@ -6,6 +6,7 @@ import model.Course;
 import javax.swing.*;
 import java.awt.*;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
 public class CourseForm extends JDialog {
 
@@ -21,7 +22,6 @@ public class CourseForm extends JDialog {
 
     private JTextField txtCode;
     private JTextField txtName;
-    private JTextArea txtDescription;
     private JTextField txtTheoryCredits;
     private JTextField txtPracticalCredits;
     private JTextField txtCaWeight;
@@ -101,7 +101,7 @@ public class CourseForm extends JDialog {
         pnlForm.add(txtAcademicYear);
 
         pnlForm.add(createLabel("Semester:"));
-        cmbSemester = new JComboBox<>(new String[]{ "Semester 1", "Semester 2" });
+        cmbSemester = new JComboBox<>(new String[]{ "Semester 1", "Semester 2", "Semester I", "Semester II" });
         styleCombo(cmbSemester);
         pnlForm.add(cmbSemester);
 
@@ -170,65 +170,193 @@ public class CourseForm extends JDialog {
         if (editCourse.getPracticalCredits() != null) txtPracticalCredits.setText(editCourse.getPracticalCredits().toString());
         if (editCourse.getCaWeight() != null) txtCaWeight.setText(editCourse.getCaWeight().toString());
         if (editCourse.getFinalWeight() != null) txtFinalWeight.setText(editCourse.getFinalWeight().toString());
-        cmbDepartment.setSelectedIndex(Math.max(0, editCourse.getDepartmentId() - 1));
+        
+        int deptIndex = Math.max(0, editCourse.getDepartmentId() - 1);
+        if (deptIndex < cmbDepartment.getItemCount()) {
+            cmbDepartment.setSelectedIndex(deptIndex);
+        }
+        
         if (editCourse.getAcademicYear() != null) txtAcademicYear.setText(editCourse.getAcademicYear());
-        if (editCourse.getSemester() != null) cmbSemester.setSelectedItem(editCourse.getSemester());
+        if (editCourse.getSemester() != null) {
+            String sem = editCourse.getSemester();
+            if ("Semester I".equalsIgnoreCase(sem)) sem = "Semester 1";
+            else if ("Semester II".equalsIgnoreCase(sem)) sem = "Semester 2";
+            cmbSemester.setSelectedItem(sem);
+        }
         if (editCourse.getStatus() != null) cmbStatus.setSelectedItem(editCourse.getStatus());
     }
 
     private void saveCourse() {
+        String code = txtCode.getText().trim();
+        String name = txtName.getText().trim();
+
+        if (code.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid Course Code (e.g., ICT1113).", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            txtCode.requestFocus();
+            return;
+        }
+
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid Course Name (e.g., Programming Fundamentals).", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            txtName.requestFocus();
+            return;
+        }
+
+        BigDecimal theory;
         try {
-            String code = txtCode.getText().trim();
-            String name = txtName.getText().trim();
-            if (code.isEmpty() || name.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Course Code and Name are required!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            theory = new BigDecimal(txtTheoryCredits.getText().trim());
+            if (theory.compareTo(BigDecimal.ZERO) < 0) {
+                JOptionPane.showMessageDialog(this, "Theory Credits cannot be negative.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                txtTheoryCredits.requestFocus();
                 return;
             }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Theory Credits must be a valid number (e.g., 2.0 or 0.0).", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            txtTheoryCredits.requestFocus();
+            return;
+        }
 
-            BigDecimal theory = new BigDecimal(txtTheoryCredits.getText().trim());
-            BigDecimal practical = new BigDecimal(txtPracticalCredits.getText().trim());
-            BigDecimal total = theory.add(practical);
-            BigDecimal ca = new BigDecimal(txtCaWeight.getText().trim());
-            BigDecimal finalW = new BigDecimal(txtFinalWeight.getText().trim());
-            int deptId = cmbDepartment.getSelectedIndex() + 1;
+        BigDecimal practical;
+        try {
+            practical = new BigDecimal(txtPracticalCredits.getText().trim());
+            if (practical.compareTo(BigDecimal.ZERO) < 0) {
+                JOptionPane.showMessageDialog(this, "Practical Credits cannot be negative.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                txtPracticalCredits.requestFocus();
+                return;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Practical Credits must be a valid number (e.g., 1.0 or 0.0).", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            txtPracticalCredits.requestFocus();
+            return;
+        }
 
+        if (theory.add(practical).compareTo(BigDecimal.ZERO) <= 0) {
+            JOptionPane.showMessageDialog(this, "Total Credits (Theory + Practical) must be greater than 0.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        BigDecimal ca;
+        try {
+            ca = new BigDecimal(txtCaWeight.getText().trim());
+            if (ca.compareTo(BigDecimal.ZERO) < 0 || ca.compareTo(new BigDecimal("100")) > 0) {
+                JOptionPane.showMessageDialog(this, "CA Weight must be between 0% and 100%.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                txtCaWeight.requestFocus();
+                return;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "CA Weight must be a valid numeric percentage (e.g., 30).", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            txtCaWeight.requestFocus();
+            return;
+        }
+
+        BigDecimal finalW;
+        try {
+            finalW = new BigDecimal(txtFinalWeight.getText().trim());
+            if (finalW.compareTo(BigDecimal.ZERO) < 0 || finalW.compareTo(new BigDecimal("100")) > 0) {
+                JOptionPane.showMessageDialog(this, "Final Exam Weight must be between 0% and 100%.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                txtFinalWeight.requestFocus();
+                return;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Final Exam Weight must be a valid numeric percentage (e.g., 70).", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            txtFinalWeight.requestFocus();
+            return;
+        }
+
+        if (ca.add(finalW).compareTo(new BigDecimal("100")) != 0) {
+            JOptionPane.showMessageDialog(this, 
+                "CA Weight (" + ca + "%) and Final Exam Weight (" + finalW + "%) must sum to 100%.Currently total weight is " + ca.add(finalW) + "%.",
+                "Weight Allocation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String selectedDeptStr = (String) cmbDepartment.getSelectedItem();
+        int deptId = 1;
+        if (selectedDeptStr != null && selectedDeptStr.contains("-")) {
+            try {
+                deptId = Integer.parseInt(selectedDeptStr.split("-")[0].trim());
+            } catch (Exception ignored) {
+                deptId = cmbDepartment.getSelectedIndex() + 1;
+            }
+        } else {
+            deptId = cmbDepartment.getSelectedIndex() + 1;
+        }
+
+        String semSelected = (String) cmbSemester.getSelectedItem();
+        String semesterFormatted = "Semester I";
+        if (semSelected != null) {
+            if (semSelected.contains("2") || semSelected.contains("II")) {
+                semesterFormatted = "Semester II";
+            }
+        }
+
+        BigDecimal totalCredits = theory.add(practical);
+
+        try {
             if (editCourse == null) {
                 Course c = new Course();
                 c.setCourseCode(code);
                 c.setCourseName(name);
                 c.setTheoryCredits(theory);
                 c.setPracticalCredits(practical);
-                c.setTotalCredits(total);
+                c.setTotalCredits(totalCredits);
                 c.setCaWeight(ca);
                 c.setFinalWeight(finalW);
                 c.setDepartmentId(deptId);
                 c.setAcademicYear(txtAcademicYear.getText().trim());
-                c.setSemester((String) cmbSemester.getSelectedItem());
+                c.setSemester(semesterFormatted);
                 c.setStatus((String) cmbStatus.getSelectedItem());
 
-                courseDAO.createCourse(c);
-                JOptionPane.showMessageDialog(this, "Course registered successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                boolean success = courseDAO.createCourse(c);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Course '" + code + "' registered successfully!", "Registration Successful", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Could not save course. Database operation returned false.", "Save Failed", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             } else {
                 editCourse.setCourseCode(code);
                 editCourse.setCourseName(name);
                 editCourse.setTheoryCredits(theory);
                 editCourse.setPracticalCredits(practical);
-                editCourse.setTotalCredits(total);
+                editCourse.setTotalCredits(totalCredits);
                 editCourse.setCaWeight(ca);
                 editCourse.setFinalWeight(finalW);
                 editCourse.setDepartmentId(deptId);
                 editCourse.setAcademicYear(txtAcademicYear.getText().trim());
-                editCourse.setSemester((String) cmbSemester.getSelectedItem());
+                editCourse.setSemester(semesterFormatted);
                 editCourse.setStatus((String) cmbStatus.getSelectedItem());
 
-                courseDAO.updateCourse(editCourse);
-                JOptionPane.showMessageDialog(this, "Course updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                boolean success = courseDAO.updateCourse(editCourse);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Course '" + code + "' updated successfully!", "Update Successful", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Could not update course. Record may no longer exist.", "Update Failed", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
 
             if (onSuccess != null) onSuccess.run();
             dispose();
+        } catch (SQLException ex) {
+            String msg = ex.getMessage();
+            if (msg != null && msg.toLowerCase().contains("duplicate")) {
+                JOptionPane.showMessageDialog(this, 
+                    "A course with Course Code '" + code + "' already exists in the system. Please enter a unique Course Code.",
+                    "Duplicate Course Code", JOptionPane.WARNING_MESSAGE);
+            } else if (msg != null && msg.toLowerCase().contains("foreign key")) {
+                JOptionPane.showMessageDialog(this, 
+                    "Department ID " + deptId + " does not exist in the database.Please select a valid Department.",
+                    "Department Not Found", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Database error while saving course:" + msg,
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error saving course: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, 
+                "An unexpected error occurred while saving the course:" + ex.getMessage(),
+                "System Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

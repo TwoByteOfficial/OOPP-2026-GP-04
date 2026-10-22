@@ -46,8 +46,8 @@ public class UserProfileTable extends JTable {
         // Header Styling
         JTableHeader header = getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        header.setBackground(WHITE);
-        header.setForeground(WHITE);
+        header.setBackground(MINT);
+        header.setForeground(DEEP_GREEN);
         header.setPreferredSize(new Dimension(header.getPreferredSize().width, 46));
         header.setReorderingAllowed(false);
 

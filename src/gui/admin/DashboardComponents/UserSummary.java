@@ -8,9 +8,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * UserSummary - Recently Registered Users table (Row 4 Left).
- */
 public class UserSummary extends JPanel {
 
     private final Color WHITE        = Color.WHITE;
@@ -56,13 +53,13 @@ public class UserSummary extends JPanel {
         container.setOpaque(false);
 
         JLabel title = new JLabel("Recently Added Users");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20)); // 18 -> 20
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setForeground(FOREST_GREEN);
-        title.setBounds(25, 18, 380, 32);
+        title.setBounds(25, 18, 380, 30);
         container.add(title);
 
         JLabel subtitle = new JLabel("Latest user profiles registered in database");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // 12 -> 14
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         subtitle.setForeground(MUTED);
         subtitle.setBounds(25, 48, 400, 22);
         container.add(subtitle);
@@ -78,7 +75,7 @@ public class UserSummary extends JPanel {
             }
         };
 
-        tableHeader.setBounds(25, 75, 740, 40);
+        tableHeader.setBounds(25, 78, 740, 40);
         tableHeader.setOpaque(false);
 
         String[] columnHeaders = { "User ID / Code", "Full Name", "Role", "Department", "Status" };
@@ -87,7 +84,7 @@ public class UserSummary extends JPanel {
         int currentX = 15;
         for (int i = 0; i < columnHeaders.length; i++) {
             JLabel header = new JLabel(columnHeaders[i]);
-            header.setFont(new Font("Segoe UI", Font.BOLD, 15)); // 13 -> 15
+            header.setFont(new Font("Segoe UI", Font.BOLD, 15));
             header.setForeground(FOREST_GREEN);
             header.setBounds(currentX, 0, columnWidths[i], 40);
             tableHeader.add(header);
@@ -133,11 +130,11 @@ public class UserSummary extends JPanel {
             int cellX = 15;
             for (int col = 0; col < liveRowData.length; col++) {
                 JLabel cell = new JLabel(liveRowData[col]);
-                cell.setFont(new Font("Segoe UI", Font.PLAIN, 15)); // 13 -> 15
+                cell.setFont(new Font("Segoe UI", Font.PLAIN, 15));
                 cell.setForeground(col == 0 ? DEEP_GREEN : MUTED);
 
                 if (col == 4) {
-                    cell.setFont(new Font("Segoe UI", Font.BOLD, 15)); // 13 -> 15
+                    cell.setFont(new Font("Segoe UI", Font.BOLD, 15));
                     if ("Active".equalsIgnoreCase(liveRowData[col])) {
                         cell.setForeground(FOREST_GREEN);
                     } else {
@@ -160,7 +157,7 @@ public class UserSummary extends JPanel {
 
         if (recentUsers.isEmpty()) {
             JLabel emptyLabel = new JLabel("No user records found in system database.", SwingConstants.CENTER);
-            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 16));
+            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 15));
             emptyLabel.setForeground(MUTED);
             emptyLabel.setBounds(25, 180, 740, 40);
             container.add(emptyLabel);

@@ -27,5 +27,16 @@ public class TimetableBatchFilter extends JPanel {
     }
 
     public String getSelectedBatch() { return (String) cmbBatch.getSelectedItem(); }
+
+    public int getSelectedBatchYear() {
+        String b = getSelectedBatch();
+        if (b == null || b.startsWith("All")) return 0;
+        try {
+            return Integer.parseInt(b.trim());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public void reset() { cmbBatch.setSelectedIndex(0); }
 }

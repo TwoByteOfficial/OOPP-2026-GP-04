@@ -10,20 +10,25 @@ public class TimetableTitleBar extends JPanel {
 
     public TimetableTitleBar() {
         setLayout(null);
-        setBounds(0, 0, 1620, 90);
+        setPreferredSize(new Dimension(1620, 80));
+        setMinimumSize(new Dimension(1620, 80));
         setOpaque(false);
 
         JLabel lblTitle = new JLabel("Academic Timetable & Schedule Management");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
         lblTitle.setForeground(DEEP_GREEN);
-        lblTitle.setBounds(20, 15, 800, 40);
+        lblTitle.setBounds(0, 5, 800, 38);
         add(lblTitle);
 
         lblCount = new JLabel("Schedule theory lectures, practical labs, venues, and assigned staff • 0 Timetable Entries");
         lblCount.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         lblCount.setForeground(MUTED);
-        lblCount.setBounds(20, 55, 1000, 24);
+        lblCount.setBounds(0, 45, 1000, 24);
         add(lblCount);
+    }
+
+    public void updateCount(int count) {
+        updateTimetableCount(count);
     }
 
     public void updateTimetableCount(int count) {

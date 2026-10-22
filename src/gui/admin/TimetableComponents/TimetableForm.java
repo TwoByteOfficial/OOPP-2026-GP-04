@@ -1,11 +1,17 @@
 package gui.admin.TimetableComponents;
 
+import dao.admin.AdminCourseDAO;
 import dao.admin.AdminTimetableDAO;
+import dao.admin.AdminUserDAO;
+import model.Course;
+import model.Lecturer;
 import model.TimetableEntry;
+import model.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Time;
+import java.util.List;
 
 public class TimetableForm extends JDialog {
 
@@ -16,12 +22,14 @@ public class TimetableForm extends JDialog {
     private final Color BLACK        = Color.BLACK;
 
     private AdminTimetableDAO timetableDAO;
+    private AdminCourseDAO courseDAO;
+    private AdminUserDAO userDAO;
     private TimetableEntry editEntry;
     private Runnable onSuccess;
 
     private JComboBox<String> cmbDepartment;
-    private JTextField txtCourseId;
-    private JTextField txtLecturerId;
+    private JComboBox<CourseComboItem> cmbCourse;
+    private JComboBox<LecturerComboItem> cmbLecturer;
     private JTextField txtBatchYear;
     private JComboBox<String> cmbComponent;
     private JComboBox<String> cmbDay;
@@ -31,13 +39,49 @@ public class TimetableForm extends JDialog {
     private JTextField txtAcademicYear;
     private JComboBox<String> cmbSemester;
 
-    public TimetableForm(Frame parent, AdminTimetableDAO dao, TimetableEntry entryToEdit, Runnable onSuccess) {
+    public static class CourseComboItem {
+        private int courseId;
+        private String displayText;
+
+        public CourseComboItem(int courseId, String displayText) {
+            this.courseId = courseId;
+            this.displayText = displayText;
+        }
+
+        public int getCourseId() { return courseId; }
+
+        @Override
+        public String toString() { return displayText; }
+    }
+
+    public static class LecturerComboItem {
+        private long userId;
+        private String displayText;
+
+        public LecturerComboItem(long userId, String displayText) {
+            this.userId = userId;
+            this.displayText = displayText;
+        }
+
+        public long getUserId() { return userId; }
+
+        @Override
+        public String toString() { return displayText; }
+    }
+
+    public TimetableForm(Frame parent, AdminTimetableDAO timetableDAO, TimetableEntry entryToEdit, Runnable onSuccess) {
+        this(parent, timetableDAO, new AdminCourseDAO(), new AdminUserDAO(), entryToEdit, onSuccess);
+    }
+
+    public TimetableForm(Frame parent, AdminTimetableDAO timetableDAO, AdminCourseDAO courseDAO, AdminUserDAO userDAO, TimetableEntry entryToEdit, Runnable onSuccess) {
         super(parent, (entryToEdit == null ? "Schedule Timetable Slot" : "Edit Timetable Entry"), true);
-        this.timetableDAO = dao;
+        this.timetableDAO = timetableDAO;
+        this.courseDAO = courseDAO;
+        this.userDAO = userDAO;
         this.editEntry = entryToEdit;
         this.onSuccess = onSuccess;
 
-        setSize(720, 680);
+        setSize(740, 680);
         setLocationRelativeTo(parent);
         setResizable(false);
         getContentPane().setBackground(new Color(0xE8, 0xF5, 0xE9));
@@ -72,13 +116,17 @@ public class TimetableForm extends JDialog {
         styleCombo(cmbDepartment);
         pnlForm.add(cmbDepartment);
 
-        pnlForm.add(createLabel("Course ID:"));
-        txtCourseId = createTextField("1");
-        pnlForm.add(txtCourseId);
+        pnlForm.add(createLabel("Select Course:"));
+        cmbCourse = new JComboBox<>();
+        styleCombo(cmbCourse);
+        populateCourses();
+        pnlForm.add(cmbCourse);
 
-        pnlForm.add(createLabel("Lecturer User ID (Optional):"));
-        txtLecturerId = createTextField("2");
-        pnlForm.add(txtLecturerId);
+        pnlForm.add(createLabel("Select Lecturer:"));
+        cmbLecturer = new JComboBox<>();
+        styleCombo(cmbLecturer);
+        populateLecturers();
+        pnlForm.add(cmbLecturer);
 
         pnlForm.add(createLabel("Batch Year:"));
         txtBatchYear = createTextField("2024");
@@ -103,7 +151,7 @@ public class TimetableForm extends JDialog {
         pnlForm.add(txtEndTime);
 
         pnlForm.add(createLabel("Venue / Hall:"));
-        txtVenue = createTextField("Lab 01 / Auditorium");
+        txtVenue = createTextField("Auditorium");
         pnlForm.add(txtVenue);
 
         pnlForm.add(createLabel("Academic Year:"));
@@ -121,7 +169,7 @@ public class TimetableForm extends JDialog {
         footerPanel.setBackground(WHITE);
         footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, PASTEL_GREEN));
 
-        JButton btnSave = new JButton(editEntry == null ? "Save Schedule Slot" : "Update Schedule Slot");
+        JButton btnSave = new JButton(editEntry == null ? "Schedule Slot" : "Update Slot");
         btnSave.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnSave.setBackground(FOREST_GREEN);
         btnSave.setForeground(WHITE);
@@ -168,10 +216,35 @@ public class TimetableForm extends JDialog {
         cb.setForeground(BLACK);
     }
 
+    private void populateCourses() {
+        try {
+            List<Course> courses = courseDAO.getAllCourses();
+            if (courses != null) {
+                for (Course c : courses) {
+                    cmbCourse.addItem(new CourseComboItem(c.getCourseId(), c.getCourseCode() + " - " + c.getCourseName()));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[TimetableForm] Could not populate courses: " + e.getMessage());
+        }
+    }
+
+    private void populateLecturers() {
+        try {
+            List<User> lecturers = userDAO.getUsersByRole("Lecturer");
+            if (lecturers != null) {
+                for (User u : lecturers) {
+                    String title = (u instanceof Lecturer && ((Lecturer) u).getTitle() != null) ? ((Lecturer) u).getTitle() + " " : "";
+                    cmbLecturer.addItem(new LecturerComboItem(u.getUserId(), title + u.getFullName()));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[TimetableForm] Could not populate lecturers: " + e.getMessage());
+        }
+    }
+
     private void populateForm() {
         cmbDepartment.setSelectedIndex(Math.max(0, editEntry.getDepartmentId() - 1));
-        txtCourseId.setText(String.valueOf(editEntry.getCourseId()));
-        if (editEntry.getLecturerId() != null) txtLecturerId.setText(String.valueOf(editEntry.getLecturerId()));
         txtBatchYear.setText(String.valueOf(editEntry.getBatchYear()));
         if (editEntry.getComponent() != null) cmbComponent.setSelectedItem(editEntry.getComponent());
         if (editEntry.getDayOfWeek() != null) cmbDay.setSelectedItem(editEntry.getDayOfWeek());
@@ -185,11 +258,16 @@ public class TimetableForm extends JDialog {
     private void saveTimetable() {
         try {
             int deptId = cmbDepartment.getSelectedIndex() + 1;
-            int courseId = Integer.parseInt(txtCourseId.getText().trim());
-            Long lecturerId = null;
-            if (!txtLecturerId.getText().trim().isEmpty()) {
-                lecturerId = Long.parseLong(txtLecturerId.getText().trim());
+
+            CourseComboItem selectedCourse = (CourseComboItem) cmbCourse.getSelectedItem();
+            if (selectedCourse == null) {
+                JOptionPane.showMessageDialog(this, "Please select a course module.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            LecturerComboItem selectedLecturer = (LecturerComboItem) cmbLecturer.getSelectedItem();
+            Long lecturerId = selectedLecturer != null ? selectedLecturer.getUserId() : null;
+
             int batchYear = Integer.parseInt(txtBatchYear.getText().trim());
             Time startTime = Time.valueOf(txtStartTime.getText().trim());
             Time endTime = Time.valueOf(txtEndTime.getText().trim());
@@ -197,7 +275,7 @@ public class TimetableForm extends JDialog {
             if (editEntry == null) {
                 TimetableEntry t = new TimetableEntry();
                 t.setDepartmentId(deptId);
-                t.setCourseId(courseId);
+                t.setCourseId(selectedCourse.getCourseId());
                 t.setLecturerId(lecturerId);
                 t.setBatchYear(batchYear);
                 t.setComponent((String) cmbComponent.getSelectedItem());
@@ -212,7 +290,7 @@ public class TimetableForm extends JDialog {
                 JOptionPane.showMessageDialog(this, "Timetable slot scheduled successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 editEntry.setDepartmentId(deptId);
-                editEntry.setCourseId(courseId);
+                editEntry.setCourseId(selectedCourse.getCourseId());
                 editEntry.setLecturerId(lecturerId);
                 editEntry.setBatchYear(batchYear);
                 editEntry.setComponent((String) cmbComponent.getSelectedItem());

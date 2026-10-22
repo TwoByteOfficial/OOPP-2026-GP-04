@@ -45,4 +45,23 @@ public class TimetableFilterSet extends JPanel {
     public String getSelectedDepartment() { return deptFilter.getSelectedDepartment(); }
     public String getSelectedBatch() { return batchFilter.getSelectedBatch(); }
     public String getSelectedSemester() { return semesterFilter.getSelectedSemester(); }
+
+    public int getSelectedDepartmentId() {
+        String dept = getSelectedDepartment();
+        if (dept == null || dept.startsWith("All")) return 0;
+        if (dept.startsWith("1")) return 1;
+        if (dept.startsWith("2")) return 2;
+        if (dept.startsWith("3")) return 3;
+        return 0;
+    }
+
+    public int getSelectedBatchYear() {
+        String b = getSelectedBatch();
+        if (b == null || b.startsWith("All")) return 0;
+        try {
+            return Integer.parseInt(b.trim());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

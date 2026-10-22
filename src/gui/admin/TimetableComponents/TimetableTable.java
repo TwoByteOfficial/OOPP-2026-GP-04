@@ -1,12 +1,20 @@
 package gui.admin.TimetableComponents;
 
+import dao.admin.AdminCourseDAO;
+import dao.admin.AdminUserDAO;
+import model.Course;
+import model.Lecturer;
 import model.TimetableEntry;
+import model.User;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 public class TimetableTable extends JTable {
@@ -15,7 +23,7 @@ public class TimetableTable extends JTable {
     private List<TimetableEntry> entryList = new ArrayList<>();
 
     public TimetableTable() {
-        String[] columns = { "Slot ID", "Day", "Time Window", "Course ID", "Component", "Venue", "Dept", "Batch", "Lecturer ID" };
+        String[] columns = { "Slot ID", "Day", "Time Window", "Course (Code & Name)", "Component", "Venue", "Department", "Batch", "Lecturer" };
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -59,29 +67,66 @@ public class TimetableTable extends JTable {
             }
         });
 
-        int[] widths = { 90, 120, 200, 110, 130, 180, 110, 90, 110 };
+        int[] widths = { 80, 110, 170, 260, 120, 160, 180, 80, 180 };
         for (int i = 0; i < widths.length && i < getColumnModel().getColumnCount(); i++) {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
     }
 
     public void setTimetables(List<TimetableEntry> entries) {
+        setTimetables(entries, new AdminCourseDAO(), new AdminUserDAO());
+    }
+
+    public void setTimetables(List<TimetableEntry> entries, AdminCourseDAO courseDAO, AdminUserDAO userDAO) {
         this.entryList = entries;
         model.setRowCount(0);
+
+        Map<Integer, String> courseMap = new HashMap<>();
+        try {
+            List<Course> courses = courseDAO.getAllCourses();
+            if (courses != null) {
+                for (Course c : courses) {
+                    courseMap.put(c.getCourseId(), c.getCourseCode() + " - " + c.getCourseName());
+                }
+            }
+        } catch (Exception ignored) {}
+
+        Map<Long, String> lecturerMap = new HashMap<>();
+        try {
+            List<User> lecturers = userDAO.getUsersByRole("Lecturer");
+            if (lecturers != null) {
+                for (User u : lecturers) {
+                    String title = (u instanceof Lecturer && ((Lecturer) u).getTitle() != null) ? ((Lecturer) u).getTitle() + " " : "";
+                    lecturerMap.put(u.getUserId(), title + u.getFullName());
+                }
+            }
+        } catch (Exception ignored) {}
+
         for (TimetableEntry t : entries) {
-            String timeWindow = (t.getStartTime() != null ? t.getStartTime().toString() : "08:00") + " - " + (t.getEndTime() != null ? t.getEndTime().toString() : "10:00");
-            String deptText = "Dept " + t.getDepartmentId();
+            String timeWindow = (t.getStartTime() != null ? t.getStartTime().toString() : "08:30:00") + " - " + (t.getEndTime() != null ? t.getEndTime().toString() : "10:30:00");
+
+            String courseDisplay = courseMap.getOrDefault(t.getCourseId(), "CID-" + t.getCourseId());
+
+            String deptDisplay = "Dept " + t.getDepartmentId();
+            if (t.getDepartmentId() == 1) deptDisplay = "ICT";
+            else if (t.getDepartmentId() == 2) deptDisplay = "Engineering Technology";
+            else if (t.getDepartmentId() == 3) deptDisplay = "Bio Systems Technology";
+
+            String lecturerDisplay = "Unassigned";
+            if (t.getLecturerId() != null && t.getLecturerId() > 0) {
+                lecturerDisplay = lecturerMap.getOrDefault(t.getLecturerId(), "UID-" + t.getLecturerId());
+            }
 
             model.addRow(new Object[]{
                     "TT-" + t.getTimetableId(),
                     t.getDayOfWeek() != null ? t.getDayOfWeek() : "Monday",
                     timeWindow,
-                    "CID-" + t.getCourseId(),
+                    courseDisplay,
                     t.getComponent() != null ? t.getComponent() : "Theory",
-                    t.getVenue() != null ? t.getVenue() : "Main Auditorium",
-                    deptText,
+                    t.getVenue() != null ? t.getVenue() : "Auditorium",
+                    deptDisplay,
                     t.getBatchYear() > 0 ? t.getBatchYear() : 2024,
-                    t.getLecturerId() != null ? "UID-" + t.getLecturerId() : "Unassigned"
+                    lecturerDisplay
             });
         }
     }
