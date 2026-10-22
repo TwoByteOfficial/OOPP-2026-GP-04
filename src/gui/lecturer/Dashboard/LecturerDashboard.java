@@ -4,7 +4,6 @@ package gui.lecturer.Dashboard;
 import dao.Lecturer.CourseDAO;
 import dao.Lecturer.DashboardStatsDAO;
 import dao.Lecturer.NoticeDAO;
-
 import gui.lecturer.Dashboard.DashboardComponents.CourseModulesTable;
 import gui.lecturer.Dashboard.DashboardComponents.DashboardTitleBar;
 import gui.lecturer.Dashboard.DashboardComponents.RecentNotices;

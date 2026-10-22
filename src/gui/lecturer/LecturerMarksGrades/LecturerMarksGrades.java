@@ -1,10 +1,4 @@
-
 package gui.lecturer.LecturerMarksGrades;
-
-import gui.lecturer.LecturerMarksGrades.EnterMarksPanel.EnterMarksPanel;
-import gui.lecturer.LecturerMarksGrades.CASummaryPanel.CASummaryPanel;
-import gui.lecturer.LecturerMarksGrades.EligibilityPanel.EligibilityPanel;
-import gui.lecturer.LecturerMarksGrades.FinalResultsPanel.FinalResultsPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,41 +6,52 @@ import java.awt.*;
 
 public class LecturerMarksGrades extends JPanel {
 
-    private final long lecturerUserId;
+    private static final Color DEEP_GREEN = new Color(27, 94, 32);
+    private static final Color PALE_GREEN = new Color(232, 245, 233);
+    private static final Color TEXT_GRAY = new Color(96, 112, 100);
 
-    public LecturerMarksGrades(long lecturerUserId) {
-        this.lecturerUserId = lecturerUserId;
+    private final JTabbedPane tabbedPane;
 
+    public LecturerMarksGrades(long lecturerId) {
         setLayout(new BorderLayout(0, 15));
-        setBorder(new EmptyBorder(15, 15, 15, 15));
-        setBackground(Color.WHITE);
+        setBackground(PALE_GREEN);
+        setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        JLabel title = new JLabel("Marks & Grades");
-        title.setFont(new Font("SansSerif", Font.BOLD, 24));
+        // Heading
+        JPanel heading = new JPanel();
+        heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
+        heading.setOpaque(false);
 
-        JTabbedPane tabs = new JTabbedPane();
+        JLabel title = new JLabel("Marks, Grades & Eligibility");
+        title.setFont(new Font("SansSerif", Font.BOLD, 28));
+        title.setForeground(DEEP_GREEN);
 
-        tabs.addTab(
-                "Enter Marks",
-                new EnterMarksPanel(lecturerUserId)
-        );
+        JLabel subtitle = new JLabel("Enter assessment marks, view CA summaries, eligibility status, and final grade reports.");
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        subtitle.setForeground(TEXT_GRAY);
 
-        tabs.addTab(
-                "CA Summary",
-                new CASummaryPanel(lecturerUserId)
-        );
+        heading.add(title);
+        heading.add(Box.createVerticalStrut(6));
+        heading.add(subtitle);
 
-        tabs.addTab(
-                "Eligibility",
-                new EligibilityPanel(lecturerUserId)
-        );
+        // Tabbed Pane
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 13));
+        tabbedPane.setBackground(Color.WHITE);
+        tabbedPane.setForeground(DEEP_GREEN);
 
-        tabs.addTab(
-                "Final Results & GPA",
-                new FinalResultsPanel(lecturerUserId)
-        );
+        tabbedPane.addTab("Enter Marks", new EnterMarksPanel(lecturerId));
+        tabbedPane.addTab("CA Summary", new CASummaryPanel(lecturerId));
+        tabbedPane.addTab("Final Exam & Grades", new FinalResultsPanel(lecturerId));
+        tabbedPane.addTab("Eligibility Overview", new EligibilityPanel(lecturerId));
 
-        add(title, BorderLayout.NORTH);
-        add(tabs, BorderLayout.CENTER);
+        add(heading, BorderLayout.NORTH);
+        add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    public void selectTab(int index) {
+        if (index >= 0 && index < tabbedPane.getTabCount()) {
+            tabbedPane.setSelectedIndex(index);
+        }
     }
 }
