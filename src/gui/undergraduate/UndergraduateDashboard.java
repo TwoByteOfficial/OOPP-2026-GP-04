@@ -4,6 +4,12 @@ import gui.admin.AdminTheme;
 import gui.login.Login;
 import gui.undergraduate.dashboard.UGDashboardPanel;
 import gui.undergraduate.courses.UGCoursesPanel;
+import gui.undergraduate.attendance.UGAttendancePanel;
+import gui.undergraduate.grades.UGGradesPanel;
+import gui.undergraduate.medicals.UGMedicalsPanel;
+import gui.undergraduate.timetable.UGTimetablePanel;
+import gui.undergraduate.notices.UGNoticesPanel;
+import gui.undergraduate.profile.UGProfilePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,12 +62,12 @@ public class UndergraduateDashboard extends JFrame {
 
         //  tabs  placeholders
         contentCards.add(new UGCoursesPanel(userId, username), "courses");
-        contentCards.add(createPlaceholderPanel("Attendance & Eligibility Details"), "attendance");
-        contentCards.add(createPlaceholderPanel("Grades, SGPA & CGPA Records"), "grades");
-        contentCards.add(createPlaceholderPanel("Medical Records Submission & Status"), "medicals");
-        contentCards.add(createPlaceholderPanel("Weekly Lecture & Lab Timetable"), "timetable");
-        contentCards.add(createPlaceholderPanel("Academic Notices & Announcements"), "notices");
-        contentCards.add(createPlaceholderPanel("Student Profile Management"), "profile");
+        contentCards.add(new UGAttendancePanel(userId, username), "attendance");
+        contentCards.add(new UGGradesPanel(userId, username), "grades");
+        contentCards.add(new UGMedicalsPanel(userId, username), "medicals");
+        contentCards.add(new UGTimetablePanel(userId, username), "timetables");
+        contentCards.add(new UGNoticesPanel(userId, username), "notices");
+        contentCards.add(new UGProfilePanel(userId, username), "profile");
 
         root.add(contentCards, BorderLayout.CENTER);
         setContentPane(root);

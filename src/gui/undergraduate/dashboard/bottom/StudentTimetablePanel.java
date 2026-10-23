@@ -35,7 +35,7 @@ public class StudentTimetablePanel extends JPanel {
         viewAllBtn.setContentAreaFilled(false);
         viewAllBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         viewAllBtn.addActionListener(e -> {
-            if (navigationCallback != null) navigationCallback.accept("timetable");
+            if (navigationCallback != null) navigationCallback.accept("timetables");
         });
 
         header.add(title, BorderLayout.WEST);
