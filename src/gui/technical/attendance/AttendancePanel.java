@@ -1,13 +1,11 @@
 
 package gui.technical.attendance;
-import dao.EnrollmentDAO;
 import model.Undergraduate;
 import javax.swing.table.DefaultTableModel;
-import dao.AttendanceDAO;
+
 import model.AttendanceSession;
 import model.AttendanceRecord;
 
-import dao.CourseDAO;
 import model.Course;
 
 
