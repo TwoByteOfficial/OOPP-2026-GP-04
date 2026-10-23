@@ -1,13 +1,15 @@
 
 package gui.technical.dashboard.summary;
 
-import gui.technical.dashboard.summary.SummaryCardPanel;
-
-import java.awt.Color;
+import gui.theme.UniMisTheme;
 
 public class TodaySessionsCard extends SummaryCardPanel {
+
     public TodaySessionsCard(String value) {
-        super("Today's Sessions", value,
-                new Color(15, 118, 110));
+        super(
+                "Today's Sessions",
+                value,
+                UniMisTheme.DEEP_GREEN
+        );
     }
 }

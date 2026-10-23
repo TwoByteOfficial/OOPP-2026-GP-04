@@ -7,6 +7,7 @@ import java.awt.*;
 public class DashboardSummaryPanel extends JPanel {
 
     public DashboardSummaryPanel() {
+
         setLayout(new GridLayout(1, 4, 14, 0));
         setOpaque(false);
 

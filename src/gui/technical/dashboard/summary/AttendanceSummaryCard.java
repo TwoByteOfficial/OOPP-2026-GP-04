@@ -1,12 +1,15 @@
 
 package gui.technical.dashboard.summary;
 
-import java.awt.Color;
+import gui.theme.UniMisTheme;
 
 public class AttendanceSummaryCard extends SummaryCardPanel {
+
     public AttendanceSummaryCard(String value) {
-        super("Attendance Profiles", value,
-                new Color(25, 135, 84));
+        super(
+                "Attendance Profiles",
+                value,
+                UniMisTheme.FOREST_GREEN
+        );
     }
 }
-
