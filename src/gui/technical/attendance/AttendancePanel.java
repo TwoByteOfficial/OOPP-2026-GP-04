@@ -56,7 +56,7 @@ public class AttendancePanel extends JPanel {
 
         String[] components = {
                 "Select a component",
-                "Lecture",
+                "Theory",
                 "Practical",
                 "Tutorial"
         };
@@ -66,6 +66,7 @@ public class AttendancePanel extends JPanel {
         JLabel sessionLabel = new JLabel("Select Session:");
 
         sessionComboBox = new JComboBox<>();
+        sessionComboBox.setPreferredSize(new Dimension(200, 30));
 
         sessionPanel.add(componentLabel);
         sessionPanel.add(componentComboBox);
@@ -76,8 +77,17 @@ public class AttendancePanel extends JPanel {
         topPanel.add(coursePanel);
         topPanel.add(sessionPanel);
 
-        courseComboBox.addActionListener(e -> loadSessions());
-        componentComboBox.addActionListener(e -> loadSessions());
+
+        courseComboBox.addActionListener(e -> {
+            clearStudentTable();
+            loadSessions();
+        });
+
+        componentComboBox.addActionListener(e -> {
+            clearStudentTable();
+            loadSessions();
+        });
+
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -85,6 +95,7 @@ public class AttendancePanel extends JPanel {
         JButton loadButton = new JButton("Load Students");
 
         loadButton.addActionListener(e -> {
+
             int selectedIndex = courseComboBox.getSelectedIndex();
 
             if (selectedIndex <= 0) {
@@ -94,6 +105,25 @@ public class AttendancePanel extends JPanel {
                 );
                 return;
             }
+
+            if (sessionComboBox.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please select an attendance session first."
+                );
+                return;
+            }
+
+            if (sessionComboBox.getSelectedItem() == null) {
+                clearStudentTable();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No attendance session is selected or available."
+                );
+                return;
+            }
+
 
             try {
                 Course selectedCourse = courses.get(selectedIndex - 1);
@@ -204,6 +234,7 @@ public class AttendancePanel extends JPanel {
     }
 
 
+
     private void loadSessions() {
         int selectedIndex = courseComboBox.getSelectedIndex();
         String component = (String) componentComboBox.getSelectedItem();
@@ -222,6 +253,16 @@ public class AttendancePanel extends JPanel {
                     new AttendanceDAO().getSessionsByCourse(
                             selectedCourse.getCourseId(), component);
 
+            if (sessions.isEmpty()) {
+                clearStudentTable();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No sessions are available for this component."
+                );
+                return;
+            }
+
             for (AttendanceSession session : sessions) {
                 sessionComboBox.addItem(session);
             }
@@ -235,5 +276,13 @@ public class AttendancePanel extends JPanel {
             );
         }
     }
+
+    private void clearStudentTable() {
+        DefaultTableModel model =
+                (DefaultTableModel) studentTable.getModel();
+
+        model.setRowCount(0);
+    }
+
 
 }
