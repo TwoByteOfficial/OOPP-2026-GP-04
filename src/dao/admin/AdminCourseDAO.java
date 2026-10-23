@@ -141,13 +141,10 @@ public class AdminCourseDAO {
 
             pstmt.setInt(1, c.getCourseId());
             pstmt.setBigDecimal(2, quizWeight);
-
             pstmt.setInt(3, c.getCourseId());
             pstmt.setBigDecimal(4, quizWeight);
-
             pstmt.setInt(5, c.getCourseId());
             pstmt.setBigDecimal(6, quizWeight);
-
             pstmt.setInt(7, c.getCourseId());
             pstmt.setBigDecimal(8, finalWeight);
 
