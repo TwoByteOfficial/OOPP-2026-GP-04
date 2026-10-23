@@ -8,9 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-/**
- * Navigation sidebar matching fixed full-screen green layout.
- */
 public class AdminSidebar extends JPanel {
 
     private final Color MINT          = new Color(0xE8, 0xF5, 0xE9);
@@ -43,14 +40,12 @@ public class AdminSidebar extends JPanel {
         setBounds(0, 0, 260, 1080);
         setBackground(LIGHT_BG);
 
-        /* 1. Project Title Brand Header Component */
         JLabel logoLabel = new JLabel("UniMis");
-        logoLabel.setFont(new Font("Segoe UI", Font.BOLD, 48)); // FONT_LOGO
+        logoLabel.setFont(new Font("Segoe UI", Font.BOLD, 46));
         logoLabel.setForeground(TEXT);
-        logoLabel.setBounds(36, 30, 210, 48);
+        logoLabel.setBounds(32, 30, 210, 48);
         add(logoLabel);
 
-        /* 2. Menu Link Navigation Matrix */
         String[] routes = { PAGE_DASHBOARD, PAGE_USERS, PAGE_COURSES, PAGE_NOTICES, PAGE_TIMETABLE, PAGE_SETTINGS };
         int initialY = 100;
         int buttonSpacing = 58;
@@ -58,8 +53,7 @@ public class AdminSidebar extends JPanel {
         for (int i = 0; i < routes.length; i++) {
             String routeKey = routes[i];
             JButton btn = createMenuButton(routeKey, false);
-
-            btn.setBounds(12, initialY + (i * buttonSpacing), 248, 48);
+            btn.setBounds(12, initialY + (i * buttonSpacing), 236, 48);
             btn.addActionListener(e -> {
                 if (onNavigate != null) {
                     onNavigate.accept(routeKey);
@@ -70,7 +64,6 @@ public class AdminSidebar extends JPanel {
             add(btn);
         }
 
-        /* 3. Footer Section - Fixed Logout Placement */
         JButton btnLogout = createMenuButton("Logout", true);
         btnLogout.setBounds(12, 950, 236, 48);
         btnLogout.addActionListener(e -> {
@@ -83,7 +76,7 @@ public class AdminSidebar extends JPanel {
 
     private JButton createMenuButton(String text, boolean isLogout) {
         JButton btn = new JButton(text);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 20)); // Increment +2px (18 -> 20)
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 19));
         btn.setHorizontalAlignment(SwingConstants.LEADING);
         btn.setBorder(BorderFactory.createEmptyBorder(0, 18, 0, 18));
 

@@ -4,9 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
 
-/**
- * Top 4 metric cards row with live database aggregations.
- */
 public class SimpleAnalyticView extends JPanel {
 
     private final Color WHITE        = Color.WHITE;
@@ -29,9 +26,9 @@ public class SimpleAnalyticView extends JPanel {
         int totalCourses = metrics.getOrDefault("courses", 0);
 
         addCustomStatCard("Total Users", totalUsers + " Users Active", 0, 0);
-        addCustomStatCard("Undergraduates", totalUG + " Students Registered", 413, 0);
-        addCustomStatCard("Lecturers", totalLecturers + " Staff Active", 826, 0);
-        addCustomStatCard("Active Courses", totalCourses + " Modules Live", 1240, 0);
+        addCustomStatCard("Undergraduates", totalUG + " Students Registered", 400, 0);
+        addCustomStatCard("Lecturers", totalLecturers + " Staff Active", 800, 0);
+        addCustomStatCard("Active Courses", totalCourses + " Modules Live", 1200, 0);
     }
 
     private void addCustomStatCard(String title, String countValue, int x, int y) {
@@ -41,9 +38,9 @@ public class SimpleAnalyticView extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(WHITE);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
                 g2.setColor(new Color(0x1B, 0x5E, 0x20, 30));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
                 g2.dispose();
             }
         };
@@ -60,20 +57,20 @@ public class SimpleAnalyticView extends JPanel {
                 g2.dispose();
             }
         };
-        iconPlaceholder.setBounds(20, 29, 52, 52);
+        iconPlaceholder.setBounds(20, 20, 52, 52);
         iconPlaceholder.setOpaque(false);
         card.add(iconPlaceholder);
 
         JLabel valueLabel = new JLabel(countValue);
-        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 24)); // 22 -> 24
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
         valueLabel.setForeground(DEEP_GREEN);
-        valueLabel.setBounds(88, 22, 280, 34);
+        valueLabel.setBounds(88, 22, 270, 34);
         card.add(valueLabel);
 
         JLabel labelText = new JLabel(title);
-        labelText.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // 12 -> 14
+        labelText.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         labelText.setForeground(MUTED);
-        labelText.setBounds(88, 58, 280, 22);
+        labelText.setBounds(88, 56, 270, 22);
         card.add(labelText);
 
         add(card);

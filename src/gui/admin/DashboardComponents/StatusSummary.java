@@ -3,9 +3,6 @@ package gui.admin.DashboardComponents;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Attendance distribution breakdown component (Row 3 Left).
- */
 public class StatusSummary extends JPanel {
 
     private final Color WHITE        = Color.WHITE;
@@ -23,6 +20,7 @@ public class StatusSummary extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(WHITE);
@@ -37,33 +35,33 @@ public class StatusSummary extends JPanel {
         container.setOpaque(false);
 
         JLabel title = new JLabel("Faculty Attendance Distribution");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20)); // 18 -> 20
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setForeground(FOREST_GREEN);
-        title.setBounds(30, 18, 600, 32);
+        title.setBounds(30, 18, 600, 30);
         container.add(title);
 
         JLabel subtitle = new JLabel("Total enrolled undergraduates: 160");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // 12 -> 14
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         subtitle.setForeground(MUTED);
         subtitle.setBounds(30, 48, 400, 22);
         container.add(subtitle);
 
-        addAttendanceRow(container, "Above 80% Attendance", "148 students (92.5%)", 92.5, 80, FOREST_GREEN);
-        addAttendanceRow(container, "Exactly 80% Attendance", "8 students (5.0%)", 5.0, 140, new Color(0xF0, 0xAD, 0x4E));
-        addAttendanceRow(container, "Below 80% Attendance", "4 students (2.5%)", 2.5, 200, new Color(0xDC, 0x35, 0x45));
+        addAttendanceRow(container, "Above 80% Attendance", "148 students (92.5%)", 92.5, 82, FOREST_GREEN);
+        addAttendanceRow(container, "Exactly 80% Attendance", "8 students (5.0%)", 5.0, 142, new Color(0xF0, 0xAD, 0x4E));
+        addAttendanceRow(container, "Below 80% Attendance", "4 students (2.5%)", 2.5, 202, new Color(0xDC, 0x35, 0x45));
 
         add(container);
     }
 
     private void addAttendanceRow(JPanel panel, String title, String value, double percentage, int y, Color barColor) {
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16)); // 14 -> 16
+        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         titleLabel.setForeground(MUTED);
         titleLabel.setBounds(30, y, 350, 24);
         panel.add(titleLabel);
 
         JLabel valueLabel = new JLabel(value, SwingConstants.RIGHT);
-        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 15)); // 13 -> 15
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
         valueLabel.setForeground(DEEP_GREEN);
         valueLabel.setBounds(360, y, 400, 24);
         panel.add(valueLabel);
@@ -86,7 +84,7 @@ public class StatusSummary extends JPanel {
             }
         };
 
-        progressBar.setBounds(30, y + 28, 730, 10);
+        progressBar.setBounds(30, y + 26, 730, 10);
         progressBar.setOpaque(false);
         panel.add(progressBar);
     }

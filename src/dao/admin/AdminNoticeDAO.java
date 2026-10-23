@@ -6,17 +6,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO responsible for Admin Notice Management (Notices page CRUD & status updates).
- */
 public class AdminNoticeDAO {
 
     public List<Notice> getAllNotices() throws SQLException {
         List<Notice> list = new ArrayList<>();
         String sql = "SELECT * FROM notices ORDER BY published_at DESC";
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
+
+        try (Connection con = DBConnection.con();
+             Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 list.add(mapResultSetToNotice(rs));
             }
@@ -26,10 +25,13 @@ public class AdminNoticeDAO {
 
     public Notice getNoticeById(long noticeId) throws SQLException {
         String sql = "SELECT * FROM notices WHERE notice_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, noticeId);
-            try (ResultSet rs = stmt.executeQuery()) {
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setLong(1, noticeId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSetToNotice(rs);
                 }
@@ -41,20 +43,22 @@ public class AdminNoticeDAO {
     public boolean createNotice(Notice n) throws SQLException {
         String sql = "INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, expires_at, status) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, n.getTitle());
-            stmt.setString(2, n.getContent());
-            stmt.setString(3, n.getNoticeType());
-            stmt.setString(4, n.getTargetRole());
-            if (n.getDepartmentId() != null) stmt.setInt(5, n.getDepartmentId()); else stmt.setNull(5, Types.INTEGER);
-            if (n.getPublishedBy() != null) stmt.setLong(6, n.getPublishedBy()); else stmt.setNull(6, Types.BIGINT);
-            stmt.setTimestamp(7, n.getExpiresAt());
-            stmt.setString(8, n.getStatus() != null ? n.getStatus() : "Published");
 
-            int affected = stmt.executeUpdate();
-            if (affected > 0) {
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, n.getTitle());
+            pstmt.setString(2, n.getContent());
+            pstmt.setString(3, n.getNoticeType());
+            pstmt.setString(4, n.getTargetRole());
+            if (n.getDepartmentId() != null) pstmt.setInt(5, n.getDepartmentId()); else pstmt.setNull(5, Types.INTEGER);
+            if (n.getPublishedBy() != null) pstmt.setLong(6, n.getPublishedBy()); else pstmt.setNull(6, Types.BIGINT);
+            pstmt.setTimestamp(7, n.getExpiresAt());
+            pstmt.setString(8, n.getStatus() != null ? n.getStatus() : "Published");
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         n.setNoticeId(rs.getLong(1));
                     }
@@ -67,36 +71,48 @@ public class AdminNoticeDAO {
 
     public boolean updateNotice(Notice n) throws SQLException {
         String sql = "UPDATE notices SET title = ?, content = ?, notice_type = ?, target_role = ?, department_id = ?, expires_at = ?, status = ? WHERE notice_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, n.getTitle());
-            stmt.setString(2, n.getContent());
-            stmt.setString(3, n.getNoticeType());
-            stmt.setString(4, n.getTargetRole());
-            if (n.getDepartmentId() != null) stmt.setInt(5, n.getDepartmentId()); else stmt.setNull(5, Types.INTEGER);
-            stmt.setTimestamp(6, n.getExpiresAt());
-            stmt.setString(7, n.getStatus());
-            stmt.setLong(8, n.getNoticeId());
-            return stmt.executeUpdate() > 0;
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setString(1, n.getTitle());
+            pstmt.setString(2, n.getContent());
+            pstmt.setString(3, n.getNoticeType());
+            pstmt.setString(4, n.getTargetRole());
+            if (n.getDepartmentId() != null) pstmt.setInt(5, n.getDepartmentId()); else pstmt.setNull(5, Types.INTEGER);
+            pstmt.setTimestamp(6, n.getExpiresAt());
+            pstmt.setString(7, n.getStatus());
+            pstmt.setLong(8, n.getNoticeId());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
     public boolean deleteNotice(long noticeId) throws SQLException {
         String sql = "DELETE FROM notices WHERE notice_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, noticeId);
-            return stmt.executeUpdate() > 0;
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setLong(1, noticeId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
     public boolean updateNoticeStatus(long noticeId, String status) throws SQLException {
         String sql = "UPDATE notices SET status = ? WHERE notice_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, status);
-            stmt.setLong(2, noticeId);
-            return stmt.executeUpdate() > 0;
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setString(1, status);
+            pstmt.setLong(2, noticeId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
