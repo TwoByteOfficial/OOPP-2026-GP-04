@@ -28,7 +28,7 @@ public class DashboardQuickActionsPanel extends JPanel {
 
         add(createActionButton("View Attendance", "attendance"));
         add(createActionButton("View Grades & GPA", "grades"));
-        add(createActionButton("View Timetable", "timetable"));
+        add(createActionButton("View Timetable", "timetables"));
         add(createActionButton("View Notices", "notices"));
     }
 

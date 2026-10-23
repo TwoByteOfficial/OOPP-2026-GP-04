@@ -57,7 +57,7 @@ public class UGSidebarPanel extends JPanel {
         addNavButton(menuPanel, "attendance", "Attendance");
         addNavButton(menuPanel, "grades",     "Grades & GPA");
         addNavButton(menuPanel, "medicals",   "Medicals");
-        addNavButton(menuPanel, "timetable",  "Timetables");
+        addNavButton(menuPanel, "timetables",  "Timetables");
         addNavButton(menuPanel, "notices",    "Notices");
         addNavButton(menuPanel, "profile",    "My Profile");
 
