@@ -18,14 +18,20 @@ public class LecturerProfile extends JPanel {
     private static final Color TEXT_GRAY = new Color(96, 112, 100);
 
     private final long userId;
-    private final LecturerProfileDAO profileDAO = new LecturerProfileDAO();
+    private final LecturerProfileDAO profileDAO =
+            new LecturerProfileDAO();
+
+    // Called after the profile is successfully updated.
+    private final Runnable onProfileUpdated;
 
     private final JLabel usernameLabel = new JLabel();
     private final JLabel codeLabel = new JLabel();
     private final JLabel deptLabel = new JLabel();
 
     private final JComboBox<String> titleCombo =
-            new JComboBox<>(new String[]{"Dr.", "Ms.", "Mr.", "Prof."});
+            new JComboBox<>(
+                    new String[]{"Dr.", "Ms.", "Mr.", "Prof."}
+            );
 
     private final JTextField fullNameField = new JTextField();
     private final JTextField nicField = new JTextField();
@@ -36,8 +42,18 @@ public class LecturerProfile extends JPanel {
 
     private final JLabel statusLabel = new JLabel("Ready");
 
+    // Keep the original constructor for existing code.
     public LecturerProfile(long userId) {
+        this(userId, null);
+    }
+
+    // Constructor that accepts a dashboard refresh callback.
+    public LecturerProfile(
+            long userId,
+            Runnable onProfileUpdated
+    ) {
         this.userId = userId;
+        this.onProfileUpdated = onProfileUpdated;
 
         setLayout(new BorderLayout(0, 18));
         setBackground(PALE_GREEN);
@@ -45,17 +61,24 @@ public class LecturerProfile extends JPanel {
 
         // Heading
         JPanel heading = new JPanel();
-        heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
+        heading.setLayout(
+                new BoxLayout(heading, BoxLayout.Y_AXIS)
+        );
         heading.setOpaque(false);
 
-        JLabel pageTitle = new JLabel("Lecturer Profile & Settings");
-        pageTitle.setFont(new Font("SansSerif", Font.BOLD, 25));
+        JLabel pageTitle =
+                new JLabel("Lecturer Profile & Settings");
+        pageTitle.setFont(
+                new Font("SansSerif", Font.BOLD, 25)
+        );
         pageTitle.setForeground(DEEP_GREEN);
 
         JLabel subtitle = new JLabel(
                 "View and update your personal academic profile details."
         );
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        subtitle.setFont(
+                new Font("SansSerif", Font.PLAIN, 13)
+        );
         subtitle.setForeground(TEXT_GRAY);
 
         heading.add(pageTitle);
@@ -71,7 +94,8 @@ public class LecturerProfile extends JPanel {
         ));
 
         // Read-only information
-        JPanel readOnlyPanel = new JPanel(new GridLayout(1, 3, 12, 0));
+        JPanel readOnlyPanel =
+                new JPanel(new GridLayout(1, 3, 12, 0));
         readOnlyPanel.setOpaque(false);
         readOnlyPanel.setBorder(new CompoundBorder(
                 new LineBorder(BORDER_GREEN, 1, true),
@@ -98,16 +122,34 @@ public class LecturerProfile extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         // Row 1
-        addFormField(formGrid, gbc, 0, 0, "Title", titleCombo);
-        addFormField(formGrid, gbc, 1, 0, "Full Name", fullNameField);
+        addFormField(
+                formGrid, gbc, 0, 0,
+                "Title", titleCombo
+        );
+        addFormField(
+                formGrid, gbc, 1, 0,
+                "Full Name", fullNameField
+        );
 
         // Row 2
-        addFormField(formGrid, gbc, 0, 1, "NIC Number", nicField);
-        addFormField(formGrid, gbc, 1, 1, "Email Address", emailField);
+        addFormField(
+                formGrid, gbc, 0, 1,
+                "NIC Number", nicField
+        );
+        addFormField(
+                formGrid, gbc, 1, 1,
+                "Email Address", emailField
+        );
 
         // Row 3
-        addFormField(formGrid, gbc, 0, 2, "Contact Number", contactField);
-        addFormField(formGrid, gbc, 1, 2, "Home / Office Address", addressField);
+        addFormField(
+                formGrid, gbc, 0, 2,
+                "Contact Number", contactField
+        );
+        addFormField(
+                formGrid, gbc, 1, 2,
+                "Home / Office Address", addressField
+        );
 
         // Row 4: specialization spans both columns
         gbc.gridx = 0;
@@ -122,24 +164,27 @@ public class LecturerProfile extends JPanel {
 
         formGrid.add(specializationPanel, gbc);
 
-        // Buttons
+        // Reset button
         JButton resetBtn = new JButton("Reset");
         styleButton(resetBtn, false);
         resetBtn.addActionListener(e -> loadProfile());
 
-        JButton saveBtn = new JButton("Save Profile Changes");
+        // Save button
+        JButton saveBtn =
+                new JButton("Save Profile Changes");
         styleButton(saveBtn, true);
         saveBtn.addActionListener(e -> saveProfile());
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(
-                FlowLayout.RIGHT, 10, 0
-        ));
+        JPanel buttonPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 10, 0)
+        );
         buttonPanel.setOpaque(false);
         buttonPanel.add(resetBtn);
         buttonPanel.add(saveBtn);
 
         // Card content
-        JPanel formContent = new JPanel(new BorderLayout(0, 14));
+        JPanel formContent =
+                new JPanel(new BorderLayout(0, 14));
         formContent.setOpaque(false);
         formContent.add(readOnlyPanel, BorderLayout.NORTH);
         formContent.add(formGrid, BorderLayout.CENTER);
@@ -151,7 +196,9 @@ public class LecturerProfile extends JPanel {
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
 
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        statusLabel.setFont(
+                new Font("SansSerif", Font.PLAIN, 12)
+        );
         statusLabel.setForeground(TEXT_GRAY);
         footer.add(statusLabel, BorderLayout.WEST);
 
@@ -164,7 +211,9 @@ public class LecturerProfile extends JPanel {
     }
 
     private void styleInfoLabel(JLabel label) {
-        label.setFont(new Font("SansSerif", Font.BOLD, 12));
+        label.setFont(
+                new Font("SansSerif", Font.BOLD, 12)
+        );
         label.setForeground(DEEP_GREEN);
     }
 
@@ -181,7 +230,9 @@ public class LecturerProfile extends JPanel {
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
 
-        JPanel fieldPanel = createFieldPanel(labelText, field);
+        JPanel fieldPanel =
+                createFieldPanel(labelText, field);
+
         parent.add(fieldPanel, gbc);
     }
 
@@ -189,26 +240,35 @@ public class LecturerProfile extends JPanel {
             String labelText,
             JComponent field
     ) {
-        JPanel panel = new JPanel(new BorderLayout(0, 6));
+        JPanel panel = new JPanel(
+                new BorderLayout(0, 6)
+        );
         panel.setOpaque(false);
 
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("SansSerif", Font.BOLD, 12));
+        label.setFont(
+                new Font("SansSerif", Font.BOLD, 12)
+        );
         label.setForeground(DEEP_GREEN);
 
-        // Compact input fields
-        field.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        field.setFont(
+                new Font("SansSerif", Font.PLAIN, 13)
+        );
         field.setPreferredSize(new Dimension(180, 34));
 
         if (field instanceof JTextField) {
             JTextField textField = (JTextField) field;
-            textField.setMargin(new Insets(5, 9, 5, 9));
+            textField.setMargin(
+                    new Insets(5, 9, 5, 9)
+            );
             textField.setBorder(new CompoundBorder(
                     new LineBorder(BORDER_GREEN, 1, true),
                     new EmptyBorder(1, 2, 1, 2)
             ));
         } else if (field instanceof JComboBox<?>) {
-            field.setBorder(new LineBorder(BORDER_GREEN, 1, true));
+            field.setBorder(
+                    new LineBorder(BORDER_GREEN, 1, true)
+            );
         }
 
         panel.add(label, BorderLayout.NORTH);
@@ -217,7 +277,10 @@ public class LecturerProfile extends JPanel {
         return panel;
     }
 
-    private void styleButton(JButton button, boolean primary) {
+    private void styleButton(
+            JButton button,
+            boolean primary
+    ) {
         button.setFont(new Font(
                 "SansSerif",
                 primary ? Font.BOLD : Font.PLAIN,
@@ -225,8 +288,14 @@ public class LecturerProfile extends JPanel {
         ));
 
         button.setFocusPainted(false);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setBorder(new EmptyBorder(9, 16, 9, 16));
+        button.setCursor(
+                Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+        button.setBorder(
+                new EmptyBorder(9, 16, 9, 16)
+        );
         button.setOpaque(true);
 
         if (primary) {
@@ -246,12 +315,19 @@ public class LecturerProfile extends JPanel {
         statusLabel.setText("Loading profile details...");
 
         try {
-            Object[] data = profileDAO.getLecturerProfile(userId);
+            Object[] data =
+                    profileDAO.getLecturerProfile(userId);
 
             if (data != null) {
-                usernameLabel.setText("Username: " + data[1]);
-                codeLabel.setText("Lecturer Code: " + data[2]);
-                deptLabel.setText("Department: " + data[10]);
+                usernameLabel.setText(
+                        "Username: " + data[1]
+                );
+                codeLabel.setText(
+                        "Lecturer Code: " + data[2]
+                );
+                deptLabel.setText(
+                        "Department: " + data[10]
+                );
 
                 titleCombo.setSelectedItem(data[3]);
                 fullNameField.setText((String) data[4]);
@@ -259,11 +335,17 @@ public class LecturerProfile extends JPanel {
                 emailField.setText((String) data[6]);
                 contactField.setText((String) data[7]);
                 addressField.setText((String) data[8]);
-                specializationField.setText((String) data[9]);
+                specializationField.setText(
+                        (String) data[9]
+                );
 
-                statusLabel.setText("Profile loaded successfully.");
+                statusLabel.setText(
+                        "Profile loaded successfully."
+                );
             } else {
-                statusLabel.setText("Profile details not found.");
+                statusLabel.setText(
+                        "Profile details not found."
+                );
             }
 
         } catch (SQLException e) {
@@ -279,13 +361,17 @@ public class LecturerProfile extends JPanel {
     }
 
     private void saveProfile() {
-        String titleStr = (String) titleCombo.getSelectedItem();
-        String fullNameStr = fullNameField.getText().trim();
+        String titleStr =
+                (String) titleCombo.getSelectedItem();
+
+        String fullNameStr =
+                fullNameField.getText().trim();
         String nicStr = nicField.getText().trim();
         String emailStr = emailField.getText().trim();
         String contactStr = contactField.getText().trim();
         String addressStr = addressField.getText().trim();
-        String specStr = specializationField.getText().trim();
+        String specStr =
+                specializationField.getText().trim();
 
         if (fullNameStr.isEmpty() || emailStr.isEmpty()) {
             JOptionPane.showMessageDialog(
@@ -298,18 +384,26 @@ public class LecturerProfile extends JPanel {
         }
 
         try {
-            boolean success = profileDAO.updateLecturerProfile(
-                    userId,
-                    titleStr,
-                    fullNameStr,
-                    nicStr,
-                    emailStr,
-                    contactStr,
-                    addressStr,
-                    specStr
-            );
+            boolean success =
+                    profileDAO.updateLecturerProfile(
+                            userId,
+                            titleStr,
+                            fullNameStr,
+                            nicStr,
+                            emailStr,
+                            contactStr,
+                            addressStr,
+                            specStr
+                    );
 
             if (success) {
+                statusLabel.setText(
+                        "Profile updated successfully."
+                );
+
+                // Reload the saved information.
+                loadProfile();
+
                 JOptionPane.showMessageDialog(
                         this,
                         "Profile details updated successfully!",
@@ -317,8 +411,10 @@ public class LecturerProfile extends JPanel {
                         JOptionPane.INFORMATION_MESSAGE
                 );
 
-                statusLabel.setText("Profile updated successfully.");
-                loadProfile();
+                // Refresh the dashboard greeting.
+                if (onProfileUpdated != null) {
+                    onProfileUpdated.run();
+                }
 
             } else {
                 JOptionPane.showMessageDialog(
