@@ -1,54 +1,58 @@
 
 package gui.technical.dashboard.bottom;
 
+import gui.theme.UniMisTheme;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class DepartmentTimetablePanel extends JPanel {
 
-    private final Color NAVY = new Color(24, 58, 99);
-    private final Color MUTED = new Color(105, 118, 135);
-
     public DepartmentTimetablePanel() {
-        setLayout(new BorderLayout(0, 16));
-        setBackground(Color.WHITE);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(
-                        new Color(225, 230, 238)),
-                new EmptyBorder(18, 18, 18, 18)));
 
-        JLabel title = new JLabel("Today's Department Timetable");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        title.setForeground(NAVY);
+        setLayout(new BorderLayout(0, 14));
+        setBackground(UniMisTheme.WHITE);
+        setBorder(new EmptyBorder(18, 18, 18, 18));
+
+        JLabel heading = new JLabel("Department Timetable");
+        heading.setFont(UniMisTheme.FONT_H3);
+        heading.setForeground(UniMisTheme.TEXT);
+
+        add(heading, BorderLayout.NORTH);
 
         String[] columns = {
-                "Time", "Course", "Component", "Session"
+                "Time", "Course", "Component", "Venue"
         };
 
-        Object[][] data = {};
+        DefaultTableModel model = new DefaultTableModel(
+                columns, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-        JTable table = new JTable(data, columns);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        JTable table = new JTable(model);
+        table.setFont(UniMisTheme.FONT_TINY);
         table.setRowHeight(30);
-        table.getTableHeader().setFont(
-                new Font("Segoe UI", Font.BOLD, 12));
-        table.setFillsViewportHeight(true);
+        table.setForeground(UniMisTheme.TEXT);
+        table.setBackground(UniMisTheme.WHITE);
+        table.setGridColor(UniMisTheme.BORDER);
+        table.setSelectionBackground(UniMisTheme.PASTEL_GREEN);
+        table.setSelectionForeground(UniMisTheme.TEXT);
+
+        table.getTableHeader().setFont(UniMisTheme.FONT_BODY_BOLD);
+        table.getTableHeader().setBackground(UniMisTheme.MINT);
+        table.getTableHeader().setForeground(UniMisTheme.TEXT);
+        table.getTableHeader().setReorderingAllowed(false);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setBorder(
+                BorderFactory.createLineBorder(UniMisTheme.BORDER));
 
-        JLabel note = new JLabel(
-                "Today's timetable data will appear here.");
-        note.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        note.setForeground(MUTED);
-
-        JPanel content = new JPanel(new BorderLayout(0, 8));
-        content.setOpaque(false);
-        content.add(note, BorderLayout.NORTH);
-        content.add(scrollPane, BorderLayout.CENTER);
-
-        add(title, BorderLayout.NORTH);
-        add(content, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.CENTER);
     }
 }
