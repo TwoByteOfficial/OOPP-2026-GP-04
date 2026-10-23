@@ -9,6 +9,7 @@ import gui.undergraduate.grades.UGGradesPanel;
 import gui.undergraduate.medicals.UGMedicalsPanel;
 import gui.undergraduate.timetable.UGTimetablePanel;
 import gui.undergraduate.notices.UGNoticesPanel;
+import gui.undergraduate.profile.UGProfilePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,7 +67,7 @@ public class UndergraduateDashboard extends JFrame {
         contentCards.add(new UGMedicalsPanel(userId, username), "medicals");
         contentCards.add(new UGTimetablePanel(userId, username), "timetables");
         contentCards.add(new UGNoticesPanel(userId, username), "notices");
-        contentCards.add(createPlaceholderPanel("Student Profile Management"), "profile");
+        contentCards.add(new UGProfilePanel(userId, username), "profile");
 
         root.add(contentCards, BorderLayout.CENTER);
         setContentPane(root);
