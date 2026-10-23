@@ -1,3 +1,4 @@
+
 package dao.Lecturer;
 
 import util.DBConnection;
@@ -18,7 +19,7 @@ public class EligibilityDAO {
 
         String sql =
                 "SELECT registration_no, full_name, " +
-                        "attendance_percent, ca_mark AS ca_percentage, " +
+                        "attendance_percent, ca_mark, " +
                         "attendance_requirement, ca_requirement, " +
                         "final_exam_eligibility " +
                         "FROM v_eligibility " +
@@ -39,7 +40,7 @@ public class EligibilityDAO {
                             rs.getString("registration_no"),
                             rs.getString("full_name"),
                             rs.getBigDecimal("attendance_percent"),
-                            rs.getBigDecimal("ca_percentage"),
+                            rs.getBigDecimal("ca_mark"),
                             rs.getString("attendance_requirement"),
                             rs.getString("ca_requirement"),
                             rs.getString("final_exam_eligibility")

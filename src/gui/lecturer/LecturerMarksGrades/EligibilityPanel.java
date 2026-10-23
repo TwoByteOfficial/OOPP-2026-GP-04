@@ -58,7 +58,7 @@ public class EligibilityPanel extends JPanel {
 
         // Eligibility Table
         String[] columns = {
-                "Registration No", "Student Name", "Attendance %", "CA Percentage",
+                "Registration No", "Student Name", "Attendance %", "CA Mark",
                 "Attendance Req (>=80%)", "CA Req (>=40%)", "Final Exam Eligibility"
         };
 
