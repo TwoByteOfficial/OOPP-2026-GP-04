@@ -1,3 +1,4 @@
+
 package gui.lecturer.Profile;
 
 import dao.Lecturer.LecturerProfileDAO;
@@ -23,139 +24,230 @@ public class LecturerProfile extends JPanel {
     private final JLabel codeLabel = new JLabel();
     private final JLabel deptLabel = new JLabel();
 
-    private final JComboBox<String> titleCombo = new JComboBox<>(new String[]{"Dr.", "Ms.", "Mr.", "Prof."});
-    private final JTextField fullNameField = new JTextField(20);
-    private final JTextField nicField = new JTextField(20);
-    private final JTextField emailField = new JTextField(20);
-    private final JTextField contactField = new JTextField(20);
-    private final JTextField addressField = new JTextField(20);
-    private final JTextField specializationField = new JTextField(20);
+    private final JComboBox<String> titleCombo =
+            new JComboBox<>(new String[]{"Dr.", "Ms.", "Mr.", "Prof."});
+
+    private final JTextField fullNameField = new JTextField();
+    private final JTextField nicField = new JTextField();
+    private final JTextField emailField = new JTextField();
+    private final JTextField contactField = new JTextField();
+    private final JTextField addressField = new JTextField();
+    private final JTextField specializationField = new JTextField();
 
     private final JLabel statusLabel = new JLabel("Ready");
 
     public LecturerProfile(long userId) {
         this.userId = userId;
 
-        setLayout(new BorderLayout(0, 20));
+        setLayout(new BorderLayout(0, 18));
         setBackground(PALE_GREEN);
-        setBorder(new EmptyBorder(30, 30, 30, 30));
+        setBorder(new EmptyBorder(24, 28, 20, 28));
 
         // Heading
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
         heading.setOpaque(false);
 
-        JLabel title = new JLabel("Lecturer Profile & Settings");
-        title.setFont(new Font("SansSerif", Font.BOLD, 28));
-        title.setForeground(DEEP_GREEN);
+        JLabel pageTitle = new JLabel("Lecturer Profile & Settings");
+        pageTitle.setFont(new Font("SansSerif", Font.BOLD, 25));
+        pageTitle.setForeground(DEEP_GREEN);
 
-        JLabel subtitle = new JLabel("View and update your personal academic profile details (Username & credentials managed by Admin).");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        JLabel subtitle = new JLabel(
+                "View and update your personal academic profile details."
+        );
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
         subtitle.setForeground(TEXT_GRAY);
 
-        heading.add(title);
-        heading.add(Box.createVerticalStrut(6));
+        heading.add(pageTitle);
+        heading.add(Box.createVerticalStrut(5));
         heading.add(subtitle);
 
-        // Profile Form Card
+        // Main card
         JPanel card = new JPanel(new BorderLayout(0, 20));
         card.setBackground(Color.WHITE);
         card.setBorder(new CompoundBorder(
                 new LineBorder(BORDER_GREEN, 1, true),
-                new EmptyBorder(25, 30, 25, 30)
+                new EmptyBorder(22, 24, 20, 24)
         ));
 
-        // Read-only info header
-        JPanel readOnlyPanel = new JPanel(new GridLayout(1, 3, 15, 0));
+        // Read-only information
+        JPanel readOnlyPanel = new JPanel(new GridLayout(1, 3, 12, 0));
         readOnlyPanel.setOpaque(false);
         readOnlyPanel.setBorder(new CompoundBorder(
-                new LineBorder(BORDER_GREEN, 1),
-                new EmptyBorder(12, 16, 12, 16)
+                new LineBorder(BORDER_GREEN, 1, true),
+                new EmptyBorder(12, 14, 12, 14)
         ));
 
-        usernameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-        usernameLabel.setForeground(DEEP_GREEN);
-
-        codeLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-        codeLabel.setForeground(DEEP_GREEN);
-
-        deptLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-        deptLabel.setForeground(DEEP_GREEN);
+        styleInfoLabel(usernameLabel);
+        styleInfoLabel(codeLabel);
+        styleInfoLabel(deptLabel);
 
         readOnlyPanel.add(usernameLabel);
         readOnlyPanel.add(codeLabel);
         readOnlyPanel.add(deptLabel);
 
-        // Form Fields
-        JPanel formGrid = new JPanel(new GridLayout(7, 2, 15, 14));
+        // Form: two fields per row
+        JPanel formGrid = new JPanel(new GridBagLayout());
         formGrid.setOpaque(false);
 
-        formGrid.add(createFormLabel("Title:"));
-        formGrid.add(titleCombo);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(7, 8, 7, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0;
+        gbc.anchor = GridBagConstraints.WEST;
 
-        formGrid.add(createFormLabel("Full Name:"));
-        formGrid.add(fullNameField);
+        // Row 1
+        addFormField(formGrid, gbc, 0, 0, "Title", titleCombo);
+        addFormField(formGrid, gbc, 1, 0, "Full Name", fullNameField);
 
-        formGrid.add(createFormLabel("NIC Number:"));
-        formGrid.add(nicField);
+        // Row 2
+        addFormField(formGrid, gbc, 0, 1, "NIC Number", nicField);
+        addFormField(formGrid, gbc, 1, 1, "Email Address", emailField);
 
-        formGrid.add(createFormLabel("Email Address:"));
-        formGrid.add(emailField);
+        // Row 3
+        addFormField(formGrid, gbc, 0, 2, "Contact Number", contactField);
+        addFormField(formGrid, gbc, 1, 2, "Home / Office Address", addressField);
 
-        formGrid.add(createFormLabel("Contact Number:"));
-        formGrid.add(contactField);
+        // Row 4: specialization spans both columns
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
 
-        formGrid.add(createFormLabel("Home / Office Address:"));
-        formGrid.add(addressField);
+        JPanel specializationPanel = createFieldPanel(
+                "Specialization / Research",
+                specializationField
+        );
 
-        formGrid.add(createFormLabel("Specialization / Research:"));
-        formGrid.add(specializationField);
+        formGrid.add(specializationPanel, gbc);
 
         // Buttons
-        JButton saveBtn = new JButton("Save Profile Changes");
-        saveBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
-        saveBtn.setBackground(DEEP_GREEN);
-        saveBtn.setForeground(Color.WHITE);
-        saveBtn.setFocusPainted(false);
-        saveBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        saveBtn.addActionListener(e -> saveProfile());
-
         JButton resetBtn = new JButton("Reset");
-        resetBtn.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        styleButton(resetBtn, false);
         resetBtn.addActionListener(e -> loadProfile());
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
-        btnPanel.setOpaque(false);
-        btnPanel.add(resetBtn);
-        btnPanel.add(saveBtn);
+        JButton saveBtn = new JButton("Save Profile Changes");
+        styleButton(saveBtn, true);
+        saveBtn.addActionListener(e -> saveProfile());
 
-        card.add(readOnlyPanel, BorderLayout.NORTH);
-        card.add(formGrid, BorderLayout.CENTER);
-        card.add(btnPanel, BorderLayout.SOUTH);
+        JPanel buttonPanel = new JPanel(new FlowLayout(
+                FlowLayout.RIGHT, 10, 0
+        ));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(resetBtn);
+        buttonPanel.add(saveBtn);
 
-        // Footer
+        // Card content
+        JPanel formContent = new JPanel(new BorderLayout(0, 14));
+        formContent.setOpaque(false);
+        formContent.add(readOnlyPanel, BorderLayout.NORTH);
+        formContent.add(formGrid, BorderLayout.CENTER);
+
+        card.add(formContent, BorderLayout.CENTER);
+        card.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Footer status
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
+
+        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        statusLabel.setForeground(TEXT_GRAY);
         footer.add(statusLabel, BorderLayout.WEST);
 
         add(heading, BorderLayout.NORTH);
         add(card, BorderLayout.CENTER);
         add(footer, BorderLayout.SOUTH);
 
+        // Load existing database data
         loadProfile();
     }
 
-    private JLabel createFormLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("SansSerif", Font.BOLD, 13));
+    private void styleInfoLabel(JLabel label) {
+        label.setFont(new Font("SansSerif", Font.BOLD, 12));
         label.setForeground(DEEP_GREEN);
-        return label;
+    }
+
+    private void addFormField(
+            JPanel parent,
+            GridBagConstraints gbc,
+            int column,
+            int row,
+            String labelText,
+            JComponent field
+    ) {
+        gbc.gridx = column;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+
+        JPanel fieldPanel = createFieldPanel(labelText, field);
+        parent.add(fieldPanel, gbc);
+    }
+
+    private JPanel createFieldPanel(
+            String labelText,
+            JComponent field
+    ) {
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
+        panel.setOpaque(false);
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("SansSerif", Font.BOLD, 12));
+        label.setForeground(DEEP_GREEN);
+
+        // Compact input fields
+        field.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        field.setPreferredSize(new Dimension(180, 34));
+
+        if (field instanceof JTextField) {
+            JTextField textField = (JTextField) field;
+            textField.setMargin(new Insets(5, 9, 5, 9));
+            textField.setBorder(new CompoundBorder(
+                    new LineBorder(BORDER_GREEN, 1, true),
+                    new EmptyBorder(1, 2, 1, 2)
+            ));
+        } else if (field instanceof JComboBox<?>) {
+            field.setBorder(new LineBorder(BORDER_GREEN, 1, true));
+        }
+
+        panel.add(label, BorderLayout.NORTH);
+        panel.add(field, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private void styleButton(JButton button, boolean primary) {
+        button.setFont(new Font(
+                "SansSerif",
+                primary ? Font.BOLD : Font.PLAIN,
+                13
+        ));
+
+        button.setFocusPainted(false);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setBorder(new EmptyBorder(9, 16, 9, 16));
+        button.setOpaque(true);
+
+        if (primary) {
+            button.setBackground(DEEP_GREEN);
+            button.setForeground(Color.WHITE);
+        } else {
+            button.setBackground(Color.WHITE);
+            button.setForeground(DEEP_GREEN);
+            button.setBorder(new CompoundBorder(
+                    new LineBorder(BORDER_GREEN, 1, true),
+                    new EmptyBorder(8, 15, 8, 15)
+            ));
+        }
     }
 
     private void loadProfile() {
         statusLabel.setText("Loading profile details...");
+
         try {
             Object[] data = profileDAO.getLecturerProfile(userId);
+
             if (data != null) {
                 usernameLabel.setText("Username: " + data[1]);
                 codeLabel.setText("Lecturer Code: " + data[2]);
@@ -173,9 +265,16 @@ public class LecturerProfile extends JPanel {
             } else {
                 statusLabel.setText("Profile details not found.");
             }
+
         } catch (SQLException e) {
             statusLabel.setText("Error loading profile.");
-            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
@@ -189,24 +288,54 @@ public class LecturerProfile extends JPanel {
         String specStr = specializationField.getText().trim();
 
         if (fullNameStr.isEmpty() || emailStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Full Name and Email Address are required fields.", "Input Validation", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Full Name and Email Address are required fields.",
+                    "Input Validation",
+                    JOptionPane.WARNING_MESSAGE
+            );
             return;
         }
 
         try {
             boolean success = profileDAO.updateLecturerProfile(
-                    userId, titleStr, fullNameStr, nicStr, emailStr, contactStr, addressStr, specStr
+                    userId,
+                    titleStr,
+                    fullNameStr,
+                    nicStr,
+                    emailStr,
+                    contactStr,
+                    addressStr,
+                    specStr
             );
 
             if (success) {
-                JOptionPane.showMessageDialog(this, "Profile details updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Profile details updated successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
                 statusLabel.setText("Profile updated successfully.");
                 loadProfile();
+
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to update profile.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Failed to update profile.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
+
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 }
