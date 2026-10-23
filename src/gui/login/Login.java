@@ -2,7 +2,7 @@ package gui.login;
 
 //import gui.admin.AdminDashboard;
 import gui.admin.Administrator;
-//import gui.lecturer.Dashboard.LecturerDashboard
+//import gui.lecturer.LecturerDashboard
 import gui.lecturer.Lecturer;
 import gui.technical.TechnicalOfficerDashboard;
 import gui.undergraduate.UndergraduateDashboard;

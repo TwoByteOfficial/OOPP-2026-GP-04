@@ -14,21 +14,18 @@ import java.util.List;
 public class CourseMaterialDAO {
 
     // Get materials uploaded by this lecturer.
-
     public List<CourseMaterial> getMaterialsByLecturer(
             long lecturerId) throws SQLException {
 
         List<CourseMaterial> materials = new ArrayList<>();
 
         String sql =
-                "SELECT cm.material_id, cm.course_id, cm.lecturer_id, " +
-                        "c.course_code, c.course_name, " +
-                        "cm.title, cm.description, cm.material_type, " +
-                        "cm.file_path, cm.external_url, cm.uploaded_at " +
-                        "FROM course_materials cm " +
-                        "INNER JOIN courses c ON cm.course_id = c.course_id " +
-                        "WHERE cm.lecturer_id = ? " +
-                        "ORDER BY cm.uploaded_at DESC";
+                "SELECT material_id, course_id, lecturer_id, title, " +
+                        "description, material_type, file_path, external_url, " +
+                        "uploaded_at " +
+                        "FROM course_materials " +
+                        "WHERE lecturer_id = ? " +
+                        "ORDER BY uploaded_at DESC";
 
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement =
@@ -40,19 +37,24 @@ public class CourseMaterialDAO {
                 while (rs.next()) {
                     CourseMaterial material = new CourseMaterial();
 
-                    material.setMaterialId(rs.getLong("material_id"));
-                    material.setCourseId(rs.getInt("course_id"));
-                    material.setLecturerId(rs.getLong("lecturer_id"));
-
-                    material.setCourseCode(rs.getString("course_code"));
-                    material.setCourseName(rs.getString("course_name"));
-
-                    material.setTitle(rs.getString("title"));
-                    material.setDescription(rs.getString("description"));
-                    material.setMaterialType(rs.getString("material_type"));
-                    material.setFilePath(rs.getString("file_path"));
-                    material.setExternalUrl(rs.getString("external_url"));
-                    material.setUploadedAt(rs.getTimestamp("uploaded_at"));
+                    material.setMaterialId(
+                            rs.getLong("material_id"));
+                    material.setCourseId(
+                            rs.getInt("course_id"));
+                    material.setLecturerId(
+                            rs.getLong("lecturer_id"));
+                    material.setTitle(
+                            rs.getString("title"));
+                    material.setDescription(
+                            rs.getString("description"));
+                    material.setMaterialType(
+                            rs.getString("material_type"));
+                    material.setFilePath(
+                            rs.getString("file_path"));
+                    material.setExternalUrl(
+                            rs.getString("external_url"));
+                    material.setUploadedAt(
+                            rs.getTimestamp("uploaded_at"));
 
                     materials.add(material);
                 }
@@ -61,7 +63,6 @@ public class CourseMaterialDAO {
 
         return materials;
     }
-
 
     // Add a new material record.
     public boolean addMaterial(CourseMaterial material)

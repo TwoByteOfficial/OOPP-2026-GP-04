@@ -1,24 +1,18 @@
+
 package gui.lecturer;
 
-import gui.lecturer.Attendance.LecturerAttendance;
-import gui.lecturer.CourseMaterial.LecturerCourseMaterials;
-import gui.lecturer.Dashboard.LecturerDashboard;
-import gui.lecturer.Eligibility.LecturerEligibility;
-import gui.lecturer.LecturerMarksGrades.LecturerMarksGrades;
-import gui.lecturer.MyCourse.MyCourses;
-import gui.lecturer.Notices.LecturerNotices;
-import gui.lecturer.Profile.LecturerProfile;
+import gui.login.Login;
 import gui.lecturer.SharedComponents.LecturerSidebar;
 import gui.lecturer.SharedComponents.LecturerTopbar;
-import gui.lecturer.Undergraduate.LecturerUndergraduates;
-import gui.login.Login;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class Lecturer extends JFrame {
 
-    private static final Color PALE_GREEN = new Color(232, 245, 233);
+    private static final Color PALE_GREEN =
+            new Color(232, 245, 233);
 
     private final long userId;
     private final String username;
@@ -67,7 +61,7 @@ public class Lecturer extends JFrame {
 
         pageContainer.add(dashboard, "Dashboard");
 
-        // Lecturer Pages
+        // Other lecturer pages
         pageContainer.add(new MyCourses(userId), "MyCourses");
 
         pageContainer.add(
@@ -75,35 +69,7 @@ public class Lecturer extends JFrame {
                 "CourseMaterials"
         );
 
-        pageContainer.add(
-                new LecturerMarksGrades(userId),
-                "MarksGrades"
-        );
-
-        pageContainer.add(
-                new LecturerUndergraduates(userId),
-                "Undergraduates"
-        );
-
-        pageContainer.add(
-                new LecturerEligibility(userId),
-                "Eligibility"
-        );
-
-        pageContainer.add(
-                new LecturerAttendance(userId),
-                "Attendance"
-        );
-
-        pageContainer.add(
-                new LecturerNotices(),
-                "Notices"
-        );
-
-        pageContainer.add(
-                new LecturerProfile(userId),
-                "Profile"
-        );
+        addPlaceholderPages();
 
         // Main layout
         setLayout(new BorderLayout());
@@ -151,6 +117,51 @@ public class Lecturer extends JFrame {
         cardLayout.show(pageContainer, pageName);
     }
 
+    private void addPlaceholderPages() {
+        String[][] pages = {
+                {"Marks & Grades", "MarksGrades"},
+                {"Undergraduates", "Undergraduates"},
+                {"Eligibility", "Eligibility"},
+                {"Attendance", "Attendance"},
+                {"Notices", "Notices"},
+                {"My Profile", "Profile"}
+        };
+
+        for (String[] page : pages) {
+            JPanel placeholder = new JPanel(new BorderLayout());
+            placeholder.setBackground(PALE_GREEN);
+            placeholder.setBorder(
+                    new EmptyBorder(30, 30, 30, 30)
+            );
+
+            JLabel title = new JLabel(page[0]);
+            title.setFont(
+                    new Font("SansSerif", Font.BOLD, 26)
+            );
+            title.setForeground(new Color(27, 94, 32));
+
+            JLabel message = new JLabel(
+                    "This page will be implemented separately."
+            );
+            message.setFont(
+                    new Font("SansSerif", Font.PLAIN, 14)
+            );
+
+            JPanel content = new JPanel();
+            content.setLayout(
+                    new BoxLayout(content, BoxLayout.Y_AXIS)
+            );
+            content.setOpaque(false);
+
+            content.add(title);
+            content.add(Box.createVerticalStrut(12));
+            content.add(message);
+
+            placeholder.add(content, BorderLayout.NORTH);
+            pageContainer.add(placeholder, page[1]);
+        }
+    }
+
     private void connectNavigation() {
 
         // Sidebar page selection
@@ -180,11 +191,7 @@ public class Lecturer extends JFrame {
 
                         if (choice == JOptionPane.YES_OPTION) {
                             dispose();
-                            try {
-                                Login.showLogin();
-                            } catch (Exception e) {
-                                System.exit(0);
-                            }
+                            Login.showLogin();
                         }
                     }
                 }
@@ -195,7 +202,12 @@ public class Lecturer extends JFrame {
                 "notificationsRequested",
                 event -> {
                     if (Boolean.TRUE.equals(event.getNewValue())) {
-                        navigateTo("Notices");
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Your notifications will be displayed here.",
+                                "Notifications",
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
                     }
                 }
         );

@@ -1,4 +1,3 @@
-
 package model;
 
 import java.sql.Timestamp;
@@ -7,8 +6,6 @@ public class CourseMaterial {
     private long materialId;
     private int courseId;
     private long lecturerId;
-    private String courseCode;
-    private String courseName;
     private String title;
     private String description;
     private String materialType;
