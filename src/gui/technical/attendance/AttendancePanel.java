@@ -5,6 +5,7 @@ import model.Undergraduate;
 import javax.swing.table.DefaultTableModel;
 import dao.AttendanceDAO;
 import model.AttendanceSession;
+import model.AttendanceRecord;
 
 import dao.CourseDAO;
 import model.Course;
@@ -23,6 +24,7 @@ public class AttendancePanel extends JPanel {
     private JComboBox<String> componentComboBox;
     private JComboBox<AttendanceSession> sessionComboBox;
     private List<Course> courses = new ArrayList<>();
+    private List<Undergraduate> loadedStudents = new ArrayList<>();
 
     public AttendancePanel() {
         setLayout(new BorderLayout(10, 10));
@@ -94,6 +96,9 @@ public class AttendancePanel extends JPanel {
 
         JButton loadButton = new JButton("Load Students");
 
+        JButton saveButton = new JButton("Save Attendance");
+
+
         loadButton.addActionListener(e -> {
 
             int selectedIndex = courseComboBox.getSelectedIndex();
@@ -132,17 +137,36 @@ public class AttendancePanel extends JPanel {
                         new EnrollmentDAO().getEnrolledStudentsByCourse(
                                 selectedCourse.getCourseId()
                         );
+                loadedStudents = students;
 
                 DefaultTableModel model =
                         (DefaultTableModel) studentTable.getModel();
 
                 model.setRowCount(0);
 
+
+                AttendanceSession selectedSession =
+                        (AttendanceSession) sessionComboBox.getSelectedItem();
+
+                List<AttendanceRecord> records =
+                        new AttendanceDAO().getAttendanceBySession(
+                                selectedSession.getAttendanceSessionId()
+                        );
+
                 for (Undergraduate student : students) {
+                    String status = "PRESENT";
+
+                    for (AttendanceRecord record : records) {
+                        if (record.getStudentId() == student.getUserId()) {
+                            status = record.getAttendanceStatus();
+                            break;
+                        }
+                    }
+
                     model.addRow(new Object[]{
                             student.getRegistrationNo(),
                             student.getFullName(),
-                            "PRESENT"
+                            status
                     });
                 }
 
@@ -166,6 +190,7 @@ public class AttendancePanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.add(loadButton);
+        buttonPanel.add(saveButton);
 
 
         studentTable = new JTable(
