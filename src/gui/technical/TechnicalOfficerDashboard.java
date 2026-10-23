@@ -1,110 +1,89 @@
+
 package gui.technical;
 
 import gui.login.Login;
-import gui.login.LoginTheme;
+import gui.technical.dashboard.TODashboardPanel;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-/**
- * Technical Officer dashboard. Same constructor signature as the other
- * dashboards, so Login's DashboardFactory map can build it via a method ref.
- */
 public class TechnicalOfficerDashboard extends JFrame {
 
     private final long userId;
-    private final String username, fullName, email, role;
+    private final String username;
+    private final String fullName;
+    private final String email;
+    private final String role;
 
-    public TechnicalOfficerDashboard(long userId, String username, String fullName,
-                                     String email, String role) {
-        this.userId   = userId;
+    private final CardLayout cardLayout = new CardLayout();
+    private final JPanel pageContainer = new JPanel(cardLayout);
+
+    public TechnicalOfficerDashboard(
+            long userId,
+            String username,
+            String fullName,
+            String email,
+            String role) {
+
+        this.userId = userId;
         this.username = username;
         this.fullName = fullName;
-        this.email    = email;
-        this.role     = role;
+        this.email = email;
+        this.role = role;
 
-        setTitle("UniMis - Technical Officer Dashboard");
+        setTitle("UniMIS - Technical Officer Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+        setMinimumSize(new Dimension(1000, 650));
+        setResizable(true);
 
+        // Dashboard page
+        TODashboardPanel dashboardPanel =
+                new TODashboardPanel(fullName, role);
+
+        pageContainer.add(dashboardPanel, "Dashboard");
+
+        // Temporary pages for navigation testing
+        addPlaceholderPage("Attendance");
+        addPlaceholderPage("Medical Records");
+        addPlaceholderPage("Undergraduates");
+        addPlaceholderPage("Timetables");
+        addPlaceholderPage("Notices");
+        addPlaceholderPage("My Profile");
+
+        // Sidebar
+        TOSidebarPanel sidebar = new TOSidebarPanel(
+                fullName,
+                pageName -> cardLayout.show(pageContainer, pageName),
+                this::logout
+        );
+
+        // Main window layout
         JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(LoginTheme.MINT);
-        root.add(buildHeader(), BorderLayout.NORTH);
-        root.add(buildCenter(), BorderLayout.CENTER);
-        root.add(buildFooter(), BorderLayout.SOUTH);
+        root.add(sidebar, BorderLayout.WEST);
+        root.add(pageContainer, BorderLayout.CENTER);
 
         setContentPane(root);
         setLocationRelativeTo(null);
     }
 
-    /* ---------- Header ---------- */
+    private void addPlaceholderPage(String pageName) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(245, 247, 251));
 
-    private JPanel buildHeader() {
-        JLabel title = new JLabel("Technical Officer Dashboard", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 42));
-        title.setForeground(LoginTheme.FOREST);
-        title.setBorder(new EmptyBorder(50, 20, 10, 20));
+        JLabel title = new JLabel(
+                pageName + " - Under Development",
+                SwingConstants.CENTER
+        );
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(LoginTheme.MINT);
-        header.add(title, BorderLayout.CENTER);
-        return header;
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setForeground(new Color(24, 58, 99));
+
+        panel.add(title, BorderLayout.CENTER);
+        pageContainer.add(panel, pageName);
     }
 
-    /* ---------- Centre : profile card ---------- */
-
-    private JPanel buildCenter() {
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(LoginTheme.PASTEL);
-        card.setBorder(new EmptyBorder(30, 60, 30, 60));
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(8, 12, 8, 12);
-        gc.anchor = GridBagConstraints.WEST;
-
-        addRow(card, gc, 0, "User ID:",   String.valueOf(userId));
-        addRow(card, gc, 1, "Username:",  username);
-        addRow(card, gc, 2, "Full Name:", fullName);
-        addRow(card, gc, 3, "Email:",     email);
-        addRow(card, gc, 4, "Role:",      role);
-
-        JPanel wrap = new JPanel(new GridBagLayout());
-        wrap.setBackground(LoginTheme.MINT);
-        wrap.add(card);
-        return wrap;
-    }
-
-    /* ---------- Footer : logout ---------- */
-
-    private JPanel buildFooter() {
-        JButton logout = LoginTheme.button("Logout", LoginTheme.F_LABEL);
-        logout.setPreferredSize(new Dimension(150, 44));
-        logout.addActionListener(e -> {
-            dispose();
-            Login.showLogin();
-        });
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 25));
-        bottom.setBackground(LoginTheme.MINT);
-        bottom.add(logout);
-        return bottom;
-    }
-
-    /* ---------- Row helper (used inside the card) ---------- */
-
-    private static void addRow(JPanel p, GridBagConstraints gc, int row,
-                               String label, String value) {
-        gc.gridx = 0; gc.gridy = row;
-        JLabel l = new JLabel(label);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(LoginTheme.DEEP);
-        p.add(l, gc);
-
-        gc.gridx = 1;
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        v.setForeground(LoginTheme.DEEP);
-        p.add(v, gc);
+    private void logout() {
+        dispose();
+        Login.showLogin();
     }
 }

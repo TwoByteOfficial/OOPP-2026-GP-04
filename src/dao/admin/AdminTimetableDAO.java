@@ -6,18 +6,17 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO responsible for Admin Timetable Management (Timetables page CRUD).
- */
 public class AdminTimetableDAO {
 
     public List<TimetableEntry> getAllTimetableEntries() throws SQLException {
         List<TimetableEntry> list = new ArrayList<>();
         String sql = "SELECT * FROM timetable_entries " +
                      "ORDER BY department_id, batch_year, FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
+
+        try (Connection con = DBConnection.con();
+             Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 list.add(mapResultSetToTimetableEntry(rs));
             }
@@ -30,12 +29,15 @@ public class AdminTimetableDAO {
         String sql = "SELECT * FROM timetable_entries " +
                      "WHERE department_id = ? AND batch_year = ? AND semester = ? " +
                      "ORDER BY FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, departmentId);
-            stmt.setInt(2, batchYear);
-            stmt.setString(3, semester);
-            try (ResultSet rs = stmt.executeQuery()) {
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setInt(1, departmentId);
+            pstmt.setInt(2, batchYear);
+            pstmt.setString(3, semester);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapResultSetToTimetableEntry(rs));
                 }
@@ -46,10 +48,13 @@ public class AdminTimetableDAO {
 
     public TimetableEntry getTimetableById(long timetableId) throws SQLException {
         String sql = "SELECT * FROM timetable_entries WHERE timetable_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, timetableId);
-            try (ResultSet rs = stmt.executeQuery()) {
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setLong(1, timetableId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSetToTimetableEntry(rs);
                 }
@@ -61,23 +66,25 @@ public class AdminTimetableDAO {
     public boolean createTimetableEntry(TimetableEntry t) throws SQLException {
         String sql = "INSERT INTO timetable_entries (department_id, course_id, lecturer_id, batch_year, component, day_of_week, start_time, end_time, venue, academic_year, semester) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setInt(1, t.getDepartmentId());
-            stmt.setInt(2, t.getCourseId());
-            if (t.getLecturerId() != null) stmt.setLong(3, t.getLecturerId()); else stmt.setNull(3, Types.BIGINT);
-            stmt.setInt(4, t.getBatchYear());
-            stmt.setString(5, t.getComponent());
-            stmt.setString(6, t.getDayOfWeek());
-            stmt.setTime(7, t.getStartTime());
-            stmt.setTime(8, t.getEndTime());
-            stmt.setString(9, t.getVenue());
-            stmt.setString(10, t.getAcademicYear());
-            stmt.setString(11, t.getSemester());
 
-            int affected = stmt.executeUpdate();
-            if (affected > 0) {
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setInt(1, t.getDepartmentId());
+            pstmt.setInt(2, t.getCourseId());
+            if (t.getLecturerId() != null) pstmt.setLong(3, t.getLecturerId()); else pstmt.setNull(3, Types.BIGINT);
+            pstmt.setInt(4, t.getBatchYear());
+            pstmt.setString(5, t.getComponent());
+            pstmt.setString(6, t.getDayOfWeek());
+            pstmt.setTime(7, t.getStartTime());
+            pstmt.setTime(8, t.getEndTime());
+            pstmt.setString(9, t.getVenue());
+            pstmt.setString(10, t.getAcademicYear());
+            pstmt.setString(11, t.getSemester());
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         t.setTimetableId(rs.getLong(1));
                     }
@@ -90,30 +97,38 @@ public class AdminTimetableDAO {
 
     public boolean updateTimetableEntry(TimetableEntry t) throws SQLException {
         String sql = "UPDATE timetable_entries SET department_id = ?, course_id = ?, lecturer_id = ?, batch_year = ?, component = ?, day_of_week = ?, start_time = ?, end_time = ?, venue = ?, academic_year = ?, semester = ? WHERE timetable_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, t.getDepartmentId());
-            stmt.setInt(2, t.getCourseId());
-            if (t.getLecturerId() != null) stmt.setLong(3, t.getLecturerId()); else stmt.setNull(3, Types.BIGINT);
-            stmt.setInt(4, t.getBatchYear());
-            stmt.setString(5, t.getComponent());
-            stmt.setString(6, t.getDayOfWeek());
-            stmt.setTime(7, t.getStartTime());
-            stmt.setTime(8, t.getEndTime());
-            stmt.setString(9, t.getVenue());
-            stmt.setString(10, t.getAcademicYear());
-            stmt.setString(11, t.getSemester());
-            stmt.setLong(12, t.getTimetableId());
-            return stmt.executeUpdate() > 0;
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setInt(1, t.getDepartmentId());
+            pstmt.setInt(2, t.getCourseId());
+            if (t.getLecturerId() != null) pstmt.setLong(3, t.getLecturerId()); else pstmt.setNull(3, Types.BIGINT);
+            pstmt.setInt(4, t.getBatchYear());
+            pstmt.setString(5, t.getComponent());
+            pstmt.setString(6, t.getDayOfWeek());
+            pstmt.setTime(7, t.getStartTime());
+            pstmt.setTime(8, t.getEndTime());
+            pstmt.setString(9, t.getVenue());
+            pstmt.setString(10, t.getAcademicYear());
+            pstmt.setString(11, t.getSemester());
+            pstmt.setLong(12, t.getTimetableId());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
     public boolean deleteTimetableEntry(long timetableId) throws SQLException {
         String sql = "DELETE FROM timetable_entries WHERE timetable_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, timetableId);
-            return stmt.executeUpdate() > 0;
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setLong(1, timetableId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
@@ -125,7 +140,6 @@ public class AdminTimetableDAO {
         t.setLecturerId((Long) rs.getObject("lecturer_id"));
         t.setBatchYear(rs.getInt("batch_year"));
         t.setComponent(rs.getString("component"));
-        t.getDayOfWeek();
         t.setDayOfWeek(rs.getString("day_of_week"));
         t.setStartTime(rs.getTime("start_time"));
         t.setEndTime(rs.getTime("end_time"));
