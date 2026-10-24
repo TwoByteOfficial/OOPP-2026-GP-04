@@ -1,7 +1,7 @@
 package gui.undergraduate.profile;
 
+import dao.undergraduate.UndergraduateProfileDAO;
 import gui.admin.AdminTheme;
-import gui.undergraduate.profile.dao.ProfileDAO;
 import gui.undergraduate.profile.header.ProfileHeaderPanel;
 import gui.undergraduate.profile.info.AcademicDetailsCard;
 import gui.undergraduate.profile.info.ProfileAvatarCard;
@@ -33,7 +33,7 @@ public class UGProfilePanel extends JPanel {
         JPanel splitPanel = new JPanel(new BorderLayout(16, 0));
         splitPanel.setOpaque(false);
 
-        // Left Panel (Avatar + Academic Placement)
+        // Left Panel: Avatar + Academic Placement
         JPanel leftPanel = new JPanel(new BorderLayout(0, 14));
         leftPanel.setOpaque(false);
 
@@ -42,7 +42,7 @@ public class UGProfilePanel extends JPanel {
         leftPanel.add(avatarCard, BorderLayout.NORTH);
         leftPanel.add(detailsCard, BorderLayout.CENTER);
 
-        // Right Panel (Security / Password Change)
+        // Right Panel: Security / Password Change
         passwordCard = new PasswordChangeCard();
         passwordCard.setPreferredSize(new Dimension(360, 0));
 
@@ -56,7 +56,7 @@ public class UGProfilePanel extends JPanel {
     }
 
     private void loadProfileData(long userId, String username) {
-        UserProfileData profile = ProfileDAO.getProfileByUserId(userId, username);
+        UserProfileData profile = UndergraduateProfileDAO.getProfile(userId, username);
         avatarCard.updateProfile(profile);
         detailsCard.updateDetails(profile);
     }
