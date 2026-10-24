@@ -8,13 +8,13 @@ import java.awt.*;
 
 public class DashboardBottomPanel extends JPanel {
 
-    public DashboardBottomPanel() {
+    public DashboardBottomPanel(long userId) {
 
         setLayout(new GridLayout(1, 2, 16, 0));
         setOpaque(false);
         setBackground(UniMisTheme.LIGHT_BG);
 
-        add(new DepartmentTimetablePanel());
-        add(new LatestNoticesPanel());
+        add(new DepartmentTimetablePanel(userId));
+        add(new LatestNoticesPanel(userId));
     }
 }

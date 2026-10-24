@@ -151,7 +151,7 @@ public class AttendanceDAO {
             }
 
             String arSql = "UPDATE attendance_records ar JOIN medicals m ON m.attendance_record_id = ar.attendance_record_id " +
-                           "SET ar.attendance_status = 'MEDICAL' WHERE m.medical_id = ? AND ar.attendance_record_id > 0";
+                           "SET ar.attendance_status = 'PRESENT' WHERE m.medical_id = ? AND ar.attendance_record_id > 0";
             try (PreparedStatement stmt = conn.prepareStatement(arSql)) {
                 stmt.setLong(1, medicalId);
                 stmt.executeUpdate();
@@ -167,4 +167,28 @@ public class AttendanceDAO {
         }
         return success;
     }
+
+
+
+    public boolean rejectMedical(long medicalId, long reviewerId, String comment)
+            throws SQLException {
+
+        String sql = "UPDATE medicals " +
+                "SET approval_status = 'Rejected', " +
+                "reviewed_by = ?, reviewed_at = NOW(), review_comment = ? " +
+                "WHERE medical_id = ? AND approval_status = 'Pending'";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, reviewerId);
+            stmt.setString(2, comment);
+            stmt.setLong(3, medicalId);
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+
+
 }

@@ -6,6 +6,9 @@ import gui.login.Login;
 import gui.theme.UniMisTheme;
 import gui.technical.dashboard.TODashboardPanel;
 import gui.technical.attendance.AttendancePanel;
+import gui.technical.dashboard.bottom.DepartmentTimetablePanel;
+import gui.technical.NoticesPanel;
+import gui.technical.TechnicalOfficerProfilePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,6 +60,7 @@ public class TechnicalOfficerDashboard extends JFrame {
 // Dashboard page
         TODashboardPanel dashboardPanel =
                 new TODashboardPanel(
+                        userId,
                         fullName,
                         role,
                         pageName -> {
@@ -76,12 +80,21 @@ public class TechnicalOfficerDashboard extends JFrame {
         pageContainer.add(dashboardScrollPane, "Dashboard");
 
 // Temporary pages
+// Dashboard pages
         pageContainer.add(new AttendancePanel(), "Attendance");
-        addPlaceholderPage("Medical Records");
-        addPlaceholderPage("Undergraduates");
-        addPlaceholderPage("Timetables");
-        addPlaceholderPage("Notices");
-        addPlaceholderPage("My Profile");
+        pageContainer.add(
+                new MedicalRecordsPanel(userId),
+                "Medical Records"
+        );
+
+
+
+        pageContainer.add(new DepartmentTimetablePanel(userId), "Timetables");
+        pageContainer.add(new NoticesPanel(userId), "Notices");
+        pageContainer.add(
+                new TechnicalOfficerProfilePanel(userId),
+                "My Profile"
+        );
 
 
 
