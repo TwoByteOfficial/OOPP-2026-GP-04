@@ -74,7 +74,7 @@ public class UserProfileForm extends JDialog {
         this.editUser = userToEdit;
         this.onSuccess = onSuccess;
 
-        setSize(780, 600);
+        setSize(940, 650);
         setLocationRelativeTo(parent);
         setResizable(false);
         getContentPane().setBackground(MINT);

@@ -265,7 +265,7 @@ public class CourseForm extends JDialog {
 
         if (ca.add(finalW).compareTo(new BigDecimal("100")) != 0) {
             JOptionPane.showMessageDialog(this, 
-                "CA Weight (" + ca + "%) and Final Exam Weight (" + finalW + "%) must sum to 100%.Currently total weight is " + ca.add(finalW) + "%.",
+                "CA Weight (" + ca + "%) and Final Exam Weight (" + finalW + "%) must sum to 100%. Currently total weight is " + ca.add(finalW) + "%.",
                 "Weight Allocation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -346,16 +346,16 @@ public class CourseForm extends JDialog {
                     "Duplicate Course Code", JOptionPane.WARNING_MESSAGE);
             } else if (msg != null && msg.toLowerCase().contains("foreign key")) {
                 JOptionPane.showMessageDialog(this, 
-                    "Department ID " + deptId + " does not exist in the database.Please select a valid Department.",
+                    "Department ID " + deptId + " does not exist in the database. Please select a valid Department.",
                     "Department Not Found", JOptionPane.ERROR_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this, 
-                    "Database error while saving course:" + msg,
+                    "Database error while saving course: " + msg,
                     "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, 
-                "An unexpected error occurred while saving the course:" + ex.getMessage(),
+                "An unexpected error occurred while saving the course: " + ex.getMessage(),
                 "System Error", JOptionPane.ERROR_MESSAGE);
         }
     }

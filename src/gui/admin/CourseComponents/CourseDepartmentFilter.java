@@ -28,4 +28,13 @@ public class CourseDepartmentFilter extends JPanel {
 
     public String getSelectedDepartment() { return (String) cmbDept.getSelectedItem(); }
     public void reset() { cmbDept.setSelectedIndex(0); }
+
+    public int getSelectedDepartmentId() {
+        String dept = getSelectedDepartment();
+        if (dept == null || dept.startsWith("All")) return 0;
+        if (dept.startsWith("1")) return 1;
+        if (dept.startsWith("2")) return 2;
+        if (dept.startsWith("3")) return 3;
+        return 0;
+    }
 }

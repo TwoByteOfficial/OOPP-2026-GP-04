@@ -45,4 +45,13 @@ public class CourseFilterSet extends JPanel {
     public String getSearchQuery() { return searchBar.getSearchQuery(); }
     public String getSelectedDepartment() { return deptFilter.getSelectedDepartment(); }
     public String getSelectedSemester() { return semesterFilter.getSelectedSemester(); }
+
+    public int getSelectedDepartmentId() {
+        String dept = getSelectedDepartment();
+        if (dept == null || dept.startsWith("All")) return 0;
+        if (dept.startsWith("1")) return 1;
+        if (dept.startsWith("2")) return 2;
+        if (dept.startsWith("3")) return 3;
+        return 0;
+    }
 }

@@ -7,6 +7,7 @@ import model.Course;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.List;
 
 public class AdminCourses extends JPanel {
@@ -69,6 +70,10 @@ public class AdminCourses extends JPanel {
             titleBar.updateCount(list.size());
         } catch (Exception e) {
             System.err.println("[AdminCourses] Error loading courses: " + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error loading course modules from database: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -84,7 +89,10 @@ public class AdminCourses extends JPanel {
                         c.getCourseCode().toLowerCase().contains(query) ||
                         c.getCourseName().toLowerCase().contains(query);
                 boolean mDept = (deptId == 0 || c.getDepartmentId() == deptId);
-                boolean mSem = ("All Semesters".equals(sem) || sem.equalsIgnoreCase(c.getSemester()));
+                boolean mSem = ("All Semesters".equalsIgnoreCase(sem) ||
+                        sem.equalsIgnoreCase(c.getSemester()) ||
+                        ("Semester 1".equalsIgnoreCase(sem) && "Semester I".equalsIgnoreCase(c.getSemester())) ||
+                        ("Semester 2".equalsIgnoreCase(sem) && "Semester II".equalsIgnoreCase(c.getSemester())));
                 return mQuery && mDept && mSem;
             }).toList();
 
@@ -104,7 +112,7 @@ public class AdminCourses extends JPanel {
     private void onViewDetails() {
         Course selected = courseTable.getSelectedCourse();
         if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a course module from the table.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a course module from the table first.", "Selection Required", JOptionPane.WARNING_MESSAGE);
             return;
         }
         Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
@@ -131,16 +139,36 @@ public class AdminCourses extends JPanel {
         }
 
         int choice = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete course " + selected.getCourseCode() + " (" + selected.getCourseName() + ")?",
-                "Delete Course", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                "Are you sure you want to permanently delete course " + selected.getCourseCode() + " (" + selected.getCourseName() + ")?",
+                "Confirm Course Deletion", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (choice == JOptionPane.YES_OPTION) {
             try {
-                courseDAO.deleteCourse(selected.getCourseId());
-                JOptionPane.showMessageDialog(this, "Course deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadCourses();
+                boolean deleted = courseDAO.deleteCourse(selected.getCourseId());
+                if (deleted) {
+                    JOptionPane.showMessageDialog(this, "Course '" + selected.getCourseCode() + "' deleted successfully!", "Course Deleted", JOptionPane.INFORMATION_MESSAGE);
+                    loadCourses();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete course. Record may no longer exist in database.", "Delete Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException e) {
+                String msg = e.getMessage();
+                if (msg != null && msg.toLowerCase().contains("foreign key")) {
+                    JOptionPane.showMessageDialog(this,
+                            "Cannot delete course '" + selected.getCourseCode() + "' because it is linked to existing student marks, enrollments, or timetable slots. Remove or reassign those dependencies first.",
+                            "Cannot Delete Course",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Database Error while deleting course: " + msg,
+                            "Database Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error deleting course: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "An unexpected error occurred while deleting course: " + e.getMessage(),
+                        "System Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
