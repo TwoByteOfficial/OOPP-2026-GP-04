@@ -397,9 +397,9 @@ public class MedicalRecordsPanel extends JPanel {
                         "Student Name: " + tableModel.getValueAt(row, 2) + "\n\n" +
                         "Course Code: " + tableModel.getValueAt(row, 3) + "\n\n" +
                         "Course Name: " + tableModel.getValueAt(row, 4) + "\n\n" +
-                        "Medical Date: " + tableModel.getValueAt(row, 4) + "\n\n" +
-                        "Reason: " + tableModel.getValueAt(row, 5) + "\n\n" +
-                        "Status: " + tableModel.getValueAt(row, 6);
+                        "Medical Date: " + tableModel.getValueAt(row, 5) + "\n\n" +
+                        "Reason: " + tableModel.getValueAt(row, 6) + "\n\n" +
+                        "Status: " + tableModel.getValueAt(row, 7);
 
         JTextArea textArea = new JTextArea(details);
         textArea.setEditable(false);
