@@ -9,6 +9,10 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * AdminUserProfiles - Primary User Profiles management view panel.
+ * Delete User button and deleteSelectedUser functionality have been removed.
+ */
 public class AdminUserProfiles extends JPanel {
 
     private final Color MINT = new Color(0xE8, 0xF5, 0xE9);
@@ -49,7 +53,6 @@ public class AdminUserProfiles extends JPanel {
                 this::openAddUserDialog,
                 this::openViewDetailsDialog,
                 this::openEditUserDialog,
-                this::deleteSelectedUser,
                 this::loadUsersFromDatabase
         );
         topPanel.add(actionToolbar);
@@ -135,36 +138,5 @@ public class AdminUserProfiles extends JPanel {
         Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(this);
         UserProfileForm form = new UserProfileForm(parentFrame, userDAO, selected, this::loadUsersFromDatabase);
         form.setVisible(true);
-    }
-
-    private void deleteSelectedUser() {
-        User selected = userList.getSelectedUser();
-        if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a user profile row to delete.", "Selection Required", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to permanently delete user '" + selected.getFullName() + "' (" + selected.getUsername() + ")?",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                boolean success = userDAO.deleteUser(selected.getUserId());
-                if (success) {
-                    JOptionPane.showMessageDialog(this, "User profile deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    loadUsersFromDatabase();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Could not delete user account.", "Deletion Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error deleting user: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            }
-        }
     }
 }

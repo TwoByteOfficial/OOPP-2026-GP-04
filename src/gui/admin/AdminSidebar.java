@@ -53,7 +53,7 @@ public class AdminSidebar extends JPanel {
         for (int i = 0; i < routes.length; i++) {
             String routeKey = routes[i];
             JButton btn = createMenuButton(routeKey, false);
-            btn.setBounds(12, initialY + (i * buttonSpacing), 236, 48);
+            btn.setBounds(12, initialY + (i * buttonSpacing), 248, 48);
             btn.addActionListener(e -> {
                 if (onNavigate != null) {
                     onNavigate.accept(routeKey);

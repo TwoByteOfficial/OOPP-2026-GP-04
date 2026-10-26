@@ -673,22 +673,24 @@ FROM v_sgpa s
 
 -- 5.1 Department
 INSERT INTO departments (department_code, department_name, description) VALUES
-    ('ICT', 'Department of Information and Communication Technology', 'Faculty of Technology - ICT Department');
+    ('ICT', 'Department of Information and Communication Technology', 'Faculty of Technology - ICT Department'),
+    ('ET', 'Department of Engineering Technology', 'Faculty of Technology - ET Department'),
+    ('BST', 'Department of Bio Systems Technology', 'Faculty of Technology - BST Department');
 
 -- 5.2 UGC Grade Scale
 INSERT INTO grade_scales (grade_code, minimum_mark, grade_point, description) VALUES
-                                                                                  ('A+', 85.00, 4.00, 'Excellent'),
-                                                                                  ('A',  70.00, 4.00, 'Excellent'),
-                                                                                  ('A-', 65.00, 3.70, 'Very Good'),
-                                                                                  ('B+', 60.00, 3.30, 'Good'),
-                                                                                  ('B',  55.00, 3.00, 'Good'),
-                                                                                  ('B-', 50.00, 2.70, 'Good'),
-                                                                                  ('C+', 45.00, 2.30, 'Satisfactory'),
-                                                                                  ('C',  40.00, 2.00, 'Satisfactory'),
-                                                                                  ('C-', 35.00, 1.70, 'Pass'),
-                                                                                  ('D+', 30.00, 1.30, 'Weak Pass'),
-                                                                                  ('D',  25.00, 1.00, 'Weak Pass'),
-                                                                                  ('E',   0.00, 0.00, 'Fail');
+    ('A+', 85.00, 4.00, 'Excellent'),
+    ('A',  70.00, 4.00, 'Excellent'),
+    ('A-', 65.00, 3.70, 'Very Good'),
+    ('B+', 60.00, 3.30, 'Good'),
+    ('B',  55.00, 3.00, 'Good'),
+    ('B-', 50.00, 2.70, 'Good'),
+    ('C+', 45.00, 2.30, 'Satisfactory'),
+    ('C',  40.00, 2.00, 'Satisfactory'),
+    ('C-', 35.00, 1.70, 'Pass'),
+    ('D+', 30.00, 1.30, 'Weak Pass'),
+    ('D',  25.00, 1.00, 'Weak Pass'),
+    ('E',   0.00, 0.00, 'Fail');
 
 -- 5.3 System Settings
 INSERT INTO system_settings (setting_key, setting_value, description) VALUES
