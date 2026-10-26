@@ -8,6 +8,7 @@ import gui.lecturer.Dashboard.DashboardComponents.CourseModulesTable;
 import gui.lecturer.Dashboard.DashboardComponents.DashboardTitleBar;
 import gui.lecturer.Dashboard.DashboardComponents.RecentNotices;
 import gui.lecturer.Dashboard.DashboardComponents.StatCard;
+import dao.Lecturer.LecturerProfileDAO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -36,6 +37,8 @@ public class LecturerDashboard extends JPanel {
     private StatCard pendingMarksCard;
     private StatCard newNoticesCard;
 
+    private DashboardTitleBar dashboardTitleBar;
+
     public LecturerDashboard(
             long userId,
             String lecturerName,
@@ -54,6 +57,8 @@ public class LecturerDashboard extends JPanel {
 
         add(createDashboardContent(), BorderLayout.CENTER);
 
+        refreshGreeting();
+
         loadAssignedCourses();
         loadDashboardStats();
         loadRecentNotices();
@@ -63,7 +68,7 @@ public class LecturerDashboard extends JPanel {
         JPanel content = new JPanel(new BorderLayout(0, 24));
         content.setOpaque(false);
 
-        DashboardTitleBar titleBar =
+        dashboardTitleBar =
                 new DashboardTitleBar(lecturerName);
 
         JPanel statisticsPanel =
@@ -121,7 +126,7 @@ public class LecturerDashboard extends JPanel {
                 BorderLayout.CENTER
         );
 
-        content.add(titleBar, BorderLayout.NORTH);
+        content.add(dashboardTitleBar, BorderLayout.NORTH);
         content.add(middleContent, BorderLayout.CENTER);
 
         return content;
@@ -292,6 +297,31 @@ public class LecturerDashboard extends JPanel {
             );
 
             exception.printStackTrace();
+        }
+
+
+    }
+
+    public void refreshGreeting() {
+        try {
+            LecturerProfileDAO profileDAO =
+                    new LecturerProfileDAO();
+
+            Object[] profile =
+                    profileDAO.getLecturerProfile(userId);
+
+            if (profile != null && dashboardTitleBar != null) {
+                String title = (String) profile[3];
+                String name = (String) profile[4];
+
+                dashboardTitleBar.updateGreeting(title, name);
+            }
+
+        } catch (SQLException exception) {
+            System.err.println(
+                    "Unable to refresh dashboard greeting: "
+                            + exception.getMessage()
+            );
         }
     }
 }

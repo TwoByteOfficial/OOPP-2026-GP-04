@@ -101,7 +101,10 @@ public class Lecturer extends JFrame {
         );
 
         pageContainer.add(
-                new LecturerProfile(userId),
+                new LecturerProfile(
+                        userId,
+                        dashboard::refreshGreeting
+                ),
                 "Profile"
         );
 
