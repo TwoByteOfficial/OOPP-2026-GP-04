@@ -1,107 +1,149 @@
 package gui.admin.CourseComponents;
 
+import gui.admin.AdminTheme;
 import model.Course;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class CourseTable extends JTable {
+/**
+ * CourseTable - Self-contained custom JTable component (and scroll pane container)
+ * for displaying course module datasets with styled headers, alternating rows, and status indicators.
+ */
+public class CourseTable extends JPanel {
 
-    private DefaultTableModel model;
-    private List<Course> courseList = new ArrayList<>();
+    private final JTable table;
+    private final DefaultTableModel tableModel;
+    private List<Course> currentDisplayedCourses = new ArrayList<>();
 
     public CourseTable() {
-        String[] columns = { "ID", "Code", "Course Name", "Credits", "CA %", "Final %", "Dept", "Academic Year", "Semester", "Status" };
-        model = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+        setLayout(new BorderLayout());
+        setBackground(AdminTheme.WHITE);
+
+        String[] columns = {
+                "Course Code",
+                "Course Name",
+                "Credits (T/P/Tot)",
+                "Department",
+                "Semester",
+                "CA / Final Wt (%)",
+                "Status"
         };
-        setModel(model);
 
-        setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        setRowHeight(44);
-        setBackground(Color.WHITE);
-        setForeground(new Color(0x21, 0x25, 0x29));
-        setSelectionBackground(new Color(0xC8, 0xE6, 0xC9));
-        setSelectionForeground(new Color(0x1B, 0x5E, 0x20));
-        setShowGrid(true);
-        setGridColor(new Color(0xE0, 0xE0, 0xE0));
-
-        JTableHeader header = getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 46));
-        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+        tableModel = new DefaultTableModel(columns, 0) {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                l.setBackground(new Color(0xE8, 0xF5, 0xE9));
-                l.setForeground(new Color(0x1B, 0x5E, 0x20));
-                l.setFont(new Font("Segoe UI", Font.BOLD, 16));
-                l.setHorizontalAlignment(SwingConstants.CENTER);
-                l.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 1, new Color(0xC8, 0xE6, 0xC9)));
-                return l;
+            public boolean isCellEditable(int row, int column) {
+                return false;
             }
-        });
+        };
 
-        setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        table = new JTable(tableModel);
+        table.setRowHeight(42);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setShowGrid(true);
+        table.setGridColor(AdminTheme.PASTEL_GREEN);
+        table.setBackground(AdminTheme.WHITE);
+
+        // Header Styling
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        header.setBackground(AdminTheme.MINT);
+        header.setForeground(AdminTheme.DEEP_GREEN);
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 46));
+        header.setReorderingAllowed(false);
+
+        ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
+
+        // Column Width Allocations
+        table.getColumnModel().getColumn(0).setPreferredWidth(160);
+        table.getColumnModel().getColumn(1).setPreferredWidth(280);
+        table.getColumnModel().getColumn(2).setPreferredWidth(160);
+        table.getColumnModel().getColumn(3).setPreferredWidth(180);
+        table.getColumnModel().getColumn(4).setPreferredWidth(140);
+        table.getColumnModel().getColumn(5).setPreferredWidth(160);
+        table.getColumnModel().getColumn(6).setPreferredWidth(120);
+
+        // Custom Cell Renderer
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(0xF9, 0xFB, 0xF9));
-                    c.setForeground(new Color(0x21, 0x25, 0x29));
+            public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
+
+                c.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+
+                if (isSelected) {
+                    c.setBackground(AdminTheme.PASTEL_GREEN);
+                    c.setForeground(AdminTheme.DEEP_GREEN);
+                } else {
+                    c.setBackground(row % 2 == 0 ? AdminTheme.WHITE : AdminTheme.MINT);
+                    c.setForeground(Color.BLACK);
                 }
-                if (column == 9) { // Status column
+
+                if (column == 6) { // Status Column
+                    String status = String.valueOf(value);
                     setFont(new Font("Segoe UI", Font.BOLD, 15));
-                    if ("Active".equalsIgnoreCase(String.valueOf(value))) {
-                        setForeground(new Color(0x38, 0x8E, 0x3C));
+                    if ("Active".equalsIgnoreCase(status)) {
+                        setForeground(AdminTheme.FOREST_GREEN);
                     } else {
-                        setForeground(new Color(0xDC, 0x35, 0x45));
+                        setForeground(AdminTheme.DANGER);
                     }
                 }
+
+                setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
                 return c;
             }
         });
 
-        int[] widths = { 50, 100, 320, 90, 80, 80, 80, 130, 110, 100 };
-        for (int i = 0; i < widths.length && i < getColumnModel().getColumnCount(); i++) {
-            getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-        }
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(AdminTheme.WHITE);
+        scrollPane.setBorder(BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1));
+
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     public void setCourses(List<Course> courses) {
-        this.courseList = courses;
-        model.setRowCount(0);
-        for (Course c : courses) {
+        this.currentDisplayedCourses = (courses != null) ? courses : new ArrayList<>();
+        tableModel.setRowCount(0);
+
+        for (Course c : currentDisplayedCourses) {
+            String creditsStr = c.getTheoryCredits() + "T / " + c.getPracticalCredits() + "P (" + c.getTotalCredits() + ")";
+
             String deptText = "Dept " + c.getDepartmentId();
             if (c.getDepartmentId() == 1) deptText = "ICT";
-            else if (c.getDepartmentId() == 2) deptText = "ET";
-            else if (c.getDepartmentId() == 3) deptText = "BST";
+            else if (c.getDepartmentId() == 2) deptText = "Engineering Tech";
+            else if (c.getDepartmentId() == 3) deptText = "Bio Systems Tech";
 
-            model.addRow(new Object[]{
-                    c.getCourseId(),
+            String weightsStr = c.getCaWeight() + "% / " + c.getFinalWeight() + "%";
+
+            Object[] rowData = {
                     c.getCourseCode(),
                     c.getCourseName(),
-                    c.getTotalCredits() != null ? c.getTotalCredits() : "3.0",
-                    c.getCaWeight() != null ? c.getCaWeight() + "%" : "30%",
-                    c.getFinalWeight() != null ? c.getFinalWeight() + "%" : "70%",
+                    creditsStr,
                     deptText,
-                    c.getAcademicYear() != null ? c.getAcademicYear() : "2024/2025",
-                    c.getSemester() != null ? c.getSemester() : "Semester 1",
+                    c.getSemester() != null ? c.getSemester() : "Semester I",
+                    weightsStr,
                     c.getStatus() != null ? c.getStatus() : "Active"
-            });
+            };
+
+            tableModel.addRow(rowData);
         }
     }
 
     public Course getSelectedCourse() {
-        int selectedRow = getSelectedRow();
-        if (selectedRow >= 0 && selectedRow < courseList.size()) {
-            return courseList.get(selectedRow);
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow >= 0 && selectedRow < currentDisplayedCourses.size()) {
+            return currentDisplayedCourses.get(selectedRow);
         }
         return null;
+    }
+
+    public JTable getTable() {
+        return table;
     }
 }
