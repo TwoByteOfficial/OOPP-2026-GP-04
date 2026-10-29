@@ -225,7 +225,7 @@ CREATE TABLE assessments (
                              course_id INT NOT NULL,
                              assessment_name VARCHAR(150) NOT NULL,
                              assessment_category ENUM('CA', 'FINAL') NOT NULL,
-                             assessment_type ENUM('Quiz1', 'Quiz2', 'Quiz3', 'Assignment1', 'Assignment2', 'Mid Exam Theory', 'Mid Exam Practical', 'End Exam Theory', 'End Exam Practical', 'Other') NOT NULL,
+                             assessment_type ENUM('Quiz1', 'Quiz2', 'Quiz3', 'Assignment', 'Mid Exam Theory', 'Mid Exam Practical', 'End Exam Theory', 'End Exam Practical', 'Other') NOT NULL,
                              component ENUM('Theory', 'Practical') NOT NULL DEFAULT 'Theory',
                              weight_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
                              max_mark DECIMAL(5,2) NOT NULL DEFAULT 100.00,
@@ -823,7 +823,7 @@ INSERT INTO assessments (course_id, assessment_name, assessment_category, assess
 SELECT course_id, 'Quiz 2', 'CA', 'Quiz2', 'Theory', 5.00, 100.00 FROM courses;
 
 INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
-SELECT course_id, 'Assignment 1', 'CA', 'Assignment1', 'Theory', 10.00, 100.00 FROM courses;
+SELECT course_id, 'Assignment 1', 'CA', 'Assignment', 'Theory', 10.00, 100.00 FROM courses;
 
 INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
 SELECT course_id, 'Mid Exam Theory', 'CA', 'Mid Exam Theory', 'Theory', ROUND(ca_weight - 20.00, 2), 100.00 FROM courses WHERE theory_credits > 0;
@@ -939,3 +939,6 @@ FROM courses c
 -- ============================================================================
 -- END OF UNIMIS DATABASE SCRIPT
 -- ============================================================================
+
+-- Optional sample profile picture locations in users table
+UPDATE users SET profile_picture = CONCAT('uploads/profiles/', username, '.jpg') WHERE role = 'Undergraduate';
