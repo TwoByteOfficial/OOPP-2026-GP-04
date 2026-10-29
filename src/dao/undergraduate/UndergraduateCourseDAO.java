@@ -26,9 +26,7 @@ public class UndergraduateCourseDAO {
 
     public static List<CourseRecord> getEnrolledCourses(long studentId) {
         List<CourseRecord> courses = new ArrayList<>();
-        String sql = "SELECT c.course_code, c.course_name, c.total_credits, e.enrollment_type " +
-                "FROM courses c INNER JOIN enrollments e ON c.course_id = e.course_id " +
-                "WHERE e.student_id = ? ORDER BY c.course_code ASC";
+        String sql = "SELECT c.course_code, c.course_name, c.total_credits, e.enrollment_type " + "FROM courses c INNER JOIN enrollments e ON c.course_id = e.course_id " + "WHERE e.student_id = ? ORDER BY c.course_code ASC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

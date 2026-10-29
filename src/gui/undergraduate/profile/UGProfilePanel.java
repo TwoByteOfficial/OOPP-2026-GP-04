@@ -4,36 +4,33 @@ import dao.undergraduate.UndergraduateProfileDAO;
 import gui.admin.AdminTheme;
 import gui.undergraduate.profile.header.ProfileHeaderPanel;
 import gui.undergraduate.profile.info.AcademicDetailsCard;
+import gui.undergraduate.profile.info.ContactSettingsCard;
 import gui.undergraduate.profile.info.ProfileAvatarCard;
 import gui.undergraduate.profile.model.UserProfileData;
-import gui.undergraduate.profile.security.PasswordChangeCard;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-/**
- * Module 1.8: My Profile & Account Security dynamic coordinator panel.
- */
 public class UGProfilePanel extends JPanel {
 
     private final ProfileAvatarCard avatarCard;
     private final AcademicDetailsCard detailsCard;
-    private final PasswordChangeCard passwordCard;
+    private final ContactSettingsCard contactCard;
 
     public UGProfilePanel(long userId, String username) {
         setLayout(new BorderLayout(0, 16));
         setBackground(AdminTheme.LIGHT_BG);
         setBorder(new EmptyBorder(18, 22, 18, 22));
 
-        // 1. Top Section: Header
+        // 1. Header Section
         add(new ProfileHeaderPanel(), BorderLayout.NORTH);
 
-        // 2. Center Section: 2 Columns Split
-        JPanel splitPanel = new JPanel(new BorderLayout(16, 0));
+        // 2. Main Content Split into 2 equal columns
+        JPanel splitPanel = new JPanel(new GridLayout(1, 2, 18, 0));
         splitPanel.setOpaque(false);
 
-        // Left Panel: Avatar + Academic Placement
+        // Left Panel (Avatar + Academic Placement)
         JPanel leftPanel = new JPanel(new BorderLayout(0, 14));
         leftPanel.setOpaque(false);
 
@@ -42,16 +39,15 @@ public class UGProfilePanel extends JPanel {
         leftPanel.add(avatarCard, BorderLayout.NORTH);
         leftPanel.add(detailsCard, BorderLayout.CENTER);
 
-        // Right Panel: Security / Password Change
-        passwordCard = new PasswordChangeCard();
-        passwordCard.setPreferredSize(new Dimension(360, 0));
+        // Right Panel (Contact & Profile Picture Settings)
+        contactCard = new ContactSettingsCard(avatarCard);
 
-        splitPanel.add(leftPanel, BorderLayout.CENTER);
-        splitPanel.add(passwordCard, BorderLayout.EAST);
+        splitPanel.add(leftPanel);
+        splitPanel.add(contactCard);
 
         add(splitPanel, BorderLayout.CENTER);
 
-        // Load profile dynamically for the logged-in student
+        // Load profile data from MySQL database
         loadProfileData(userId, username);
     }
 
@@ -59,5 +55,6 @@ public class UGProfilePanel extends JPanel {
         UserProfileData profile = UndergraduateProfileDAO.getProfile(userId, username);
         avatarCard.updateProfile(profile);
         detailsCard.updateDetails(profile);
+        contactCard.updateDetails(profile);
     }
 }

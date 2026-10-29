@@ -1,24 +1,39 @@
 package gui.undergraduate.dashboard;
 
+import dao.undergraduate.UndergraduateProfileDAO;
 import gui.admin.AdminTheme;
 import gui.undergraduate.dashboard.actions.DashboardQuickActionsPanel;
 import gui.undergraduate.dashboard.bottom.DashboardBottomPanel;
 import gui.undergraduate.dashboard.header.DashboardHeaderPanel;
 import gui.undergraduate.dashboard.overview.OverviewBreakdownPanel;
 import gui.undergraduate.dashboard.summary.SummaryCardPanel;
+import gui.undergraduate.profile.model.UserProfileData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import java.awt.*;
 import java.util.function.Consumer;
 
 /**
  * Main Overview Dashboard tab for Undergraduate Portal.
- * Cleanly organizes metrics, charts, and shortcuts without unnecessary scrollbars.
+ * Cleanly organizes metrics, charts, and shortcuts with live profile synchronization.
  */
 public class UGDashboardPanel extends JPanel {
 
+    private final long userId;
+    private final String username;
+    private final String fullName;
+    private final String role;
+    private final DashboardHeaderPanel headerPanel;
+
     public UGDashboardPanel(long userId, String username, String fullName, String role, Consumer<String> onNavigate) {
+        this.userId = userId;
+        this.username = username;
+        this.fullName = fullName;
+        this.role = role;
+
         setLayout(new BorderLayout());
         setBackground(AdminTheme.LIGHT_BG);
 
@@ -28,8 +43,9 @@ public class UGDashboardPanel extends JPanel {
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // 1. Header (Welcome text)
-        content.add(new DashboardHeaderPanel(username, fullName, role));
+        // 1. Header (Welcome text and student avatar)
+        headerPanel = new DashboardHeaderPanel(username, fullName, role);
+        content.add(headerPanel);
         content.add(Box.createVerticalStrut(14));
 
         // 2. Summary Cards (4 Compact Stat Cards)
@@ -57,5 +73,36 @@ public class UGDashboardPanel extends JPanel {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         add(scrollPane, BorderLayout.CENTER);
+
+        // Initial load of header profile picture and names
+        refreshDashboardHeader();
+
+        // Auto-refresh header every time student navigates back to Dashboard
+        addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                refreshDashboardHeader();
+            }
+
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {}
+
+            @Override
+            public void ancestorMoved(AncestorEvent event) {}
+        });
+    }
+
+    /**
+     * Re-queries latest student profile information from the database and updates top header.
+     */
+    public void refreshDashboardHeader() {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UserProfileData profile = UndergraduateProfileDAO.getProfile(userId, username);
+                if (profile != null && headerPanel != null) {
+                    headerPanel.setStudentInfo(username, profile.getFullName(), role, profile.getProfilePicture());
+                }
+            } catch (Exception ignored) {}
+        });
     }
 }
