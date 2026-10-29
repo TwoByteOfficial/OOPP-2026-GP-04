@@ -1,6 +1,8 @@
 
 package gui.lecturer.Dashboard.DashboardComponents;
 
+import static gui.lecturer.SharedComponents.Colors.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -8,16 +10,12 @@ import java.util.List;
 
 public class RecentNotices extends JPanel {
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color BORDER_GREEN = new Color(200, 230, 201);
-    private static final Color TEXT_GRAY = new Color(96, 112, 100);
-
     private final JPanel noticesList;
 
     public RecentNotices() {
 
         setLayout(new BorderLayout(0, 15));
-        setBackground(Color.WHITE);
+        setBackground(WHITE);
 
         setBorder(new CompoundBorder(
                 new LineBorder(BORDER_GREEN, 1, true),

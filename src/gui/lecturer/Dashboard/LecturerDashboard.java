@@ -9,6 +9,7 @@ import gui.lecturer.Dashboard.DashboardComponents.DashboardTitleBar;
 import gui.lecturer.Dashboard.DashboardComponents.RecentNotices;
 import gui.lecturer.Dashboard.DashboardComponents.StatCard;
 import dao.Lecturer.LecturerProfileDAO;
+import static gui.lecturer.SharedComponents.Colors.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -18,12 +19,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class LecturerDashboard extends JPanel {
-
-    private static final Color PALE_GREEN =
-            new Color(232, 245, 233);
-
-    private static final Color BORDER_GREEN =
-            new Color(200, 230, 201);
 
     private final long userId;
     private final String lecturerName;
@@ -68,64 +63,37 @@ public class LecturerDashboard extends JPanel {
         JPanel content = new JPanel(new BorderLayout(0, 24));
         content.setOpaque(false);
 
-        dashboardTitleBar =
-                new DashboardTitleBar(lecturerName);
+        dashboardTitleBar = new DashboardTitleBar(lecturerName);
 
-        JPanel statisticsPanel =
-                new JPanel(new GridLayout(1, 4, 18, 0));
+        JPanel statisticsPanel = new JPanel(new GridLayout(1, 4, 18, 0));
         statisticsPanel.setOpaque(false);
 
-        assignedCoursesCard =
-                new StatCard("Assigned Courses", "--", "▣");
-
-        undergraduatesCard =
-                new StatCard("Undergraduates", "--", "♙");
-
-        pendingMarksCard =
-                new StatCard("Pending Marks", "--", "☷");
-
-        newNoticesCard =
-                new StatCard("New Notices", "--", "♧");
+        assignedCoursesCard = new StatCard("Assigned Courses", "--", "▣");
+        undergraduatesCard = new StatCard("Undergraduates", "--", "♙");
+        pendingMarksCard = new StatCard("Pending Marks", "--", "☷");
+        newNoticesCard = new StatCard("New Notices", "--", "♧");
 
         statisticsPanel.add(assignedCoursesCard);
         statisticsPanel.add(undergraduatesCard);
         statisticsPanel.add(pendingMarksCard);
         statisticsPanel.add(newNoticesCard);
 
-        JPanel lowerPanels =
-                new JPanel(new GridLayout(1, 2, 22, 0));
+        JPanel lowerPanels = new JPanel(new GridLayout(1, 2, 22, 0));
         lowerPanels.setOpaque(false);
 
         lowerPanels.add(courseModulesTable);
         lowerPanels.add(recentNotices);
 
-        JPanel middleContent =
-                new JPanel(new BorderLayout(0, 24));
+        JPanel middleContent = new JPanel(new BorderLayout(0, 24));
         middleContent.setOpaque(false);
 
-        middleContent.add(
-                statisticsPanel,
-                BorderLayout.NORTH
-        );
+        middleContent.add(statisticsPanel, BorderLayout.NORTH);
 
-        JPanel lowerContent =
-                new JPanel(new BorderLayout(0, 24));
+        JPanel lowerContent = new JPanel(new BorderLayout(0, 24));
         lowerContent.setOpaque(false);
-        lowerContent.add(
-                lowerPanels,
-                BorderLayout.CENTER
-        );
-
-        lowerContent.add(
-                createQuickActions(),
-                BorderLayout.SOUTH
-        );
-
-        middleContent.add(
-                lowerContent,
-                BorderLayout.CENTER
-        );
-
+        lowerContent.add(lowerPanels, BorderLayout.CENTER);
+        lowerContent.add(createQuickActions(), BorderLayout.SOUTH);
+        middleContent.add(lowerContent, BorderLayout.CENTER);
         content.add(dashboardTitleBar, BorderLayout.NORTH);
         content.add(middleContent, BorderLayout.CENTER);
 
@@ -134,7 +102,7 @@ public class LecturerDashboard extends JPanel {
 
     private JPanel createQuickActions() {
         JPanel panel = new JPanel(new BorderLayout(0, 14));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(WHITE);
 
         panel.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -149,7 +117,7 @@ public class LecturerDashboard extends JPanel {
         title.setFont(
                 new Font("SansSerif", Font.BOLD, 18)
         );
-        title.setForeground(new Color(27, 94, 32));
+        title.setForeground(DEEP_GREEN);
 
         JPanel buttons =
                 new JPanel(new GridLayout(1, 3, 16, 0));
@@ -188,7 +156,7 @@ public class LecturerDashboard extends JPanel {
         button.setFont(
                 new Font("SansSerif", Font.BOLD, 14)
         );
-        button.setForeground(new Color(27, 94, 32));
+        button.setForeground(DEEP_GREEN);
         button.setBackground(PALE_GREEN);
         button.setFocusPainted(false);
 

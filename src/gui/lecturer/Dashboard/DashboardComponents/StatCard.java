@@ -1,5 +1,6 @@
 
 package gui.lecturer.Dashboard.DashboardComponents;
+import static gui.lecturer.SharedComponents.Colors.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -9,18 +10,13 @@ import java.awt.geom.RoundRectangle2D;
 
 public class StatCard extends JPanel {
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color MEDIUM_GREEN = new Color(56, 142, 60);
-    private static final Color BORDER_GREEN = new Color(200, 230, 201);
-    private static final Color LIGHT_GREEN = new Color(232, 245, 233);
-    private static final Color TEXT_GRAY = new Color(96, 112, 100);
 
     private final JLabel valueLabel;
 
     public StatCard(String title, String value, String iconText) {
 
         setLayout(new BorderLayout(12, 12));
-        setBackground(Color.WHITE);
+        setBackground(WHITE);
 
         setBorder(new CompoundBorder(
                 new LineBorder(BORDER_GREEN, 1, true),
