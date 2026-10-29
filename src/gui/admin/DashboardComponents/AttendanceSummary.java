@@ -1,16 +1,12 @@
 package gui.admin.DashboardComponents;
 
+import gui.admin.AdminTheme;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
 
 public class AttendanceSummary extends JPanel {
-
-    private final Color WHITE        = Color.WHITE;
-    private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
-    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
-    private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
-    private final Color PASTEL_GREEN = new Color(0xC8, 0xE6, 0xC9);
 
     public AttendanceSummary(Map<String, Integer> metrics) {
         setLayout(null);
@@ -23,9 +19,9 @@ public class AttendanceSummary extends JPanel {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(WHITE);
+                g2.setColor(AdminTheme.WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
-                g2.setColor(new Color(0x1B, 0x5E, 0x20, 35));
+                g2.setColor(AdminTheme.CARD_SHADOW);
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
                 g2.dispose();
             }
@@ -36,21 +32,21 @@ public class AttendanceSummary extends JPanel {
 
         JLabel title = new JLabel("Administrative Quick Status");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setForeground(FOREST_GREEN);
+        title.setForeground(AdminTheme.FOREST_GREEN);
         title.setBounds(25, 18, 450, 30);
         container.add(title);
 
         JLabel subtitle = new JLabel("System alert counters and active operational entries");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        subtitle.setForeground(MUTED);
+        subtitle.setForeground(AdminTheme.MUTED);
         subtitle.setBounds(25, 48, 500, 22);
         container.add(subtitle);
 
-        addStatusRow(container, "Pending Medical Submissions", "2 Pending", 82, new Color(0xF0, 0xAD, 0x4E));
-        addStatusRow(container, "Undergraduates Below 40% CA", "5 Students", 142, new Color(0xDC, 0x35, 0x45));
+        addStatusRow(container, "Pending Medical Submissions", "2 Pending", 82, AdminTheme.WARNING);
+        addStatusRow(container, "Undergraduates Below 40% CA", "5 Students", 142, AdminTheme.DANGER);
 
         int activeTimetables = metrics.getOrDefault("timetables", 0);
-        addStatusRow(container, "Active Timetable Entries", activeTimetables + " Entries", 202, FOREST_GREEN);
+        addStatusRow(container, "Active Timetable Entries", activeTimetables + " Entries", 202, AdminTheme.FOREST_GREEN);
 
         add(container);
     }
@@ -63,18 +59,18 @@ public class AttendanceSummary extends JPanel {
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        titleLabel.setForeground(MUTED);
+        titleLabel.setForeground(AdminTheme.MUTED);
         titleLabel.setBounds(45, y, 420, 26);
         panel.add(titleLabel);
 
         JLabel valueLabel = new JLabel(value, SwingConstants.RIGHT);
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        valueLabel.setForeground(DEEP_GREEN);
+        valueLabel.setForeground(AdminTheme.DEEP_GREEN);
         valueLabel.setBounds(480, y, 285, 26);
         panel.add(valueLabel);
 
         JSeparator separator = new JSeparator();
-        separator.setForeground(PASTEL_GREEN);
+        separator.setForeground(AdminTheme.PASTEL_GREEN);
         separator.setBounds(25, y + 32, 740, 1);
         panel.add(separator);
     }

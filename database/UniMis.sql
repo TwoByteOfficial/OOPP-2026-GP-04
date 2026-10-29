@@ -1,12 +1,13 @@
 -- ============================================================================
 -- UNIMIS - Faculty Academic Management System (MySQL Database Schema & Data)
 -- ============================================================================
--- Course: ICT2132 - Object Oriented Programming Practicum
+-- Level & Semester: Level 2 Semester 1
+-- Courses: ICT2113, ICT2122, ICT2132, ICT2142, ICT2152, ICT2162, TCS2112, TCS2121, ENG2112
 -- Degree: Bachelor of Information and Communication Technology (BICT)
 -- Faculty: Faculty of Technology, University of Ruhuna
 -- Database: UniMis.sql
 -- Compatibility: MySQL 8.0+
--- 
+--
 -- System Context: Single Faculty (Faculty of Technology)
 -- Roles Supported:
 --   1. Admin (System Administrator)
@@ -34,7 +35,7 @@ CREATE TABLE departments (
                              description VARCHAR(500),
                              status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
                              created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB COMMENT='Faculty departments';
+);
 
 -- 2.2 User Superclass Table with Physical Role Column
 CREATE TABLE users (
@@ -59,7 +60,7 @@ CREATE TABLE users (
                                REFERENCES departments(department_id)
                                ON UPDATE CASCADE
                                ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Base superclass table for system user accounts';
+);
 
 -- 2.3 Admin Subclass Table
 CREATE TABLE admins (
@@ -71,7 +72,7 @@ CREATE TABLE admins (
                                 REFERENCES users(user_id)
                                 ON UPDATE CASCADE
                                 ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Admin specific profile details';
+);
 
 -- 2.4 Lecturer Subclass Table
 CREATE TABLE lecturers (
@@ -84,7 +85,7 @@ CREATE TABLE lecturers (
                                    REFERENCES users(user_id)
                                    ON UPDATE CASCADE
                                    ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Lecturer specific profile details';
+);
 
 -- 2.5 Technical Officer Subclass Table
 CREATE TABLE technical_officers (
@@ -97,7 +98,7 @@ CREATE TABLE technical_officers (
                                             REFERENCES users(user_id)
                                             ON UPDATE CASCADE
                                             ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Technical Officer specific profile details';
+);
 
 -- 2.6 Undergraduate Subclass Table
 CREATE TABLE undergraduates (
@@ -122,7 +123,7 @@ CREATE TABLE undergraduates (
                                         ON DELETE CASCADE,
                                 CONSTRAINT chk_undergraduates_previous
                                     CHECK (previous_credits >= 0 AND previous_grade_points >= 0)
-) ENGINE=InnoDB COMMENT='Undergraduate student academic profile details';
+);
 
 -- 2.7 Courses Table
 CREATE TABLE courses (
@@ -133,6 +134,7 @@ CREATE TABLE courses (
                          theory_credits DECIMAL(3,1) NOT NULL DEFAULT 0.0,
                          practical_credits DECIMAL(3,1) NOT NULL DEFAULT 0.0,
                          total_credits DECIMAL(4,1) GENERATED ALWAYS AS (theory_credits + practical_credits) STORED,
+                         is_gpa BOOLEAN NOT NULL DEFAULT TRUE,
                          ca_weight DECIMAL(5,2) NOT NULL DEFAULT 40.00,
                          final_weight DECIMAL(5,2) GENERATED ALWAYS AS (100.00 - ca_weight) STORED,
                          department_id INT NOT NULL,
@@ -149,7 +151,7 @@ CREATE TABLE courses (
                              CHECK (theory_credits >= 0 AND practical_credits >= 0 AND (theory_credits + practical_credits) > 0),
                          CONSTRAINT chk_course_weights
                              CHECK (ca_weight >= 0 AND ca_weight <= 100)
-) ENGINE=InnoDB COMMENT='Course module definitions';
+);
 
 -- 2.8 Course Lecturers Mapping Table
 CREATE TABLE course_lecturers (
@@ -168,7 +170,7 @@ CREATE TABLE course_lecturers (
                                           REFERENCES lecturers(user_id)
                                           ON UPDATE CASCADE
                                           ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Assignment of lecturers to course modules';
+);
 
 -- 2.9 Course Materials Table
 CREATE TABLE course_materials (
@@ -192,7 +194,7 @@ CREATE TABLE course_materials (
                                           REFERENCES lecturers(user_id)
                                           ON UPDATE CASCADE
                                           ON DELETE RESTRICT
-) ENGINE=InnoDB COMMENT='Learning materials uploaded by lecturers';
+);
 
 -- 2.10 Course Enrollments Table
 CREATE TABLE enrollments (
@@ -215,7 +217,7 @@ CREATE TABLE enrollments (
                                      REFERENCES courses(course_id)
                                      ON UPDATE CASCADE
                                      ON DELETE RESTRICT
-) ENGINE=InnoDB COMMENT='Undergraduate course registrations per semester';
+);
 
 -- 2.11 Assessment Definitions Table
 CREATE TABLE assessments (
@@ -223,16 +225,7 @@ CREATE TABLE assessments (
                              course_id INT NOT NULL,
                              assessment_name VARCHAR(150) NOT NULL,
                              assessment_category ENUM('CA', 'FINAL') NOT NULL,
-                             assessment_type ENUM('Quiz 1',
-                                 'Quiz 2',
-                                 'Quiz 3',
-                                 'Assignment',
-                                 'Midterm (Theory)',
-                                 'Midterm (Practical)',
-                                 'Presentation',
-                                 'Project',
-                                 'Final Examination',
-                                 'Other') NOT NULL,
+                             assessment_type ENUM('Quiz1', 'Quiz2', 'Quiz3', 'Assignment1', 'Assignment2', 'Mid Exam Theory', 'Mid Exam Practical', 'End Exam Theory', 'End Exam Practical', 'Other') NOT NULL,
                              component ENUM('Theory', 'Practical') NOT NULL DEFAULT 'Theory',
                              weight_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
                              max_mark DECIMAL(5,2) NOT NULL DEFAULT 100.00,
@@ -252,7 +245,7 @@ CREATE TABLE assessments (
                                  CHECK (weight_percent >= 0 AND weight_percent <= 100),
                              CONSTRAINT chk_assessment_max_mark
                                  CHECK (max_mark > 0)
-) ENGINE=InnoDB COMMENT='Assessment definitions for courses';
+);
 
 -- 2.12 Student Marks Table
 CREATE TABLE marks (
@@ -281,7 +274,7 @@ CREATE TABLE marks (
                                ON DELETE SET NULL,
                        CONSTRAINT chk_marks_range
                            CHECK (mark >= 0 AND mark <= 100)
-) ENGINE=InnoDB COMMENT='Student marks records per assessment';
+);
 
 -- 2.13 Attendance Sessions Table
 CREATE TABLE attendance_sessions (
@@ -311,7 +304,7 @@ CREATE TABLE attendance_sessions (
                                          CHECK (session_no BETWEEN 1 AND 15),
                                      CONSTRAINT chk_attendance_duration
                                          CHECK (duration_hours > 0)
-) ENGINE=InnoDB COMMENT='Session headers for class attendance';
+);
 
 -- 2.14 Attendance Records Table
 CREATE TABLE attendance_records (
@@ -339,7 +332,7 @@ CREATE TABLE attendance_records (
                                             REFERENCES users(user_id)
                                             ON UPDATE CASCADE
                                             ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Per-student session attendance status';
+);
 
 -- 2.15 Medical Records Table
 CREATE TABLE medicals (
@@ -375,7 +368,7 @@ CREATE TABLE medicals (
                                   REFERENCES users(user_id)
                                   ON UPDATE CASCADE
                                   ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Medical certificate submissions and review status';
+);
 
 -- 2.16 Notices Table
 CREATE TABLE notices (
@@ -399,7 +392,7 @@ CREATE TABLE notices (
                                  REFERENCES users(user_id)
                                  ON UPDATE CASCADE
                                  ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Faculty announcements and notifications';
+);
 
 -- 2.17 Timetable Table
 CREATE TABLE timetable_entries (
@@ -434,7 +427,7 @@ CREATE TABLE timetable_entries (
                                        CHECK (end_time > start_time),
                                    INDEX idx_timetable_batch_day (batch_year, day_of_week, start_time),
                                    INDEX idx_timetable_venue_day (venue, day_of_week, start_time)
-) ENGINE=InnoDB COMMENT='Department weekly timetable schedule';
+);
 
 -- 2.18 Grade Scale Table
 CREATE TABLE grade_scales (
@@ -447,14 +440,14 @@ CREATE TABLE grade_scales (
                                   CHECK (minimum_mark >= 0 AND minimum_mark <= 100),
                               CONSTRAINT chk_grade_point
                                   CHECK (grade_point >= 0 AND grade_point <= 4)
-) ENGINE=InnoDB COMMENT='UGC Grading scale mapping table';
+);
 
 -- 2.19 System Settings Table
 CREATE TABLE system_settings (
                                  setting_key VARCHAR(100) PRIMARY KEY,
                                  setting_value VARCHAR(500) NOT NULL,
                                  description VARCHAR(500)
-) ENGINE=InnoDB COMMENT='System wide configuration key-value pairs';
+);
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -608,6 +601,7 @@ SELECT
     c.course_code,
     c.course_name,
     c.total_credits,
+    c.is_gpa,
     ROUND(COALESCE(ca.ca_mark, 0), 2) AS ca_mark,
     ROUND(COALESCE(fe.final_exam_contribution, 0), 2) AS final_exam_mark,
     ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2) AS final_mark,
@@ -647,9 +641,14 @@ SELECT
     student_id,
     registration_no,
     full_name,
-    ROUND(SUM(grade_point * total_credits) / NULLIF(SUM(total_credits), 0), 2) AS sgpa,
-    SUM(total_credits) AS semester_credits,
-    SUM(grade_point * total_credits) AS semester_grade_points
+    ROUND(
+            SUM(CASE WHEN is_gpa = TRUE THEN grade_point * total_credits ELSE 0 END) /
+            NULLIF(SUM(CASE WHEN is_gpa = TRUE THEN total_credits ELSE 0 END), 0),
+            2
+    ) AS sgpa,
+    SUM(CASE WHEN is_gpa = TRUE THEN total_credits ELSE 0 END) AS semester_credits,
+    SUM(total_credits) AS total_semester_credits,
+    SUM(CASE WHEN is_gpa = TRUE THEN grade_point * total_credits ELSE 0 END) AS semester_grade_points
 FROM v_final_results
 GROUP BY student_id, registration_no, full_name;
 
@@ -673,24 +672,22 @@ FROM v_sgpa s
 
 -- 5.1 Department
 INSERT INTO departments (department_code, department_name, description) VALUES
-    ('ICT', 'Department of Information and Communication Technology', 'Faculty of Technology - ICT Department'),
-    ('ET', 'Department of Engineering Technology', 'Faculty of Technology - ET Department'),
-    ('BST', 'Department of Bio Systems Technology', 'Faculty of Technology - BST Department');
+    ('ICT', 'Department of Information and Communication Technology', 'Faculty of Technology - ICT Department');
 
 -- 5.2 UGC Grade Scale
 INSERT INTO grade_scales (grade_code, minimum_mark, grade_point, description) VALUES
-    ('A+', 85.00, 4.00, 'Excellent'),
-    ('A',  70.00, 4.00, 'Excellent'),
-    ('A-', 65.00, 3.70, 'Very Good'),
-    ('B+', 60.00, 3.30, 'Good'),
-    ('B',  55.00, 3.00, 'Good'),
-    ('B-', 50.00, 2.70, 'Good'),
-    ('C+', 45.00, 2.30, 'Satisfactory'),
-    ('C',  40.00, 2.00, 'Satisfactory'),
-    ('C-', 35.00, 1.70, 'Pass'),
-    ('D+', 30.00, 1.30, 'Weak Pass'),
-    ('D',  25.00, 1.00, 'Weak Pass'),
-    ('E',   0.00, 0.00, 'Fail');
+                                                                                  ('A+', 85.00, 4.00, 'Excellent'),
+                                                                                  ('A',  70.00, 4.00, 'Excellent'),
+                                                                                  ('A-', 65.00, 3.70, 'Very Good'),
+                                                                                  ('B+', 60.00, 3.30, 'Good'),
+                                                                                  ('B',  55.00, 3.00, 'Good'),
+                                                                                  ('B-', 50.00, 2.70, 'Good'),
+                                                                                  ('C+', 45.00, 2.30, 'Satisfactory'),
+                                                                                  ('C',  40.00, 2.00, 'Satisfactory'),
+                                                                                  ('C-', 35.00, 1.70, 'Pass'),
+                                                                                  ('D+', 30.00, 1.30, 'Weak Pass'),
+                                                                                  ('D',  25.00, 1.00, 'Weak Pass'),
+                                                                                  ('E',   0.00, 0.00, 'Fail');
 
 -- 5.3 System Settings
 INSERT INTO system_settings (setting_key, setting_value, description) VALUES
@@ -769,26 +766,28 @@ FROM users WHERE role = 'Undergraduate';
 UPDATE undergraduates SET student_type = 'Repeat' WHERE registration_no IN ('TG/2024/2078', 'TG/2024/2079');
 UPDATE undergraduates SET student_type = 'Batch Missed', batch_year = 2023 WHERE registration_no = 'TG/2024/2080';
 
--- 5.5 Courses Seed (ICT2112 to ICT2182)
-INSERT INTO courses (course_code, course_name, description, theory_credits, practical_credits, ca_weight, department_id, academic_year, semester) VALUES
-                                                                                                                                                      ('ICT2112', 'Data Structures and Algorithms',        'Data structures, algorithms and problem solving.',            2.0, 0.0, 40.0, 1, '2026', 'Semester I'),
-                                                                                                                                                      ('ICT2122', 'Computer Networks',                     'Computer networking concepts and practical networking.',      1.0, 1.0, 40.0, 1, '2026', 'Semester I'),
-                                                                                                                                                      ('ICT2132', 'Object Oriented Programming Practicum', 'Java, OOP, GUI and database handling practicum.',         1.0, 1.0, 50.0, 1, '2026', 'Semester I'),
-                                                                                                                                                      ('ICT2142', 'Database Management Systems',           'Database design, SQL and database management.',              2.0, 1.0, 40.0, 1, '2026', 'Semester I'),
-                                                                                                                                                      ('ICT2152', 'Web Application Development',           'Client and server side web application development.',         1.0, 1.0, 50.0, 1, '2026', 'Semester I'),
-                                                                                                                                                      ('ICT2162', 'Software Engineering',                  'Software engineering principles and development methods.',    2.0, 0.0, 30.0, 1, '2026', 'Semester I'),
-                                                                                                                                                      ('ICT2172', 'Probability and Statistics',            'Probability, statistics and data analysis.',                  2.0, 0.0, 30.0, 1, '2026', 'Semester I'),
-                                                                                                                                                      ('ICT2182', 'Technical Communication Skills',        'Professional and technical communication.',                   1.0, 0.0, 50.0, 1, '2026', 'Semester I');
+-- 5.5 Courses Seed (Level 2 Semester 1 Actual Courses)
+INSERT INTO courses (course_code, course_name, description, theory_credits, practical_credits, is_gpa, ca_weight, department_id, academic_year, semester) VALUES
+                                                                                                                                                              ('ICT2113', 'Data Structures and Algorithms',        'Data structures, algorithms, complexity and problem solving.', 2.0, 1.0, TRUE,  40.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('ICT2122', 'Object Oriented Programming',           'Core OOP concepts, principles, Java programming.',            2.0, 0.0, TRUE,  40.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('ICT2132', 'Object Oriented Programming Practicum', 'Practical Java programming, GUI development, lab tasks.',       0.0, 2.0, TRUE,  50.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('ICT2142', 'E-Business Systems',                    'E-commerce architecture, business models, digital payment.',  2.0, 0.0, TRUE,  40.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('ICT2152', 'Object Oriented Analysis and Design',   'UML modeling, design patterns, system architecture.',          2.0, 0.0, TRUE,  40.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('ICT2162', 'Management Information Systems',        'Enterprise systems, decision support, IT management.',        2.0, 0.0, TRUE,  40.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('TCS2112', 'Business Economics',                    'Micro & macroeconomics principles, business application.',    2.0, 0.0, TRUE,  30.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('TCS2121', 'Soft Skills',                           'Leadership, ethics, team work, career skills.',               1.0, 0.0, TRUE,  50.0, 1, '2026', 'Semester I'),
+                                                                                                                                                              ('ENG2112', 'English III',                           'Advanced English language and communication skills (NGPA).',  2.0, 0.0, FALSE, 50.0, 1, '2026', 'Semester I');
 
 -- 5.6 Lecturer Course Assignments
-INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC001'), 'Coordinator' FROM courses WHERE course_code = 'ICT2112';
-INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC003'), 'Coordinator' FROM courses WHERE course_code = 'ICT2122';
+INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC001'), 'Coordinator' FROM courses WHERE course_code = 'ICT2113';
+INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC001'), 'Coordinator' FROM courses WHERE course_code = 'ICT2122';
 INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC001'), 'Coordinator' FROM courses WHERE course_code = 'ICT2132';
 INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC002'), 'Coordinator' FROM courses WHERE course_code = 'ICT2142';
 INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC005'), 'Coordinator' FROM courses WHERE course_code = 'ICT2152';
 INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC004'), 'Coordinator' FROM courses WHERE course_code = 'ICT2162';
-INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC004'), 'Coordinator' FROM courses WHERE course_code = 'ICT2172';
-INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC005'), 'Coordinator' FROM courses WHERE course_code = 'ICT2182';
+INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC003'), 'Coordinator' FROM courses WHERE course_code = 'TCS2112';
+INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC005'), 'Coordinator' FROM courses WHERE course_code = 'TCS2121';
+INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC002'), 'Coordinator' FROM courses WHERE course_code = 'ENG2112';
 
 -- 5.7 Course Materials Seed
 INSERT INTO course_materials (course_id, lecturer_id, title, description, material_type, file_path)
@@ -812,15 +811,32 @@ FROM undergraduates u
          CROSS JOIN courses c
 WHERE NOT (
     (u.student_type = 'Batch Missed' AND MOD(c.course_id, 3) = 0) OR
-    (u.student_type = 'Repeat' AND c.course_code = 'ICT2182')
+    (u.student_type = 'Repeat' AND c.course_code = 'ENG2112')
     );
 
--- 5.9 Assessments Seed
+-- 5.9 Assessments Seed (Detailed Component Assessments)
+-- Continuous Assessments (CA Breakdown: Quizzes, Assignments, Mid Exams)
 INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
-SELECT course_id, 'Continuous Assessment', 'CA', 'Assignment', 'Theory', ca_weight, 100.00 FROM courses;
+SELECT course_id, 'Quiz 1', 'CA', 'Quiz1', 'Theory', 5.00, 100.00 FROM courses;
 
 INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
-SELECT course_id, 'Final Examination', 'FINAL', 'Final Examination', 'Theory', final_weight, 100.00 FROM courses;
+SELECT course_id, 'Quiz 2', 'CA', 'Quiz2', 'Theory', 5.00, 100.00 FROM courses;
+
+INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
+SELECT course_id, 'Assignment 1', 'CA', 'Assignment1', 'Theory', 10.00, 100.00 FROM courses;
+
+INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
+SELECT course_id, 'Mid Exam Theory', 'CA', 'Mid Exam Theory', 'Theory', ROUND(ca_weight - 20.00, 2), 100.00 FROM courses WHERE theory_credits > 0;
+
+INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
+SELECT course_id, 'Mid Exam Practical', 'CA', 'Mid Exam Practical', 'Practical', ROUND(ca_weight - 20.00, 2), 100.00 FROM courses WHERE theory_credits = 0 AND practical_credits > 0;
+
+-- End Semester Examinations (FINAL Breakdown: End Exam Theory / Practical)
+INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
+SELECT course_id, 'End Semester Theory Exam', 'FINAL', 'End Exam Theory', 'Theory', final_weight, 100.00 FROM courses WHERE theory_credits > 0;
+
+INSERT INTO assessments (course_id, assessment_name, assessment_category, assessment_type, component, weight_percent, max_mark)
+SELECT course_id, 'End Semester Practical Exam', 'FINAL', 'End Exam Practical', 'Practical', final_weight, 100.00 FROM courses WHERE theory_credits = 0 AND practical_credits > 0;
 
 -- 5.10 Attendance Sessions Generation
 INSERT INTO attendance_sessions (course_id, component, session_no, session_date, start_time, end_time, duration_hours, conducted_by, topic)

@@ -19,7 +19,7 @@ public class AdminDashboard extends JPanel {
 
     public AdminDashboard(long userId, String username, String fullName, String email, String role) {
         setLayout(new BorderLayout(0, 16));
-        setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBackground(AdminTheme.LIGHT_BG);
         setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
 
         dashboardDAO = new AdminDashboardDAO();
@@ -30,7 +30,6 @@ public class AdminDashboard extends JPanel {
 
         JPanel body = new JPanel(null);
         body.setOpaque(false);
-        //body.setPreferredSize(new Dimension(1620, 960));
 
         analyticsRow = new SimpleAnalyticView(dbMetrics);
         analyticsRow.setBounds(0, 0, 1620, 130);
@@ -55,7 +54,7 @@ public class AdminDashboard extends JPanel {
         body.add(noticesPanel);
 
         JScrollPane scrollPane = new JScrollPane(body);
-        scrollPane.getViewport().setBackground(new Color(0xE8, 0xF5, 0xE9));
+        scrollPane.getViewport().setBackground(AdminTheme.LIGHT_BG);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 

@@ -1,5 +1,6 @@
 package gui.admin.DashboardComponents;
 
+import gui.admin.AdminTheme;
 import dao.admin.AdminNoticeDAO;
 import model.Notice;
 
@@ -10,12 +11,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class NoticesSummary extends JPanel {
-
-    private final Color WHITE        = Color.WHITE;
-    private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
-    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
-    private final Color PASTEL_GREEN = new Color(0xC8, 0xE6, 0xC9);
-    private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
 
     private AdminNoticeDAO noticeDAO;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -43,9 +38,9 @@ public class NoticesSummary extends JPanel {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(WHITE);
+                g2.setColor(AdminTheme.WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
-                g2.setColor(new Color(0x1B, 0x5E, 0x20, 35));
+                g2.setColor(AdminTheme.CARD_SHADOW);
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
                 g2.dispose();
             }
@@ -56,13 +51,13 @@ public class NoticesSummary extends JPanel {
 
         JLabel title = new JLabel("Recent Notices & Announcements");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setForeground(FOREST_GREEN);
+        title.setForeground(AdminTheme.FOREST_GREEN);
         title.setBounds(25, 18, 420, 30);
         container.add(title);
 
         JLabel subtitle = new JLabel("Latest administrative announcements active on system board");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        subtitle.setForeground(MUTED);
+        subtitle.setForeground(AdminTheme.MUTED);
         subtitle.setBounds(25, 48, 500, 22);
         container.add(subtitle);
 
@@ -71,7 +66,7 @@ public class NoticesSummary extends JPanel {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(0xE8, 0xF5, 0xE9));
+                g2.setColor(AdminTheme.MINT);
                 g2.fillRect(0, 0, getWidth(), getHeight());
                 g2.dispose();
             }
@@ -87,7 +82,7 @@ public class NoticesSummary extends JPanel {
         for (int i = 0; i < columnHeaders.length; i++) {
             JLabel header = new JLabel(columnHeaders[i]);
             header.setFont(new Font("Segoe UI", Font.BOLD, 15));
-            header.setForeground(FOREST_GREEN);
+            header.setForeground(AdminTheme.FOREST_GREEN);
             header.setBounds(currentX, 0, columnWidths[i], 40);
             tableHeader.add(header);
             currentX += columnWidths[i];
@@ -118,16 +113,16 @@ public class NoticesSummary extends JPanel {
             for (int col = 0; col < liveRowData.length; col++) {
                 JLabel cell = new JLabel(liveRowData[col]);
                 cell.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-                cell.setForeground(col == 0 ? DEEP_GREEN : MUTED);
+                cell.setForeground(col == 0 ? AdminTheme.DEEP_GREEN : AdminTheme.MUTED);
 
                 if (col == 4) {
                     cell.setFont(new Font("Segoe UI", Font.BOLD, 15));
                     if ("Published".equalsIgnoreCase(liveRowData[col])) {
-                        cell.setForeground(FOREST_GREEN);
+                        cell.setForeground(AdminTheme.FOREST_GREEN);
                     } else if ("Draft".equalsIgnoreCase(liveRowData[col])) {
-                        cell.setForeground(new Color(0xF0, 0xAD, 0x4E));
+                        cell.setForeground(AdminTheme.WARNING);
                     } else {
-                        cell.setForeground(new Color(0xDC, 0x35, 0x45));
+                        cell.setForeground(AdminTheme.DANGER);
                     }
                 }
 
@@ -137,7 +132,7 @@ public class NoticesSummary extends JPanel {
             }
 
             JSeparator separator = new JSeparator();
-            separator.setForeground(PASTEL_GREEN);
+            separator.setForeground(AdminTheme.PASTEL_GREEN);
             separator.setBounds(0, 53, 740, 1);
             rowPanel.add(separator);
 
@@ -147,7 +142,7 @@ public class NoticesSummary extends JPanel {
         if (recentNotices.isEmpty()) {
             JLabel emptyLabel = new JLabel("No notices found in system database board.", SwingConstants.CENTER);
             emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 15));
-            emptyLabel.setForeground(MUTED);
+            emptyLabel.setForeground(AdminTheme.MUTED);
             emptyLabel.setBounds(25, 180, 740, 40);
             container.add(emptyLabel);
         }
