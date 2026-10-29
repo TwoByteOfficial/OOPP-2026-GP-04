@@ -12,7 +12,7 @@ public class StatCard extends JPanel {
 
 
     private final JLabel valueLabel;
-
+    //constructor receives a title, an initial value and icon text
     public StatCard(String title, String value, String iconText) {
 
         setLayout(new BorderLayout(12, 12));
@@ -47,11 +47,11 @@ public class StatCard extends JPanel {
 
         setPreferredSize(new Dimension(220, 125));
     }
-
+    //changes the number shown on the card
     public void setValue(String value) {
         valueLabel.setText(value);
     }
-
+    //hoose an icon based on the card title
     private String getIconType(String title) {
 
         String normalizedTitle = title.toLowerCase();
@@ -67,15 +67,12 @@ public class StatCard extends JPanel {
         } else if (normalizedTitle.contains("notice")) {
             return "notices";
         }
-
         return "default";
     }
 
     // Custom-drawn dashboard icon
     private static class DashboardIcon extends JComponent {
-
         private final String type;
-
         DashboardIcon(String type) {
             this.type = type;
             setPreferredSize(new Dimension(42, 42));
@@ -83,33 +80,21 @@ public class StatCard extends JPanel {
             setMaximumSize(new Dimension(42, 42));
             setOpaque(false);
         }
-
         @Override
         protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
 
             Graphics2D g2 = (Graphics2D) graphics.create();
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             int width = getWidth();
             int height = getHeight();
 
             // Pale green rounded background
             g2.setColor(LIGHT_GREEN);
-            g2.fill(new RoundRectangle2D.Float(
-                    1, 1, width - 2, height - 2, 12, 12
-            ));
-
+            g2.fill(new RoundRectangle2D.Float(1, 1, width - 2, height - 2, 12, 12));
             g2.setColor(MEDIUM_GREEN);
-            g2.setStroke(new BasicStroke(
-                    2.0f,
-                    BasicStroke.CAP_ROUND,
-                    BasicStroke.JOIN_ROUND
-            ));
+            g2.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
             switch (type) {
                 case "courses":

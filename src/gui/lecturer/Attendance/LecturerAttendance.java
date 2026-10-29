@@ -17,8 +17,6 @@ import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_BACKGROUND;
 import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_BORDER;
 import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_DEEP_GREEN;
 import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_TEXT_GRAY;
-import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_WHITE;
-
 public class LecturerAttendance extends JPanel {
 
     private final long lecturerId;

@@ -34,26 +34,29 @@ public class LecturerDashboard extends JPanel {
 
     private DashboardTitleBar dashboardTitleBar;
 
-    public LecturerDashboard(
-            long userId,
-            String lecturerName,
-            Consumer<String> onNavigate) {
+    public LecturerDashboard(long userId, String lecturerName, Consumer<String> onNavigate) {
 
+        //Save the lecturer's information
         this.userId = userId;
         this.lecturerName = lecturerName;
         this.onNavigate = onNavigate;
 
+        //Set the layout
         setLayout(new BorderLayout(0, 24));
+
+        //Set the appearance
         setBackground(PALE_GREEN);
         setBorder(new EmptyBorder(28, 30, 30, 30));
 
+       //Create child components
         courseModulesTable = new CourseModulesTable();
         recentNotices = new RecentNotices();
 
+        //Build the interface
         add(createDashboardContent(), BorderLayout.CENTER);
 
+        //Load the data
         refreshGreeting();
-
         loadAssignedCourses();
         loadDashboardStats();
         loadRecentNotices();
@@ -64,10 +67,10 @@ public class LecturerDashboard extends JPanel {
         content.setOpaque(false);
 
         dashboardTitleBar = new DashboardTitleBar(lecturerName);
-
+        //The four statistic cards
         JPanel statisticsPanel = new JPanel(new GridLayout(1, 4, 18, 0));
         statisticsPanel.setOpaque(false);
-
+        //four cards are created
         assignedCoursesCard = new StatCard("Assigned Courses", "--", "▣");
         undergraduatesCard = new StatCard("Undergraduates", "--", "♙");
         pendingMarksCard = new StatCard("Pending Marks", "--", "☷");
@@ -78,9 +81,9 @@ public class LecturerDashboard extends JPanel {
         statisticsPanel.add(pendingMarksCard);
         statisticsPanel.add(newNoticesCard);
 
+        //The course and notice panels
         JPanel lowerPanels = new JPanel(new GridLayout(1, 2, 22, 0));
         lowerPanels.setOpaque(false);
-
         lowerPanels.add(courseModulesTable);
         lowerPanels.add(recentNotices);
 
@@ -91,9 +94,11 @@ public class LecturerDashboard extends JPanel {
 
         JPanel lowerContent = new JPanel(new BorderLayout(0, 24));
         lowerContent.setOpaque(false);
+        //The Quick Actions panel
         lowerContent.add(lowerPanels, BorderLayout.CENTER);
         lowerContent.add(createQuickActions(), BorderLayout.SOUTH);
         middleContent.add(lowerContent, BorderLayout.CENTER);
+        //returns the completed content
         content.add(dashboardTitleBar, BorderLayout.NORTH);
         content.add(middleContent, BorderLayout.CENTER);
 
@@ -103,43 +108,20 @@ public class LecturerDashboard extends JPanel {
     private JPanel createQuickActions() {
         JPanel panel = new JPanel(new BorderLayout(0, 14));
         panel.setBackground(WHITE);
-
-        panel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER_GREEN, 1, true
-                        ),
-                        new EmptyBorder(18, 20, 18, 20)
-                )
-        );
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(BORDER_GREEN, 1, true),
+                        new EmptyBorder(18, 20, 18, 20)));
 
         JLabel title = new JLabel("Quick Actions");
-        title.setFont(
-                new Font("SansSerif", Font.BOLD, 18)
-        );
+        title.setFont(new Font("SansSerif", Font.BOLD, 18));
         title.setForeground(DEEP_GREEN);
 
-        JPanel buttons =
-                new JPanel(new GridLayout(1, 3, 16, 0));
+        JPanel buttons = new JPanel(new GridLayout(1, 3, 16, 0));
         buttons.setOpaque(false);
+        buttons.add(createQuickActionButton("Enter Marks", "MarksGrades"));
 
-        buttons.add(
-                createQuickActionButton(
-                        "Enter Marks", "MarksGrades"
-                )
-        );
-
-        buttons.add(
-                createQuickActionButton(
-                        "Add Material", "CourseMaterials"
-                )
-        );
-
-        buttons.add(
-                createQuickActionButton(
-                        "Check Eligibility", "Eligibility"
-                )
-        );
+        buttons.add(createQuickActionButton("Add Material", "CourseMaterials"));
+        buttons.add(createQuickActionButton("Check Eligibility", "Eligibility"));
 
         panel.add(title, BorderLayout.NORTH);
         panel.add(buttons, BorderLayout.CENTER);
@@ -211,27 +193,12 @@ public class LecturerDashboard extends JPanel {
     }
 
     private void loadDashboardStats() {
-        DashboardStatsDAO statsDAO =
-                new DashboardStatsDAO();
+        DashboardStatsDAO statsDAO = new DashboardStatsDAO();
 
         try {
-            undergraduatesCard.setValue(
-                    String.valueOf(
-                            statsDAO.getUndergraduateCount(userId)
-                    )
-            );
-
-            pendingMarksCard.setValue(
-                    String.valueOf(
-                            statsDAO.getPendingMarksCount(userId)
-                    )
-            );
-
-            newNoticesCard.setValue(
-                    String.valueOf(
-                            statsDAO.getNewNoticesCount()
-                    )
-            );
+            undergraduatesCard.setValue(String.valueOf(statsDAO.getUndergraduateCount(userId)));
+            pendingMarksCard.setValue(String.valueOf(statsDAO.getPendingMarksCount(userId)));
+            newNoticesCard.setValue(String.valueOf(statsDAO.getNewNoticesCount()));
 
         } catch (SQLException exception) {
             undergraduatesCard.setValue("--");

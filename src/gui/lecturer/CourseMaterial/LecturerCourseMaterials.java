@@ -37,10 +37,7 @@ public class LecturerCourseMaterials extends JPanel {
 
         setLayout(new BorderLayout(0, 18));
         setBackground(Color.WHITE);
-        setBorder(BorderFactory.createEmptyBorder(
-                25, 25, 25, 25
-        ));
-
+        setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
         createComponents();
         loadCourses();
         loadMaterials();
@@ -51,19 +48,15 @@ public class LecturerCourseMaterials extends JPanel {
         titleBar = new CourseMaterialTitleBar();
         materialTable = new CourseMaterialTable();
 
-        titleBar.getUploadButton().addActionListener(
-                e -> openUploadDialog()
-        );
+        titleBar.getUploadButton().addActionListener(e -> openUploadDialog());
 
         // Connect the Edit and Delete buttons.
         materialTable.setActionListener(
                 new CourseMaterialTable.MaterialActionListener() {
-
                     @Override
                     public void onEdit(CourseMaterial material) {
                         editMaterial(material);
                     }
-
                     @Override
                     public void onDelete(CourseMaterial material) {
                         confirmDelete(material);
@@ -73,13 +66,9 @@ public class LecturerCourseMaterials extends JPanel {
 
         statusLabel = new JLabel(" ");
         statusLabel.setForeground(Color.GRAY);
-        statusLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 12)
-        );
+        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
-        JPanel centerPanel = new JPanel(
-                new BorderLayout(0, 10)
-        );
+        JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
         centerPanel.setBackground(Color.WHITE);
 
         JLabel sectionTitle = new JLabel("Learning Materials");

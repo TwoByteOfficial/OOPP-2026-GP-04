@@ -6,7 +6,7 @@
 -- Faculty: Faculty of Technology, University of Ruhuna
 -- Database: UniMis.sql
 -- Compatibility: MySQL 8.0+
--- 
+--
 -- System Context: Single Faculty (Faculty of Technology)
 -- Roles Supported:
 --   1. Admin (System Administrator)
@@ -466,7 +466,7 @@ CREATE INDEX idx_notices_target ON notices(target_role, status, published_at);
 -- DATABASE VIEWS
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE VIEW v_users AS
-SELECT 
+SELECT
     u.user_id,
     u.username,
     u.password_hash,
@@ -499,7 +499,7 @@ LEFT JOIN technical_officers t ON u.user_id = t.user_id
 LEFT JOIN undergraduates s ON u.user_id = s.user_id;
 
 CREATE OR REPLACE VIEW v_attendance_summary AS
-SELECT 
+SELECT
     e.student_id,
     u.registration_no,
     usr.full_name,
@@ -512,8 +512,8 @@ SELECT
     SUM(CASE WHEN ar.attendance_status = 'ABSENT' THEN 1 ELSE 0 END) AS absent_sessions,
     SUM(CASE WHEN ar.attendance_status IN ('PRESENT','LATE') THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(ar.attendance_record_id), 0) AS raw_attendance_percent,
     (
-        SUM(CASE WHEN ar.attendance_status IN ('PRESENT','LATE') THEN 1 ELSE 0 END) 
-        + 
+        SUM(CASE WHEN ar.attendance_status IN ('PRESENT','LATE') THEN 1 ELSE 0 END)
+        +
         SUM(CASE WHEN ar.attendance_status = 'MEDICAL' AND EXISTS (
             SELECT 1 FROM medicals m WHERE m.attendance_record_id = ar.attendance_record_id AND m.approval_status = 'Approved'
         ) THEN 1 ELSE 0 END)
@@ -527,7 +527,7 @@ LEFT JOIN attendance_records ar ON ar.attendance_session_id = ats.attendance_ses
 GROUP BY e.student_id, u.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name;
 
 CREATE OR REPLACE VIEW v_ca_summary AS
-SELECT 
+SELECT
     e.student_id,
     ug.registration_no,
     usr.full_name,
@@ -539,7 +539,7 @@ SELECT
         COALESCE(SUM(CASE WHEN a.assessment_category = 'CA' THEN m.mark * a.weight_percent / 100 ELSE 0 END), 0),
         2
     ) AS ca_mark,
-    CASE 
+    CASE
         WHEN COALESCE(SUM(CASE WHEN a.assessment_category = 'CA' THEN m.mark * a.weight_percent / 100 ELSE 0 END), 0) >= 40 THEN 'Eligible'
         ELSE 'Not Eligible'
     END AS ca_eligibility
@@ -552,7 +552,7 @@ LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.stud
 GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name, c.ca_weight;
 
 CREATE OR REPLACE VIEW v_final_exam_marks AS
-SELECT 
+SELECT
     e.student_id,
     ug.registration_no,
     usr.full_name,
@@ -572,7 +572,7 @@ LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.stud
 GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name;
 
 CREATE OR REPLACE VIEW v_eligibility AS
-SELECT 
+SELECT
     ca.student_id,
     ca.registration_no,
     ca.full_name,
@@ -581,7 +581,7 @@ SELECT
     ca.course_name,
     ROUND(COALESCE(att.adjusted_attendance_percent, 0), 2) AS attendance_percent,
     ROUND(ca.ca_mark, 2) AS ca_mark,
-    CASE 
+    CASE
         WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND ca.ca_mark >= 40 THEN 'Eligible'
         ELSE 'Not Eligible'
     END AS final_exam_eligibility,
@@ -591,7 +591,7 @@ FROM v_ca_summary ca
 LEFT JOIN v_attendance_summary att ON att.student_id = ca.student_id AND att.course_id = ca.course_id;
 
 CREATE OR REPLACE VIEW v_final_results AS
-SELECT 
+SELECT
     e.student_id,
     ug.registration_no,
     usr.full_name,
@@ -603,25 +603,25 @@ SELECT
     ROUND(COALESCE(fe.final_exam_contribution, 0), 2) AS final_exam_mark,
     ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2) AS final_mark,
     COALESCE(att.adjusted_attendance_percent, 0) AS attendance_percent,
-    CASE 
+    CASE
         WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND COALESCE(ca.ca_mark, 0) >= 40 THEN 'Eligible'
         ELSE 'Not Eligible'
     END AS eligibility,
-    CASE 
+    CASE
         WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80 OR COALESCE(ca.ca_mark, 0) < 40 THEN 'E*'
         ELSE (
-            SELECT gs.grade_code 
-            FROM grade_scales gs 
-            WHERE gs.minimum_mark <= ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2) 
+            SELECT gs.grade_code
+            FROM grade_scales gs
+            WHERE gs.minimum_mark <= ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2)
             ORDER BY gs.minimum_mark DESC LIMIT 1
         )
     END AS grade,
-    CASE 
+    CASE
         WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80 OR COALESCE(ca.ca_mark, 0) < 40 THEN 0.00
         ELSE (
-            SELECT gs.grade_point 
-            FROM grade_scales gs 
-            WHERE gs.minimum_mark <= ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2) 
+            SELECT gs.grade_point
+            FROM grade_scales gs
+            WHERE gs.minimum_mark <= ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2)
             ORDER BY gs.minimum_mark DESC LIMIT 1
         )
     END AS grade_point
@@ -634,7 +634,7 @@ LEFT JOIN v_final_exam_marks fe ON fe.student_id = e.student_id AND fe.course_id
 LEFT JOIN v_attendance_summary att ON att.student_id = e.student_id AND att.course_id = e.course_id;
 
 CREATE OR REPLACE VIEW v_sgpa AS
-SELECT 
+SELECT
     student_id,
     registration_no,
     full_name,
@@ -645,7 +645,7 @@ FROM v_final_results
 GROUP BY student_id, registration_no, full_name;
 
 CREATE OR REPLACE VIEW v_cgpa AS
-SELECT 
+SELECT
     s.student_id,
     s.registration_no,
     s.full_name,
@@ -748,7 +748,7 @@ INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth,
 ('tg2080', 'ug@123', 'Undergraduate', 'Menaka Liyanage',      '200010002080', '2000-08-14', 'Female', 'tg2080@fot.ruh.ac.lk', '0713002080', 'Kandy, Sri Lanka', 1);
 
 INSERT INTO undergraduates (user_id, registration_no, index_no, batch_year, academic_year, student_type, intake, current_level, current_semester, previous_credits, previous_grade_points, admission_date)
-SELECT 
+SELECT
     user_id,
     CONCAT('TG/2024/', 2060 + ROW_NUMBER() OVER (ORDER BY user_id)),
     CONCAT('ICT/24/', LPAD(ROW_NUMBER() OVER (ORDER BY user_id), 3, '0')),
@@ -790,9 +790,9 @@ FROM courses c WHERE c.course_code = 'ICT2142';
 
 -- 5.8 Enrollments Seed
 INSERT INTO enrollments (student_id, course_id, academic_year, semester, enrollment_type)
-SELECT 
+SELECT
     u.user_id, c.course_id, '2026', 'Semester I',
-    CASE 
+    CASE
         WHEN u.student_type = 'Repeat' THEN 'Repeat'
         WHEN u.student_type = 'Batch Missed' THEN 'Batch Missed'
         ELSE 'Normal'
@@ -813,9 +813,9 @@ SELECT course_id, 'Final Examination', 'FINAL', 'Final Examination', 'Theory', f
 
 -- 5.10 Attendance Sessions Generation
 INSERT INTO attendance_sessions (course_id, component, session_no, session_date, start_time, end_time, duration_hours, conducted_by, topic)
-SELECT 
-    c.course_id, 'Theory', n.n, 
-    DATE_ADD('2026-09-01', INTERVAL (n.n - 1) * 7 DAY), 
+SELECT
+    c.course_id, 'Theory', n.n,
+    DATE_ADD('2026-09-01', INTERVAL (n.n - 1) * 7 DAY),
     '08:00:00', '10:00:00', 2.00,
     (SELECT cl.lecturer_id FROM course_lecturers cl WHERE cl.course_id = c.course_id LIMIT 1),
     CONCAT('Theory Session ', n.n)
@@ -828,9 +828,9 @@ CROSS JOIN (
 WHERE c.theory_credits > 0;
 
 INSERT INTO attendance_sessions (course_id, component, session_no, session_date, start_time, end_time, duration_hours, conducted_by, topic)
-SELECT 
-    c.course_id, 'Practical', n.n, 
-    DATE_ADD('2026-09-03', INTERVAL (n.n - 1) * 7 DAY), 
+SELECT
+    c.course_id, 'Practical', n.n,
+    DATE_ADD('2026-09-03', INTERVAL (n.n - 1) * 7 DAY),
     '13:00:00', '15:00:00', 2.00,
     (SELECT cl.lecturer_id FROM course_lecturers cl WHERE cl.course_id = c.course_id LIMIT 1),
     CONCAT('Practical Session ', n.n)
@@ -844,10 +844,10 @@ WHERE c.practical_credits > 0;
 
 -- 5.11 Demo Attendance Records
 INSERT INTO attendance_records (attendance_session_id, student_id, attendance_status, recorded_by)
-SELECT 
-    ats.attendance_session_id, 
+SELECT
+    ats.attendance_session_id,
     e.student_id,
-    CASE 
+    CASE
         WHEN MOD(ROW_NUMBER() OVER (PARTITION BY e.student_id, ats.course_id ORDER BY ats.attendance_session_id), 10) <= 8 THEN 'PRESENT'
         ELSE 'ABSENT'
     END,
@@ -857,7 +857,7 @@ JOIN enrollments e ON e.course_id = ats.course_id;
 
 -- 5.12 Demo Medical Records
 INSERT INTO medicals (student_id, course_id, attendance_record_id, medical_date, reason, approval_status, reviewed_by, reviewed_at, review_comment)
-SELECT 
+SELECT
     e.student_id, e.course_id, ar.attendance_record_id, ats.session_date,
     'Medical leave - certified illness', 'Approved',
     (SELECT user_id FROM technical_officers LIMIT 1), NOW(), 'Medical document verified'
@@ -874,10 +874,10 @@ WHERE ar.attendance_record_id > 0 AND m.approval_status = 'Approved';
 
 -- 5.13 Demo Marks
 INSERT INTO marks (assessment_id, student_id, mark, entered_by)
-SELECT 
-    a.assessment_id, 
+SELECT
+    a.assessment_id,
     e.student_id,
-    CASE 
+    CASE
         WHEN MOD(e.student_id, 5) = 0 THEN 88.00
         WHEN MOD(e.student_id, 5) = 1 THEN 78.00
         WHEN MOD(e.student_id, 5) = 2 THEN 68.00
@@ -889,14 +889,14 @@ FROM assessments a
 JOIN enrollments e ON e.course_id = a.course_id;
 
 -- 5.14 Demo Notices
-INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, status) VALUES 
+INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, status) VALUES
 ('Semester I Academic Notice', 'Students are requested to regularly check attendance, course and examination information.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
 ('Attendance Eligibility Reminder', 'Students must maintain at least 80% attendance according to academic regulations.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
 ('CA Eligibility Notice', 'Continuous Assessment marks must satisfy the 40% minimum eligibility requirement before the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
 
 -- 5.15 Demo Timetable Schedule
 INSERT INTO timetable_entries (department_id, course_id, lecturer_id, batch_year, component, day_of_week, start_time, end_time, venue, academic_year, semester)
-SELECT 
+SELECT
     1, c.course_id, cl.lecturer_id, 2024, 'Theory',
     CASE MOD(c.course_id, 5)
         WHEN 0 THEN 'Monday'

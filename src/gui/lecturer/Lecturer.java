@@ -31,12 +31,7 @@ public class Lecturer extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel pageContainer;
 
-    public Lecturer(
-            long userId,
-            String username,
-            String fullName,
-            String email,
-            String role) {
+    public Lecturer(long userId, String username, String fullName, String email, String role) {
 
         this.userId = userId;
         this.username = username;
@@ -51,6 +46,7 @@ public class Lecturer extends JFrame {
 
         sidebar = new LecturerSidebar();
         topbar = new LecturerTopbar(getLecturerName());
+        topbar.setHasNewNotifications(true);
 
         cardLayout = new CardLayout();
         pageContainer = new JPanel(cardLayout);
