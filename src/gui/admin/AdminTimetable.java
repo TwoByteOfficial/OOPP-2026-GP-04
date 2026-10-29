@@ -17,14 +17,14 @@ public class AdminTimetable extends JPanel {
     private final AdminUserDAO userDAO;
 
     private TimetableTitleBar titleBar;
-    private TimetableFilterSet filterSet;
+    private TimetableFilterBar filterBar;
     private TimetableActions actionToolbar;
     private TimetableView tableViewContainer;
     private TimetableTable timetableTable;
 
     public AdminTimetable(long userId, String username, String fullName, String email, String role) {
         setLayout(new BorderLayout(0, 12));
-        setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBackground(AdminTheme.MINT);
         setBorder(BorderFactory.createEmptyBorder(60, 40, 60, 40));
 
         this.timetableDAO = new AdminTimetableDAO();
@@ -44,22 +44,24 @@ public class AdminTimetable extends JPanel {
         topPanel.add(titleBar);
         topPanel.add(Box.createVerticalStrut(10));
 
-        filterSet = new TimetableFilterSet(this::onFilterChanged);
-        topPanel.add(filterSet);
+        filterBar = new TimetableFilterBar(this::onFilterChanged, this::loadTimetables);
+        topPanel.add(filterBar);
         topPanel.add(Box.createVerticalStrut(10));
 
+        timetableTable = new TimetableTable();
+
         actionToolbar = new TimetableActions(
-                this::onAddSlot,
-                this::onViewDetails,
-                this::onEditSlot,
-                this::onDeleteSlot,
+                this,
+                timetableDAO,
+                courseDAO,
+                userDAO,
+                timetableTable::getSelectedTimetable,
                 this::loadTimetables
         );
         topPanel.add(actionToolbar);
 
         add(topPanel, BorderLayout.NORTH);
 
-        timetableTable = new TimetableTable();
         tableViewContainer = new TimetableView(timetableTable);
         add(tableViewContainer, BorderLayout.CENTER);
     }
@@ -75,9 +77,9 @@ public class AdminTimetable extends JPanel {
     }
 
     private void onFilterChanged() {
-        int deptId = filterSet.getSelectedDepartmentId();
-        int batch = filterSet.getSelectedBatchYear();
-        String sem = filterSet.getSelectedSemester();
+        int deptId = filterBar.getSelectedDepartmentId();
+        int batch = filterBar.getSelectedBatchYear();
+        String sem = filterBar.getSelectedSemester();
 
         try {
             if (deptId == 0 && batch == 0 && "All Semesters".equals(sem)) {
@@ -95,56 +97,6 @@ public class AdminTimetable extends JPanel {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private void onAddSlot() {
-        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
-        TimetableForm form = new TimetableForm(owner, timetableDAO, courseDAO, userDAO, null, this::loadTimetables);
-        form.setVisible(true);
-    }
-
-    private void onViewDetails() {
-        TimetableEntry selected = timetableTable.getSelectedTimetable();
-        if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a timetable slot from the table.", "Selection Required", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
-        TimetableDetails details = new TimetableDetails(owner, selected);
-        details.setVisible(true);
-    }
-
-    private void onEditSlot() {
-        TimetableEntry selected = timetableTable.getSelectedTimetable();
-        if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a timetable slot from the table to edit.", "Selection Required", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
-        TimetableForm form = new TimetableForm(owner, timetableDAO, courseDAO, userDAO, selected, this::loadTimetables);
-        form.setVisible(true);
-    }
-
-    private void onDeleteSlot() {
-        TimetableEntry selected = timetableTable.getSelectedTimetable();
-        if (selected == null) {
-            JOptionPane.showMessageDialog(this, "Please select a timetable slot from the table to delete.", "Selection Required", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        int choice = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete Slot TT-" + selected.getTimetableId() + "?",
-                "Delete Timetable Slot", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-        if (choice == JOptionPane.YES_OPTION) {
-            try {
-                timetableDAO.deleteTimetableEntry(selected.getTimetableId());
-                JOptionPane.showMessageDialog(this, "Slot deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadTimetables();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error deleting slot: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package gui.admin.NoticeComponents;
 
+import gui.admin.AdminTheme;
 import model.Notice;
 
 import javax.swing.*;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class NoticeList extends JPanel {
 
-    private NoticeTable table;
+    private final NoticeTable table;
 
     public NoticeList() {
         this(new NoticeTable());
@@ -17,11 +18,11 @@ public class NoticeList extends JPanel {
     public NoticeList(NoticeTable table) {
         this.table = table != null ? table : new NoticeTable();
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setBackground(AdminTheme.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(this.table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(0xC8, 0xE6, 0xC9), 1));
+        scrollPane.getViewport().setBackground(AdminTheme.WHITE);
+        scrollPane.setBorder(BorderFactory.createLineBorder(AdminTheme.BORDER, 1));
 
         add(scrollPane, BorderLayout.CENTER);
     }

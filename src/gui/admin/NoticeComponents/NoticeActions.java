@@ -1,38 +1,37 @@
 package gui.admin.NoticeComponents;
 
+import dao.admin.AdminNoticeDAO;
+import gui.admin.AdminTheme;
+import model.Notice;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Supplier;
 
 public class NoticeActions extends JPanel {
 
-    private AddNoticeButton btnAdd;
-    private ViewNoticeButton btnView;
-    private EditNoticeButton btnEdit;
-    private DeleteNoticeButton btnDelete;
-    private TogglePublishButton btnToggle;
-    private RefreshNoticeButton btnRefresh;
+    private final AddNoticeComponent btnAdd;
+    private final ViewNoticeComponent btnView;
+    private final EditNoticeComponent btnEdit;
+    private final DeleteNoticeComponent btnDelete;
 
-    public NoticeActions(Runnable onAdd, Runnable onView, Runnable onEdit, Runnable onDelete, Runnable onToggle, Runnable onRefresh) {
-        setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 10));
-        setBackground(Color.WHITE);
+    public NoticeActions(AdminNoticeDAO noticeDAO, long currentAdminUserId, Supplier<Notice> selectedNoticeSupplier, Runnable onRefreshNeeded) {
+        setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 8));
+        setBackground(AdminTheme.WHITE);
         setOpaque(true);
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0xC8, 0xE6, 0xC9), 1),
+                BorderFactory.createLineBorder(AdminTheme.BORDER, 1),
                 BorderFactory.createEmptyBorder(2, 10, 2, 10)
         ));
 
-        btnAdd = new AddNoticeButton(onAdd);
-        btnView = new ViewNoticeButton(onView);
-        btnEdit = new EditNoticeButton(onEdit);
-        btnToggle = new TogglePublishButton(onToggle);
-        btnDelete = new DeleteNoticeButton(onDelete);
-        btnRefresh = new RefreshNoticeButton(onRefresh);
+        btnAdd = new AddNoticeComponent(noticeDAO, currentAdminUserId, onRefreshNeeded);
+        btnView = new ViewNoticeComponent(selectedNoticeSupplier);
+        btnEdit = new EditNoticeComponent(selectedNoticeSupplier, noticeDAO, onRefreshNeeded);
+        btnDelete = new DeleteNoticeComponent(selectedNoticeSupplier, noticeDAO, onRefreshNeeded);
 
         add(btnAdd);
         add(btnView);
         add(btnEdit);
-        add(btnToggle);
         add(btnDelete);
-        add(btnRefresh);
     }
 }

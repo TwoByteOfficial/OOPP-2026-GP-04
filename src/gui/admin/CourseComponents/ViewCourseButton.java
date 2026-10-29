@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * ViewCourseButton - Integrated component file containing the "View Details" button
- * and its on-click modal dialog window for viewing complete course module details and assessment weights.
+ * and its on-click modal dialog window for viewing complete course module details and CA/END assessment weights.
  */
 public class ViewCourseButton extends JButton {
 
@@ -46,7 +46,7 @@ public class ViewCourseButton extends JButton {
 
         public ViewCourseDialog(Frame parent, Course course, AdminCourseDAO courseDAO) {
             super(parent, "Course Module Specifications: " + course.getCourseCode(), true);
-            setSize(820, 700);
+            setSize(840, 720);
             setLocationRelativeTo(parent);
             setResizable(false);
             getContentPane().setBackground(AdminTheme.LIGHT_BG);
@@ -91,27 +91,42 @@ public class ViewCourseButton extends JButton {
             addDetailPair(pnlSpecs, "Department:", deptText);
             addDetailPair(pnlSpecs, "Academic Year:", course.getAcademicYear());
             addDetailPair(pnlSpecs, "Semester:", course.getSemester());
-            addDetailPair(pnlSpecs, "Overall CA Weight:", course.getCaWeight() + "%");
-            addDetailPair(pnlSpecs, "Overall Final Exam Weight:", course.getFinalWeight() + "%");
             addDetailPair(pnlSpecs, "Status:", course.getStatus());
             addDetailPair(pnlSpecs, "Created At:", String.valueOf(course.getCreatedAt()));
 
             content.add(pnlSpecs);
             content.add(Box.createVerticalStrut(14));
 
-            // Section 2: Assessment Weight Breakdown
+            // Section 2: Assessment Weight Breakdown (CA Weight & END Weight)
             Map<String, BigDecimal> weights = (courseDAO != null) ? courseDAO.getCourseAssessmentWeights(course.getCourseId()) : null;
 
-            JPanel pnlAssessments = new JPanel(new GridLayout(3, 2, 14, 10));
-            pnlAssessments.setBackground(AdminTheme.WHITE);
-            pnlAssessments.setBorder(createTitledBorder("2. Assessment Weight Breakdown (%)"));
+            BigDecimal quizW = getWeightVal(weights, "quiz");
+            BigDecimal assignW = getWeightVal(weights, "assignment");
+            BigDecimal midTheoryW = getWeightVal(weights, "midTheory");
+            BigDecimal midPracticalW = getWeightVal(weights, "midPractical");
+            BigDecimal endTheoryW = getWeightVal(weights, "endTheory");
+            BigDecimal endPracticalW = getWeightVal(weights, "endPractical");
 
-            addDetailPair(pnlAssessments, "Highest 2 Quizzes Weight:", getWeightStr(weights, "quiz") + "%");
-            addDetailPair(pnlAssessments, "Assignment Weight:", getWeightStr(weights, "assignment") + "%");
-            addDetailPair(pnlAssessments, "Mid Exam Theory Weight:", getWeightStr(weights, "midTheory") + "%");
-            addDetailPair(pnlAssessments, "Mid Exam Practical Weight:", getWeightStr(weights, "midPractical") + "%");
-            addDetailPair(pnlAssessments, "End Exam Theory Weight:", getWeightStr(weights, "endTheory") + "%");
-            addDetailPair(pnlAssessments, "End Exam Practical Weight:", getWeightStr(weights, "endPractical") + "%");
+            BigDecimal calcCaWeight = quizW.add(assignW).add(midTheoryW).add(midPracticalW);
+            BigDecimal calcEndWeight = endTheoryW.add(endPracticalW);
+
+            JPanel pnlAssessments = new JPanel(new GridLayout(5, 2, 14, 10));
+            pnlAssessments.setBackground(AdminTheme.WHITE);
+            pnlAssessments.setBorder(createTitledBorder("2. Course Assessment Structure & Weight Breakdown (%)"));
+
+            // CA Weight Components
+            addDetailPair(pnlAssessments, "[CA] Max 2 Quiz Weight:", quizW + "%");
+            addDetailPair(pnlAssessments, "[CA] Assignment Weight:", assignW + "%");
+            addDetailPair(pnlAssessments, "[CA] Mid Exam Theory Weight:", midTheoryW + "%");
+            addDetailPair(pnlAssessments, "[CA] Mid Exam Practical Weight:", midPracticalW + "%");
+
+            // END Weight Components
+            addDetailPair(pnlAssessments, "[END] End Exam Theory Weight:", endTheoryW + "%");
+            addDetailPair(pnlAssessments, "[END] End Exam Practical Weight:", endPracticalW + "%");
+
+            // Total Summaries
+            addDetailPair(pnlAssessments, "Total CA Weight (Sum of CA):", calcCaWeight + "%");
+            addDetailPair(pnlAssessments, "Total END Weight (Sum of END):", calcEndWeight + "%");
 
             content.add(pnlAssessments);
             content.add(Box.createVerticalStrut(14));
@@ -168,11 +183,11 @@ public class ViewCourseButton extends JButton {
             add(footer, BorderLayout.SOUTH);
         }
 
-        private String getWeightStr(Map<String, BigDecimal> map, String key) {
+        private BigDecimal getWeightVal(Map<String, BigDecimal> map, String key) {
             if (map != null && map.containsKey(key)) {
-                return map.get(key).toString();
+                return map.get(key);
             }
-            return "0.0";
+            return BigDecimal.ZERO;
         }
 
         private void addDetailPair(JPanel pnl, String label, String value) {

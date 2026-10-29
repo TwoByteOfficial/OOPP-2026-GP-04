@@ -1,17 +1,11 @@
 package gui.admin.TimetableComponents;
 
-import javax.swing.*;
-import java.awt.*;
+import model.TimetableEntry;
+import java.awt.Component;
+import java.util.function.Supplier;
 
-public class ViewTimetableButton extends JButton {
-    public ViewTimetableButton(Runnable onClick) {
-        super("View Entry");
-        setFont(new Font("Segoe UI", Font.BOLD, 15));
-        setBackground(new Color(0xC8, 0xE6, 0xC9));
-        setForeground(new Color(0x1B, 0x5E, 0x20));
-        setFocusPainted(false);
-        setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        addActionListener(e -> onClick.run());
+public class ViewTimetableButton extends ViewTimetableComponent {
+    public ViewTimetableButton(Component parentComponent, Supplier<TimetableEntry> selectedSupplier) {
+        super(parentComponent, selectedSupplier);
     }
 }

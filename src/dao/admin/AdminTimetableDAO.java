@@ -11,7 +11,7 @@ public class AdminTimetableDAO {
     public List<TimetableEntry> getAllTimetableEntries() throws SQLException {
         List<TimetableEntry> list = new ArrayList<>();
         String sql = "SELECT * FROM timetable_entries " +
-                     "ORDER BY department_id, batch_year, FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
+                "ORDER BY department_id, batch_year, FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
 
         try (Connection con = DBConnection.con();
              Statement stmt = con.createStatement();
@@ -27,8 +27,8 @@ public class AdminTimetableDAO {
     public List<TimetableEntry> getTimetablesByFilter(int departmentId, int batchYear, String semester) throws SQLException {
         List<TimetableEntry> list = new ArrayList<>();
         String sql = "SELECT * FROM timetable_entries " +
-                     "WHERE department_id = ? AND batch_year = ? AND semester = ? " +
-                     "ORDER BY FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
+                "WHERE department_id = ? AND batch_year = ? AND semester = ? " +
+                "ORDER BY FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
 
         try (Connection con = DBConnection.con();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -65,7 +65,7 @@ public class AdminTimetableDAO {
 
     public boolean createTimetableEntry(TimetableEntry t) throws SQLException {
         String sql = "INSERT INTO timetable_entries (department_id, course_id, lecturer_id, batch_year, component, day_of_week, start_time, end_time, venue, academic_year, semester) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = DBConnection.con();
              PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

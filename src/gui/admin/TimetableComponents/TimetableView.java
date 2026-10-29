@@ -2,6 +2,7 @@ package gui.admin.TimetableComponents;
 
 import dao.admin.AdminCourseDAO;
 import dao.admin.AdminUserDAO;
+import gui.admin.AdminTheme;
 import model.TimetableEntry;
 
 import javax.swing.*;
@@ -19,11 +20,11 @@ public class TimetableView extends JPanel {
     public TimetableView(TimetableTable table) {
         this.table = table != null ? table : new TimetableTable();
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setBackground(AdminTheme.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(this.table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(0xC8, 0xE6, 0xC9), 1));
+        scrollPane.getViewport().setBackground(AdminTheme.WHITE);
+        scrollPane.setBorder(BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1));
 
         add(scrollPane, BorderLayout.CENTER);
     }

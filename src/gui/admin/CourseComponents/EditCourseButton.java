@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * EditCourseButton - Integrated component file containing the "Edit Course" button
- * and its on-click modal dialog window for modifying course specifications and assessment structure.
+ * and its on-click modal dialog window for modifying course specifications and CA/END assessment weights.
  */
 public class EditCourseButton extends JButton {
 
@@ -56,11 +56,13 @@ public class EditCourseButton extends JButton {
         private JComboBox<String> cmbSemester;
         private JComboBox<String> cmbStatus;
 
-        // Assessment Weight Fields (%)
-        private JTextField txtQuizWeight;
+        // CA Weight Fields (%)
+        private JTextField txtMax2QuizWeight;
         private JTextField txtAssignWeight;
         private JTextField txtMidTheoryWeight;
         private JTextField txtMidPracticalWeight;
+
+        // END Weight Fields (%)
         private JTextField txtEndTheoryWeight;
         private JTextField txtEndPracticalWeight;
 
@@ -75,7 +77,7 @@ public class EditCourseButton extends JButton {
             this.courseDAO = dao;
             this.onSuccess = onSuccess;
 
-            setSize(860, 750);
+            setSize(880, 760);
             setLocationRelativeTo(parent);
             setResizable(false);
             getContentPane().setBackground(AdminTheme.LIGHT_BG);
@@ -132,7 +134,7 @@ public class EditCourseButton extends JButton {
             // Section 2: Assessment Weight Breakdown (%)
             JPanel pnlWeights = new JPanel(new GridBagLayout());
             pnlWeights.setBackground(AdminTheme.WHITE);
-            pnlWeights.setBorder(createTitledBorder("2. Course Assessment Structure & Weights (%)"));
+            pnlWeights.setBorder(createTitledBorder("2. Course Assessment Structure & Weight Breakdown (%)"));
 
             DocumentListener calcListener = new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { recalculateWeights(); }
@@ -140,30 +142,33 @@ public class EditCourseButton extends JButton {
                 public void changedUpdate(DocumentEvent e) { recalculateWeights(); }
             };
 
-            txtQuizWeight = createWeightField("10.0", calcListener);
+            // CA Weight Fields (Max 2 Quiz, Assignment, Mid Theory, Mid Practical)
+            txtMax2QuizWeight = createWeightField("10.0", calcListener);
             txtAssignWeight = createWeightField("10.0", calcListener);
             txtMidTheoryWeight = createWeightField("10.0", calcListener);
             txtMidPracticalWeight = createWeightField("10.0", calcListener);
+
+            // END Weight Fields (End Exam Theory, End Exam Practical)
             txtEndTheoryWeight = createWeightField("40.0", calcListener);
             txtEndPracticalWeight = createWeightField("20.0", calcListener);
 
-            // Row 0: CA Weights
-            addGridRow(pnlWeights, gbc, 0, "Highest 2 Quizzes Weight (%):", txtQuizWeight, "Assignment Weight (%):", txtAssignWeight);
-            // Row 1: Mid Exams
-            addGridRow(pnlWeights, gbc, 1, "Mid Exam Theory Weight (%):", txtMidTheoryWeight, "Mid Exam Practical Weight (%):", txtMidPracticalWeight);
-            // Row 2: Final Exam Weights
-            addGridRow(pnlWeights, gbc, 2, "End Exam Theory Weight (%):", txtEndTheoryWeight, "End Exam Practical Weight (%):", txtEndPracticalWeight);
+            // Row 0: CA Weights - Max 2 Quiz & Assignment
+            addGridRow(pnlWeights, gbc, 0, "[CA] Max 2 Quiz Weight (%):", txtMax2QuizWeight, "[CA] Assignment Weight (%):", txtAssignWeight);
+            // Row 1: CA Weights - Mid Exams
+            addGridRow(pnlWeights, gbc, 1, "[CA] Mid Exam Theory (%):", txtMidTheoryWeight, "[CA] Mid Exam Practical (%):", txtMidPracticalWeight);
+            // Row 2: END Weights - End Exams
+            addGridRow(pnlWeights, gbc, 2, "[END] End Exam Theory (%):", txtEndTheoryWeight, "[END] End Exam Practical (%):", txtEndPracticalWeight);
 
             // Summary Breakdown Bar
             JPanel pnlSummary = new JPanel(new FlowLayout(FlowLayout.CENTER, 24, 8));
             pnlSummary.setBackground(AdminTheme.MINT);
             pnlSummary.setBorder(BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1));
 
-            lblComputedCaWeight = new JLabel("Continuous Assessment (CA): 40.0%");
+            lblComputedCaWeight = new JLabel("CA Weight: 40.0%");
             lblComputedCaWeight.setFont(new Font("Segoe UI", Font.BOLD, 15));
             lblComputedCaWeight.setForeground(AdminTheme.DEEP_GREEN);
 
-            lblComputedFinalWeight = new JLabel("Final Exam Weight: 60.0%");
+            lblComputedFinalWeight = new JLabel("END Weight: 60.0%");
             lblComputedFinalWeight.setFont(new Font("Segoe UI", Font.BOLD, 15));
             lblComputedFinalWeight.setForeground(AdminTheme.DEEP_GREEN);
 
@@ -244,7 +249,7 @@ public class EditCourseButton extends JButton {
             // Populate Assessment Weights from DB
             if (courseDAO != null) {
                 Map<String, BigDecimal> weights = courseDAO.getCourseAssessmentWeights(courseToEdit.getCourseId());
-                txtQuizWeight.setText(getWeightStr(weights, "quiz"));
+                txtMax2QuizWeight.setText(getWeightStr(weights, "quiz"));
                 txtAssignWeight.setText(getWeightStr(weights, "assignment"));
                 txtMidTheoryWeight.setText(getWeightStr(weights, "midTheory"));
                 txtMidPracticalWeight.setText(getWeightStr(weights, "midPractical"));
@@ -270,19 +275,21 @@ public class EditCourseButton extends JButton {
 
         private void recalculateWeights() {
             try {
-                BigDecimal q = parseDecimal(txtQuizWeight.getText());
+                BigDecimal q = parseDecimal(txtMax2QuizWeight.getText());
                 BigDecimal a = parseDecimal(txtAssignWeight.getText());
                 BigDecimal mt = parseDecimal(txtMidTheoryWeight.getText());
                 BigDecimal mp = parseDecimal(txtMidPracticalWeight.getText());
                 BigDecimal et = parseDecimal(txtEndTheoryWeight.getText());
                 BigDecimal ep = parseDecimal(txtEndPracticalWeight.getText());
 
+                // CA Weight = Max 2 Quiz + Assignment + Mid Theory + Mid Practical
                 BigDecimal ca = q.add(a).add(mt).add(mp);
-                BigDecimal fn = et.add(ep);
-                BigDecimal total = ca.add(fn);
+                // END Weight = End Exam Theory + End Exam Practical
+                BigDecimal end = et.add(ep);
+                BigDecimal total = ca.add(end);
 
-                lblComputedCaWeight.setText("Continuous Assessment (CA): " + ca + "%");
-                lblComputedFinalWeight.setText("Final Exam Weight: " + fn + "%");
+                lblComputedCaWeight.setText("CA Weight: " + ca + "%");
+                lblComputedFinalWeight.setText("END Weight: " + end + "%");
                 lblComputedTotalWeight.setText("Total Weight: " + total + "%");
 
                 if (total.compareTo(new BigDecimal("100.00")) == 0) {
@@ -317,14 +324,16 @@ public class EditCourseButton extends JButton {
                 BigDecimal practical = parseDecimal(txtPracticalCredits.getText());
                 BigDecimal totalCredits = theory.add(practical);
 
-                BigDecimal quizW = parseDecimal(txtQuizWeight.getText());
+                BigDecimal quizW = parseDecimal(txtMax2QuizWeight.getText());
                 BigDecimal assignW = parseDecimal(txtAssignWeight.getText());
                 BigDecimal midTheoryW = parseDecimal(txtMidTheoryWeight.getText());
                 BigDecimal midPracticalW = parseDecimal(txtMidPracticalWeight.getText());
                 BigDecimal endTheoryW = parseDecimal(txtEndTheoryWeight.getText());
                 BigDecimal endPracticalW = parseDecimal(txtEndPracticalWeight.getText());
 
+                // CA Weight = Max 2 Quiz + Assignment + Mid Theory + Mid Practical
                 BigDecimal caWeight = quizW.add(assignW).add(midTheoryW).add(midPracticalW);
+                // END Weight = End Exam Theory + End Exam Practical
                 BigDecimal finalWeight = endTheoryW.add(endPracticalW);
 
                 int deptId = cmbDepartment.getSelectedIndex() + 1;

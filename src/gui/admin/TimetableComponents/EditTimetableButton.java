@@ -1,17 +1,14 @@
 package gui.admin.TimetableComponents;
 
-import javax.swing.*;
-import java.awt.*;
+import dao.admin.AdminCourseDAO;
+import dao.admin.AdminTimetableDAO;
+import dao.admin.AdminUserDAO;
+import model.TimetableEntry;
+import java.awt.Component;
+import java.util.function.Supplier;
 
-public class EditTimetableButton extends JButton {
-    public EditTimetableButton(Runnable onClick) {
-        super("Edit Entry");
-        setFont(new Font("Segoe UI", Font.BOLD, 15));
-        setBackground(new Color(0xC8, 0xE6, 0xC9));
-        setForeground(new Color(0x1B, 0x5E, 0x20));
-        setFocusPainted(false);
-        setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        addActionListener(e -> onClick.run());
+public class EditTimetableButton extends EditTimetableComponent {
+    public EditTimetableButton(Component parentComponent, AdminTimetableDAO timetableDAO, AdminCourseDAO courseDAO, AdminUserDAO userDAO, Supplier<TimetableEntry> selectedSupplier, Runnable onSuccess) {
+        super(parentComponent, timetableDAO, courseDAO, userDAO, selectedSupplier, onSuccess);
     }
 }
