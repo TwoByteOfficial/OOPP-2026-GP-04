@@ -10,12 +10,13 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.sql.SQLException;
 
-public class LecturerProfile extends JPanel {
+import static gui.lecturer.SharedComponents.Colors.PROFILE_BACKGROUND;
+import static gui.lecturer.SharedComponents.Colors.PROFILE_BORDER;
+import static gui.lecturer.SharedComponents.Colors.PROFILE_DEEP_GREEN;
+import static gui.lecturer.SharedComponents.Colors.PROFILE_TEXT_GRAY;
+import static gui.lecturer.SharedComponents.Colors.PROFILE_WHITE;
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color PALE_GREEN = new Color(232, 245, 233);
-    private static final Color BORDER_GREEN = new Color(200, 230, 201);
-    private static final Color TEXT_GRAY = new Color(96, 112, 100);
+public class LecturerProfile extends JPanel {
 
     private final long userId;
     private final LecturerProfileDAO profileDAO =
@@ -56,7 +57,7 @@ public class LecturerProfile extends JPanel {
         this.onProfileUpdated = onProfileUpdated;
 
         setLayout(new BorderLayout(0, 18));
-        setBackground(PALE_GREEN);
+        setBackground(PROFILE_BACKGROUND);
         setBorder(new EmptyBorder(24, 28, 20, 28));
 
         // Heading
@@ -71,7 +72,7 @@ public class LecturerProfile extends JPanel {
         pageTitle.setFont(
                 new Font("SansSerif", Font.BOLD, 25)
         );
-        pageTitle.setForeground(DEEP_GREEN);
+        pageTitle.setForeground(PROFILE_DEEP_GREEN);
 
         JLabel subtitle = new JLabel(
                 "View and update your personal academic profile details."
@@ -79,7 +80,7 @@ public class LecturerProfile extends JPanel {
         subtitle.setFont(
                 new Font("SansSerif", Font.PLAIN, 13)
         );
-        subtitle.setForeground(TEXT_GRAY);
+        subtitle.setForeground(PROFILE_TEXT_GRAY);
 
         heading.add(pageTitle);
         heading.add(Box.createVerticalStrut(5));
@@ -87,9 +88,9 @@ public class LecturerProfile extends JPanel {
 
         // Main card
         JPanel card = new JPanel(new BorderLayout(0, 20));
-        card.setBackground(Color.WHITE);
+        card.setBackground(PROFILE_WHITE);
         card.setBorder(new CompoundBorder(
-                new LineBorder(BORDER_GREEN, 1, true),
+                new LineBorder(PROFILE_BORDER, 1, true),
                 new EmptyBorder(22, 24, 20, 24)
         ));
 
@@ -98,7 +99,7 @@ public class LecturerProfile extends JPanel {
                 new JPanel(new GridLayout(1, 3, 12, 0));
         readOnlyPanel.setOpaque(false);
         readOnlyPanel.setBorder(new CompoundBorder(
-                new LineBorder(BORDER_GREEN, 1, true),
+                new LineBorder(PROFILE_BORDER, 1, true),
                 new EmptyBorder(12, 14, 12, 14)
         ));
 
@@ -199,7 +200,7 @@ public class LecturerProfile extends JPanel {
         statusLabel.setFont(
                 new Font("SansSerif", Font.PLAIN, 12)
         );
-        statusLabel.setForeground(TEXT_GRAY);
+        statusLabel.setForeground(PROFILE_TEXT_GRAY);
         footer.add(statusLabel, BorderLayout.WEST);
 
         add(heading, BorderLayout.NORTH);
@@ -214,7 +215,7 @@ public class LecturerProfile extends JPanel {
         label.setFont(
                 new Font("SansSerif", Font.BOLD, 12)
         );
-        label.setForeground(DEEP_GREEN);
+        label.setForeground(PROFILE_DEEP_GREEN);
     }
 
     private void addFormField(
@@ -249,7 +250,7 @@ public class LecturerProfile extends JPanel {
         label.setFont(
                 new Font("SansSerif", Font.BOLD, 12)
         );
-        label.setForeground(DEEP_GREEN);
+        label.setForeground(PROFILE_DEEP_GREEN);
 
         field.setFont(
                 new Font("SansSerif", Font.PLAIN, 13)
@@ -262,12 +263,12 @@ public class LecturerProfile extends JPanel {
                     new Insets(5, 9, 5, 9)
             );
             textField.setBorder(new CompoundBorder(
-                    new LineBorder(BORDER_GREEN, 1, true),
+                    new LineBorder(PROFILE_BORDER, 1, true),
                     new EmptyBorder(1, 2, 1, 2)
             ));
         } else if (field instanceof JComboBox<?>) {
             field.setBorder(
-                    new LineBorder(BORDER_GREEN, 1, true)
+                    new LineBorder(PROFILE_BORDER, 1, true)
             );
         }
 
@@ -299,13 +300,13 @@ public class LecturerProfile extends JPanel {
         button.setOpaque(true);
 
         if (primary) {
-            button.setBackground(DEEP_GREEN);
-            button.setForeground(Color.WHITE);
+            button.setBackground(PROFILE_DEEP_GREEN);
+            button.setForeground(PROFILE_WHITE);
         } else {
-            button.setBackground(Color.WHITE);
-            button.setForeground(DEEP_GREEN);
+            button.setBackground(PROFILE_WHITE);
+            button.setForeground(PROFILE_DEEP_GREEN);
             button.setBorder(new CompoundBorder(
-                    new LineBorder(BORDER_GREEN, 1, true),
+                    new LineBorder(PROFILE_DEEP_GREEN, 1, true),
                     new EmptyBorder(8, 15, 8, 15)
             ));
         }

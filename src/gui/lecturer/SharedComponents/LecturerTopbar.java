@@ -5,21 +5,22 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class LecturerTopbar extends JPanel {
+import static gui.lecturer.SharedComponents.Colors.TOPBAR_BACKGROUND;
+import static gui.lecturer.SharedComponents.Colors.TOPBAR_DEEP_GREEN;
+import static gui.lecturer.SharedComponents.Colors.TOPBAR_PALE_GREEN;
+import static gui.lecturer.SharedComponents.Colors.TOPBAR_TEXT_GRAY;
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color PALE_GREEN = new Color(232, 245, 233);
-    private static final Color TEXT_GRAY = new Color(96, 112, 100);
+public class LecturerTopbar extends JPanel {
 
     public LecturerTopbar(String lecturerName) {
 
         setLayout(new BorderLayout(20, 0));
-        setBackground(Color.WHITE);
+        setBackground(TOPBAR_BACKGROUND);
         setBorder(new EmptyBorder(20, 28, 20, 28));
 
         JLabel portalLabel = new JLabel("Lecturer Portal");
         portalLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-        portalLabel.setForeground(DEEP_GREEN);
+        portalLabel.setForeground(TOPBAR_DEEP_GREEN);
 
         add(portalLabel, BorderLayout.WEST);
         add(createProfilePanel(lecturerName), BorderLayout.EAST);
@@ -53,11 +54,11 @@ public class LecturerTopbar extends JPanel {
 
         JLabel nameLabel = new JLabel(name);
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        nameLabel.setForeground(DEEP_GREEN);
+        nameLabel.setForeground(TOPBAR_DEEP_GREEN);
 
         JLabel roleLabel = new JLabel("Lecturer");
         roleLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        roleLabel.setForeground(TEXT_GRAY);
+        roleLabel.setForeground(TOPBAR_TEXT_GRAY);
 
         namePanel.add(nameLabel);
         namePanel.add(Box.createVerticalStrut(4));
@@ -65,7 +66,7 @@ public class LecturerTopbar extends JPanel {
 
         JLabel avatar = new JLabel("\uD83D\uDC64");
         avatar.setOpaque(true);
-        avatar.setBackground(PALE_GREEN);
+        avatar.setBackground(TOPBAR_PALE_GREEN);
         avatar.setHorizontalAlignment(SwingConstants.CENTER);
         avatar.setPreferredSize(new Dimension(40, 40));
         avatar.setFont(new Font("SansSerif", Font.PLAIN, 20));

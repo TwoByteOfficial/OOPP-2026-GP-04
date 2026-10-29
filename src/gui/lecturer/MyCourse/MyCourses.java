@@ -5,6 +5,7 @@ import gui.lecturer.MyCourse.MyCourseComponents.EnrolledStudentDialog;
 import gui.lecturer.MyCourse.MyCourseComponents.MyCourseTable;
 import gui.lecturer.MyCourse.MyCourseComponents.MyCourseTitleBar;
 import gui.lecturer.MyCourse.MyCourseComponents.MyCourseLoader;
+import static gui.lecturer.SharedComponents.Colors.MY_COURSES_BACKGROUND;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,9 +15,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class MyCourses extends JPanel {
-
-    private static final Color PALE_GREEN =
-            new Color(232, 245, 233);
 
     private final long lecturerUserId;
 
@@ -31,7 +29,7 @@ public class MyCourses extends JPanel {
         this.lecturerUserId = lecturerUserId;
 
         setLayout(new BorderLayout(0, 20));
-        setBackground(PALE_GREEN);
+        setBackground(MY_COURSES_BACKGROUND);
         setBorder(new EmptyBorder(30, 30, 30, 30));
 
         // Page heading

@@ -14,13 +14,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static gui.lecturer.SharedComponents.Colors.MATERIALS_BACKGROUND;
+import static gui.lecturer.SharedComponents.Colors.MATERIALS_DEEP_GREEN;
+import static gui.lecturer.SharedComponents.Colors.MATERIALS_GRID;
+import static gui.lecturer.SharedComponents.Colors.MATERIALS_PALE_GREEN;
+import static gui.lecturer.SharedComponents.Colors.MATERIALS_BORDER;
+import static gui.lecturer.SharedComponents.Colors.MATERIALS_TEXT_BLACK;
+
 public class CourseMaterialTable extends JPanel {
-
-    private static final Color DEEP_GREEN =
-            new Color(27, 94, 32);
-
-    private static final Color PALE_GREEN =
-            new Color(232, 245, 233);
 
     private JTable materialsTable;
     private DefaultTableModel tableModel;
@@ -42,7 +43,7 @@ public class CourseMaterialTable extends JPanel {
 
     public CourseMaterialTable() {
         setLayout(new BorderLayout(0, 10));
-        setBackground(Color.WHITE);
+        setBackground(MATERIALS_BACKGROUND);
 
         createTable();
     }
@@ -71,17 +72,17 @@ public class CourseMaterialTable extends JPanel {
         materialsTable.setFont(
                 new Font("SansSerif", Font.PLAIN, 13)
         );
-        materialsTable.setSelectionBackground(PALE_GREEN);
-        materialsTable.setSelectionForeground(Color.BLACK);
+        materialsTable.setSelectionBackground(MATERIALS_PALE_GREEN);
+        materialsTable.setSelectionForeground(MATERIALS_TEXT_BLACK);
         materialsTable.setShowVerticalLines(false);
-        materialsTable.setGridColor(new Color(230, 230, 230));
+        materialsTable.setGridColor(MATERIALS_GRID);
         materialsTable.setAutoCreateRowSorter(true);
 
         materialsTable.getTableHeader().setFont(
                 new Font("SansSerif", Font.BOLD, 13)
         );
-        materialsTable.getTableHeader().setBackground(PALE_GREEN);
-        materialsTable.getTableHeader().setForeground(DEEP_GREEN);
+        materialsTable.getTableHeader().setBackground(MATERIALS_PALE_GREEN);
+        materialsTable.getTableHeader().setForeground(MATERIALS_DEEP_GREEN);
         materialsTable.getTableHeader().setPreferredSize(
                 new Dimension(0, 40)
         );
@@ -121,20 +122,20 @@ public class CourseMaterialTable extends JPanel {
         JPanel filterPanel = new JPanel(new FlowLayout(
                 FlowLayout.LEFT, 10, 8
         ));
-        filterPanel.setBackground(Color.WHITE);
+        filterPanel.setBackground(MATERIALS_BACKGROUND);
 
         JLabel filterLabel = new JLabel("Filter by Course:");
         filterLabel.setFont(
                 new Font("SansSerif", Font.BOLD, 13)
         );
-        filterLabel.setForeground(DEEP_GREEN);
+        filterLabel.setForeground(MATERIALS_DEEP_GREEN);
 
         courseFilter = new JComboBox<>();
         courseFilter.setFont(
                 new Font("SansSerif", Font.PLAIN, 13)
         );
         courseFilter.setPreferredSize(new Dimension(320, 34));
-        courseFilter.setBackground(Color.WHITE);
+        courseFilter.setBackground(MATERIALS_BACKGROUND);
 
         courseFilter.addActionListener(e -> applyCourseFilter());
 
@@ -144,10 +145,10 @@ public class CourseMaterialTable extends JPanel {
         JScrollPane scrollPane = new JScrollPane(materialsTable);
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
-                        new Color(220, 230, 220)
+                        MATERIALS_BORDER
                 )
         );
-        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.getViewport().setBackground(MATERIALS_BACKGROUND);
 
         add(filterPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);

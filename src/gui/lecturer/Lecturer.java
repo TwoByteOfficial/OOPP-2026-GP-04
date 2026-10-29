@@ -12,13 +12,12 @@ import gui.lecturer.SharedComponents.LecturerSidebar;
 import gui.lecturer.SharedComponents.LecturerTopbar;
 import gui.lecturer.Undergraduate.LecturerUndergraduates;
 import gui.login.Login;
+import static gui.lecturer.SharedComponents.Colors.APP_BACKGROUND;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Lecturer extends JFrame {
-
-    private static final Color PALE_GREEN = new Color(232, 245, 233);
 
     private final long userId;
     private final String username;
@@ -55,7 +54,7 @@ public class Lecturer extends JFrame {
 
         cardLayout = new CardLayout();
         pageContainer = new JPanel(cardLayout);
-        pageContainer.setBackground(PALE_GREEN);
+        pageContainer.setBackground(APP_BACKGROUND);
 
         // Dashboard home page
         LecturerDashboard dashboard =
@@ -136,7 +135,7 @@ public class Lecturer extends JFrame {
 
     private JPanel createMainArea() {
         JPanel mainArea = new JPanel(new BorderLayout());
-        mainArea.setBackground(PALE_GREEN);
+        mainArea.setBackground(APP_BACKGROUND);
 
         topbar.setPreferredSize(new Dimension(0, 100));
 

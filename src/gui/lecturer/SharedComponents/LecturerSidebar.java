@@ -7,11 +7,11 @@ import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class LecturerSidebar extends JPanel {
+import static gui.lecturer.SharedComponents.Colors.SIDEBAR_DEEP_GREEN;
+import static gui.lecturer.SharedComponents.Colors.SIDEBAR_LIGHT_GREEN;
+import static gui.lecturer.SharedComponents.Colors.SIDEBAR_WHITE;
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color LIGHT_GREEN = new Color(200, 230, 201);
-    private static final Color WHITE = Color.WHITE;
+public class LecturerSidebar extends JPanel {
 
     private final Map<String, JButton> navigationButtons =
             new LinkedHashMap<>();
@@ -20,7 +20,7 @@ public class LecturerSidebar extends JPanel {
 
     public LecturerSidebar() {
         setLayout(new BorderLayout());
-        setBackground(DEEP_GREEN);
+        setBackground(SIDEBAR_DEEP_GREEN);
         setPreferredSize(new Dimension(250, 0));
 
         // Keep left padding and remove right padding
@@ -91,12 +91,12 @@ public class LecturerSidebar extends JPanel {
 
         JLabel brand = new JLabel("UniMIS");
         brand.setFont(new Font("SansSerif", Font.BOLD, 27));
-        brand.setForeground(WHITE);
+        brand.setForeground(SIDEBAR_WHITE);
         brand.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel subtitle = new JLabel("LECTURER PORTAL");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        subtitle.setForeground(LIGHT_GREEN);
+        subtitle.setForeground(SIDEBAR_LIGHT_GREEN);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         panel.add(brand);
@@ -154,8 +154,8 @@ public class LecturerSidebar extends JPanel {
 
         button.setFont(new Font("SansSerif", Font.PLAIN, 14));
         button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setBackground(DEEP_GREEN);
-        button.setForeground(WHITE);
+        button.setBackground(SIDEBAR_DEEP_GREEN);
+        button.setForeground(SIDEBAR_WHITE);
         button.setCursor(
                 Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
         );
@@ -173,8 +173,8 @@ public class LecturerSidebar extends JPanel {
 
         logout.setFont(new Font("SansSerif", Font.BOLD, 14));
         logout.setHorizontalAlignment(SwingConstants.LEFT);
-        logout.setBackground(LIGHT_GREEN);
-        logout.setForeground(DEEP_GREEN);
+        logout.setBackground(SIDEBAR_LIGHT_GREEN);
+        logout.setForeground(SIDEBAR_DEEP_GREEN);
         logout.setCursor(
                 Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
         );
@@ -204,11 +204,11 @@ public class LecturerSidebar extends JPanel {
             JButton button = entry.getValue();
 
             button.setBackground(
-                    selected ? LIGHT_GREEN : DEEP_GREEN
+                    selected ? SIDEBAR_LIGHT_GREEN : SIDEBAR_DEEP_GREEN
             );
 
             button.setForeground(
-                    selected ? DEEP_GREEN : WHITE
+                    selected ? SIDEBAR_DEEP_GREEN : SIDEBAR_WHITE
             );
 
             button.setFont(new Font(

@@ -13,12 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LecturerAttendance extends JPanel {
+import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_BACKGROUND;
+import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_BORDER;
+import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_DEEP_GREEN;
+import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_TEXT_GRAY;
+import static gui.lecturer.SharedComponents.Colors.ATTENDANCE_WHITE;
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color PALE_GREEN = new Color(232, 245, 233);
-    private static final Color BORDER_GREEN = new Color(200, 230, 201);
-    private static final Color TEXT_GRAY = new Color(96, 112, 100);
+public class LecturerAttendance extends JPanel {
 
     private final long lecturerId;
     private final AttendanceMedicalDAO attDAO = new AttendanceMedicalDAO();
@@ -42,7 +43,7 @@ public class LecturerAttendance extends JPanel {
         this.lecturerId = lecturerId;
 
         setLayout(new BorderLayout(0, 20));
-        setBackground(PALE_GREEN);
+        setBackground(ATTENDANCE_BACKGROUND);
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
         // Heading
@@ -52,11 +53,11 @@ public class LecturerAttendance extends JPanel {
 
         JLabel title = new JLabel("Attendance & Medical Records");
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
-        title.setForeground(DEEP_GREEN);
+        title.setForeground(ATTENDANCE_DEEP_GREEN);
 
         JLabel subtitle = new JLabel("Monitor student attendance summaries and medical certificate submissions.");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        subtitle.setForeground(TEXT_GRAY);
+        subtitle.setForeground(ATTENDANCE_TEXT_GRAY);
 
         heading.add(title);
         heading.add(Box.createVerticalStrut(6));
@@ -68,14 +69,14 @@ public class LecturerAttendance extends JPanel {
 
         JLabel courseLabel = new JLabel("Select Course:");
         courseLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        courseLabel.setForeground(DEEP_GREEN);
+        courseLabel.setForeground(ATTENDANCE_DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(280, 34));
         courseCombo.addActionListener(e -> refreshAllData());
 
         JLabel componentLabel = new JLabel("Component:");
         componentLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        componentLabel.setForeground(DEEP_GREEN);
+        componentLabel.setForeground(ATTENDANCE_DEEP_GREEN);
 
         componentCombo.setPreferredSize(new Dimension(140, 34));
         componentCombo.addActionListener(e -> loadAttendanceSummary());
@@ -98,11 +99,11 @@ public class LecturerAttendance extends JPanel {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 13));
         tabbedPane.setBackground(Color.WHITE);
-        tabbedPane.setForeground(DEEP_GREEN);
+        tabbedPane.setForeground(ATTENDANCE_DEEP_GREEN);
 
         // Tab 1: Attendance Summary Panel
         JPanel attPanel = new JPanel(new BorderLayout(0, 10));
-        attPanel.setBackground(PALE_GREEN);
+        attPanel.setBackground(ATTENDANCE_BACKGROUND);
         attPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] attColumns = {"Reg. No.", "Full Name", "Total Sessions", "Attended", "Medicals", "Absences", "Raw %", "Adjusted %", "Attendance Status"};
@@ -116,24 +117,24 @@ public class LecturerAttendance extends JPanel {
         attTable = new JTable(attTableModel);
         attTable.setRowHeight(34);
         attTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        attTable.setSelectionBackground(PALE_GREEN);
-        attTable.setSelectionForeground(DEEP_GREEN);
-        attTable.setGridColor(BORDER_GREEN);
+        attTable.setSelectionBackground(ATTENDANCE_BACKGROUND);
+        attTable.setSelectionForeground(ATTENDANCE_DEEP_GREEN);
+        attTable.setGridColor(ATTENDANCE_BORDER);
         attTable.setFillsViewportHeight(true);
 
         attTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        attTable.getTableHeader().setBackground(PALE_GREEN);
-        attTable.getTableHeader().setForeground(DEEP_GREEN);
+        attTable.getTableHeader().setBackground(ATTENDANCE_BACKGROUND);
+        attTable.getTableHeader().setForeground(ATTENDANCE_DEEP_GREEN);
 
         JScrollPane attScroll = new JScrollPane(attTable);
-        attScroll.setBorder(new LineBorder(BORDER_GREEN, 1));
+        attScroll.setBorder(new LineBorder(ATTENDANCE_BORDER, 1));
 
         attPanel.add(attScroll, BorderLayout.CENTER);
         attPanel.add(attStatusLabel, BorderLayout.SOUTH);
 
         // Tab 2: Medicals Panel
         JPanel medPanel = new JPanel(new BorderLayout(0, 10));
-        medPanel.setBackground(PALE_GREEN);
+        medPanel.setBackground(ATTENDANCE_BACKGROUND);
         medPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] medColumns = {"Medical ID", "Reg. No.", "Full Name", "Course Code", "Medical Date", "Reason", "Status", "Review Remarks"};
@@ -147,17 +148,17 @@ public class LecturerAttendance extends JPanel {
         medTable = new JTable(medTableModel);
         medTable.setRowHeight(34);
         medTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        medTable.setSelectionBackground(PALE_GREEN);
-        medTable.setSelectionForeground(DEEP_GREEN);
-        medTable.setGridColor(BORDER_GREEN);
+        medTable.setSelectionBackground(ATTENDANCE_BACKGROUND);
+        medTable.setSelectionForeground(ATTENDANCE_DEEP_GREEN);
+        medTable.setGridColor(ATTENDANCE_BORDER);
         medTable.setFillsViewportHeight(true);
 
         medTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        medTable.getTableHeader().setBackground(PALE_GREEN);
-        medTable.getTableHeader().setForeground(DEEP_GREEN);
+        medTable.getTableHeader().setBackground(ATTENDANCE_BACKGROUND);
+        medTable.getTableHeader().setForeground(ATTENDANCE_DEEP_GREEN);
 
         JScrollPane medScroll = new JScrollPane(medTable);
-        medScroll.setBorder(new LineBorder(BORDER_GREEN, 1));
+        medScroll.setBorder(new LineBorder(ATTENDANCE_BORDER, 1));
 
         medPanel.add(medScroll, BorderLayout.CENTER);
         medPanel.add(medStatusLabel, BorderLayout.SOUTH);
