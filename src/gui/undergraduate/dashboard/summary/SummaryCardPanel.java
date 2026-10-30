@@ -58,7 +58,7 @@ public class SummaryCardPanel extends JPanel {
         setBorder(new EmptyBorder(12, 14, 12, 14));
         setPreferredSize(new Dimension(0, 75));
 
-        // Left rounded green accent badge
+        // Left rounded green accent badge (1:1 Aspect Ratio Centered Square)
         JPanel iconBadge = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -66,7 +66,10 @@ public class SummaryCardPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(accentColor);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                int size = 38;
+                int x = (getWidth() - size) / 2;
+                int y = (getHeight() - size) / 2;
+                g2.fillRoundRect(x, y, size, size, 10, 10);
                 g2.dispose();
             }
         };

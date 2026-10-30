@@ -50,7 +50,10 @@ public class CoursesSummaryStripPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(badgeColor);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                int size = 38;
+                int x = (getWidth() - size) / 2;
+                int y = (getHeight() - size) / 2;
+                g2.fillRoundRect(x, y, size, size, 10, 10);
                 g2.dispose();
             }
         };
