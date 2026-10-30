@@ -1,58 +1,63 @@
 
 package gui.technical.dashboard.overview;
 
+import dao.TODashboardDAO;
+import gui.theme.UniMisTheme;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class AttendanceOverviewPanel extends JPanel {
 
-    private final Color NAVY = new Color(24, 58, 99);
-    private final Color BLUE = new Color(43, 99, 235);
-    private final Color MUTED = new Color(105, 118, 135);
+    public AttendanceOverviewPanel(long userId) {
 
-    public AttendanceOverviewPanel() {
-        setLayout(new BorderLayout(0, 18));
-        setBackground(Color.WHITE);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(
-                        new Color(225, 230, 238)),
-                new EmptyBorder(20, 20, 20, 20)));
+        setLayout(new BorderLayout(0, 12));
+        setBackground(UniMisTheme.WHITE);
+        setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        JLabel title = new JLabel("Attendance Overview");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        title.setForeground(NAVY);
+        JLabel heading = new JLabel("Attendance Overview");
+        heading.setFont(UniMisTheme.FONT_H3);
+        heading.setForeground(UniMisTheme.TEXT);
 
-        JPanel details = new JPanel();
-        details.setOpaque(false);
-        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
+        add(heading, BorderLayout.NORTH);
 
-        JLabel description = new JLabel(
-                "Attendance statistics will appear here.");
-        description.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        description.setForeground(MUTED);
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        JProgressBar progress = new JProgressBar(0, 100);
-        progress.setValue(0);
-        progress.setStringPainted(true);
-        progress.setString("No data");
-        progress.setForeground(BLUE);
-        progress.setBackground(new Color(235, 239, 245));
-        progress.setPreferredSize(new Dimension(250, 18));
-        progress.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
+        try {
+            TODashboardDAO dao = new TODashboardDAO();
+            int[] counts = dao.getAttendanceOverview(userId);
 
-        JButton viewButton = new JButton("Open Attendance");
-        viewButton.setFocusPainted(false);
-        viewButton.setCursor(
-                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            addStat(content, "Total attendance records: ", counts[0]);
+            addStat(content, "Present: ", counts[1]);
+            addStat(content, "Absent: ", counts[2]);
+            addStat(content, "Medical: ", counts[3]);
+            addStat(content, "Late: ", counts[4]);
 
-        details.add(description);
-        details.add(Box.createVerticalStrut(18));
-        details.add(progress);
-        details.add(Box.createVerticalStrut(15));
-        details.add(viewButton);
+        } catch (SQLException e) {
+            e.printStackTrace();
 
-        add(title, BorderLayout.NORTH);
-        add(details, BorderLayout.CENTER);
+            JLabel error = new JLabel(
+                    "Unable to load attendance statistics.");
+            error.setFont(UniMisTheme.FONT_BODY_BOLD);
+            error.setForeground(UniMisTheme.PRIMARY_DARK);
+
+            content.add(error);
+        }
+
+        add(content, BorderLayout.CENTER);
+    }
+
+    private void addStat(JPanel panel, String label, int count) {
+
+        JLabel stat = new JLabel(label + count);
+        stat.setFont(UniMisTheme.FONT_BODY_BOLD);
+        stat.setForeground(UniMisTheme.PRIMARY_DARK);
+        stat.setBorder(new EmptyBorder(2, 0, 2, 0));
+
+        panel.add(stat);
     }
 }

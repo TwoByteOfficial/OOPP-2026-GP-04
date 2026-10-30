@@ -1,39 +1,57 @@
 
 package gui.technical.dashboard.actions;
 
+import gui.theme.UniMisTheme;
+
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class DashboardQuickActionsPanel extends JPanel {
 
-    private final Color BLUE = new Color(43, 99, 235);
-    private final Color ORANGE = new Color(230, 126, 20);
-    private final Color NAVY = new Color(24, 58, 99);
-    private final Color TEAL = new Color(15, 118, 110);
+    public DashboardQuickActionsPanel(Consumer<String> navigationHandler) {
 
-    public DashboardQuickActionsPanel() {
-        setLayout(new FlowLayout(FlowLayout.LEFT, 10, 8));
-        setBackground(Color.WHITE);
-        setBorder(new EmptyBorder(5, 5, 5, 5));
+        setLayout(new BorderLayout(0, 14));
+        setOpaque(false);
 
-        add(createButton("Record Attendance", BLUE));
-        add(createButton("Add Medical", ORANGE));
-        add(createButton("View Timetable", NAVY));
-        add(createButton("View Notices", TEAL));
+        JLabel heading = new JLabel("Quick Actions");
+        heading.setFont(UniMisTheme.FONT_H3);
+        heading.setForeground(UniMisTheme.TEXT);
+
+        add(heading, BorderLayout.NORTH);
+
+        JPanel buttonsPanel = new JPanel(new GridLayout(1, 4, 12, 0));
+        buttonsPanel.setOpaque(false);
+
+        buttonsPanel.add(createButton("Record Attendance",
+                "Attendance", navigationHandler));
+
+        buttonsPanel.add(createButton("Add Medical Record",
+                "Medical Records", navigationHandler));
+
+        buttonsPanel.add(createButton("View Timetable",
+                "Timetables", navigationHandler));
+
+        buttonsPanel.add(createButton("View Notices",
+                "Notices", navigationHandler));
+
+        add(buttonsPanel, BorderLayout.CENTER);
     }
 
-    private JButton createButton(String text, Color color) {
+    private JButton createButton(String text, String page,
+                                 Consumer<String> navigationHandler) {
+
         JButton button = new JButton(text);
 
-        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        button.setForeground(Color.WHITE);
-        button.setBackground(color);
+        button.setFont(UniMisTheme.FONT_BODY_BOLD);
+        button.setForeground(UniMisTheme.TEXT);
+        button.setBackground(UniMisTheme.WHITE);
         button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setCursor(
-                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setMargin(new Insets(10, 14, 10, 14));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setBorder(new LineBorder(UniMisTheme.BORDER, 1, true));
+
+        button.addActionListener(e -> navigationHandler.accept(page));
 
         return button;
     }

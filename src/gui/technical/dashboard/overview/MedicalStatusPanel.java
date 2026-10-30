@@ -1,53 +1,79 @@
 
 package gui.technical.dashboard.overview;
+import dao.TODashboardDAO;
+import java.sql.SQLException;
+import java.util.function.Consumer;
+
+import gui.theme.UniMisTheme;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class MedicalStatusPanel extends JPanel {
+    private final long userId;
+    public MedicalStatusPanel(
+            long userId,
+            Consumer<String> navigationHandler) {
+        this.userId = userId;
 
-    private final Color NAVY = new Color(24, 58, 99);
-    private final Color MUTED = new Color(105, 118, 135);
-    private final Color ORANGE = new Color(230, 126, 20);
+        setLayout(new BorderLayout(0, 16));
+        setBackground(UniMisTheme.WHITE);
+        setBorder(new EmptyBorder(14, 16, 14, 16));
 
-    public MedicalStatusPanel() {
-        setLayout(new BorderLayout(0, 18));
-        setBackground(Color.WHITE);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(
-                        new Color(225, 230, 238)),
-                new EmptyBorder(20, 20, 20, 20)));
+        JLabel heading = new JLabel("Medical Status");
+        heading.setFont(UniMisTheme.FONT_H3);
+        heading.setForeground(UniMisTheme.TEXT);
 
-        JLabel title = new JLabel("Medical Status");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        title.setForeground(NAVY);
+        add(heading, BorderLayout.NORTH);
 
-        JPanel details = new JPanel();
-        details.setOpaque(false);
-        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        JLabel description = new JLabel(
-                "Medical record statistics will appear here.");
-        description.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        description.setForeground(MUTED);
 
-        JLabel pendingLabel = new JLabel("Pending medical records: —");
-        pendingLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        pendingLabel.setForeground(ORANGE);
 
-        JButton viewButton = new JButton("View Medicals");
+
+        JLabel pendingLabel = new JLabel(
+                "Pending medical records: —");
+
+        try {
+            TODashboardDAO dashboardDAO = new TODashboardDAO();
+
+            int pendingCount =
+                    dashboardDAO.getPendingMedicalCount(userId);
+
+            pendingLabel.setText(
+                    "Pending medical records: " + pendingCount);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        pendingLabel.setFont(UniMisTheme.FONT_BODY_BOLD);
+        pendingLabel.setForeground(UniMisTheme.PRIMARY_DARK);
+
+        JButton viewButton = new JButton("View Medical Records");
+        viewButton.setFont(UniMisTheme.FONT_SMALL);
+        viewButton.setForeground(UniMisTheme.WHITE);
+        viewButton.setBackground(UniMisTheme.PRIMARY);
         viewButton.setFocusPainted(false);
         viewButton.setCursor(
                 Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        details.add(description);
-        details.add(Box.createVerticalStrut(18));
-        details.add(pendingLabel);
-        details.add(Box.createVerticalStrut(15));
-        details.add(viewButton);
+        viewButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        add(title, BorderLayout.NORTH);
-        add(details, BorderLayout.CENTER);
+
+
+        viewButton.addActionListener(e ->
+                navigationHandler.accept("Medical Records"));
+
+
+        content.add(pendingLabel);
+        content.add(Box.createVerticalStrut(18));
+        content.add(viewButton);
+
+        add(content, BorderLayout.CENTER);
     }
 }

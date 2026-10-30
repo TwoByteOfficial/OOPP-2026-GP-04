@@ -6,29 +6,26 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO responsible for Admin User Management (User Profiles CRUD across 4 roles)
- * and Admin Settings profile updates.
- */
 public class AdminUserDAO {
 
     public List<User> getAllUsers() throws SQLException {
         List<User> list = new ArrayList<>();
         String sql = "SELECT u.*, " +
-                     "a.admin_code, a.designation AS admin_designation, " +
-                     "l.lecturer_code, l.title, l.specialization, " +
-                     "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
-                     "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
-                     "FROM users u " +
-                     "LEFT JOIN admins a ON u.user_id = a.user_id " +
-                     "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
-                     "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
-                     "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
-                     "ORDER BY u.user_id DESC";
+                "a.admin_code, a.designation AS admin_designation, " +
+                "l.lecturer_code, l.title, l.specialization, " +
+                "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
+                "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
+                "FROM users u " +
+                "LEFT JOIN admins a ON u.user_id = a.user_id " +
+                "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
+                "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
+                "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
+                "ORDER BY u.user_id DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
+        try (Connection con = DBConnection.con();
+             Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 list.add(mapResultSetToUser(rs));
             }
@@ -39,22 +36,24 @@ public class AdminUserDAO {
     public List<User> getUsersByRole(String role) throws SQLException {
         List<User> list = new ArrayList<>();
         String sql = "SELECT u.*, " +
-                     "a.admin_code, a.designation AS admin_designation, " +
-                     "l.lecturer_code, l.title, l.specialization, " +
-                     "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
-                     "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
-                     "FROM users u " +
-                     "LEFT JOIN admins a ON u.user_id = a.user_id " +
-                     "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
-                     "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
-                     "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
-                     "WHERE u.role = ? " +
-                     "ORDER BY u.user_id DESC";
+                "a.admin_code, a.designation AS admin_designation, " +
+                "l.lecturer_code, l.title, l.specialization, " +
+                "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
+                "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
+                "FROM users u " +
+                "LEFT JOIN admins a ON u.user_id = a.user_id " +
+                "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
+                "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
+                "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
+                "WHERE u.role = ? " +
+                "ORDER BY u.user_id DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, role);
-            try (ResultSet rs = stmt.executeQuery()) {
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setString(1, role);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapResultSetToUser(rs));
                 }
@@ -65,22 +64,24 @@ public class AdminUserDAO {
 
     public User getUserById(long userId) throws SQLException {
         String sql = "SELECT u.*, " +
-                     "a.admin_code, a.designation AS admin_designation, " +
-                     "l.lecturer_code, l.title, l.specialization, " +
-                     "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
-                     "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type, " +
-                     "ug.intake, ug.current_level, ug.current_semester, ug.admission_date, ug.guardian_name, ug.guardian_contact " +
-                     "FROM users u " +
-                     "LEFT JOIN admins a ON u.user_id = a.user_id " +
-                     "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
-                     "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
-                     "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
-                     "WHERE u.user_id = ?";
+                "a.admin_code, a.designation AS admin_designation, " +
+                "l.lecturer_code, l.title, l.specialization, " +
+                "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
+                "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type, " +
+                "ug.intake, ug.current_level, ug.current_semester, ug.admission_date, ug.guardian_name, ug.guardian_contact " +
+                "FROM users u " +
+                "LEFT JOIN admins a ON u.user_id = a.user_id " +
+                "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
+                "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
+                "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
+                "WHERE u.user_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, userId);
-            try (ResultSet rs = stmt.executeQuery()) {
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setLong(1, userId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSetToUser(rs);
                 }
@@ -89,79 +90,73 @@ public class AdminUserDAO {
         return null;
     }
 
-    /**
-     * Creates an Admin account inside a transaction (inserts into `users` and `admins`).
-     */
     public boolean createAdmin(Admin admin) throws SQLException {
         admin.setRole("Admin");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO admins (user_id, admin_code, designation) VALUES (?, ?, ?)";
 
-        Connection conn = DBConnection.getConnection();
+        Connection con = DBConnection.con();
         try {
-            conn.setAutoCommit(false);
+            con.setAutoCommit(false);
             long userId;
-            try (PreparedStatement stmt = conn.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
-                bindUserBaseParameters(stmt, admin);
-                stmt.executeUpdate();
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
+            try (PreparedStatement pstmt = con.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
+                bindUserBaseParameters(pstmt, admin);
+                pstmt.executeUpdate();
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         userId = rs.getLong(1);
                         admin.setUserId(userId);
                     } else {
-                        conn.rollback();
+                        con.rollback();
                         return false;
                     }
                 }
             }
 
-            try (PreparedStatement childStmt = conn.prepareStatement(childSql)) {
+            try (PreparedStatement childStmt = con.prepareStatement(childSql)) {
                 childStmt.setLong(1, userId);
                 childStmt.setString(2, admin.getAdminCode());
                 childStmt.setString(3, admin.getDesignation());
                 childStmt.executeUpdate();
             }
 
-            conn.commit();
+            con.commit();
             return true;
         } catch (SQLException e) {
-            conn.rollback();
+            con.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
-            conn.close();
+            con.setAutoCommit(true);
+            con.close();
         }
     }
 
-    /**
-     * Creates a Lecturer account inside a transaction (inserts into `users` and `lecturers`).
-     */
     public boolean createLecturer(Lecturer lecturer) throws SQLException {
         lecturer.setRole("Lecturer");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO lecturers (user_id, lecturer_code, title, specialization) VALUES (?, ?, ?, ?)";
 
-        Connection conn = DBConnection.getConnection();
+        Connection con = DBConnection.con();
         try {
-            conn.setAutoCommit(false);
+            con.setAutoCommit(false);
             long userId;
-            try (PreparedStatement stmt = conn.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
-                bindUserBaseParameters(stmt, lecturer);
-                stmt.executeUpdate();
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
+            try (PreparedStatement pstmt = con.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
+                bindUserBaseParameters(pstmt, lecturer);
+                pstmt.executeUpdate();
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         userId = rs.getLong(1);
                         lecturer.setUserId(userId);
                     } else {
-                        conn.rollback();
+                        con.rollback();
                         return false;
                     }
                 }
             }
 
-            try (PreparedStatement childStmt = conn.prepareStatement(childSql)) {
+            try (PreparedStatement childStmt = con.prepareStatement(childSql)) {
                 childStmt.setLong(1, userId);
                 childStmt.setString(2, lecturer.getLecturerCode());
                 childStmt.setString(3, lecturer.getTitle());
@@ -169,45 +164,42 @@ public class AdminUserDAO {
                 childStmt.executeUpdate();
             }
 
-            conn.commit();
+            con.commit();
             return true;
         } catch (SQLException e) {
-            conn.rollback();
+            con.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
-            conn.close();
+            con.setAutoCommit(true);
+            con.close();
         }
     }
 
-    /**
-     * Creates a Technical Officer account inside a transaction (inserts into `users` and `technical_officers`).
-     */
     public boolean createTechnicalOfficer(TechnicalOfficer officer) throws SQLException {
         officer.setRole("Technical Officer");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO technical_officers (user_id, technical_officer_code, designation, assigned_labs) VALUES (?, ?, ?, ?)";
 
-        Connection conn = DBConnection.getConnection();
+        Connection con = DBConnection.con();
         try {
-            conn.setAutoCommit(false);
+            con.setAutoCommit(false);
             long userId;
-            try (PreparedStatement stmt = conn.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
-                bindUserBaseParameters(stmt, officer);
-                stmt.executeUpdate();
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
+            try (PreparedStatement pstmt = con.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
+                bindUserBaseParameters(pstmt, officer);
+                pstmt.executeUpdate();
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         userId = rs.getLong(1);
                         officer.setUserId(userId);
                     } else {
-                        conn.rollback();
+                        con.rollback();
                         return false;
                     }
                 }
             }
 
-            try (PreparedStatement childStmt = conn.prepareStatement(childSql)) {
+            try (PreparedStatement childStmt = con.prepareStatement(childSql)) {
                 childStmt.setLong(1, userId);
                 childStmt.setString(2, officer.getTechnicalOfficerCode());
                 childStmt.setString(3, officer.getDesignation());
@@ -215,46 +207,43 @@ public class AdminUserDAO {
                 childStmt.executeUpdate();
             }
 
-            conn.commit();
+            con.commit();
             return true;
         } catch (SQLException e) {
-            conn.rollback();
+            con.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
-            conn.close();
+            con.setAutoCommit(true);
+            con.close();
         }
     }
 
-    /**
-     * Creates an Undergraduate account inside a transaction (inserts into `users` and `undergraduates`).
-     */
     public boolean createUndergraduate(Undergraduate ug) throws SQLException {
         ug.setRole("Undergraduate");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO undergraduates (user_id, registration_no, index_no, batch_year, academic_year, student_type, intake, current_level, current_semester, admission_date, guardian_name, guardian_contact) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        Connection conn = DBConnection.getConnection();
+        Connection con = DBConnection.con();
         try {
-            conn.setAutoCommit(false);
+            con.setAutoCommit(false);
             long userId;
-            try (PreparedStatement stmt = conn.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
-                bindUserBaseParameters(stmt, ug);
-                stmt.executeUpdate();
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
+            try (PreparedStatement pstmt = con.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
+                bindUserBaseParameters(pstmt, ug);
+                pstmt.executeUpdate();
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         userId = rs.getLong(1);
                         ug.setUserId(userId);
                     } else {
-                        conn.rollback();
+                        con.rollback();
                         return false;
                     }
                 }
             }
 
-            try (PreparedStatement childStmt = conn.prepareStatement(childSql)) {
+            try (PreparedStatement childStmt = con.prepareStatement(childSql)) {
                 childStmt.setLong(1, userId);
                 childStmt.setString(2, ug.getRegistrationNo());
                 childStmt.setString(3, ug.getIndexNo());
@@ -270,59 +259,81 @@ public class AdminUserDAO {
                 childStmt.executeUpdate();
             }
 
-            conn.commit();
+            con.commit();
             return true;
         } catch (SQLException e) {
-            conn.rollback();
+            con.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
-            conn.close();
+            con.setAutoCommit(true);
+            con.close();
         }
     }
 
-    /**
-     * Updates common user details in the `users` table.
-     */
     public boolean updateUser(User user) throws SQLException {
         String sql = "UPDATE users SET full_name = ?, nic = ?, date_of_birth = ?, gender = ?, email = ?, contact_no = ?, address = ?, user_status = ?, department_id = ? WHERE user_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getFullName());
-            stmt.setString(2, user.getNic());
-            stmt.setDate(3, user.getDateOfBirth());
-            stmt.setString(4, user.getGender());
-            stmt.setString(5, user.getEmail());
-            stmt.setString(6, user.getContactNo());
-            stmt.setString(7, user.getAddress());
-            stmt.setString(8, user.getUserStatus());
-            if (user.getDepartmentId() != null) stmt.setInt(9, user.getDepartmentId()); else stmt.setNull(9, Types.INTEGER);
-            stmt.setLong(10, user.getUserId());
-            return stmt.executeUpdate() > 0;
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setString(1, user.getFullName());
+            pstmt.setString(2, user.getNic());
+            pstmt.setDate(3, user.getDateOfBirth());
+            pstmt.setString(4, user.getGender());
+            pstmt.setString(5, user.getEmail());
+            pstmt.setString(6, user.getContactNo());
+            pstmt.setString(7, user.getAddress());
+            pstmt.setString(8, user.getUserStatus());
+            if (user.getDepartmentId() != null) pstmt.setInt(9, user.getDepartmentId()); else pstmt.setNull(9, Types.INTEGER);
+            pstmt.setLong(10, user.getUserId());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
-    /**
-     * Updates Admin Settings profile details (full_name, nic, email, contact_no, address).
-     * Note: username and password are protected/locked on this view.
-     */
     public boolean updateAdminProfileSettings(long userId, String fullName, String nic, String email, String contactNo, String address) throws SQLException {
         String sql = "UPDATE users SET full_name = ?, nic = ?, email = ?, contact_no = ?, address = ? WHERE user_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, fullName);
-            stmt.setString(2, nic);
-            stmt.setString(3, email);
-            stmt.setString(4, contactNo);
-            stmt.setString(5, address);
-            stmt.setLong(6, userId);
-            return stmt.executeUpdate() > 0;
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, nic);
+            pstmt.setString(3, email);
+            pstmt.setString(4, contactNo);
+            pstmt.setString(5, address);
+            pstmt.setLong(6, userId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
-    /**
-     * Deletes a user account cleanly across parent and child tables.
-     */
+    public boolean updateUserPassword(String username, String currentPassword, String newPassword) throws SQLException {
+        String verifySql = "SELECT user_id FROM users WHERE username = ? AND password_hash = ?";
+        String updateSql = "UPDATE users SET password_hash = ? WHERE username = ?";
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement verifyStmt = con.prepareStatement(verifySql)) {
+
+            verifyStmt.setString(1, username);
+            verifyStmt.setString(2, currentPassword);
+
+            try (ResultSet rs = verifyStmt.executeQuery()) {
+                if (!rs.next()) {
+                    return false; // Current password incorrect or user not found
+                }
+            }
+
+            try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+                updateStmt.setString(1, newPassword);
+                updateStmt.setString(2, username);
+                return updateStmt.executeUpdate() > 0;
+            }
+        }
+    }
+
     public boolean deleteUser(long userId) throws SQLException {
         String childAdminSql = "DELETE FROM admins WHERE user_id = ?";
         String childLecturerSql = "DELETE FROM lecturers WHERE user_id = ?";
@@ -330,45 +341,45 @@ public class AdminUserDAO {
         String childUgSql = "DELETE FROM undergraduates WHERE user_id = ?";
         String userSql = "DELETE FROM users WHERE user_id = ?";
 
-        Connection conn = DBConnection.getConnection();
+        Connection con = DBConnection.con();
         try {
-            conn.setAutoCommit(false);
-            
-            try (PreparedStatement ps = conn.prepareStatement(childAdminSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
-            try (PreparedStatement ps = conn.prepareStatement(childLecturerSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
-            try (PreparedStatement ps = conn.prepareStatement(childToSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
-            try (PreparedStatement ps = conn.prepareStatement(childUgSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
-            
-            int affected;
-            try (PreparedStatement ps = conn.prepareStatement(userSql)) {
+            con.setAutoCommit(false);
+
+            try (PreparedStatement ps = con.prepareStatement(childAdminSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
+            try (PreparedStatement ps = con.prepareStatement(childLecturerSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
+            try (PreparedStatement ps = con.prepareStatement(childToSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
+            try (PreparedStatement ps = con.prepareStatement(childUgSql)) { ps.setLong(1, userId); ps.executeUpdate(); }
+
+            int rowsAffected;
+            try (PreparedStatement ps = con.prepareStatement(userSql)) {
                 ps.setLong(1, userId);
-                affected = ps.executeUpdate();
+                rowsAffected = ps.executeUpdate();
             }
 
-            conn.commit();
-            return affected > 0;
+            con.commit();
+            return rowsAffected > 0;
         } catch (SQLException e) {
-            conn.rollback();
+            con.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
-            conn.close();
+            con.setAutoCommit(true);
+            con.close();
         }
     }
 
-    private void bindUserBaseParameters(PreparedStatement stmt, User u) throws SQLException {
-        stmt.setString(1, u.getUsername());
-        stmt.setString(2, u.getPasswordHash());
-        stmt.setString(3, u.getRole());
-        stmt.setString(4, u.getFullName());
-        stmt.setString(5, u.getNic());
-        stmt.setDate(6, u.getDateOfBirth());
-        stmt.setString(7, u.getGender());
-        stmt.setString(8, u.getEmail());
-        stmt.setString(9, u.getContactNo());
-        stmt.setString(10, u.getAddress());
-        if (u.getDepartmentId() != null) stmt.setInt(11, u.getDepartmentId()); else stmt.setNull(11, Types.INTEGER);
-        stmt.setString(12, u.getUserStatus() != null ? u.getUserStatus() : "Active");
+    private void bindUserBaseParameters(PreparedStatement pstmt, User u) throws SQLException {
+        pstmt.setString(1, u.getUsername());
+        pstmt.setString(2, u.getPasswordHash());
+        pstmt.setString(3, u.getRole());
+        pstmt.setString(4, u.getFullName());
+        pstmt.setString(5, u.getNic());
+        pstmt.setDate(6, u.getDateOfBirth());
+        pstmt.setString(7, u.getGender());
+        pstmt.setString(8, u.getEmail());
+        pstmt.setString(9, u.getContactNo());
+        pstmt.setString(10, u.getAddress());
+        if (u.getDepartmentId() != null) pstmt.setInt(11, u.getDepartmentId()); else pstmt.setNull(11, Types.INTEGER);
+        pstmt.setString(12, u.getUserStatus() != null ? u.getUserStatus() : "Active");
     }
 
     private User mapResultSetToUser(ResultSet rs) throws SQLException {

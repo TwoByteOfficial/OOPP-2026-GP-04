@@ -42,4 +42,13 @@ public class AttendanceSession {
     public void setConductedBy(Long conductedBy) { this.conductedBy = conductedBy; }
     public String getTopic() { return topic; }
     public void setTopic(String topic) { this.topic = topic; }
+
+
+    @Override
+    public String toString() {
+        return "Session " + sessionNo + " - " + sessionDate;
+    }
+
+
+
 }

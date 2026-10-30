@@ -1,29 +1,53 @@
 
 package gui.technical.dashboard.summary;
 
+import gui.theme.UniMisTheme;
+
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 public class SummaryCardPanel extends JPanel {
-
+    private JLabel valueLabel;
     public SummaryCardPanel(String title, String value, Color accent) {
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(Color.WHITE);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 4, 0, 0, accent),
-                new EmptyBorder(18, 14, 18, 10)));
+        setBackground(UniMisTheme.WHITE);
 
-        JLabel number = new JLabel(value);
-        number.setFont(new Font("Segoe UI", Font.BOLD, 25));
-        number.setForeground(new Color(40, 55, 75));
+        setBorder(new CompoundBorder(
+                new MatteBorder(0, 5, 0, 0, accent),
+                new EmptyBorder(12, 16, 12, 16)
+        ));
 
-        JLabel caption = new JLabel(title);
-        caption.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        caption.setForeground(new Color(100, 112, 128));
+        setPreferredSize(new Dimension(200, 100));
 
-        add(number);
-        add(Box.createVerticalStrut(7));
-        add(caption);
+        valueLabel = new JLabel(value);
+        valueLabel.setFont(UniMisTheme.FONT_H2);
+        valueLabel.setForeground(UniMisTheme.TEXT);
+        valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(UniMisTheme.FONT_TINY);
+        titleLabel.setForeground(UniMisTheme.MUTED);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        add(valueLabel);
+        add(Box.createVerticalStrut(6));
+        add(titleLabel);
     }
+
+
+
+
+    public void setValue(String value) {
+        valueLabel.setText(value);
+    }
+
+
+
+
+
+
 }

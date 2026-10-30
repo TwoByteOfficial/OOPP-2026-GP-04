@@ -1,11 +1,7 @@
 package gui.admin.DashboardComponents;
 
-import dao.admin.AdminUserDAO; // Ingest existing user DAO package
-import model.User;             // Ingest model definition mapping
-import model.Undergraduate;
-import model.Lecturer;
-import model.TechnicalOfficer;
-import model.Admin;
+import dao.admin.AdminUserDAO;
+import model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,30 +10,28 @@ import java.util.ArrayList;
 
 public class UserSummary extends JPanel {
 
-    private final Color WHITE = Color.WHITE;
+    private final Color WHITE        = Color.WHITE;
     private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
-    private final Color DEEP_GREEN = new Color(0x1B, 0x5E, 0x20);
+    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
     private final Color PASTEL_GREEN = new Color(0xC8, 0xE6, 0xC9);
-    private final Color MUTED = new Color(0x4F, 0x6B, 0x52);
+    private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
 
-    private AdminUserDAO userDAO; // Added data access node reference
+    private AdminUserDAO userDAO;
 
     public UserSummary() {
         setLayout(null);
-        setBounds(0, 0, 770, 410);
+        setBounds(0, 0, 790, 450);
         setOpaque(false);
 
-        // 1. Initialize DB Operations safely
         userDAO = new AdminUserDAO();
         List<User> recentUsers = new ArrayList<>();
         try {
-            List<User> allUsers = userDAO.getAllUsers(); // Fetches users sorted DESC by ID
-            // Extract a maximum slice of the top 5 recently created profiles
+            List<User> allUsers = userDAO.getAllUsers();
             for (int i = 0; i < Math.min(5, allUsers.size()); i++) {
                 recentUsers.add(allUsers.get(i));
             }
         } catch (Exception e) {
-            System.err.println("[User Summary DB Error] Could not load dynamic registration tables.");
+            System.err.println("[User Summary DB Error] Could not load user table.");
             e.printStackTrace();
         }
 
@@ -55,14 +49,20 @@ public class UserSummary extends JPanel {
             }
         };
 
-        container.setBounds(0, 0, 770, 410);
+        container.setBounds(0, 0, 790, 450);
         container.setOpaque(false);
 
         JLabel title = new JLabel("Recently Added Users");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setForeground(FOREST_GREEN);
-        title.setBounds(25, 20, 380, 30);
+        title.setBounds(25, 18, 380, 30);
         container.add(title);
+
+        JLabel subtitle = new JLabel("Latest user profiles registered in database");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        subtitle.setForeground(MUTED);
+        subtitle.setBounds(25, 48, 400, 22);
+        container.add(subtitle);
 
         JPanel tableHeader = new JPanel(null) {
             @Override
@@ -75,31 +75,29 @@ public class UserSummary extends JPanel {
             }
         };
 
-        tableHeader.setBounds(25, 65, 720, 42);
+        tableHeader.setBounds(25, 78, 740, 40);
         tableHeader.setOpaque(false);
 
-        String[] columnHeaders = { "User ID", "Name", "Role", "Department", "Status" };
-        int[] columnWidths = { 130, 200, 160, 130, 120 };
+        String[] columnHeaders = { "User ID / Code", "Full Name", "Role", "Department", "Status" };
+        int[] columnWidths = { 140, 210, 150, 130, 110 };
 
         int currentX = 15;
         for (int i = 0; i < columnHeaders.length; i++) {
             JLabel header = new JLabel(columnHeaders[i]);
-            header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            header.setFont(new Font("Segoe UI", Font.BOLD, 15));
             header.setForeground(FOREST_GREEN);
-            header.setBounds(currentX, 0, columnWidths[i], 42);
+            header.setBounds(currentX, 0, columnWidths[i], 40);
             tableHeader.add(header);
             currentX += columnWidths[i];
         }
         container.add(tableHeader);
 
-        // 2. Loop and print live rows matching database models dynamically
         for (int row = 0; row < recentUsers.size(); row++) {
             User u = recentUsers.get(row);
 
-            // Deduce role-specific tracking identification numbers dynamically from polymorphs
             String customIdentifier = "UID-" + u.getUserId();
             if (u instanceof Undergraduate) {
-                customIdentifier = ((Undergraduate) u).getRegistrationNo(); // e.g. TEC/2024/020
+                customIdentifier = ((Undergraduate) u).getRegistrationNo();
             } else if (u instanceof Lecturer) {
                 customIdentifier = ((Lecturer) u).getLecturerCode();
             } else if (u instanceof TechnicalOfficer) {
@@ -108,15 +106,13 @@ public class UserSummary extends JPanel {
                 customIdentifier = ((Admin) u).getAdminCode();
             }
 
-            // Format fallback values if code strings are unassigned or blank inside specific datasets
             if (customIdentifier == null || customIdentifier.trim().isEmpty()) {
                 customIdentifier = "UID-" + u.getUserId();
             }
 
-            // Convert primitive department IDs into readable shorthand text tokens
             String deptText = (u.getDepartmentId() != null) ? "Dept " + u.getDepartmentId() : "General";
             if (u.getDepartmentId() != null && u.getDepartmentId() == 1) {
-                deptText = "ICT"; // Spliced matching your layout logic
+                deptText = "ICT";
             }
 
             String[] liveRowData = {
@@ -129,21 +125,20 @@ public class UserSummary extends JPanel {
 
             JPanel rowPanel = new JPanel(null);
             rowPanel.setOpaque(false);
-            rowPanel.setBounds(25, 112 + (row * 54), 720, 54);
+            rowPanel.setBounds(25, 122 + (row * 58), 740, 54);
 
             int cellX = 15;
             for (int col = 0; col < liveRowData.length; col++) {
                 JLabel cell = new JLabel(liveRowData[col]);
-                cell.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                cell.setFont(new Font("Segoe UI", Font.PLAIN, 15));
                 cell.setForeground(col == 0 ? DEEP_GREEN : MUTED);
 
                 if (col == 4) {
-                    cell.setFont(new Font("Segoe UI", Font.BOLD, 13));
-                    // Highlight Active vs Inactive flags visually
+                    cell.setFont(new Font("Segoe UI", Font.BOLD, 15));
                     if ("Active".equalsIgnoreCase(liveRowData[col])) {
                         cell.setForeground(FOREST_GREEN);
                     } else {
-                        cell.setForeground(new Color(0xDC, 0x35, 0x45)); // Muted Red Alert Style
+                        cell.setForeground(new Color(0xDC, 0x35, 0x45));
                     }
                 }
 
@@ -154,18 +149,17 @@ public class UserSummary extends JPanel {
 
             JSeparator separator = new JSeparator();
             separator.setForeground(PASTEL_GREEN);
-            separator.setBounds(0, 53, 720, 1);
+            separator.setBounds(0, 53, 740, 1);
             rowPanel.add(separator);
 
             container.add(rowPanel);
         }
 
-        // Show an explicit layout placeholder row if database users index is entirely empty
         if (recentUsers.isEmpty()) {
-            JLabel emptyLabel = new JLabel("No records found in users database table register.", SwingConstants.CENTER);
-            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+            JLabel emptyLabel = new JLabel("No user records found in system database.", SwingConstants.CENTER);
+            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 15));
             emptyLabel.setForeground(MUTED);
-            emptyLabel.setBounds(25, 150, 720, 40);
+            emptyLabel.setBounds(25, 180, 740, 40);
             container.add(emptyLabel);
         }
 

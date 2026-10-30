@@ -1,8 +1,14 @@
 
 package gui.technical;
 
+
 import gui.login.Login;
+import gui.theme.UniMisTheme;
 import gui.technical.dashboard.TODashboardPanel;
+import gui.technical.attendance.AttendancePanel;
+import gui.technical.dashboard.bottom.DepartmentTimetablePanel;
+import gui.technical.NoticesPanel;
+import gui.technical.TechnicalOfficerProfilePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +23,7 @@ public class TechnicalOfficerDashboard extends JFrame {
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel pageContainer = new JPanel(cardLayout);
+    private TOSidebarPanel sidebar;
 
     public TechnicalOfficerDashboard(
             long userId,
@@ -34,31 +41,76 @@ public class TechnicalOfficerDashboard extends JFrame {
         setTitle("UniMIS - Technical Officer Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(1000, 650));
+        setSize(1200, 750);
         setResizable(true);
 
+        pageContainer.setBackground(UniMisTheme.LIGHT_BG);
+
         // Dashboard page
-        TODashboardPanel dashboardPanel =
-                new TODashboardPanel(fullName, role);
-
-        pageContainer.add(dashboardPanel, "Dashboard");
-
-        // Temporary pages for navigation testing
-        addPlaceholderPage("Attendance");
-        addPlaceholderPage("Medical Records");
-        addPlaceholderPage("Undergraduates");
-        addPlaceholderPage("Timetables");
-        addPlaceholderPage("Notices");
-        addPlaceholderPage("My Profile");
-
         // Sidebar
-        TOSidebarPanel sidebar = new TOSidebarPanel(
+        sidebar = new TOSidebarPanel(
                 fullName,
-                pageName -> cardLayout.show(pageContainer, pageName),
+                pageName -> {
+                    cardLayout.show(pageContainer, pageName);
+                    sidebar.selectPage(pageName);
+                },
                 this::logout
         );
 
+// Dashboard page
+        TODashboardPanel dashboardPanel =
+                new TODashboardPanel(
+                        userId,
+                        fullName,
+                        role,
+                        pageName -> {
+                            cardLayout.show(pageContainer, pageName);
+                            sidebar.selectPage(pageName);
+                        }
+                );
+
+        JScrollPane dashboardScrollPane =
+                new JScrollPane(dashboardPanel);
+
+        dashboardScrollPane.setBorder(null);
+        dashboardScrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        dashboardScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        pageContainer.add(dashboardScrollPane, "Dashboard");
+
+// Temporary pages
+// Dashboard pages
+        pageContainer.add(new AttendancePanel(userId), "Attendance");
+        pageContainer.add(
+                new MedicalRecordsPanel(userId),
+                "Medical Records"
+        );
+
+
+
+        pageContainer.add(new DepartmentTimetablePanel(userId), "Timetables");
+        pageContainer.add(new NoticesPanel(userId), "Notices");
+        pageContainer.add(
+                new TechnicalOfficerProfilePanel(userId),
+                "My Profile"
+        );
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Main window layout
         JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(UniMisTheme.LIGHT_BG);
         root.add(sidebar, BorderLayout.WEST);
         root.add(pageContainer, BorderLayout.CENTER);
 
@@ -66,21 +118,7 @@ public class TechnicalOfficerDashboard extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void addPlaceholderPage(String pageName) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(245, 247, 251));
 
-        JLabel title = new JLabel(
-                pageName + " - Under Development",
-                SwingConstants.CENTER
-        );
-
-        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        title.setForeground(new Color(24, 58, 99));
-
-        panel.add(title, BorderLayout.CENTER);
-        pageContainer.add(panel, pageName);
-    }
 
     private void logout() {
         dispose();
