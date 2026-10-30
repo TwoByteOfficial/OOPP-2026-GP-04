@@ -6,6 +6,9 @@ import gui.login.Login;
 import gui.theme.UniMisTheme;
 import gui.technical.dashboard.TODashboardPanel;
 import gui.technical.attendance.AttendancePanel;
+import gui.technical.dashboard.bottom.DepartmentTimetablePanel;
+import gui.technical.NoticesPanel;
+import gui.technical.TechnicalOfficerProfilePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,6 +60,7 @@ public class TechnicalOfficerDashboard extends JFrame {
 // Dashboard page
         TODashboardPanel dashboardPanel =
                 new TODashboardPanel(
+                        userId,
                         fullName,
                         role,
                         pageName -> {
@@ -76,21 +80,27 @@ public class TechnicalOfficerDashboard extends JFrame {
         pageContainer.add(dashboardScrollPane, "Dashboard");
 
 // Temporary pages
-        pageContainer.add(new AttendancePanel(), "Attendance");
-        addPlaceholderPage("Medical Records");
-        addPlaceholderPage("Undergraduates");
-        addPlaceholderPage("Timetables");
-        addPlaceholderPage("Notices");
-        addPlaceholderPage("My Profile");
+// Dashboard pages
+        pageContainer.add(new AttendancePanel(userId), "Attendance");
+        pageContainer.add(
+                new MedicalRecordsPanel(userId),
+                "Medical Records"
+        );
+
+
+
+        pageContainer.add(new DepartmentTimetablePanel(userId), "Timetables");
+        pageContainer.add(new NoticesPanel(userId), "Notices");
+        pageContainer.add(
+                new TechnicalOfficerProfilePanel(userId),
+                "My Profile"
+        );
 
 
 
 
 
-        dashboardScrollPane.setBorder(null);
-        dashboardScrollPane.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        dashboardScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
 
 
 
@@ -108,22 +118,7 @@ public class TechnicalOfficerDashboard extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void addPlaceholderPage(String pageName) {
 
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(UniMisTheme.LIGHT_BG);
-
-        JLabel title = new JLabel(
-                pageName + " - Under Development",
-                SwingConstants.CENTER
-        );
-
-        title.setFont(UniMisTheme.FONT_H2);
-        title.setForeground(UniMisTheme.TEXT);
-
-        panel.add(title, BorderLayout.CENTER);
-        pageContainer.add(panel, pageName);
-    }
 
     private void logout() {
         dispose();

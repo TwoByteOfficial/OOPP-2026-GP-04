@@ -39,7 +39,7 @@ public class TOSidebarPanel extends JPanel {
         brand.setOpaque(false);
         brand.setLayout(new BoxLayout(brand, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("  FoT Portal");
+        JLabel title = new JLabel("  UniMIS");
         title.setFont(UniMisTheme.FONT_LOGO);
         title.setForeground(Color.WHITE);
 
@@ -62,7 +62,7 @@ public class TOSidebarPanel extends JPanel {
         addNavigationButton(navigation, "Dashboard", "Dashboard", true);
         addNavigationButton(navigation, "Attendance", "Attendance", false);
         addNavigationButton(navigation, "Medical Records", "Medical Records", false);
-        addNavigationButton(navigation, "Undergraduates", "Undergraduates", false);
+
         addNavigationButton(navigation, "Timetables", "Timetables", false);
         addNavigationButton(navigation, "Notices", "Notices", false);
         addNavigationButton(navigation, "My Profile", "My Profile", false);

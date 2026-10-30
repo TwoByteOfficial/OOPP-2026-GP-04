@@ -1,21 +1,21 @@
 
 package gui.technical.dashboard.overview;
 
+import dao.TODashboardDAO;
 import gui.theme.UniMisTheme;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class AttendanceOverviewPanel extends JPanel {
 
-    public AttendanceOverviewPanel() {
+    public AttendanceOverviewPanel(long userId) {
 
-        setLayout(new BorderLayout(0, 16));
+        setLayout(new BorderLayout(0, 12));
         setBackground(UniMisTheme.WHITE);
-
-        setBorder(new CompoundBorderHelper());
+        setBorder(new EmptyBorder(14, 16, 14, 16));
 
         JLabel heading = new JLabel("Attendance Overview");
         heading.setFont(UniMisTheme.FONT_H3);
@@ -27,27 +27,37 @@ public class AttendanceOverviewPanel extends JPanel {
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        JLabel description = new JLabel(
-                "Attendance statistics will appear here.");
-        description.setFont(UniMisTheme.FONT_TINY);
-        description.setForeground(UniMisTheme.MUTED);
+        try {
+            TODashboardDAO dao = new TODashboardDAO();
+            int[] counts = dao.getAttendanceOverview(userId);
 
-        JLabel status = new JLabel("No attendance data available");
-        status.setFont(UniMisTheme.FONT_BODY_BOLD);
-        status.setForeground(UniMisTheme.PRIMARY_DARK);
+            addStat(content, "Total attendance records: ", counts[0]);
+            addStat(content, "Present: ", counts[1]);
+            addStat(content, "Absent: ", counts[2]);
+            addStat(content, "Medical: ", counts[3]);
+            addStat(content, "Late: ", counts[4]);
 
-        content.add(description);
-        content.add(Box.createVerticalStrut(16));
-        content.add(status);
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            JLabel error = new JLabel(
+                    "Unable to load attendance statistics.");
+            error.setFont(UniMisTheme.FONT_BODY_BOLD);
+            error.setForeground(UniMisTheme.PRIMARY_DARK);
+
+            content.add(error);
+        }
 
         add(content, BorderLayout.CENTER);
     }
 
-    private static class CompoundBorderHelper
-            extends EmptyBorder {
+    private void addStat(JPanel panel, String label, int count) {
 
-        private CompoundBorderHelper() {
-            super(18, 18, 18, 18);
-        }
+        JLabel stat = new JLabel(label + count);
+        stat.setFont(UniMisTheme.FONT_BODY_BOLD);
+        stat.setForeground(UniMisTheme.PRIMARY_DARK);
+        stat.setBorder(new EmptyBorder(2, 0, 2, 0));
+
+        panel.add(stat);
     }
 }

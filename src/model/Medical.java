@@ -16,6 +16,10 @@ public class Medical {
     private Long reviewedBy;
     private Timestamp reviewedAt;
     private String reviewComment;
+    private String registrationNo;
+    private String studentName;
+    private String courseCode;
+    private String courseName;
 
     public Medical() {}
 
@@ -43,4 +47,38 @@ public class Medical {
     public void setReviewedAt(Timestamp reviewedAt) { this.reviewedAt = reviewedAt; }
     public String getReviewComment() { return reviewComment; }
     public void setReviewComment(String reviewComment) { this.reviewComment = reviewComment; }
+    public String getRegistrationNo() {
+        return registrationNo;
+    }
+
+    public void setRegistrationNo(String registrationNo) {
+        this.registrationNo = registrationNo;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+
 }

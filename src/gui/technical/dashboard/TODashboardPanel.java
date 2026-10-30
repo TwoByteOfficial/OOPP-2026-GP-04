@@ -20,12 +20,15 @@ public class TODashboardPanel extends JPanel {
     private final String fullName;
     private final String role;
     private final Consumer<String> navigationHandler;
+    private final long userId;
 
     public TODashboardPanel(
+            long userId,
             String fullName,
             String role,
             Consumer<String> navigationHandler) {
 
+        this.userId = userId;
         this.fullName = fullName;
         this.role = role;
         this.navigationHandler = navigationHandler;
@@ -49,16 +52,19 @@ public class TODashboardPanel extends JPanel {
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
         DashboardSummaryPanel summaryPanel =
-                new DashboardSummaryPanel();
+                new DashboardSummaryPanel(userId);
 
         DashboardQuickActionsPanel quickActionsPanel =
                 new DashboardQuickActionsPanel(navigationHandler);
 
         DashboardOverviewPanel overviewPanel =
-                new DashboardOverviewPanel();
+                new DashboardOverviewPanel(
+                        userId,
+                        navigationHandler
+                );
 
         DashboardBottomPanel bottomPanel =
-                new DashboardBottomPanel();
+                new DashboardBottomPanel(userId) ;
 
         summaryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         quickActionsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
