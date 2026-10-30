@@ -44,7 +44,7 @@ public final class AuthService {
                         rs.getLong("user_id"), username,
                         rs.getString("full_name"), rs.getString("email"), rs.getString("role"));
 
-                touchLastLogin(con, user.id());
+
                 return new LoginResult(user, null);
             }
         }
