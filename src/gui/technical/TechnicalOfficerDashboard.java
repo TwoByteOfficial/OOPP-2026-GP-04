@@ -81,7 +81,7 @@ public class TechnicalOfficerDashboard extends JFrame {
 
 // Temporary pages
 // Dashboard pages
-        pageContainer.add(new AttendancePanel(), "Attendance");
+        pageContainer.add(new AttendancePanel(userId), "Attendance");
         pageContainer.add(
                 new MedicalRecordsPanel(userId),
                 "Medical Records"
