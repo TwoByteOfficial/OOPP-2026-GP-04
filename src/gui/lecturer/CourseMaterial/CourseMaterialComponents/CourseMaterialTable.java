@@ -14,13 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_BACKGROUND;
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_DEEP_GREEN;
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_GRID;
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_PALE_GREEN;
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_BORDER;
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_TEXT_BLACK;
-
+import static gui.lecturer.SharedComponents.Colors.*;
 public class CourseMaterialTable extends JPanel {
 
     private JTable materialsTable;
@@ -43,7 +37,7 @@ public class CourseMaterialTable extends JPanel {
 
     public CourseMaterialTable() {
         setLayout(new BorderLayout(0, 10));
-        setBackground(MATERIALS_BACKGROUND);
+        setBackground(APP_BACKGROUND);
 
         createTable();
     }
@@ -68,6 +62,8 @@ public class CourseMaterialTable extends JPanel {
         };
 
         materialsTable = new JTable(tableModel);
+        materialsTable.setBackground(Color.WHITE);
+        materialsTable.setForeground(Color.BLACK);
         materialsTable.setRowHeight(42);
         materialsTable.setFont(
                 new Font("SansSerif", Font.PLAIN, 13)
@@ -122,7 +118,7 @@ public class CourseMaterialTable extends JPanel {
         JPanel filterPanel = new JPanel(new FlowLayout(
                 FlowLayout.LEFT, 10, 8
         ));
-        filterPanel.setBackground(MATERIALS_BACKGROUND);
+        filterPanel.setBackground(APP_BACKGROUND);
 
         JLabel filterLabel = new JLabel("Filter by Course:");
         filterLabel.setFont(
@@ -135,7 +131,7 @@ public class CourseMaterialTable extends JPanel {
                 new Font("SansSerif", Font.PLAIN, 13)
         );
         courseFilter.setPreferredSize(new Dimension(320, 34));
-        courseFilter.setBackground(MATERIALS_BACKGROUND);
+        courseFilter.setBackground(Color.WHITE);
 
         courseFilter.addActionListener(e -> applyCourseFilter());
 
@@ -143,12 +139,13 @@ public class CourseMaterialTable extends JPanel {
         filterPanel.add(courseFilter);
 
         JScrollPane scrollPane = new JScrollPane(materialsTable);
+
         scrollPane.setBorder(
-                BorderFactory.createLineBorder(
-                        MATERIALS_BORDER
-                )
+                BorderFactory.createLineBorder(BORDER_GREEN)
         );
-        scrollPane.getViewport().setBackground(MATERIALS_BACKGROUND);
+
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setBackground(Color.WHITE);
 
         add(filterPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);

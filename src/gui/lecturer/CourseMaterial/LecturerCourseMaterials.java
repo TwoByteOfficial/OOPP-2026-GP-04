@@ -1,4 +1,3 @@
-
 package gui.lecturer.CourseMaterial;
 
 import dao.Lecturer.CourseDAO;
@@ -6,6 +5,7 @@ import dao.Lecturer.CourseMaterialDAO;
 import gui.lecturer.CourseMaterial.CourseMaterialComponents.CourseMaterialTable;
 import gui.lecturer.CourseMaterial.CourseMaterialComponents.CourseMaterialTitleBar;
 import gui.lecturer.CourseMaterial.CourseMaterialComponents.UploadMaterialDialog;
+import gui.lecturer.SharedComponents.Colors;
 import model.CourseMaterial;
 
 import javax.swing.*;
@@ -13,6 +13,9 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static gui.lecturer.SharedComponents.Colors.*;
+
 
 public class LecturerCourseMaterials extends JPanel {
 
@@ -36,7 +39,7 @@ public class LecturerCourseMaterials extends JPanel {
         materialDAO = new CourseMaterialDAO();
 
         setLayout(new BorderLayout(0, 18));
-        setBackground(Color.WHITE);
+        setBackground(APP_BACKGROUND);
         setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
         createComponents();
         loadCourses();
@@ -50,13 +53,14 @@ public class LecturerCourseMaterials extends JPanel {
 
         titleBar.getUploadButton().addActionListener(e -> openUploadDialog());
 
-        // Connect the Edit and Delete buttons.
+        // Keep the existing Edit and Delete functionality.
         materialTable.setActionListener(
                 new CourseMaterialTable.MaterialActionListener() {
                     @Override
                     public void onEdit(CourseMaterial material) {
                         editMaterial(material);
                     }
+
                     @Override
                     public void onDelete(CourseMaterial material) {
                         confirmDelete(material);
@@ -68,22 +72,32 @@ public class LecturerCourseMaterials extends JPanel {
         statusLabel.setForeground(Color.GRAY);
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
+        // Main content background matches the other Lecturer pages.
         JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
-        centerPanel.setBackground(Color.WHITE);
+        centerPanel.setBackground(APP_BACKGROUND);
 
         JLabel sectionTitle = new JLabel("Learning Materials");
-        sectionTitle.setFont(
-                new Font("SansSerif", Font.BOLD, 17)
-        );
+        sectionTitle.setFont(new Font("SansSerif", Font.BOLD, 17));
         sectionTitle.setForeground(new Color(27, 94, 32));
 
+        // White background for the table only.
+        JPanel tableContainer = new JPanel(new BorderLayout());
+        tableContainer.setBackground(Color.WHITE);
+        tableContainer.setBorder(
+                BorderFactory.createLineBorder(BORDER_GREEN)
+        );
+
+        materialTable.setBackground(Color.WHITE);
+        tableContainer.add(materialTable, BorderLayout.CENTER);
+
         centerPanel.add(sectionTitle, BorderLayout.NORTH);
-        centerPanel.add(materialTable, BorderLayout.CENTER);
+        centerPanel.add(tableContainer, BorderLayout.CENTER);
         centerPanel.add(statusLabel, BorderLayout.SOUTH);
 
         add(titleBar, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
     }
+
 
     private void loadCourses() {
 

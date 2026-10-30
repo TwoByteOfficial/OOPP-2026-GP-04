@@ -2,9 +2,7 @@ package gui.lecturer.CourseMaterial.CourseMaterialComponents;
 
 import javax.swing.*;
 import java.awt.*;
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_DEEP_GREEN;
-import static gui.lecturer.SharedComponents.Colors.MATERIALS_TEXT_GRAY;
-
+import static gui.lecturer.SharedComponents.Colors.*;
 
 public class CourseMaterialTitleBar extends JPanel {
 
@@ -12,7 +10,7 @@ public class CourseMaterialTitleBar extends JPanel {
 
     public CourseMaterialTitleBar() {
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setBackground(APP_BACKGROUND);
         setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
 
         add(createHeading(), BorderLayout.WEST);
@@ -22,7 +20,7 @@ public class CourseMaterialTitleBar extends JPanel {
     private JPanel createHeading() {
         JPanel headingPanel = new JPanel();
         headingPanel.setLayout(new BoxLayout(headingPanel, BoxLayout.Y_AXIS));
-        headingPanel.setBackground(Color.WHITE);
+        headingPanel.setBackground(APP_BACKGROUND);
 
         JLabel title = new JLabel("Course Materials");
         title.setFont(new Font("SansSerif", Font.BOLD, 26));
