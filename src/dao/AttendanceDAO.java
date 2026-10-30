@@ -35,8 +35,9 @@ public class AttendanceDAO {
             conn.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
-            conn.close();
+            try {
+                conn.close();
+            } catch (SQLException ignored) {}
         }
         return success;
     }
@@ -164,8 +165,9 @@ public class AttendanceDAO {
             conn.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
-            conn.close();
+            try {
+                conn.close();
+            } catch (SQLException ignored) {}
         }
         return success;
     }

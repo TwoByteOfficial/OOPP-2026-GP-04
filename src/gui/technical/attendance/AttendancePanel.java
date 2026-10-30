@@ -82,6 +82,9 @@ public class AttendancePanel extends JPanel {
         JPanel sessionPanel = new JPanel(
                 new FlowLayout(FlowLayout.LEFT, 10, 10)
         );
+
+
+
         sessionPanel.setBackground(Color.WHITE);
 
         sessionPanel.add(new JLabel("Select Component:"));
