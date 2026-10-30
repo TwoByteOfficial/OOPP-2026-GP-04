@@ -78,7 +78,7 @@ public class AssignLecturerDialog extends JDialog {
         l2.setForeground(Color.BLACK);
         body.add(l2);
 
-        cmbResponsibility = new JComboBox<>(new String[]{ "In-Charge", "Co-Lecturer", "Visiting Lecturer", "Practical Instructor" });
+        cmbResponsibility = new JComboBox<>(new String[]{ "Coordinator", "Lecturer", "Practical Instructor" });
         cmbResponsibility.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         cmbResponsibility.setBackground(Color.WHITE);
         cmbResponsibility.setForeground(Color.BLACK);

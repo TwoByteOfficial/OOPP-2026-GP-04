@@ -24,8 +24,17 @@ public class CourseForm extends JDialog {
     private JTextField txtName;
     private JTextField txtTheoryCredits;
     private JTextField txtPracticalCredits;
-    private JTextField txtCaWeight;
-    private JTextField txtFinalWeight;
+
+    // CA Sub-weight Fields
+    private JTextField txtQuizWeight;
+    private JTextField txtAssignmentWeight;
+    private JTextField txtMidTheoryWeight;
+    private JTextField txtMidPracticalWeight;
+
+    // End Exam Sub-weight Fields
+    private JTextField txtEndTheoryWeight;
+    private JTextField txtEndPracticalWeight;
+
     private JComboBox<String> cmbDepartment;
     private JTextField txtAcademicYear;
     private JComboBox<String> cmbSemester;
@@ -37,10 +46,10 @@ public class CourseForm extends JDialog {
         this.editCourse = courseToEdit;
         this.onSuccess = onSuccess;
 
-        setSize(780, 680);
+        setSize(780, 740);
         setLocationRelativeTo(parent);
-        setResizable(false);
-        getContentPane().setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setResizable(true);
+        getContentPane().setBackground(WHITE);
         setLayout(new BorderLayout());
 
         initUI();
@@ -51,6 +60,7 @@ public class CourseForm extends JDialog {
     }
 
     private void initUI() {
+        // Header Panel
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 24, 16));
         headerPanel.setBackground(DEEP_GREEN);
 
@@ -60,58 +70,65 @@ public class CourseForm extends JDialog {
         headerPanel.add(lblHeader);
         add(headerPanel, BorderLayout.NORTH);
 
-        JPanel pnlForm = new JPanel(new GridLayout(10, 2, 14, 12));
+        // Main Form Panel with GridBagLayout for pristine alignment
+        JPanel pnlForm = new JPanel(new GridBagLayout());
         pnlForm.setBackground(WHITE);
-        pnlForm.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(PASTEL_GREEN, 1),
-                BorderFactory.createEmptyBorder(16, 24, 16, 24)
-        ));
+        pnlForm.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
 
-        pnlForm.add(createLabel("Course Code:"));
-        txtCode = createTextField("ICT1113");
-        pnlForm.add(txtCode);
+        GridBagConstraints gbc = new GridBagConstraints();
+        int row = 0;
 
-        pnlForm.add(createLabel("Course Name:"));
-        txtName = createTextField("Programming Fundamentals");
-        pnlForm.add(txtName);
+        // Basic Information Section
+        row = addSectionHeader(pnlForm, gbc, row, "Basic Module Information");
+        row = addFormField(pnlForm, gbc, row, "Course Code:", txtCode = createTextField("ICT1113"));
+        row = addFormField(pnlForm, gbc, row, "Course Name:", txtName = createTextField("Programming Fundamentals"));
+        row = addFormField(pnlForm, gbc, row, "Theory Credits:", txtTheoryCredits = createTextField("2.0"));
+        row = addFormField(pnlForm, gbc, row, "Practical Credits:", txtPracticalCredits = createTextField("1.0"));
 
-        pnlForm.add(createLabel("Theory Credits:"));
-        txtTheoryCredits = createTextField("2.0");
-        pnlForm.add(txtTheoryCredits);
+        // Continuous Assessment (CA) Breakdown Section
+        row = addSectionHeader(pnlForm, gbc, row, "Continuous Assessment (CA) Weights");
+        row = addFormField(pnlForm, gbc, row, "Max Quiz 2 Weight (%):", txtQuizWeight = createTextField("10.0"));
+        row = addFormField(pnlForm, gbc, row, "Assignment Weight (%):", txtAssignmentWeight = createTextField("10.0"));
+        row = addFormField(pnlForm, gbc, row, "Mid Exam Theory Weight (%):", txtMidTheoryWeight = createTextField("10.0"));
+        row = addFormField(pnlForm, gbc, row, "Mid Exam Practical Weight (%):", txtMidPracticalWeight = createTextField("0.0"));
 
-        pnlForm.add(createLabel("Practical Credits:"));
-        txtPracticalCredits = createTextField("1.0");
-        pnlForm.add(txtPracticalCredits);
+        // End Semester Examination Section
+        row = addSectionHeader(pnlForm, gbc, row, "End Semester Examination Weights");
+        row = addFormField(pnlForm, gbc, row, "End Exam Theory Weight (%):", txtEndTheoryWeight = createTextField("70.0"));
+        row = addFormField(pnlForm, gbc, row, "End Exam Practical Weight (%):", txtEndPracticalWeight = createTextField("0.0"));
 
-        pnlForm.add(createLabel("CA Weight (%):"));
-        txtCaWeight = createTextField("30");
-        pnlForm.add(txtCaWeight);
+        // General Module Settings Section
+        row = addSectionHeader(pnlForm, gbc, row, "Academic & Department Settings");
 
-        pnlForm.add(createLabel("Final Exam Weight (%):"));
-        txtFinalWeight = createTextField("70");
-        pnlForm.add(txtFinalWeight);
-
-        pnlForm.add(createLabel("Department:"));
         cmbDepartment = new JComboBox<>(new String[]{ "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" });
         styleCombo(cmbDepartment);
-        pnlForm.add(cmbDepartment);
+        row = addFormField(pnlForm, gbc, row, "Department:", cmbDepartment);
 
-        pnlForm.add(createLabel("Academic Year:"));
-        txtAcademicYear = createTextField("2024/2025");
-        pnlForm.add(txtAcademicYear);
+        row = addFormField(pnlForm, gbc, row, "Academic Year:", txtAcademicYear = createTextField("2024/2025"));
 
-        pnlForm.add(createLabel("Semester:"));
         cmbSemester = new JComboBox<>(new String[]{ "Semester 1", "Semester 2", "Semester I", "Semester II" });
         styleCombo(cmbSemester);
-        pnlForm.add(cmbSemester);
+        row = addFormField(pnlForm, gbc, row, "Semester:", cmbSemester);
 
-        pnlForm.add(createLabel("Status:"));
         cmbStatus = new JComboBox<>(new String[]{ "Active", "Inactive" });
         styleCombo(cmbStatus);
-        pnlForm.add(cmbStatus);
+        row = addFormField(pnlForm, gbc, row, "Status:", cmbStatus);
 
-        add(pnlForm, BorderLayout.CENTER);
+        // Vertical glue filler to push everything neatly to top
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlForm.add(Box.createGlue(), gbc);
 
+        JScrollPane scrollPane = new JScrollPane(pnlForm);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Footer Action Panel
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 14));
         footerPanel.setBackground(WHITE);
         footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, PASTEL_GREEN));
@@ -121,7 +138,8 @@ public class CourseForm extends JDialog {
         btnSave.setBackground(FOREST_GREEN);
         btnSave.setForeground(WHITE);
         btnSave.setFocusPainted(false);
-        btnSave.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 22));
+        btnSave.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnSave.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
         btnSave.addActionListener(e -> saveCourse());
 
         JButton btnCancel = new JButton("Cancel");
@@ -129,7 +147,8 @@ public class CourseForm extends JDialog {
         btnCancel.setBackground(PASTEL_GREEN);
         btnCancel.setForeground(DEEP_GREEN);
         btnCancel.setFocusPainted(false);
-        btnCancel.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 22));
+        btnCancel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnCancel.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
         btnCancel.addActionListener(e -> dispose());
 
         footerPanel.add(btnSave);
@@ -137,28 +156,77 @@ public class CourseForm extends JDialog {
         add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private JLabel createLabel(String text) {
-        JLabel l = new JLabel(text);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        l.setForeground(BLACK);
-        return l;
+    private int addSectionHeader(JPanel panel, GridBagConstraints gbc, int row, String title) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(16, 12, 8, 12);
+
+        JPanel pnlHeader = new JPanel(new BorderLayout());
+        pnlHeader.setOpaque(false);
+
+        JLabel lbl = new JLabel(title);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lbl.setForeground(DEEP_GREEN);
+
+        JSeparator line = new JSeparator();
+        line.setForeground(PASTEL_GREEN);
+
+        pnlHeader.add(lbl, BorderLayout.NORTH);
+        pnlHeader.add(line, BorderLayout.SOUTH);
+
+        panel.add(pnlHeader, gbc);
+        return row + 1;
+    }
+
+    private int addFormField(JPanel panel, GridBagConstraints gbc, int row, String labelText, JComponent field) {
+        // Label constraint
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.30;
+        gbc.weighty = 0.0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(6, 16, 6, 12);
+
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lbl.setForeground(BLACK);
+        panel.add(lbl, gbc);
+
+        // Field constraint
+        gbc.gridx = 1;
+        gbc.weightx = 0.70;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(6, 0, 6, 16);
+
+        panel.add(field, gbc);
+
+        return row + 1;
     }
 
     private JTextField createTextField(String val) {
         JTextField tf = new JTextField(val);
-        tf.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        tf.setPreferredSize(new Dimension(300, 36));
         tf.setBackground(WHITE);
         tf.setForeground(BLACK);
         tf.setCaretColor(BLACK);
         tf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(PASTEL_GREEN, 1),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)
+                BorderFactory.createEmptyBorder(4, 10, 4, 10)
         ));
         return tf;
     }
 
     private void styleCombo(JComboBox<?> cb) {
-        cb.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        cb.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        cb.setPreferredSize(new Dimension(300, 36));
         cb.setBackground(WHITE);
         cb.setForeground(BLACK);
     }
@@ -168,14 +236,18 @@ public class CourseForm extends JDialog {
         txtName.setText(editCourse.getCourseName());
         if (editCourse.getTheoryCredits() != null) txtTheoryCredits.setText(editCourse.getTheoryCredits().toString());
         if (editCourse.getPracticalCredits() != null) txtPracticalCredits.setText(editCourse.getPracticalCredits().toString());
-        if (editCourse.getCaWeight() != null) txtCaWeight.setText(editCourse.getCaWeight().toString());
-        if (editCourse.getFinalWeight() != null) txtFinalWeight.setText(editCourse.getFinalWeight().toString());
-        
+
+        if (editCourse.getQuizWeight() != null) txtQuizWeight.setText(editCourse.getQuizWeight().toString());
+        if (editCourse.getAssignmentWeight() != null) txtAssignmentWeight.setText(editCourse.getAssignmentWeight().toString());
+        if (editCourse.getMidTheoryWeight() != null) txtMidTheoryWeight.setText(editCourse.getMidTheoryWeight().toString());
+        if (editCourse.getMidPracticalWeight() != null) txtMidPracticalWeight.setText(editCourse.getMidPracticalWeight().toString());
+
+        if (editCourse.getEndTheoryWeight() != null) txtEndTheoryWeight.setText(editCourse.getEndTheoryWeight().toString());
+        if (editCourse.getEndPracticalWeight() != null) txtEndPracticalWeight.setText(editCourse.getEndPracticalWeight().toString());
+
         int deptIndex = Math.max(0, editCourse.getDepartmentId() - 1);
-        if (deptIndex < cmbDepartment.getItemCount()) {
-            cmbDepartment.setSelectedIndex(deptIndex);
-        }
-        
+        if (deptIndex < cmbDepartment.getItemCount()) cmbDepartment.setSelectedIndex(deptIndex);
+
         if (editCourse.getAcademicYear() != null) txtAcademicYear.setText(editCourse.getAcademicYear());
         if (editCourse.getSemester() != null) {
             String sem = editCourse.getSemester();
@@ -186,177 +258,85 @@ public class CourseForm extends JDialog {
         if (editCourse.getStatus() != null) cmbStatus.setSelectedItem(editCourse.getStatus());
     }
 
+    private BigDecimal parseNonNegativeBigDecimal(JTextField tf, String fieldName) throws Exception {
+        BigDecimal val = new BigDecimal(tf.getText().trim());
+        if (val.compareTo(BigDecimal.ZERO) < 0) {
+            JOptionPane.showMessageDialog(this, fieldName + " cannot be negative.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            tf.requestFocus();
+            throw new IllegalArgumentException(fieldName + " negative");
+        }
+        return val;
+    }
+
     private void saveCourse() {
         String code = txtCode.getText().trim();
         String name = txtName.getText().trim();
 
-        if (code.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid Course Code (e.g., ICT1113).", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            txtCode.requestFocus();
+        if (code.isEmpty() || name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Course Code and Name are required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid Course Name (e.g., Programming Fundamentals).", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            txtName.requestFocus();
-            return;
-        }
-
-        BigDecimal theory;
+        BigDecimal theory, practical, quiz, assignment, midTheory, midPractical, endTheory, endPractical;
         try {
-            theory = new BigDecimal(txtTheoryCredits.getText().trim());
-            if (theory.compareTo(BigDecimal.ZERO) < 0) {
-                JOptionPane.showMessageDialog(this, "Theory Credits cannot be negative.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                txtTheoryCredits.requestFocus();
-                return;
-            }
+            theory = parseNonNegativeBigDecimal(txtTheoryCredits, "Theory Credits");
+            practical = parseNonNegativeBigDecimal(txtPracticalCredits, "Practical Credits");
+            quiz = parseNonNegativeBigDecimal(txtQuizWeight, "Quiz Weight");
+            assignment = parseNonNegativeBigDecimal(txtAssignmentWeight, "Assignment Weight");
+            midTheory = parseNonNegativeBigDecimal(txtMidTheoryWeight, "Mid Exam Theory Weight");
+            midPractical = parseNonNegativeBigDecimal(txtMidPracticalWeight, "Mid Exam Practical Weight");
+            endTheory = parseNonNegativeBigDecimal(txtEndTheoryWeight, "End Exam Theory Weight");
+            endPractical = parseNonNegativeBigDecimal(txtEndPracticalWeight, "End Exam Practical Weight");
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Theory Credits must be a valid number (e.g., 2.0 or 0.0).", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            txtTheoryCredits.requestFocus();
             return;
         }
 
-        BigDecimal practical;
-        try {
-            practical = new BigDecimal(txtPracticalCredits.getText().trim());
-            if (practical.compareTo(BigDecimal.ZERO) < 0) {
-                JOptionPane.showMessageDialog(this, "Practical Credits cannot be negative.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                txtPracticalCredits.requestFocus();
-                return;
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Practical Credits must be a valid number (e.g., 1.0 or 0.0).", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            txtPracticalCredits.requestFocus();
+        BigDecimal caTotal = quiz.add(assignment).add(midTheory).add(midPractical);
+        BigDecimal endTotal = endTheory.add(endPractical);
+        BigDecimal grandTotal = caTotal.add(endTotal);
+
+        if (grandTotal.compareTo(new BigDecimal("100.00")) != 0) {
+            JOptionPane.showMessageDialog(this, "Total Course Assessment Weight must equal 100%. " + "Current CA Weight: " + caTotal + "% " + "Current End Exam Weight: " + endTotal + "% " + "Total: " + grandTotal + "%", "Weight Allocation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (theory.add(practical).compareTo(BigDecimal.ZERO) <= 0) {
-            JOptionPane.showMessageDialog(this, "Total Credits (Theory + Practical) must be greater than 0.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        BigDecimal ca;
-        try {
-            ca = new BigDecimal(txtCaWeight.getText().trim());
-            if (ca.compareTo(BigDecimal.ZERO) < 0 || ca.compareTo(new BigDecimal("100")) > 0) {
-                JOptionPane.showMessageDialog(this, "CA Weight must be between 0% and 100%.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                txtCaWeight.requestFocus();
-                return;
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "CA Weight must be a valid numeric percentage (e.g., 30).", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            txtCaWeight.requestFocus();
-            return;
-        }
-
-        BigDecimal finalW;
-        try {
-            finalW = new BigDecimal(txtFinalWeight.getText().trim());
-            if (finalW.compareTo(BigDecimal.ZERO) < 0 || finalW.compareTo(new BigDecimal("100")) > 0) {
-                JOptionPane.showMessageDialog(this, "Final Exam Weight must be between 0% and 100%.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                txtFinalWeight.requestFocus();
-                return;
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Final Exam Weight must be a valid numeric percentage (e.g., 70).", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            txtFinalWeight.requestFocus();
-            return;
-        }
-
-        if (ca.add(finalW).compareTo(new BigDecimal("100")) != 0) {
-            JOptionPane.showMessageDialog(this, 
-                "CA Weight (" + ca + "%) and Final Exam Weight (" + finalW + "%) must sum to 100%. Currently total weight is " + ca.add(finalW) + "%.",
-                "Weight Allocation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String selectedDeptStr = (String) cmbDepartment.getSelectedItem();
-        int deptId = 1;
-        if (selectedDeptStr != null && selectedDeptStr.contains("-")) {
-            try {
-                deptId = Integer.parseInt(selectedDeptStr.split("-")[0].trim());
-            } catch (Exception ignored) {
-                deptId = cmbDepartment.getSelectedIndex() + 1;
-            }
-        } else {
-            deptId = cmbDepartment.getSelectedIndex() + 1;
-        }
-
+        int deptId = cmbDepartment.getSelectedIndex() + 1;
         String semSelected = (String) cmbSemester.getSelectedItem();
-        String semesterFormatted = "Semester I";
-        if (semSelected != null) {
-            if (semSelected.contains("2") || semSelected.contains("II")) {
-                semesterFormatted = "Semester II";
-            }
-        }
-
-        BigDecimal totalCredits = theory.add(practical);
+        String semesterFormatted = (semSelected != null && (semSelected.contains("2") || semSelected.contains("II"))) ? "Semester II" : "Semester I";
 
         try {
-            if (editCourse == null) {
-                Course c = new Course();
-                c.setCourseCode(code);
-                c.setCourseName(name);
-                c.setTheoryCredits(theory);
-                c.setPracticalCredits(practical);
-                c.setTotalCredits(totalCredits);
-                c.setCaWeight(ca);
-                c.setFinalWeight(finalW);
-                c.setDepartmentId(deptId);
-                c.setAcademicYear(txtAcademicYear.getText().trim());
-                c.setSemester(semesterFormatted);
-                c.setStatus((String) cmbStatus.getSelectedItem());
+            Course c = (editCourse == null) ? new Course() : editCourse;
+            c.setCourseCode(code);
+            c.setCourseName(name);
+            c.setTheoryCredits(theory);
+            c.setPracticalCredits(practical);
+            c.setTotalCredits(theory.add(practical));
 
-                boolean success = courseDAO.createCourse(c);
-                if (success) {
-                    JOptionPane.showMessageDialog(this, "Course '" + code + "' registered successfully!", "Registration Successful", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Could not save course. Database operation returned false.", "Save Failed", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            c.setQuizWeight(quiz);
+            c.setAssignmentWeight(assignment);
+            c.setMidTheoryWeight(midTheory);
+            c.setMidPracticalWeight(midPractical);
+            c.setCaWeight(caTotal);
+
+            c.setEndTheoryWeight(endTheory);
+            c.setEndPracticalWeight(endPractical);
+            c.setFinalWeight(endTotal);
+
+            c.setDepartmentId(deptId);
+            c.setAcademicYear(txtAcademicYear.getText().trim());
+            c.setSemester(semesterFormatted);
+            c.setStatus((String) cmbStatus.getSelectedItem());
+
+            boolean success = (editCourse == null) ? courseDAO.createCourse(c) : courseDAO.updateCourse(c);
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Course '" + code + "' saved successfully!", "Operation Successful", JOptionPane.INFORMATION_MESSAGE);
+                if (onSuccess != null) onSuccess.run();
+                dispose();
             } else {
-                editCourse.setCourseCode(code);
-                editCourse.setCourseName(name);
-                editCourse.setTheoryCredits(theory);
-                editCourse.setPracticalCredits(practical);
-                editCourse.setTotalCredits(totalCredits);
-                editCourse.setCaWeight(ca);
-                editCourse.setFinalWeight(finalW);
-                editCourse.setDepartmentId(deptId);
-                editCourse.setAcademicYear(txtAcademicYear.getText().trim());
-                editCourse.setSemester(semesterFormatted);
-                editCourse.setStatus((String) cmbStatus.getSelectedItem());
-
-                boolean success = courseDAO.updateCourse(editCourse);
-                if (success) {
-                    JOptionPane.showMessageDialog(this, "Course '" + code + "' updated successfully!", "Update Successful", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Could not update course. Record may no longer exist.", "Update Failed", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+                JOptionPane.showMessageDialog(this, "Could not save course in database.", "Save Failed", JOptionPane.ERROR_MESSAGE);
             }
-
-            if (onSuccess != null) onSuccess.run();
-            dispose();
         } catch (SQLException ex) {
-            String msg = ex.getMessage();
-            if (msg != null && msg.toLowerCase().contains("duplicate")) {
-                JOptionPane.showMessageDialog(this, 
-                    "A course with Course Code '" + code + "' already exists in the system. Please enter a unique Course Code.",
-                    "Duplicate Course Code", JOptionPane.WARNING_MESSAGE);
-            } else if (msg != null && msg.toLowerCase().contains("foreign key")) {
-                JOptionPane.showMessageDialog(this, 
-                    "Department ID " + deptId + " does not exist in the database. Please select a valid Department.",
-                    "Department Not Found", JOptionPane.ERROR_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, 
-                    "Database error while saving course: " + msg,
-                    "Database Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, 
-                "An unexpected error occurred while saving the course: " + ex.getMessage(),
-                "System Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

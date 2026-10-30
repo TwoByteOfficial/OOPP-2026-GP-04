@@ -22,194 +22,206 @@ SET SQL_SAFE_UPDATES = 0;
 
 -- 2.1 Departments Table
 CREATE TABLE departments (
-    department_id INT AUTO_INCREMENT PRIMARY KEY,
-    department_code VARCHAR(20) NOT NULL UNIQUE,
-    department_name VARCHAR(150) NOT NULL UNIQUE,
-    description VARCHAR(500),
-    status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB COMMENT='Faculty departments';
+                             department_id INT AUTO_INCREMENT PRIMARY KEY,
+                             department_code VARCHAR(20) NOT NULL UNIQUE,
+                             department_name VARCHAR(150) NOT NULL UNIQUE,
+                             description VARCHAR(500),
+                             status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+                             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 -- 2.2 User Superclass Table with Physical Role Column
 CREATE TABLE users (
-    user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    role ENUM('Admin', 'Lecturer', 'Technical Officer', 'Undergraduate') NOT NULL,
-    full_name VARCHAR(150) NOT NULL,
-    nic VARCHAR(20) UNIQUE,
-    date_of_birth DATE,
-    gender ENUM('Male', 'Female', 'Other'),
-    email VARCHAR(150) NOT NULL UNIQUE,
-    contact_no VARCHAR(20),
-    address VARCHAR(255),
-    profile_picture VARCHAR(500),
-    department_id INT NULL,
-    user_status ENUM('Active', 'Inactive', 'Suspended') NOT NULL DEFAULT 'Active',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_users_department
-        FOREIGN KEY (department_id)
-        REFERENCES departments(department_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Base superclass table for system user accounts';
+                       user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       username VARCHAR(50) NOT NULL UNIQUE,
+                       password_hash VARCHAR(255) NOT NULL,
+                       role ENUM('Admin', 'Lecturer', 'Technical Officer', 'Undergraduate') NOT NULL,
+                       full_name VARCHAR(150) NOT NULL,
+                       nic VARCHAR(20) UNIQUE,
+                       date_of_birth DATE,
+                       gender ENUM('Male', 'Female', 'Other'),
+                       email VARCHAR(150) NOT NULL UNIQUE,
+                       contact_no VARCHAR(20),
+                       address VARCHAR(255),
+                       profile_picture VARCHAR(500),
+                       department_id INT NULL,
+                       user_status ENUM('Active', 'Inactive', 'Suspended') NOT NULL DEFAULT 'Active',
+                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                       CONSTRAINT fk_users_department
+                           FOREIGN KEY (department_id)
+                               REFERENCES departments(department_id)
+                               ON UPDATE CASCADE
+                               ON DELETE SET NULL
+);
 
 -- 2.3 Admin Subclass Table
 CREATE TABLE admins (
-    user_id BIGINT PRIMARY KEY,
-    admin_code VARCHAR(30) NOT NULL UNIQUE,
-    designation VARCHAR(100) DEFAULT 'System Administrator',
-    CONSTRAINT fk_admins_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Admin specific profile details';
+                        user_id BIGINT PRIMARY KEY,
+                        admin_code VARCHAR(30) NOT NULL UNIQUE,
+                        designation VARCHAR(100) DEFAULT 'System Administrator',
+                        CONSTRAINT fk_admins_user
+                            FOREIGN KEY (user_id)
+                                REFERENCES users(user_id)
+                                ON UPDATE CASCADE
+                                ON DELETE CASCADE
+);
 
 -- 2.4 Lecturer Subclass Table
 CREATE TABLE lecturers (
-    user_id BIGINT PRIMARY KEY,
-    lecturer_code VARCHAR(30) NOT NULL UNIQUE,
-    title VARCHAR(30) DEFAULT 'Dr.',
-    specialization VARCHAR(150),
-    CONSTRAINT fk_lecturers_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Lecturer specific profile details';
+                           user_id BIGINT PRIMARY KEY,
+                           lecturer_code VARCHAR(30) NOT NULL UNIQUE,
+                           title VARCHAR(30) DEFAULT 'Dr.',
+                           specialization VARCHAR(150),
+                           CONSTRAINT fk_lecturers_user
+                               FOREIGN KEY (user_id)
+                                   REFERENCES users(user_id)
+                                   ON UPDATE CASCADE
+                                   ON DELETE CASCADE
+);
 
 -- 2.5 Technical Officer Subclass Table
 CREATE TABLE technical_officers (
-    user_id BIGINT PRIMARY KEY,
-    technical_officer_code VARCHAR(30) NOT NULL UNIQUE,
-    designation VARCHAR(100) DEFAULT 'Technical Officer',
-    assigned_labs VARCHAR(200) DEFAULT 'ICT Laboratories',
-    CONSTRAINT fk_technical_officers_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Technical Officer specific profile details';
+                                    user_id BIGINT PRIMARY KEY,
+                                    technical_officer_code VARCHAR(30) NOT NULL UNIQUE,
+                                    designation VARCHAR(100) DEFAULT 'Technical Officer',
+                                    assigned_labs VARCHAR(200) DEFAULT 'ICT Laboratories',
+                                    CONSTRAINT fk_technical_officers_user
+                                        FOREIGN KEY (user_id)
+                                            REFERENCES users(user_id)
+                                            ON UPDATE CASCADE
+                                            ON DELETE CASCADE
+);
 
 -- 2.6 Undergraduate Subclass Table
 CREATE TABLE undergraduates (
-    user_id BIGINT PRIMARY KEY,
-    registration_no VARCHAR(30) NOT NULL UNIQUE,
-    index_no VARCHAR(30) UNIQUE,
-    batch_year YEAR NOT NULL,
-    academic_year VARCHAR(20) DEFAULT '2026',
-    student_type ENUM('Proper', 'Repeat', 'Batch Missed') NOT NULL DEFAULT 'Proper',
-    intake VARCHAR(50) DEFAULT '2024',
-    current_level TINYINT UNSIGNED DEFAULT 2,
-    current_semester TINYINT UNSIGNED DEFAULT 1,
-    previous_credits DECIMAL(6,2) NOT NULL DEFAULT 0.00,
-    previous_grade_points DECIMAL(8,2) NOT NULL DEFAULT 0.00,
-    admission_date DATE,
-    guardian_name VARCHAR(150),
-    guardian_contact VARCHAR(20),
-    CONSTRAINT fk_undergraduates_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT chk_undergraduates_previous
-        CHECK (previous_credits >= 0 AND previous_grade_points >= 0)
-) ENGINE=InnoDB COMMENT='Undergraduate student academic profile details';
+                                user_id BIGINT PRIMARY KEY,
+                                registration_no VARCHAR(30) NOT NULL UNIQUE,
+                                index_no VARCHAR(30) UNIQUE,
+                                batch_year YEAR NOT NULL,
+                                academic_year VARCHAR(20) DEFAULT '2026',
+                                student_type ENUM('Proper', 'Repeat', 'Batch Missed') NOT NULL DEFAULT 'Proper',
+                                intake VARCHAR(50) DEFAULT '2024',
+                                current_level TINYINT UNSIGNED DEFAULT 2,
+                                current_semester TINYINT UNSIGNED DEFAULT 1,
+                                previous_credits DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+                                previous_grade_points DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+                                admission_date DATE,
+                                guardian_name VARCHAR(150),
+                                guardian_contact VARCHAR(20),
+                                CONSTRAINT fk_undergraduates_user
+                                    FOREIGN KEY (user_id)
+                                        REFERENCES users(user_id)
+                                        ON UPDATE CASCADE
+                                        ON DELETE CASCADE,
+                                CONSTRAINT chk_undergraduates_previous
+                                    CHECK (previous_credits >= 0 AND previous_grade_points >= 0)
+);
 
 -- 2.7 Courses Table (Updated with CA and End Exam Sub-weights)
 CREATE TABLE courses (
-    course_id INT AUTO_INCREMENT PRIMARY KEY,
-    course_code VARCHAR(20) NOT NULL UNIQUE,
-    course_name VARCHAR(200) NOT NULL,
-    description TEXT,
-    theory_credits DECIMAL(3,1) NOT NULL DEFAULT 0.0,
-    practical_credits DECIMAL(3,1) NOT NULL DEFAULT 0.0,
-    total_credits DECIMAL(4,1) GENERATED ALWAYS AS (theory_credits + practical_credits) STORED,
-    ca_weight DECIMAL(5,2) NOT NULL DEFAULT 40.00,
-    final_weight DECIMAL(5,2) GENERATED ALWAYS AS (100.00 - ca_weight) STORED,
-    department_id INT NOT NULL,
-    academic_year VARCHAR(20) NOT NULL DEFAULT '2026',
-    semester ENUM('Semester I', 'Semester II') NOT NULL DEFAULT 'Semester I',
-    status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_courses_department
-        FOREIGN KEY (department_id)
-        REFERENCES departments(department_id)
-        ON UPDATE CASCADE
-        ON DELETE RESTRICT,
-    CONSTRAINT chk_course_credits
-        CHECK (theory_credits >= 0 AND practical_credits >= 0 AND (theory_credits + practical_credits) > 0),
-    CONSTRAINT chk_course_weights
-        CHECK (ca_weight >= 0 AND ca_weight <= 100)
-) ENGINE=InnoDB COMMENT='Course module definitions';
+                         course_id INT AUTO_INCREMENT PRIMARY KEY,
+                         course_code VARCHAR(20) NOT NULL UNIQUE,
+                         course_name VARCHAR(200) NOT NULL,
+                         description TEXT,
+                         theory_credits DECIMAL(3,1) NOT NULL DEFAULT 0.0,
+                         practical_credits DECIMAL(3,1) NOT NULL DEFAULT 0.0,
+                         total_credits DECIMAL(4,1) GENERATED ALWAYS AS (theory_credits + practical_credits) STORED,
+                         is_gpa BOOLEAN NOT NULL DEFAULT TRUE,
+
+    -- CA Sub-weights breakdown
+                         quiz_weight DECIMAL(5,2) NOT NULL DEFAULT 10.00,          -- Max Quiz 2 Weight (Sum of best 2 quizzes weight)
+                         assignment_weight DECIMAL(5,2) NOT NULL DEFAULT 10.00,    -- Assignment Weight
+                         mid_theory_weight DECIMAL(5,2) NOT NULL DEFAULT 10.00,    -- Mid Exam Theory Weight
+                         mid_practical_weight DECIMAL(5,2) NOT NULL DEFAULT 0.00,  -- Mid Exam Practical Weight
+                         ca_weight DECIMAL(5,2) NOT NULL DEFAULT 30.00,            -- Total CA Weight
+
+    -- End Exam Sub-weights breakdown
+                         end_theory_weight DECIMAL(5,2) NOT NULL DEFAULT 70.00,    -- End Exam Theory Weight
+                         end_practical_weight DECIMAL(5,2) NOT NULL DEFAULT 0.00,  -- End Exam Practical Weight
+                         final_weight DECIMAL(5,2) GENERATED ALWAYS AS (100.00 - ca_weight) STORED,
+
+                         department_id INT NOT NULL,
+                         academic_year VARCHAR(20) NOT NULL DEFAULT '2026',
+                         semester ENUM('Semester I', 'Semester II') NOT NULL DEFAULT 'Semester I',
+                         status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         CONSTRAINT fk_courses_department
+                             FOREIGN KEY (department_id)
+                                 REFERENCES departments(department_id)
+                                 ON UPDATE CASCADE
+                                 ON DELETE RESTRICT,
+                         CONSTRAINT chk_course_credits
+                             CHECK (theory_credits >= 0 AND practical_credits >= 0 AND (theory_credits + practical_credits) > 0),
+                         CONSTRAINT chk_course_weights
+                             CHECK (ca_weight >= 0 AND ca_weight <= 100)
+);
 
 -- 2.8 Course Lecturers Mapping Table
 CREATE TABLE course_lecturers (
-    course_id INT NOT NULL,
-    lecturer_id BIGINT NOT NULL,
-    responsibility ENUM('Coordinator', 'Lecturer', 'Practical Instructor') NOT NULL DEFAULT 'Lecturer',
-    assigned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (course_id, lecturer_id),
-    CONSTRAINT fk_course_lecturers_course
-        FOREIGN KEY (course_id)
-        REFERENCES courses(course_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_course_lecturers_lecturer
-        FOREIGN KEY (lecturer_id)
-        REFERENCES lecturers(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Assignment of lecturers to course modules';
+                                  course_id INT NOT NULL,
+                                  lecturer_id BIGINT NOT NULL,
+                                  responsibility ENUM('Coordinator', 'Lecturer', 'Practical Instructor') NOT NULL DEFAULT 'Lecturer',
+                                  assigned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                  PRIMARY KEY (course_id, lecturer_id),
+                                  CONSTRAINT fk_course_lecturers_course
+                                      FOREIGN KEY (course_id)
+                                          REFERENCES courses(course_id)
+                                          ON UPDATE CASCADE
+                                          ON DELETE CASCADE,
+                                  CONSTRAINT fk_course_lecturers_lecturer
+                                      FOREIGN KEY (lecturer_id)
+                                          REFERENCES lecturers(user_id)
+                                          ON UPDATE CASCADE
+                                          ON DELETE CASCADE
+);
 
 -- 2.9 Course Materials Table
 CREATE TABLE course_materials (
-    material_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    course_id INT NOT NULL,
-    lecturer_id BIGINT NOT NULL,
-    title VARCHAR(200) NOT NULL,
-    description TEXT,
-    material_type ENUM('Lecture Note', 'Slide', 'PDF', 'Document', 'Video', 'Link', 'Other') NOT NULL DEFAULT 'Document',
-    file_path VARCHAR(500),
-    external_url VARCHAR(500),
-    uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_material_course
-        FOREIGN KEY (course_id)
-        REFERENCES courses(course_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_material_lecturer
-        FOREIGN KEY (lecturer_id)
-        REFERENCES lecturers(user_id)
-        ON UPDATE CASCADE
-        ON DELETE RESTRICT
-) ENGINE=InnoDB COMMENT='Learning materials uploaded by lecturers';
+                                  material_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                  course_id INT NOT NULL,
+                                  lecturer_id BIGINT NOT NULL,
+                                  title VARCHAR(200) NOT NULL,
+                                  description TEXT,
+                                  material_type ENUM('Lecture Note', 'Slide', 'PDF', 'Document', 'Video', 'Link', 'Other') NOT NULL DEFAULT 'Document',
+                                  file_path VARCHAR(500),
+                                  external_url VARCHAR(500),
+                                  uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                  CONSTRAINT fk_material_course
+                                      FOREIGN KEY (course_id)
+                                          REFERENCES courses(course_id)
+                                          ON UPDATE CASCADE
+                                          ON DELETE CASCADE,
+                                  CONSTRAINT fk_material_lecturer
+                                      FOREIGN KEY (lecturer_id)
+                                          REFERENCES lecturers(user_id)
+                                          ON UPDATE CASCADE
+                                          ON DELETE RESTRICT
+);
 
 -- 2.10 Course Enrollments Table
 CREATE TABLE enrollments (
-    enrollment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    student_id BIGINT NOT NULL,
-    course_id INT NOT NULL,
-    academic_year VARCHAR(20) NOT NULL DEFAULT '2026',
-    semester ENUM('Semester I', 'Semester II') NOT NULL DEFAULT 'Semester I',
-    enrollment_type ENUM('Normal', 'Repeat', 'Batch Missed') NOT NULL DEFAULT 'Normal',
-    enrollment_status ENUM('Enrolled', 'Withdrawn', 'Completed') NOT NULL DEFAULT 'Enrolled',
-    enrolled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_student_course_semester (student_id, course_id, academic_year, semester),
-    CONSTRAINT fk_enrollments_student
-        FOREIGN KEY (student_id)
-        REFERENCES undergraduates(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_enrollments_course
-        FOREIGN KEY (course_id)
-        REFERENCES courses(course_id)
-        ON UPDATE CASCADE
-        ON DELETE RESTRICT
-) ENGINE=InnoDB COMMENT='Undergraduate course registrations per semester';
+                             enrollment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                             student_id BIGINT NOT NULL,
+                             course_id INT NOT NULL,
+                             academic_year VARCHAR(20) NOT NULL DEFAULT '2026',
+                             semester ENUM('Semester I', 'Semester II') NOT NULL DEFAULT 'Semester I',
+                             enrollment_type ENUM('Normal', 'Repeat', 'Batch Missed') NOT NULL DEFAULT 'Normal',
+                             enrollment_status ENUM('Enrolled', 'Withdrawn', 'Completed') NOT NULL DEFAULT 'Enrolled',
+                             enrolled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                             UNIQUE KEY uq_student_course_semester (student_id, course_id, academic_year, semester),
+                             CONSTRAINT fk_enrollments_student
+                                 FOREIGN KEY (student_id)
+                                     REFERENCES undergraduates(user_id)
+                                     ON UPDATE CASCADE
+                                     ON DELETE CASCADE,
+                             CONSTRAINT fk_enrollments_course
+                                 FOREIGN KEY (course_id)
+                                     REFERENCES courses(course_id)
+                                     ON UPDATE CASCADE
+                                     ON DELETE RESTRICT
+);
 
 -- 2.11 Assessment Definitions Table
 CREATE TABLE assessments (
@@ -217,16 +229,7 @@ CREATE TABLE assessments (
                              course_id INT NOT NULL,
                              assessment_name VARCHAR(150) NOT NULL,
                              assessment_category ENUM('CA', 'FINAL') NOT NULL,
-                             assessment_type ENUM('Quiz 1',
-                                 'Quiz 2',
-                                 'Quiz 3',
-                                 'Assignment',
-                                 'Midterm (Theory)',
-                                 'Midterm (Practical)',
-                                 'Presentation',
-                                 'Project',
-                                 'Final Examination',
-                                 'Other') NOT NULL,
+                             assessment_type ENUM('Quiz1', 'Quiz2', 'Quiz3', 'Assignment', 'Mid Exam Theory', 'Mid Exam Practical', 'End Exam Theory', 'End Exam Practical', 'Other') NOT NULL,
                              component ENUM('Theory', 'Practical') NOT NULL DEFAULT 'Theory',
                              weight_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
                              max_mark DECIMAL(5,2) NOT NULL DEFAULT 100.00,
@@ -246,209 +249,209 @@ CREATE TABLE assessments (
                                  CHECK (weight_percent >= 0 AND weight_percent <= 100),
                              CONSTRAINT chk_assessment_max_mark
                                  CHECK (max_mark > 0)
-) ENGINE=InnoDB COMMENT='Assessment definitions for courses';
+);
 
 -- 2.12 Student Marks Table
 CREATE TABLE marks (
-    mark_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    assessment_id BIGINT NOT NULL,
-    student_id BIGINT NOT NULL,
-    mark DECIMAL(5,2) NOT NULL,
-    entered_by BIGINT NULL,
-    entered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_student_assessment (assessment_id, student_id),
-    CONSTRAINT fk_marks_assessment
-        FOREIGN KEY (assessment_id)
-        REFERENCES assessments(assessment_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_marks_student
-        FOREIGN KEY (student_id)
-        REFERENCES undergraduates(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_marks_entered_by
-        FOREIGN KEY (entered_by)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL,
-    CONSTRAINT chk_marks_range
-        CHECK (mark >= 0 AND mark <= 100)
-) ENGINE=InnoDB COMMENT='Student marks records per assessment';
+                       mark_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       assessment_id BIGINT NOT NULL,
+                       student_id BIGINT NOT NULL,
+                       mark DECIMAL(5,2) NOT NULL,
+                       entered_by BIGINT NULL,
+                       entered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                       UNIQUE KEY uq_student_assessment (assessment_id, student_id),
+                       CONSTRAINT fk_marks_assessment
+                           FOREIGN KEY (assessment_id)
+                               REFERENCES assessments(assessment_id)
+                               ON UPDATE CASCADE
+                               ON DELETE CASCADE,
+                       CONSTRAINT fk_marks_student
+                           FOREIGN KEY (student_id)
+                               REFERENCES undergraduates(user_id)
+                               ON UPDATE CASCADE
+                               ON DELETE CASCADE,
+                       CONSTRAINT fk_marks_entered_by
+                           FOREIGN KEY (entered_by)
+                               REFERENCES users(user_id)
+                               ON UPDATE CASCADE
+                               ON DELETE SET NULL,
+                       CONSTRAINT chk_marks_range
+                           CHECK (mark >= 0 AND mark <= 100)
+);
 
 -- 2.13 Attendance Sessions Table
 CREATE TABLE attendance_sessions (
-    attendance_session_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    course_id INT NOT NULL,
-    component ENUM('Theory', 'Practical') NOT NULL,
-    session_no INT UNSIGNED NOT NULL,
-    session_date DATE NOT NULL,
-    start_time TIME,
-    end_time TIME,
-    duration_hours DECIMAL(4,2) NOT NULL DEFAULT 2.00,
-    conducted_by BIGINT NULL,
-    topic VARCHAR(255),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_course_component_session (course_id, component, session_no),
-    CONSTRAINT fk_attendance_session_course
-        FOREIGN KEY (course_id)
-        REFERENCES courses(course_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_attendance_session_lecturer
-        FOREIGN KEY (conducted_by)
-        REFERENCES lecturers(user_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL,
-    CONSTRAINT chk_attendance_session_no
-        CHECK (session_no BETWEEN 1 AND 15),
-    CONSTRAINT chk_attendance_duration
-        CHECK (duration_hours > 0)
-) ENGINE=InnoDB COMMENT='Session headers for class attendance';
+                                     attendance_session_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                     course_id INT NOT NULL,
+                                     component ENUM('Theory', 'Practical') NOT NULL,
+                                     session_no INT UNSIGNED NOT NULL,
+                                     session_date DATE NOT NULL,
+                                     start_time TIME,
+                                     end_time TIME,
+                                     duration_hours DECIMAL(4,2) NOT NULL DEFAULT 2.00,
+                                     conducted_by BIGINT NULL,
+                                     topic VARCHAR(255),
+                                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                     UNIQUE KEY uq_course_component_session (course_id, component, session_no),
+                                     CONSTRAINT fk_attendance_session_course
+                                         FOREIGN KEY (course_id)
+                                             REFERENCES courses(course_id)
+                                             ON UPDATE CASCADE
+                                             ON DELETE CASCADE,
+                                     CONSTRAINT fk_attendance_session_lecturer
+                                         FOREIGN KEY (conducted_by)
+                                             REFERENCES lecturers(user_id)
+                                             ON UPDATE CASCADE
+                                             ON DELETE SET NULL,
+                                     CONSTRAINT chk_attendance_session_no
+                                         CHECK (session_no BETWEEN 1 AND 15),
+                                     CONSTRAINT chk_attendance_duration
+                                         CHECK (duration_hours > 0)
+);
 
 -- 2.14 Attendance Records Table
 CREATE TABLE attendance_records (
-    attendance_record_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    attendance_session_id BIGINT NOT NULL,
-    student_id BIGINT NOT NULL,
-    attendance_status ENUM('PRESENT', 'ABSENT', 'MEDICAL', 'LATE') NOT NULL DEFAULT 'ABSENT',
-    remarks VARCHAR(255),
-    recorded_by BIGINT NULL,
-    recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_session_student (attendance_session_id, student_id),
-    CONSTRAINT fk_attendance_record_session
-        FOREIGN KEY (attendance_session_id)
-        REFERENCES attendance_sessions(attendance_session_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_attendance_record_student
-        FOREIGN KEY (student_id)
-        REFERENCES undergraduates(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_attendance_record_user
-        FOREIGN KEY (recorded_by)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Per-student session attendance status';
+                                    attendance_record_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                    attendance_session_id BIGINT NOT NULL,
+                                    student_id BIGINT NOT NULL,
+                                    attendance_status ENUM('PRESENT', 'ABSENT', 'MEDICAL', 'LATE') NOT NULL DEFAULT 'ABSENT',
+                                    remarks VARCHAR(255),
+                                    recorded_by BIGINT NULL,
+                                    recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                    UNIQUE KEY uq_session_student (attendance_session_id, student_id),
+                                    CONSTRAINT fk_attendance_record_session
+                                        FOREIGN KEY (attendance_session_id)
+                                            REFERENCES attendance_sessions(attendance_session_id)
+                                            ON UPDATE CASCADE
+                                            ON DELETE CASCADE,
+                                    CONSTRAINT fk_attendance_record_student
+                                        FOREIGN KEY (student_id)
+                                            REFERENCES undergraduates(user_id)
+                                            ON UPDATE CASCADE
+                                            ON DELETE CASCADE,
+                                    CONSTRAINT fk_attendance_record_user
+                                        FOREIGN KEY (recorded_by)
+                                            REFERENCES users(user_id)
+                                            ON UPDATE CASCADE
+                                            ON DELETE SET NULL
+);
 
 -- 2.15 Medical Records Table
 CREATE TABLE medicals (
-    medical_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    student_id BIGINT NOT NULL,
-    course_id INT NOT NULL,
-    attendance_record_id BIGINT NULL,
-    medical_date DATE NOT NULL,
-    reason VARCHAR(500),
-    document_path VARCHAR(500),
-    approval_status ENUM('Pending', 'Approved', 'Rejected') NOT NULL DEFAULT 'Pending',
-    submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    reviewed_by BIGINT NULL,
-    reviewed_at DATETIME NULL,
-    review_comment VARCHAR(500),
-    CONSTRAINT fk_medical_student
-        FOREIGN KEY (student_id)
-        REFERENCES undergraduates(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_medical_course
-        FOREIGN KEY (course_id)
-        REFERENCES courses(course_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_medical_attendance
-        FOREIGN KEY (attendance_record_id)
-        REFERENCES attendance_records(attendance_record_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL,
-    CONSTRAINT fk_medical_reviewer
-        FOREIGN KEY (reviewed_by)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Medical certificate submissions and review status';
+                          medical_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          student_id BIGINT NOT NULL,
+                          course_id INT NOT NULL,
+                          attendance_record_id BIGINT NULL,
+                          medical_date DATE NOT NULL,
+                          reason VARCHAR(500),
+                          document_path VARCHAR(500),
+                          approval_status ENUM('Pending', 'Approved', 'Rejected') NOT NULL DEFAULT 'Pending',
+                          submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                          reviewed_by BIGINT NULL,
+                          reviewed_at DATETIME NULL,
+                          review_comment VARCHAR(500),
+                          CONSTRAINT fk_medical_student
+                              FOREIGN KEY (student_id)
+                                  REFERENCES undergraduates(user_id)
+                                  ON UPDATE CASCADE
+                                  ON DELETE CASCADE,
+                          CONSTRAINT fk_medical_course
+                              FOREIGN KEY (course_id)
+                                  REFERENCES courses(course_id)
+                                  ON UPDATE CASCADE
+                                  ON DELETE CASCADE,
+                          CONSTRAINT fk_medical_attendance
+                              FOREIGN KEY (attendance_record_id)
+                                  REFERENCES attendance_records(attendance_record_id)
+                                  ON UPDATE CASCADE
+                                  ON DELETE SET NULL,
+                          CONSTRAINT fk_medical_reviewer
+                              FOREIGN KEY (reviewed_by)
+                                  REFERENCES users(user_id)
+                                  ON UPDATE CASCADE
+                                  ON DELETE SET NULL
+);
 
 -- 2.16 Notices Table
 CREATE TABLE notices (
-    notice_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(250) NOT NULL,
-    content TEXT NOT NULL,
-    notice_type ENUM('General', 'Academic', 'Exam', 'Attendance', 'Event', 'Emergency') NOT NULL DEFAULT 'General',
-    target_role ENUM('All', 'Admin', 'Lecturer', 'Technical Officer', 'Undergraduate') NOT NULL DEFAULT 'All',
-    department_id INT NULL,
-    published_by BIGINT NULL,
-    published_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME NULL,
-    status ENUM('Draft', 'Published', 'Archived') NOT NULL DEFAULT 'Published',
-    CONSTRAINT fk_notices_department
-        FOREIGN KEY (department_id)
-        REFERENCES departments(department_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL,
-    CONSTRAINT fk_notices_publisher
-        FOREIGN KEY (published_by)
-        REFERENCES users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL
-) ENGINE=InnoDB COMMENT='Faculty announcements and notifications';
+                         notice_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                         title VARCHAR(250) NOT NULL,
+                         content TEXT NOT NULL,
+                         notice_type ENUM('General', 'Academic', 'Exam', 'Attendance', 'Event', 'Emergency') NOT NULL DEFAULT 'General',
+                         target_role ENUM('All', 'Admin', 'Lecturer', 'Technical Officer', 'Undergraduate') NOT NULL DEFAULT 'All',
+                         department_id INT NULL,
+                         published_by BIGINT NULL,
+                         published_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         expires_at DATETIME NULL,
+                         status ENUM('Draft', 'Published', 'Archived') NOT NULL DEFAULT 'Published',
+                         CONSTRAINT fk_notices_department
+                             FOREIGN KEY (department_id)
+                                 REFERENCES departments(department_id)
+                                 ON UPDATE CASCADE
+                                 ON DELETE SET NULL,
+                         CONSTRAINT fk_notices_publisher
+                             FOREIGN KEY (published_by)
+                                 REFERENCES users(user_id)
+                                 ON UPDATE CASCADE
+                                 ON DELETE SET NULL
+);
 
 -- 2.17 Timetable Table
 CREATE TABLE timetable_entries (
-    timetable_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    department_id INT NOT NULL,
-    course_id INT NOT NULL,
-    lecturer_id BIGINT NULL,
-    batch_year YEAR NOT NULL,
-    component ENUM('Theory', 'Practical') NOT NULL,
-    day_of_week ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-    venue VARCHAR(100) NOT NULL,
-    academic_year VARCHAR(20) NOT NULL DEFAULT '2026',
-    semester ENUM('Semester I', 'Semester II') NOT NULL DEFAULT 'Semester I',
-    CONSTRAINT fk_timetable_department
-        FOREIGN KEY (department_id)
-        REFERENCES departments(department_id)
-        ON UPDATE CASCADE
-        ON DELETE RESTRICT,
-    CONSTRAINT fk_timetable_course
-        FOREIGN KEY (course_id)
-        REFERENCES courses(course_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT fk_timetable_lecturer
-        FOREIGN KEY (lecturer_id)
-        REFERENCES lecturers(user_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL,
-    CONSTRAINT chk_timetable_time
-        CHECK (end_time > start_time),
-    INDEX idx_timetable_batch_day (batch_year, day_of_week, start_time),
-    INDEX idx_timetable_venue_day (venue, day_of_week, start_time)
-) ENGINE=InnoDB COMMENT='Department weekly timetable schedule';
+                                   timetable_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   department_id INT NOT NULL,
+                                   course_id INT NOT NULL,
+                                   lecturer_id BIGINT NULL,
+                                   batch_year YEAR NOT NULL,
+                                   component ENUM('Theory', 'Practical') NOT NULL,
+                                   day_of_week ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+                                   start_time TIME NOT NULL,
+                                   end_time TIME NOT NULL,
+                                   venue VARCHAR(100) NOT NULL,
+                                   academic_year VARCHAR(20) NOT NULL DEFAULT '2026',
+                                   semester ENUM('Semester I', 'Semester II') NOT NULL DEFAULT 'Semester I',
+                                   CONSTRAINT fk_timetable_department
+                                       FOREIGN KEY (department_id)
+                                           REFERENCES departments(department_id)
+                                           ON UPDATE CASCADE
+                                           ON DELETE RESTRICT,
+                                   CONSTRAINT fk_timetable_course
+                                       FOREIGN KEY (course_id)
+                                           REFERENCES courses(course_id)
+                                           ON UPDATE CASCADE
+                                           ON DELETE CASCADE,
+                                   CONSTRAINT fk_timetable_lecturer
+                                       FOREIGN KEY (lecturer_id)
+                                           REFERENCES lecturers(user_id)
+                                           ON UPDATE CASCADE
+                                           ON DELETE SET NULL,
+                                   CONSTRAINT chk_timetable_time
+                                       CHECK (end_time > start_time),
+                                   INDEX idx_timetable_batch_day (batch_year, day_of_week, start_time),
+                                   INDEX idx_timetable_venue_day (venue, day_of_week, start_time)
+);
 
 -- 2.18 Grade Scale Table
 CREATE TABLE grade_scales (
-    grade_id INT AUTO_INCREMENT PRIMARY KEY,
-    grade_code VARCHAR(5) NOT NULL UNIQUE,
-    minimum_mark DECIMAL(5,2) NOT NULL,
-    grade_point DECIMAL(4,2) NOT NULL,
-    description VARCHAR(100),
-    CONSTRAINT chk_grade_minimum
-        CHECK (minimum_mark >= 0 AND minimum_mark <= 100),
-    CONSTRAINT chk_grade_point
-        CHECK (grade_point >= 0 AND grade_point <= 4)
-) ENGINE=InnoDB COMMENT='UGC Grading scale mapping table';
+                              grade_id INT AUTO_INCREMENT PRIMARY KEY,
+                              grade_code VARCHAR(5) NOT NULL UNIQUE,
+                              minimum_mark DECIMAL(5,2) NOT NULL,
+                              grade_point DECIMAL(4,2) NOT NULL,
+                              description VARCHAR(100),
+                              CONSTRAINT chk_grade_minimum
+                                  CHECK (minimum_mark >= 0 AND minimum_mark <= 100),
+                              CONSTRAINT chk_grade_point
+                                  CHECK (grade_point >= 0 AND grade_point <= 4)
+);
 
 -- 2.19 System Settings Table
 CREATE TABLE system_settings (
-    setting_key VARCHAR(100) PRIMARY KEY,
-    setting_value VARCHAR(500) NOT NULL,
-    description VARCHAR(500)
-) ENGINE=InnoDB COMMENT='System wide configuration key-value pairs';
+                                 setting_key VARCHAR(100) PRIMARY KEY,
+                                 setting_value VARCHAR(500) NOT NULL,
+                                 description VARCHAR(500)
+);
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -565,20 +568,29 @@ SELECT
     c.course_name,
     c.ca_weight,
     ROUND(
-        COALESCE(SUM(CASE WHEN a.assessment_category = 'CA' THEN m.mark * a.weight_percent / 100 ELSE 0 END), 0),
-        2
+            COALESCE(qb.quiz_mark_contribution, 0) +
+            COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+            COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+            COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0),
+            2
     ) AS ca_mark,
-    CASE 
-        WHEN COALESCE(SUM(CASE WHEN a.assessment_category = 'CA' THEN m.mark * a.weight_percent / 100 ELSE 0 END), 0) >= 40 THEN 'Eligible'
+    CASE
+        WHEN (
+                 COALESCE(qb.quiz_mark_contribution, 0) +
+                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0)
+                 ) >= 40.0 THEN 'Eligible'
         ELSE 'Not Eligible'
         END AS ca_eligibility
 FROM enrollments e
-JOIN undergraduates ug ON e.student_id = ug.user_id
-JOIN users usr ON ug.user_id = usr.user_id
-JOIN courses c ON e.course_id = c.course_id
-LEFT JOIN assessments a ON a.course_id = c.course_id AND a.assessment_category = 'CA'
-LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
-GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name, c.ca_weight;
+         JOIN undergraduates ug ON e.student_id = ug.user_id
+         JOIN users usr ON ug.user_id = usr.user_id
+         JOIN courses c ON e.course_id = c.course_id
+         LEFT JOIN v_quiz_best2 qb ON qb.student_id = e.student_id AND qb.course_id = e.course_id
+         LEFT JOIN assessments a ON a.course_id = c.course_id AND a.assessment_category = 'CA' AND a.assessment_type NOT IN ('Quiz1', 'Quiz2', 'Quiz3') AND a.assessment_name NOT LIKE '%Quiz%'
+         LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
+GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name, c.ca_weight, qb.quiz_mark_contribution;
 
 -- 4.5 Final Exam Marks Contribution View
 CREATE OR REPLACE VIEW v_final_exam_marks AS
@@ -590,8 +602,8 @@ SELECT
     c.course_code,
     c.course_name,
     ROUND(
-        COALESCE(SUM(CASE WHEN a.assessment_category = 'FINAL' THEN m.mark * a.weight_percent / 100 ELSE 0 END), 0),
-        2
+            COALESCE(SUM(CASE WHEN a.assessment_category = 'FINAL' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0),
+            2
     ) AS final_exam_contribution
 FROM enrollments e
          JOIN undergraduates ug ON e.student_id = ug.user_id
@@ -704,24 +716,22 @@ FROM v_sgpa s
 
 -- 5.1 Department
 INSERT INTO departments (department_code, department_name, description) VALUES
-    ('ICT', 'Department of Information and Communication Technology', 'Faculty of Technology - ICT Department'),
-    ('ET', 'Department of Engineering Technology', 'Faculty of Technology - ET Department'),
-    ('BST', 'Department of Bio Systems Technology', 'Faculty of Technology - BST Department');
+    ('ICT', 'Department of Information and Communication Technology', 'Faculty of Technology - ICT Department');
 
 -- 5.2 UGC Grade Scale
 INSERT INTO grade_scales (grade_code, minimum_mark, grade_point, description) VALUES
-('A+', 85.00, 4.00, 'Excellent'),
-('A',  70.00, 4.00, 'Excellent'),
-('A-', 65.00, 3.70, 'Very Good'),
-('B+', 60.00, 3.30, 'Good'),
-('B',  55.00, 3.00, 'Good'),
-('B-', 50.00, 2.70, 'Good'),
-('C+', 45.00, 2.30, 'Satisfactory'),
-('C',  40.00, 2.00, 'Satisfactory'),
-('C-', 35.00, 1.70, 'Pass'),
-('D+', 30.00, 1.30, 'Weak Pass'),
-('D',  25.00, 1.00, 'Weak Pass'),
-('E',   0.00, 0.00, 'Fail');
+                                                                                  ('A+', 85.00, 4.00, 'Excellent'),
+                                                                                  ('A',  70.00, 4.00, 'Excellent'),
+                                                                                  ('A-', 65.00, 3.70, 'Very Good'),
+                                                                                  ('B+', 60.00, 3.30, 'Good'),
+                                                                                  ('B',  55.00, 3.00, 'Good'),
+                                                                                  ('B-', 50.00, 2.70, 'Good'),
+                                                                                  ('C+', 45.00, 2.30, 'Satisfactory'),
+                                                                                  ('C',  40.00, 2.00, 'Satisfactory'),
+                                                                                  ('C-', 35.00, 1.70, 'Pass'),
+                                                                                  ('D+', 30.00, 1.30, 'Weak Pass'),
+                                                                                  ('D',  25.00, 1.00, 'Weak Pass'),
+                                                                                  ('E',   0.00, 0.00, 'Fail');
 
 -- 5.3 System Settings
 INSERT INTO system_settings (setting_key, setting_value, description) VALUES
@@ -796,16 +806,17 @@ FROM users WHERE role = 'Undergraduate';
 UPDATE undergraduates SET student_type = 'Repeat' WHERE registration_no IN ('TG/2024/2078', 'TG/2024/2079');
 UPDATE undergraduates SET student_type = 'Batch Missed', batch_year = 2023 WHERE registration_no = 'TG/2024/2080';
 
--- 5.5 Courses Seed (ICT2112 to ICT2182)
-INSERT INTO courses (course_code, course_name, description, theory_credits, practical_credits, ca_weight, department_id, academic_year, semester) VALUES
-('ICT2112', 'Data Structures and Algorithms',        'Data structures, algorithms and problem solving.',            2.0, 0.0, 40.0, 1, '2026', 'Semester I'),
-('ICT2122', 'Computer Networks',                     'Computer networking concepts and practical networking.',      1.0, 1.0, 40.0, 1, '2026', 'Semester I'),
-('ICT2132', 'Object Oriented Programming Practicum', 'Java, OOP, GUI and database handling practicum.',         1.0, 1.0, 50.0, 1, '2026', 'Semester I'),
-('ICT2142', 'Database Management Systems',           'Database design, SQL and database management.',              2.0, 1.0, 40.0, 1, '2026', 'Semester I'),
-('ICT2152', 'Web Application Development',           'Client and server side web application development.',         1.0, 1.0, 50.0, 1, '2026', 'Semester I'),
-('ICT2162', 'Software Engineering',                  'Software engineering principles and development methods.',    2.0, 0.0, 30.0, 1, '2026', 'Semester I'),
-('ICT2172', 'Probability and Statistics',            'Probability, statistics and data analysis.',                  2.0, 0.0, 30.0, 1, '2026', 'Semester I'),
-('ICT2182', 'Technical Communication Skills',        'Professional and technical communication.',                   1.0, 0.0, 50.0, 1, '2026', 'Semester I');
+-- 5.5 Courses Seed (Level 2 Semester 1 Actual Courses with Sub-weights)
+INSERT INTO courses (course_code, course_name, description, theory_credits, practical_credits, is_gpa, quiz_weight, assignment_weight, mid_theory_weight, mid_practical_weight, ca_weight, end_theory_weight, end_practical_weight, department_id, academic_year, semester) VALUES
+                                                                                                                                                                                                                                                                                ('ICT2113', 'Data Structures and Algorithms',        'Data structures, algorithms, complexity and problem solving.', 2.0, 1.0, TRUE,  10.00, 10.00, 10.00, 10.00, 40.00, 40.00, 20.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('ICT2122', 'Object Oriented Programming',           'Core OOP concepts, principles, Java programming.',            2.0, 0.0, TRUE,  10.00, 10.00, 20.00,  0.00, 40.00, 60.00,  0.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('ICT2132', 'Object Oriented Programming Practicum', 'Practical Java programming, GUI development, lab tasks.',       0.0, 2.0, TRUE,  10.00, 10.00,  0.00, 30.00, 50.00,  0.00, 50.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('ICT2142', 'E-Business Systems',                    'E-commerce architecture, business models, digital payment.',  2.0, 0.0, TRUE,  10.00, 10.00, 20.00,  0.00, 40.00, 60.00,  0.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('ICT2152', 'Object Oriented Analysis and Design',   'UML modeling, design patterns, system architecture.',          2.0, 0.0, TRUE,  10.00, 10.00, 20.00,  0.00, 40.00, 60.00,  0.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('ICT2162', 'Management Information Systems',        'Enterprise systems, decision support, IT management.',        2.0, 0.0, TRUE,  10.00, 10.00, 20.00,  0.00, 40.00, 60.00,  0.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('TCS2112', 'Business Economics',                    'Micro & macroeconomics principles, business application.',    2.0, 0.0, TRUE,  10.00, 10.00, 10.00,  0.00, 30.00, 70.00,  0.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('TCS2121', 'Soft Skills',                           'Leadership, ethics, team work, career skills.',               1.0, 0.0, TRUE,  20.00, 30.00,  0.00,  0.00, 50.00, 50.00,  0.00, 1, '2026', 'Semester I'),
+                                                                                                                                                                                                                                                                                ('ENG2112', 'English III',                           'Advanced English language and communication skills (NGPA).',  2.0, 0.0, FALSE, 20.00, 30.00,  0.00,  0.00, 50.00, 50.00,  0.00, 1, '2026', 'Semester I');
 
 -- 5.6 Lecturer Course Assignments
 INSERT INTO course_lecturers (course_id, lecturer_id, responsibility) SELECT course_id, (SELECT user_id FROM lecturers WHERE lecturer_code = 'LEC001'), 'Coordinator' FROM courses WHERE course_code = 'ICT2113';
@@ -840,8 +851,8 @@ FROM undergraduates u
          CROSS JOIN courses c
 WHERE NOT (
     (u.student_type = 'Batch Missed' AND MOD(c.course_id, 3) = 0) OR
-    (u.student_type = 'Repeat' AND c.course_code = 'ICT2182')
-);
+    (u.student_type = 'Repeat' AND c.course_code = 'ENG2112')
+    );
 
 -- 5.9 Assessments Seed (3 Quizzes per course + Assignments + Mid + Final Exams)
 -- 3 Quizzes for each course (each has quiz_weight / 2)
@@ -940,22 +951,25 @@ INSERT INTO marks (assessment_id, student_id, mark, entered_by)
 SELECT
     a.assessment_id,
     e.student_id,
-    CASE 
+    CASE
+        WHEN a.assessment_type = 'Quiz1' THEN 70.00 + MOD(e.student_id * 3, 25)
+        WHEN a.assessment_type = 'Quiz2' THEN 80.00 + MOD(e.student_id * 5, 18)
+        WHEN a.assessment_type = 'Quiz3' THEN 65.00 + MOD(e.student_id * 7, 30)
         WHEN MOD(e.student_id, 5) = 0 THEN 88.00
         WHEN MOD(e.student_id, 5) = 1 THEN 78.00
         WHEN MOD(e.student_id, 5) = 2 THEN 68.00
         WHEN MOD(e.student_id, 5) = 3 THEN 52.00
-        ELSE 35.00
-    END,
+        ELSE 42.00
+        END,
     (SELECT cl.lecturer_id FROM course_lecturers cl WHERE cl.course_id = a.course_id LIMIT 1)
 FROM assessments a
          JOIN enrollments e ON e.course_id = a.course_id;
 
--- 5.14 Demo Notices
-INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, status) VALUES 
-('Semester I Academic Notice', 'Students are requested to regularly check attendance, course and examination information.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
-('Attendance Eligibility Reminder', 'Students must maintain at least 80% attendance according to academic regulations.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
-('CA Eligibility Notice', 'Continuous Assessment marks must satisfy the 40% minimum eligibility requirement before the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
+-- 5.14 System Notices
+INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, status) VALUES
+                                                                                                        ('Semester I Academic Notice', 'Students are requested to regularly check attendance, course and examination information.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+                                                                                                        ('Attendance Eligibility Reminder', 'Students must maintain at least 80% attendance according to academic regulations.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+                                                                                                        ('CA Eligibility Notice', 'Continuous Assessment marks must satisfy the 40% minimum eligibility requirement before the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
 
 -- 5.15 Timetable Schedule
 INSERT INTO timetable_entries (department_id, course_id, lecturer_id, batch_year, component, day_of_week, start_time, end_time, venue, academic_year, semester)
