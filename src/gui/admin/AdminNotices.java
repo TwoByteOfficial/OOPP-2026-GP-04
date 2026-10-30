@@ -14,7 +14,7 @@ public class AdminNotices extends JPanel {
     private final long currentAdminUserId;
 
     private NoticeTitleBar titleBar;
-    private NoticeFilterBar filterBar;
+    private NoticeFilterSet filterSet;
     private NoticeActions actionToolbar;
     private NoticeList tableContainer;
     private NoticeTable noticeTable;
@@ -23,33 +23,42 @@ public class AdminNotices extends JPanel {
         this.currentAdminUserId = userId;
         this.noticeDAO = new AdminNoticeDAO();
 
-        setLayout(null);
-        setBackground(AdminTheme.LIGHT_BG);
-        setBounds(30, 30, 1600, 900);
+        setLayout(new BorderLayout(0, 12));
+        setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBorder(BorderFactory.createEmptyBorder(60, 40, 60, 40));
 
         initUI();
         loadNotices();
     }
 
     private void initUI() {
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setOpaque(false);
+
         titleBar = new NoticeTitleBar();
-        titleBar.setBounds(20, 20, 1620, 80);
-        add(titleBar);
+        topPanel.add(titleBar);
+        topPanel.add(Box.createVerticalStrut(10));
 
-        filterBar = new NoticeFilterBar(this::onFilterChanged, this::loadNotices);
-        filterBar.setBounds(20, 110, 1620, 60);
-        add(filterBar);
+        filterSet = new NoticeFilterSet(this::onFilterChanged);
+        topPanel.add(filterSet);
+        topPanel.add(Box.createVerticalStrut(10));
 
-        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        actionToolbar = new NoticeActions(
+                this::onAddNotice,
+                this::onViewDetails,
+                this::onEditNotice,
+                this::onDeleteNotice,
+                this::onTogglePublish,
+                this::loadNotices
+        );
+        topPanel.add(actionToolbar);
+
+        add(topPanel, BorderLayout.NORTH);
 
         noticeTable = new NoticeTable();
         tableContainer = new NoticeList(noticeTable);
-        tableContainer.setBounds(20, 250, 1620, 680);
-        add(tableContainer);
-
-        actionToolbar = new NoticeActions(owner, noticeDAO, currentAdminUserId, noticeTable::getSelectedNotice, this::loadNotices);
-        actionToolbar.setBounds(20, 180, 1620, 56);
-        add(actionToolbar);
+        add(tableContainer, BorderLayout.CENTER);
     }
 
     private void loadNotices() {
@@ -63,9 +72,9 @@ public class AdminNotices extends JPanel {
     }
 
     private void onFilterChanged() {
-        String query = filterBar.getSearchQuery().toLowerCase();
-        String typeFilter = filterBar.getSelectedType();
-        String roleFilter = filterBar.getSelectedRole();
+        String query = filterSet.getSearchQuery().toLowerCase();
+        String typeFilter = filterSet.getSelectedType();
+        String roleFilter = filterSet.getSelectedRole();
 
         try {
             List<Notice> list = noticeDAO.getAllNotices();
@@ -74,7 +83,7 @@ public class AdminNotices extends JPanel {
                         (n.getTitle() != null && n.getTitle().toLowerCase().contains(query)) ||
                         (n.getContent() != null && n.getContent().toLowerCase().contains(query));
                 boolean mType = ("All Types".equalsIgnoreCase(typeFilter) || typeFilter.equalsIgnoreCase(n.getNoticeType()));
-                boolean mRole = ("All Roles".equalsIgnoreCase(roleFilter) || "All Roles".equalsIgnoreCase(n.getTargetRole()) || roleFilter.equalsIgnoreCase(n.getTargetRole()));
+                boolean mRole = ("All Roles".equalsIgnoreCase(roleFilter) || roleFilter.equalsIgnoreCase(n.getTargetRole()));
                 return mQuery && mType && mRole;
             }).toList();
 
@@ -82,6 +91,75 @@ public class AdminNotices extends JPanel {
             titleBar.updateCount(filtered.size());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void onAddNotice() {
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        NoticeForm form = new NoticeForm(owner, noticeDAO, null, currentAdminUserId, this::loadNotices);
+        form.setVisible(true);
+    }
+
+    private void onViewDetails() {
+        Notice selected = noticeTable.getSelectedNotice();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select an announcement from the table.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        NoticeDetails details = new NoticeDetails(owner, selected);
+        details.setVisible(true);
+    }
+
+    private void onEditNotice() {
+        Notice selected = noticeTable.getSelectedNotice();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select an announcement from the table to edit.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+        NoticeForm form = new NoticeForm(owner, noticeDAO, selected, currentAdminUserId, this::loadNotices);
+        form.setVisible(true);
+    }
+
+    private void onDeleteNotice() {
+        Notice selected = noticeTable.getSelectedNotice();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select an announcement from the table to delete.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int choice = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete notice '" + selected.getTitle() + "'?",
+                "Delete Notice", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (choice == JOptionPane.YES_OPTION) {
+            try {
+                noticeDAO.deleteNotice(selected.getNoticeId());
+                JOptionPane.showMessageDialog(this, "Notice deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                loadNotices();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error deleting notice: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void onTogglePublish() {
+        Notice selected = noticeTable.getSelectedNotice();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select an announcement from the table to toggle status.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String currentStatus = selected.getStatus();
+        String newStatus = "Published".equalsIgnoreCase(currentStatus) ? "Draft" : "Published";
+
+        try {
+            noticeDAO.updateNoticeStatus(selected.getNoticeId(), newStatus);
+            JOptionPane.showMessageDialog(this, "Notice status updated to '" + newStatus + "'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadNotices();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error updating status: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

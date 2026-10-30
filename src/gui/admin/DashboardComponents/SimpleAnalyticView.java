@@ -1,12 +1,15 @@
 package gui.admin.DashboardComponents;
 
-import gui.admin.AdminTheme;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
 
 public class SimpleAnalyticView extends JPanel {
+
+    private final Color WHITE        = Color.WHITE;
+    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
+    private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
+    private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
 
     public SimpleAnalyticView(Map<String, Integer> metrics) {
         setLayout(null);
@@ -34,9 +37,9 @@ public class SimpleAnalyticView extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(AdminTheme.WHITE);
+                g2.setColor(WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                g2.setColor(AdminTheme.CARD_SHADOW_30);
+                g2.setColor(new Color(0x1B, 0x5E, 0x20, 30));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
                 g2.dispose();
             }
@@ -49,7 +52,7 @@ public class SimpleAnalyticView extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(AdminTheme.FOREST_GREEN);
+                g2.setColor(FOREST_GREEN);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
                 g2.dispose();
             }
@@ -60,13 +63,13 @@ public class SimpleAnalyticView extends JPanel {
 
         JLabel valueLabel = new JLabel(countValue);
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        valueLabel.setForeground(AdminTheme.DEEP_GREEN);
+        valueLabel.setForeground(DEEP_GREEN);
         valueLabel.setBounds(88, 22, 270, 34);
         card.add(valueLabel);
 
         JLabel labelText = new JLabel(title);
         labelText.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        labelText.setForeground(AdminTheme.MUTED);
+        labelText.setForeground(MUTED);
         labelText.setBounds(88, 56, 270, 22);
         card.add(labelText);
 

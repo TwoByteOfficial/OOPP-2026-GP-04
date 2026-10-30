@@ -1,12 +1,20 @@
 package gui.admin.TimetableComponents;
 
-import gui.admin.AdminTheme;
+import dao.admin.AdminCourseDAO;
+import dao.admin.AdminUserDAO;
+import model.Course;
+import model.Lecturer;
 import model.TimetableEntry;
+import model.User;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 public class TimetableTable extends JTable {
@@ -15,41 +23,119 @@ public class TimetableTable extends JTable {
     private List<TimetableEntry> entryList = new ArrayList<>();
 
     public TimetableTable() {
-        String[] columns = { "Slot ID", "Day", "Time Window", "Component", "Venue", "Department ID", "Batch Year" };
+        String[] columns = { "Slot ID", "Day", "Time Window", "Course (Code & Name)", "Component", "Venue", "Department", "Batch", "Lecturer" };
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
         setModel(model);
 
-        setFont(AdminTheme.FONT_SMALL);
+        setFont(new Font("Segoe UI", Font.PLAIN, 15));
         setRowHeight(44);
-        setBackground(AdminTheme.WHITE);
-        setSelectionBackground(AdminTheme.PASTEL_GREEN);
-        setSelectionForeground(AdminTheme.DEEP_GREEN);
+        setBackground(Color.WHITE);
+        setForeground(new Color(0x21, 0x25, 0x29));
+        setSelectionBackground(new Color(0xC8, 0xE6, 0xC9));
+        setSelectionForeground(new Color(0x1B, 0x5E, 0x20));
         setShowGrid(true);
         setGridColor(new Color(0xE0, 0xE0, 0xE0));
+
+        JTableHeader header = getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 46));
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                l.setBackground(new Color(0xE8, 0xF5, 0xE9));
+                l.setForeground(new Color(0x1B, 0x5E, 0x20));
+                l.setFont(new Font("Segoe UI", Font.BOLD, 16));
+                l.setHorizontalAlignment(SwingConstants.CENTER);
+                l.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 1, new Color(0xC8, 0xE6, 0xC9)));
+                return l;
+            }
+        });
+
+        setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(0xF9, 0xFB, 0xF9));
+                    c.setForeground(new Color(0x21, 0x25, 0x29));
+                }
+                return c;
+            }
+        });
+
+        int[] widths = { 80, 110, 170, 260, 120, 160, 180, 80, 180 };
+        for (int i = 0; i < widths.length && i < getColumnModel().getColumnCount(); i++) {
+            getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+        }
     }
 
     public void setTimetables(List<TimetableEntry> entries) {
+        setTimetables(entries, new AdminCourseDAO(), new AdminUserDAO());
+    }
+
+    public void setTimetables(List<TimetableEntry> entries, AdminCourseDAO courseDAO, AdminUserDAO userDAO) {
         this.entryList = entries;
         model.setRowCount(0);
+
+        Map<Integer, String> courseMap = new HashMap<>();
+        try {
+            List<Course> courses = courseDAO.getAllCourses();
+            if (courses != null) {
+                for (Course c : courses) {
+                    courseMap.put(c.getCourseId(), c.getCourseCode() + " - " + c.getCourseName());
+                }
+            }
+        } catch (Exception ignored) {}
+
+        Map<Long, String> lecturerMap = new HashMap<>();
+        try {
+            List<User> lecturers = userDAO.getUsersByRole("Lecturer");
+            if (lecturers != null) {
+                for (User u : lecturers) {
+                    String title = (u instanceof Lecturer && ((Lecturer) u).getTitle() != null) ? ((Lecturer) u).getTitle() + " " : "";
+                    lecturerMap.put(u.getUserId(), title + u.getFullName());
+                }
+            }
+        } catch (Exception ignored) {}
+
         for (TimetableEntry t : entries) {
+            String timeWindow = (t.getStartTime() != null ? t.getStartTime().toString() : "08:30:00") + " - " + (t.getEndTime() != null ? t.getEndTime().toString() : "10:30:00");
+
+            String courseDisplay = courseMap.getOrDefault(t.getCourseId(), "CID-" + t.getCourseId());
+
+            String deptDisplay = "Dept " + t.getDepartmentId();
+            if (t.getDepartmentId() == 1) deptDisplay = "ICT";
+            else if (t.getDepartmentId() == 2) deptDisplay = "Engineering Technology";
+            else if (t.getDepartmentId() == 3) deptDisplay = "Bio Systems Technology";
+
+            String lecturerDisplay = "Unassigned";
+            if (t.getLecturerId() != null && t.getLecturerId() > 0) {
+                lecturerDisplay = lecturerMap.getOrDefault(t.getLecturerId(), "UID-" + t.getLecturerId());
+            }
+
             model.addRow(new Object[]{
                     "TT-" + t.getTimetableId(),
-                    t.getDayOfWeek(),
-                    t.getStartTime() + " - " + t.getEndTime(),
-                    t.getComponent(),
-                    t.getVenue(),
-                    "Dept " + t.getDepartmentId(),
-                    t.getBatchYear()
+                    t.getDayOfWeek() != null ? t.getDayOfWeek() : "Monday",
+                    timeWindow,
+                    courseDisplay,
+                    t.getComponent() != null ? t.getComponent() : "Theory",
+                    t.getVenue() != null ? t.getVenue() : "Auditorium",
+                    deptDisplay,
+                    t.getBatchYear() > 0 ? t.getBatchYear() : 2024,
+                    lecturerDisplay
             });
         }
     }
 
     public TimetableEntry getSelectedTimetable() {
-        int row = getSelectedRow();
-        if (row >= 0 && row < entryList.size()) return entryList.get(row);
+        int selectedRow = getSelectedRow();
+        if (selectedRow >= 0 && selectedRow < entryList.size()) {
+            return entryList.get(selectedRow);
+        }
         return null;
     }
 }

@@ -6,35 +6,29 @@ import model.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * AdminUserProfiles - Primary User Profiles management view panel.
- * Restructured to integrate consolidated component files:
- * - UserProfileTitleBar
- * - UserProfileFilterSet (Search, Role Filter, Status Filter, Search Btn, Reset Btn on right, Refresh Btn on left)
- * - AddUserButton (Register User button + Modal Dialog)
- * - ViewUserButton (View Details button + Modal Dialog)
- * - EditUserButton (Edit User button + Modal Dialog)
- * - UserProfileTable (Single component data table)
+ * Delete User button and deleteSelectedUser functionality have been removed.
  */
 public class AdminUserProfiles extends JPanel {
+
+    private final Color MINT = new Color(0xE8, 0xF5, 0xE9);
 
     private final AdminUserDAO userDAO;
     private List<User> allLoadedUsers = new ArrayList<>();
 
     private UserProfileTitleBar titleBar;
     private UserProfileFilterSet filterSet;
-    private AddUserButton btnAdd;
-    private ViewUserButton btnView;
-    private EditUserButton btnEdit;
-    private UserProfileTable userTable;
+    private UserProfileActions actionToolbar;
+    private UserProfileUserList userList;
 
     public AdminUserProfiles(long userId, String username, String fullName, String email, String role) {
         setLayout(new BorderLayout(0, 12));
-        setBackground(AdminTheme.MINT);
-        setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        setBackground(MINT);
+        setBorder(BorderFactory.createEmptyBorder(60, 40, 60, 40));
 
         userDAO = new AdminUserDAO();
 
@@ -47,36 +41,26 @@ public class AdminUserProfiles extends JPanel {
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setOpaque(false);
 
-        // 1. Title Bar Component
         titleBar = new UserProfileTitleBar(0);
         topPanel.add(titleBar);
         topPanel.add(Box.createVerticalStrut(10));
 
-        // 2. Filter Bar Component (Refresh on left, Search/Role/Status in center, Reset on right)
-        filterSet = new UserProfileFilterSet(this::applyFilters, this::loadUsersFromDatabase);
+        filterSet = new UserProfileFilterSet(this::applyFilters);
         topPanel.add(filterSet);
         topPanel.add(Box.createVerticalStrut(10));
 
-        // 3. Action Toolbar (Register New User, View Details, Edit User)
-        JPanel actionToolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 10));
-        actionToolbar.setOpaque(false);
-        actionToolbar.setPreferredSize(new Dimension(1620, 50));
-
-        btnAdd = new AddUserButton(this, userDAO, this::loadUsersFromDatabase);
-        btnView = new ViewUserButton(this, () -> userTable.getSelectedUser());
-        btnEdit = new EditUserButton(this, userDAO, () -> userTable.getSelectedUser(), this::loadUsersFromDatabase);
-
-        actionToolbar.add(btnAdd);
-        actionToolbar.add(btnView);
-        actionToolbar.add(btnEdit);
-
+        actionToolbar = new UserProfileActions(
+                this::openAddUserDialog,
+                this::openViewDetailsDialog,
+                this::openEditUserDialog,
+                this::loadUsersFromDatabase
+        );
         topPanel.add(actionToolbar);
 
         add(topPanel, BorderLayout.NORTH);
 
-        // 4. User Table Component
-        userTable = new UserProfileTable();
-        add(userTable, BorderLayout.CENTER);
+        userList = new UserProfileUserList();
+        add(userList, BorderLayout.CENTER);
     }
 
     public void loadUsersFromDatabase() {
@@ -122,7 +106,37 @@ public class AdminUserProfiles extends JPanel {
             filtered.add(u);
         }
 
-        userTable.setUsersData(filtered);
+        userList.updateData(filtered);
         titleBar.updateCount(filtered.size());
+    }
+
+    private void openAddUserDialog() {
+        Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(this);
+        UserProfileForm form = new UserProfileForm(parentFrame, userDAO, null, this::loadUsersFromDatabase);
+        form.setVisible(true);
+    }
+
+    private void openViewDetailsDialog() {
+        User selected = userList.getSelectedUser();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select a user profile row from the table first.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(this);
+        UserProfileDetails details = new UserProfileDetails(parentFrame, selected);
+        details.setVisible(true);
+    }
+
+    private void openEditUserDialog() {
+        User selected = userList.getSelectedUser();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select a user profile row to edit.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(this);
+        UserProfileForm form = new UserProfileForm(parentFrame, userDAO, selected, this::loadUsersFromDatabase);
+        form.setVisible(true);
     }
 }

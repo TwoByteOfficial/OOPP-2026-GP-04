@@ -13,7 +13,7 @@ public class TestAdminDirect {
 
         SwingUtilities.invokeLater(() -> {
             long testUserId = 1;
-            String testUsername = "Dev_admin";
+            String testUsername = "dev_admin";
             String testFullName = "System Dev Administrator";
             String testEmail = "admin.dev@unimis.edu";
             String testRole = "Admin";

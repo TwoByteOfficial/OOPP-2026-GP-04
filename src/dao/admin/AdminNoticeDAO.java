@@ -42,7 +42,7 @@ public class AdminNoticeDAO {
 
     public boolean createNotice(Notice n) throws SQLException {
         String sql = "INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, expires_at, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = DBConnection.con();
              PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

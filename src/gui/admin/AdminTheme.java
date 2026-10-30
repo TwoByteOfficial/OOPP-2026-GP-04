@@ -9,39 +9,30 @@ public final class AdminTheme {
 
     private AdminTheme() {}
 
-    // Color Palette
-    public static final Color MINT          = new Color(232, 245, 233);
-    public static final Color PASTEL_GREEN  = new Color(200, 230, 201);
-    public static final Color FRESH_GREEN   = new Color(165, 214, 167);
-    public static final Color MEDIUM_GREEN  = new Color(129, 199, 132);
-    public static final Color FOREST_GREEN  = new Color(56, 142, 60);
-    public static final Color DEEP_GREEN    = new Color(27, 94, 32);
+    public static final Color MINT          = new Color(0xE8, 0xF5, 0xE9);
+    public static final Color PASTEL_GREEN  = new Color(0xC8, 0xE6, 0xC9);
+    public static final Color FRESH_GREEN   = new Color(0xA5, 0xD6, 0xA7);
+    public static final Color MEDIUM_GREEN  = new Color(0x81, 0xC7, 0x84);
+    public static final Color FOREST_GREEN  = new Color(0x38, 0x8E, 0x3C);
+    public static final Color DEEP_GREEN    = new Color(0x1B, 0x5E, 0x20);
 
-    // Contextual / Functional Colors
     public static final Color PRIMARY       = FOREST_GREEN;
     public static final Color PRIMARY_DARK  = DEEP_GREEN;
     public static final Color SECONDARY     = FRESH_GREEN;
     public static final Color SUCCESS       = FOREST_GREEN;
-    public static final Color DANGER        = new Color(220, 53, 69);
-    public static final Color WARNING       = new Color(240, 173, 78);
+    public static final Color DANGER        = new Color(0xDC, 0x35, 0x45);
+    public static final Color WARNING       = new Color(0xF0, 0xAD, 0x4E);
     public static final Color INFO          = FOREST_GREEN;
 
     public static final Color LIGHT_BG      = MINT;
     public static final Color WHITE         = Color.WHITE;
     public static final Color BLACK         = Color.BLACK;
     public static final Color TEXT          = DEEP_GREEN;
-    public static final Color MUTED         = new Color(79, 107, 82);
+    public static final Color MUTED         = new Color(0x4F, 0x6B, 0x52);
     public static final Color BORDER        = PASTEL_GREEN;
 
-    // Translucent Card Border / Shadow Overlays
-    public static final Color CARD_SHADOW    = new Color(27, 94, 32, 35);
-    public static final Color CARD_SHADOW_30 = new Color(27, 94, 32, 30);
-    public static final Color CARD_SHADOW_35 = new Color(27, 94, 32, 35);
-
-    // Layout Constants
     public static final int SIDEBAR_WIDTH   = 260;
 
-    // Typography
     public static final String FONT_FAMILY  = "Segoe UI";
 
     public static Font font(int style, int size) {
@@ -65,7 +56,7 @@ public final class AdminTheme {
 
     public static Border cardBorder() {
         return BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(210, 215, 225)),
+                BorderFactory.createLineBorder(new Color(0xD2, 0xD7, 0xE1)),
                 new EmptyBorder(20, 22, 20, 22));
     }
 

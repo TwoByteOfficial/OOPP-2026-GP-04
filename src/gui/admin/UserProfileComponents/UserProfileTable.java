@@ -1,86 +1,89 @@
 package gui.admin.UserProfileComponents;
 
-import gui.admin.AdminTheme;
 import model.*;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
- * UserProfileTable - Single-file component representing the complete user profile data table.
- * All colors and fonts are retrieved directly from AdminTheme.
+ * UserProfileTable - Custom JTable component for displaying user profile datasets.
  */
-public class UserProfileTable extends JPanel {
+public class UserProfileTable extends JTable {
 
-    private final JTable table;
+    private final Color WHITE        = Color.WHITE;
+    private final Color SOFT_MINT    = new Color(0xF9, 0xFB, 0xF9);
+    private final Color MINT         = new Color(0xE8, 0xF5, 0xE9);
+    private final Color PASTEL_GREEN = new Color(0xC8, 0xE6, 0xC9);
+    private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
+    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
+    private final Color DARK_TEXT    = new Color(0x21, 0x25, 0x29);
+    private final Color DANGER       = new Color(0xDC, 0x35, 0x45);
+
     private final DefaultTableModel tableModel;
     private List<User> currentDisplayedUsers = new ArrayList<>();
 
     public UserProfileTable() {
-        setLayout(new BorderLayout());
-        setBackground(AdminTheme.WHITE);
-
-        String[] columnNames = {
-                "User ID / Identifier", "Full Name", "System Role", "Email Address", "Department", "Account Status"
-        };
+        String[] columnNames = { "User ID / Reg Code", "Full Name", "Role", "Email", "Department", "Status" };
 
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return false; // Table cells are read-only
             }
         };
 
-        table = new JTable(tableModel);
-        table.setRowHeight(48);
-        table.setFont(AdminTheme.font(Font.PLAIN, 15));
-        table.setShowVerticalLines(false);
-        table.setGridColor(AdminTheme.PASTEL_GREEN);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setModel(tableModel);
+        setRowHeight(44);
+        setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setShowGrid(false);
+        setIntercellSpacing(new Dimension(0, 0));
 
-        JTableHeader header = table.getTableHeader();
-        header.setFont(AdminTheme.font(Font.BOLD, 16));
-        header.setBackground(AdminTheme.PASTEL_GREEN);
-        header.setForeground(AdminTheme.DEEP_GREEN);
+        // Header Styling
+        JTableHeader header = getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        header.setBackground(MINT);
+        header.setForeground(DEEP_GREEN);
         header.setPreferredSize(new Dimension(header.getPreferredSize().width, 46));
         header.setReorderingAllowed(false);
 
         ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
 
-        table.getColumnModel().getColumn(0).setPreferredWidth(200);
-        table.getColumnModel().getColumn(1).setPreferredWidth(280);
-        table.getColumnModel().getColumn(2).setPreferredWidth(180);
-        table.getColumnModel().getColumn(3).setPreferredWidth(260);
-        table.getColumnModel().getColumn(4).setPreferredWidth(180);
-        table.getColumnModel().getColumn(5).setPreferredWidth(140);
+        // Column Widths Allocation
+        getColumnModel().getColumn(0).setPreferredWidth(200);
+        getColumnModel().getColumn(1).setPreferredWidth(280);
+        getColumnModel().getColumn(2).setPreferredWidth(180);
+        getColumnModel().getColumn(3).setPreferredWidth(260);
+        getColumnModel().getColumn(4).setPreferredWidth(180);
+        getColumnModel().getColumn(5).setPreferredWidth(140);
 
-        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        // Custom Cell Renderer
+        setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-                c.setFont(AdminTheme.font(Font.PLAIN, 15));
+                c.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 
                 if (isSelected) {
-                    c.setBackground(AdminTheme.PASTEL_GREEN);
-                    c.setForeground(AdminTheme.DEEP_GREEN);
+                    c.setBackground(PASTEL_GREEN);
+                    c.setForeground(DEEP_GREEN);
                 } else {
-                    c.setBackground(row % 2 == 0 ? AdminTheme.WHITE : AdminTheme.MINT);
-                    c.setForeground(AdminTheme.TEXT);
+                    c.setBackground(row % 2 == 0 ? WHITE : SOFT_MINT);
+                    c.setForeground(DARK_TEXT);
                 }
 
                 if (column == 5) { // Status Tag Column
                     String status = String.valueOf(value);
-                    setFont(AdminTheme.font(Font.BOLD, 15));
+                    setFont(new Font("Segoe UI", Font.BOLD, 15));
                     if ("Active".equalsIgnoreCase(status)) {
-                        setForeground(AdminTheme.FOREST_GREEN);
+                        setForeground(FOREST_GREEN);
                     } else {
-                        setForeground(AdminTheme.DANGER);
+                        setForeground(DANGER);
                     }
                 }
 
@@ -88,19 +91,13 @@ public class UserProfileTable extends JPanel {
                 return c;
             }
         });
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(AdminTheme.WHITE);
-        scrollPane.setBorder(BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1));
-
-        add(scrollPane, BorderLayout.CENTER);
     }
 
     public void setUsersData(List<User> users) {
-        this.currentDisplayedUsers = users != null ? users : new ArrayList<>();
+        this.currentDisplayedUsers = users;
         tableModel.setRowCount(0);
 
-        for (User u : currentDisplayedUsers) {
+        for (User u : users) {
             String customIdentifier = "UID-" + u.getUserId();
             if (u instanceof Undergraduate) {
                 customIdentifier = ((Undergraduate) u).getRegistrationNo();
@@ -138,19 +135,11 @@ public class UserProfileTable extends JPanel {
         }
     }
 
-    public void updateData(List<User> users) {
-        setUsersData(users);
-    }
-
     public User getSelectedUser() {
-        int selectedRow = table.getSelectedRow();
+        int selectedRow = getSelectedRow();
         if (selectedRow >= 0 && selectedRow < currentDisplayedUsers.size()) {
             return currentDisplayedUsers.get(selectedRow);
         }
         return null;
-    }
-
-    public JTable getTable() {
-        return table;
     }
 }

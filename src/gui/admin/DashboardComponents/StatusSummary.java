@@ -1,6 +1,5 @@
 package gui.admin.DashboardComponents;
 
-import gui.admin.AdminTheme;
 import util.DBConnection;
 import javax.swing.*;
 import java.awt.*;
@@ -9,6 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StatusSummary extends JPanel {
+
+    private final Color WHITE        = Color.WHITE;
+    private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
+    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
+    private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
+    private final Color PASTEL_GREEN = new Color(0xC8, 0xE6, 0xC9);
 
     public StatusSummary() {
         setLayout(null);
@@ -24,9 +29,9 @@ public class StatusSummary extends JPanel {
 
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(AdminTheme.WHITE);
+                g2.setColor(WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
-                g2.setColor(AdminTheme.CARD_SHADOW);
+                g2.setColor(new Color(0x1B, 0x5E, 0x20, 35));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
                 g2.dispose();
             }
@@ -37,14 +42,14 @@ public class StatusSummary extends JPanel {
 
         JLabel title = new JLabel("Faculty Attendance Distribution");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setForeground(AdminTheme.FOREST_GREEN);
+        title.setForeground(FOREST_GREEN);
         title.setBounds(30, 18, 600, 30);
         container.add(title);
 
         int totalStudents = (int) stats.getOrDefault("total_students", 0);
         JLabel subtitle = new JLabel("Total enrolled undergraduates: " + totalStudents);
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        subtitle.setForeground(AdminTheme.MUTED);
+        subtitle.setForeground(MUTED);
         subtitle.setBounds(30, 48, 400, 22);
         container.add(subtitle);
 
@@ -61,9 +66,9 @@ public class StatusSummary extends JPanel {
         String exactText = String.format("%d students (%.1f%%)", exactCount, exactPct);
         String belowText = String.format("%d students (%.1f%%)", belowCount, belowPct);
 
-        addAttendanceRow(container, "Above 80% Attendance", aboveText, abovePct, 82, AdminTheme.FOREST_GREEN);
-        addAttendanceRow(container, "Exactly 80% Attendance", exactText, exactPct, 142, AdminTheme.WARNING);
-        addAttendanceRow(container, "Below 80% Attendance", belowText, belowPct, 202, AdminTheme.DANGER);
+        addAttendanceRow(container, "Above 80% Attendance", aboveText, abovePct, 82, FOREST_GREEN);
+        addAttendanceRow(container, "Exactly 80% Attendance", exactText, exactPct, 142, new Color(0xF0, 0xAD, 0x4E));
+        addAttendanceRow(container, "Below 80% Attendance", belowText, belowPct, 202, new Color(0xDC, 0x35, 0x45));
 
         add(container);
     }
@@ -140,13 +145,13 @@ public class StatusSummary extends JPanel {
     private void addAttendanceRow(JPanel panel, String title, String value, double percentage, int y, Color barColor) {
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        titleLabel.setForeground(AdminTheme.MUTED);
+        titleLabel.setForeground(MUTED);
         titleLabel.setBounds(30, y, 350, 24);
         panel.add(titleLabel);
 
         JLabel valueLabel = new JLabel(value, SwingConstants.RIGHT);
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        valueLabel.setForeground(AdminTheme.DEEP_GREEN);
+        valueLabel.setForeground(DEEP_GREEN);
         valueLabel.setBounds(360, y, 400, 24);
         panel.add(valueLabel);
 
@@ -156,7 +161,7 @@ public class StatusSummary extends JPanel {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(AdminTheme.PASTEL_GREEN);
+                g2.setColor(PASTEL_GREEN);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
 
                 int fillWidth = (int) (getWidth() * Math.max(0, Math.min(100, percentage)) / 100.0);
