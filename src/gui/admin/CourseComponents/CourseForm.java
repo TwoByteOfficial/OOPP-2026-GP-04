@@ -46,10 +46,10 @@ public class CourseForm extends JDialog {
         this.editCourse = courseToEdit;
         this.onSuccess = onSuccess;
 
-        setSize(820, 780);
+        setSize(780, 740);
         setLocationRelativeTo(parent);
-        setResizable(false);
-        getContentPane().setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setResizable(true);
+        getContentPane().setBackground(WHITE);
         setLayout(new BorderLayout());
 
         initUI();
@@ -60,6 +60,7 @@ public class CourseForm extends JDialog {
     }
 
     private void initUI() {
+        // Header Panel
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 24, 16));
         headerPanel.setBackground(DEEP_GREEN);
 
@@ -69,83 +70,65 @@ public class CourseForm extends JDialog {
         headerPanel.add(lblHeader);
         add(headerPanel, BorderLayout.NORTH);
 
-        JPanel pnlForm = new JPanel(new GridLayout(14, 2, 12, 8));
+        // Main Form Panel with GridBagLayout for pristine alignment
+        JPanel pnlForm = new JPanel(new GridBagLayout());
         pnlForm.setBackground(WHITE);
-        pnlForm.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(PASTEL_GREEN, 1),
-                BorderFactory.createEmptyBorder(16, 24, 16, 24)
-        ));
+        pnlForm.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
 
-        pnlForm.add(createLabel("Course Code:"));
-        txtCode = createTextField("ICT1113");
-        pnlForm.add(txtCode);
+        GridBagConstraints gbc = new GridBagConstraints();
+        int row = 0;
 
-        pnlForm.add(createLabel("Course Name:"));
-        txtName = createTextField("Programming Fundamentals");
-        pnlForm.add(txtName);
+        // Basic Information Section
+        row = addSectionHeader(pnlForm, gbc, row, "Basic Module Information");
+        row = addFormField(pnlForm, gbc, row, "Course Code:", txtCode = createTextField("ICT1113"));
+        row = addFormField(pnlForm, gbc, row, "Course Name:", txtName = createTextField("Programming Fundamentals"));
+        row = addFormField(pnlForm, gbc, row, "Theory Credits:", txtTheoryCredits = createTextField("2.0"));
+        row = addFormField(pnlForm, gbc, row, "Practical Credits:", txtPracticalCredits = createTextField("1.0"));
 
-        pnlForm.add(createLabel("Theory Credits:"));
-        txtTheoryCredits = createTextField("2.0");
-        pnlForm.add(txtTheoryCredits);
+        // Continuous Assessment (CA) Breakdown Section
+        row = addSectionHeader(pnlForm, gbc, row, "Continuous Assessment (CA) Weights");
+        row = addFormField(pnlForm, gbc, row, "Max Quiz 2 Weight (%):", txtQuizWeight = createTextField("10.0"));
+        row = addFormField(pnlForm, gbc, row, "Assignment Weight (%):", txtAssignmentWeight = createTextField("10.0"));
+        row = addFormField(pnlForm, gbc, row, "Mid Exam Theory Weight (%):", txtMidTheoryWeight = createTextField("10.0"));
+        row = addFormField(pnlForm, gbc, row, "Mid Exam Practical Weight (%):", txtMidPracticalWeight = createTextField("0.0"));
 
-        pnlForm.add(createLabel("Practical Credits:"));
-        txtPracticalCredits = createTextField("1.0");
-        pnlForm.add(txtPracticalCredits);
+        // End Semester Examination Section
+        row = addSectionHeader(pnlForm, gbc, row, "End Semester Examination Weights");
+        row = addFormField(pnlForm, gbc, row, "End Exam Theory Weight (%):", txtEndTheoryWeight = createTextField("70.0"));
+        row = addFormField(pnlForm, gbc, row, "End Exam Practical Weight (%):", txtEndPracticalWeight = createTextField("0.0"));
 
-        // Continuous Assessment Breakdown
-        pnlForm.add(createSectionHeader("--- CA Breakdown Weights ---"));
-        pnlForm.add(new JLabel(""));
+        // General Module Settings Section
+        row = addSectionHeader(pnlForm, gbc, row, "Academic & Department Settings");
 
-        pnlForm.add(createLabel("Max Quiz 2 Weight (%):"));
-        txtQuizWeight = createTextField("10.0");
-        pnlForm.add(txtQuizWeight);
-
-        pnlForm.add(createLabel("Assignment Weight (%):"));
-        txtAssignmentWeight = createTextField("10.0");
-        pnlForm.add(txtAssignmentWeight);
-
-        pnlForm.add(createLabel("Mid Exam Theory Weight (%):"));
-        txtMidTheoryWeight = createTextField("10.0");
-        pnlForm.add(txtMidTheoryWeight);
-
-        pnlForm.add(createLabel("Mid Exam Practical Weight (%):"));
-        txtMidPracticalWeight = createTextField("0.0");
-        pnlForm.add(txtMidPracticalWeight);
-
-        // End Semester Examination Breakdown
-        pnlForm.add(createSectionHeader("--- End Exam Breakdown Weights ---"));
-        pnlForm.add(new JLabel(""));
-
-        pnlForm.add(createLabel("End Exam Theory Weight (%):"));
-        txtEndTheoryWeight = createTextField("70.0");
-        pnlForm.add(txtEndTheoryWeight);
-
-        pnlForm.add(createLabel("End Exam Practical Weight (%):"));
-        txtEndPracticalWeight = createTextField("0.0");
-        pnlForm.add(txtEndPracticalWeight);
-
-        // General Attributes
-        pnlForm.add(createLabel("Department:"));
         cmbDepartment = new JComboBox<>(new String[]{ "1 - ICT", "2 - Engineering Technology", "3 - Bio Systems Technology" });
         styleCombo(cmbDepartment);
-        pnlForm.add(cmbDepartment);
+        row = addFormField(pnlForm, gbc, row, "Department:", cmbDepartment);
 
-        pnlForm.add(createLabel("Academic Year:"));
-        txtAcademicYear = createTextField("2024/2025");
-        pnlForm.add(txtAcademicYear);
+        row = addFormField(pnlForm, gbc, row, "Academic Year:", txtAcademicYear = createTextField("2024/2025"));
 
-        pnlForm.add(createLabel("Semester:"));
         cmbSemester = new JComboBox<>(new String[]{ "Semester 1", "Semester 2", "Semester I", "Semester II" });
         styleCombo(cmbSemester);
-        pnlForm.add(cmbSemester);
+        row = addFormField(pnlForm, gbc, row, "Semester:", cmbSemester);
 
-        pnlForm.add(createLabel("Status:"));
         cmbStatus = new JComboBox<>(new String[]{ "Active", "Inactive" });
         styleCombo(cmbStatus);
-        pnlForm.add(cmbStatus);
+        row = addFormField(pnlForm, gbc, row, "Status:", cmbStatus);
 
-        add(new JScrollPane(pnlForm), BorderLayout.CENTER);
+        // Vertical glue filler to push everything neatly to top
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlForm.add(Box.createGlue(), gbc);
 
+        JScrollPane scrollPane = new JScrollPane(pnlForm);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Footer Action Panel
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 14));
         footerPanel.setBackground(WHITE);
         footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, PASTEL_GREEN));
@@ -155,7 +138,8 @@ public class CourseForm extends JDialog {
         btnSave.setBackground(FOREST_GREEN);
         btnSave.setForeground(WHITE);
         btnSave.setFocusPainted(false);
-        btnSave.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 22));
+        btnSave.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnSave.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
         btnSave.addActionListener(e -> saveCourse());
 
         JButton btnCancel = new JButton("Cancel");
@@ -163,7 +147,8 @@ public class CourseForm extends JDialog {
         btnCancel.setBackground(PASTEL_GREEN);
         btnCancel.setForeground(DEEP_GREEN);
         btnCancel.setFocusPainted(false);
-        btnCancel.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 22));
+        btnCancel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnCancel.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
         btnCancel.addActionListener(e -> dispose());
 
         footerPanel.add(btnSave);
@@ -171,35 +156,77 @@ public class CourseForm extends JDialog {
         add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private JLabel createLabel(String text) {
-        JLabel l = new JLabel(text);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        l.setForeground(BLACK);
-        return l;
+    private int addSectionHeader(JPanel panel, GridBagConstraints gbc, int row, String title) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(16, 12, 8, 12);
+
+        JPanel pnlHeader = new JPanel(new BorderLayout());
+        pnlHeader.setOpaque(false);
+
+        JLabel lbl = new JLabel(title);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lbl.setForeground(DEEP_GREEN);
+
+        JSeparator line = new JSeparator();
+        line.setForeground(PASTEL_GREEN);
+
+        pnlHeader.add(lbl, BorderLayout.NORTH);
+        pnlHeader.add(line, BorderLayout.SOUTH);
+
+        panel.add(pnlHeader, gbc);
+        return row + 1;
     }
 
-    private JLabel createSectionHeader(String text) {
-        JLabel l = new JLabel(text);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        l.setForeground(DEEP_GREEN);
-        return l;
+    private int addFormField(JPanel panel, GridBagConstraints gbc, int row, String labelText, JComponent field) {
+        // Label constraint
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.30;
+        gbc.weighty = 0.0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(6, 16, 6, 12);
+
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lbl.setForeground(BLACK);
+        panel.add(lbl, gbc);
+
+        // Field constraint
+        gbc.gridx = 1;
+        gbc.weightx = 0.70;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(6, 0, 6, 16);
+
+        panel.add(field, gbc);
+
+        return row + 1;
     }
 
     private JTextField createTextField(String val) {
         JTextField tf = new JTextField(val);
         tf.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        tf.setPreferredSize(new Dimension(300, 36));
         tf.setBackground(WHITE);
         tf.setForeground(BLACK);
         tf.setCaretColor(BLACK);
         tf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(PASTEL_GREEN, 1),
-                BorderFactory.createEmptyBorder(4, 8, 4, 8)
+                BorderFactory.createEmptyBorder(4, 10, 4, 10)
         ));
         return tf;
     }
 
     private void styleCombo(JComboBox<?> cb) {
         cb.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        cb.setPreferredSize(new Dimension(300, 36));
         cb.setBackground(WHITE);
         cb.setForeground(BLACK);
     }
