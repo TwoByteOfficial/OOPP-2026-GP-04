@@ -11,16 +11,16 @@ public class AdminUserDAO {
     public List<User> getAllUsers() throws SQLException {
         List<User> list = new ArrayList<>();
         String sql = "SELECT u.*, " +
-                     "a.admin_code, a.designation AS admin_designation, " +
-                     "l.lecturer_code, l.title, l.specialization, " +
-                     "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
-                     "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
-                     "FROM users u " +
-                     "LEFT JOIN admins a ON u.user_id = a.user_id " +
-                     "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
-                     "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
-                     "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
-                     "ORDER BY u.user_id DESC";
+                "a.admin_code, a.designation AS admin_designation, " +
+                "l.lecturer_code, l.title, l.specialization, " +
+                "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
+                "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
+                "FROM users u " +
+                "LEFT JOIN admins a ON u.user_id = a.user_id " +
+                "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
+                "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
+                "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
+                "ORDER BY u.user_id DESC";
 
         try (Connection con = DBConnection.con();
              Statement stmt = con.createStatement();
@@ -36,17 +36,17 @@ public class AdminUserDAO {
     public List<User> getUsersByRole(String role) throws SQLException {
         List<User> list = new ArrayList<>();
         String sql = "SELECT u.*, " +
-                     "a.admin_code, a.designation AS admin_designation, " +
-                     "l.lecturer_code, l.title, l.specialization, " +
-                     "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
-                     "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
-                     "FROM users u " +
-                     "LEFT JOIN admins a ON u.user_id = a.user_id " +
-                     "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
-                     "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
-                     "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
-                     "WHERE u.role = ? " +
-                     "ORDER BY u.user_id DESC";
+                "a.admin_code, a.designation AS admin_designation, " +
+                "l.lecturer_code, l.title, l.specialization, " +
+                "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
+                "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type " +
+                "FROM users u " +
+                "LEFT JOIN admins a ON u.user_id = a.user_id " +
+                "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
+                "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
+                "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
+                "WHERE u.role = ? " +
+                "ORDER BY u.user_id DESC";
 
         try (Connection con = DBConnection.con();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -64,17 +64,17 @@ public class AdminUserDAO {
 
     public User getUserById(long userId) throws SQLException {
         String sql = "SELECT u.*, " +
-                     "a.admin_code, a.designation AS admin_designation, " +
-                     "l.lecturer_code, l.title, l.specialization, " +
-                     "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
-                     "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type, " +
-                     "ug.intake, ug.current_level, ug.current_semester, ug.admission_date, ug.guardian_name, ug.guardian_contact " +
-                     "FROM users u " +
-                     "LEFT JOIN admins a ON u.user_id = a.user_id " +
-                     "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
-                     "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
-                     "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
-                     "WHERE u.user_id = ?";
+                "a.admin_code, a.designation AS admin_designation, " +
+                "l.lecturer_code, l.title, l.specialization, " +
+                "t.technical_officer_code, t.designation AS to_designation, t.assigned_labs, " +
+                "ug.registration_no, ug.index_no, ug.batch_year, ug.academic_year AS ug_academic_year, ug.student_type, " +
+                "ug.intake, ug.current_level, ug.current_semester, ug.admission_date, ug.guardian_name, ug.guardian_contact " +
+                "FROM users u " +
+                "LEFT JOIN admins a ON u.user_id = a.user_id " +
+                "LEFT JOIN lecturers l ON u.user_id = l.user_id " +
+                "LEFT JOIN technical_officers t ON u.user_id = t.user_id " +
+                "LEFT JOIN undergraduates ug ON u.user_id = ug.user_id " +
+                "WHERE u.user_id = ?";
 
         try (Connection con = DBConnection.con();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -93,7 +93,7 @@ public class AdminUserDAO {
     public boolean createAdmin(Admin admin) throws SQLException {
         admin.setRole("Admin");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO admins (user_id, admin_code, designation) VALUES (?, ?, ?)";
 
         Connection con = DBConnection.con();
@@ -135,7 +135,7 @@ public class AdminUserDAO {
     public boolean createLecturer(Lecturer lecturer) throws SQLException {
         lecturer.setRole("Lecturer");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO lecturers (user_id, lecturer_code, title, specialization) VALUES (?, ?, ?, ?)";
 
         Connection con = DBConnection.con();
@@ -178,7 +178,7 @@ public class AdminUserDAO {
     public boolean createTechnicalOfficer(TechnicalOfficer officer) throws SQLException {
         officer.setRole("Technical Officer");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO technical_officers (user_id, technical_officer_code, designation, assigned_labs) VALUES (?, ?, ?, ?)";
 
         Connection con = DBConnection.con();
@@ -221,9 +221,9 @@ public class AdminUserDAO {
     public boolean createUndergraduate(Undergraduate ug) throws SQLException {
         ug.setRole("Undergraduate");
         String userSql = "INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id, user_status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String childSql = "INSERT INTO undergraduates (user_id, registration_no, index_no, batch_year, academic_year, student_type, intake, current_level, current_semester, admission_date, guardian_name, guardian_contact) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         Connection con = DBConnection.con();
         try {
@@ -307,6 +307,30 @@ public class AdminUserDAO {
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
+        }
+    }
+
+    public boolean updateUserPassword(String username, String currentPassword, String newPassword) throws SQLException {
+        String verifySql = "SELECT user_id FROM users WHERE username = ? AND password_hash = ?";
+        String updateSql = "UPDATE users SET password_hash = ? WHERE username = ?";
+
+        try (Connection con = DBConnection.con();
+             PreparedStatement verifyStmt = con.prepareStatement(verifySql)) {
+
+            verifyStmt.setString(1, username);
+            verifyStmt.setString(2, currentPassword);
+
+            try (ResultSet rs = verifyStmt.executeQuery()) {
+                if (!rs.next()) {
+                    return false; // Current password incorrect or user not found
+                }
+            }
+
+            try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+                updateStmt.setString(1, newPassword);
+                updateStmt.setString(2, username);
+                return updateStmt.executeUpdate() > 0;
+            }
         }
     }
 
