@@ -89,13 +89,5 @@ public final class AuthService {
         return null;
     }
 
-    private static void touchLastLogin(Connection con, long userId) {
-        try (PreparedStatement ps = con.prepareStatement(
-                "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?")) {
-            ps.setLong(1, userId);
-            ps.executeUpdate();
-        } catch (SQLException ex) {
-            System.err.println("Could not update last_login: " + ex.getMessage());
-        }
-    }
+
 }
