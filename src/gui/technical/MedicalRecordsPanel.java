@@ -276,7 +276,7 @@ public class MedicalRecordsPanel extends JPanel {
 
         try {
             long medicalId = Long.parseLong(
-                    tableModel.getValueAt(selectedRow, 0).toString()
+                    tableModel.getValueAt(modelRow, 0).toString()
             );
 
             boolean success = new AttendanceDAO().approveMedical(
