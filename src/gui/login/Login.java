@@ -4,7 +4,7 @@ import gui.admin.AdminDashboard;
 import gui.lecturer.LecturerDashboard;
 import gui.technical.TechnicalOfficerDashboard;
 import gui.undergraduate.UndergraduateDashboard;
-import service.AuthService.AuthUser;
+import services.AuthService.AuthUser;
 
 import javax.swing.*;
 import java.awt.*;

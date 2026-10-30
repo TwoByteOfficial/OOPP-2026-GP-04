@@ -146,7 +146,7 @@ public class MedicalRecordsPanel extends JPanel {
                     int row = medicalTable.getSelectedRow();
 
                     if (row != -1) {
-                        showMedicalDetails(row);
+                        showMedicalDetails(medicalTable.convertRowIndexToModel(row));
                     }
                 }
             }
@@ -318,7 +318,8 @@ public class MedicalRecordsPanel extends JPanel {
             return;
         }
 
-        String status = tableModel.getValueAt(selectedRow, 7).toString();
+        int modelRow = medicalTable.convertRowIndexToModel(selectedRow);
+        String status = tableModel.getValueAt(modelRow, 7).toString();
 
         if (!status.equals("Pending")) {
             JOptionPane.showMessageDialog(
@@ -351,7 +352,7 @@ public class MedicalRecordsPanel extends JPanel {
 
         try {
             long medicalId = Long.parseLong(
-                    tableModel.getValueAt(selectedRow, 0).toString()
+                    tableModel.getValueAt(modelRow, 0).toString()
             );
 
             boolean success = new AttendanceDAO().rejectMedical(

@@ -100,10 +100,7 @@ public class TechnicalOfficerDashboard extends JFrame {
 
 
 
-        dashboardScrollPane.setBorder(null);
-        dashboardScrollPane.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        dashboardScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
 
 
 
@@ -121,22 +118,7 @@ public class TechnicalOfficerDashboard extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void addPlaceholderPage(String pageName) {
 
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(UniMisTheme.LIGHT_BG);
-
-        JLabel title = new JLabel(
-                pageName + " - Under Development",
-                SwingConstants.CENTER
-        );
-
-        title.setFont(UniMisTheme.FONT_H2);
-        title.setForeground(UniMisTheme.TEXT);
-
-        panel.add(title, BorderLayout.CENTER);
-        pageContainer.add(panel, pageName);
-    }
 
     private void logout() {
         dispose();
