@@ -102,10 +102,10 @@ public class MedicalRecordsPanel extends JPanel {
                 "Search registration number, student name, or course code"
         );
 
-        statusFilter.addActionListener(e -> loadMedicalRecords());
-        courseFilter.addActionListener(e -> loadMedicalRecords());
-
-        searchField.addActionListener(e -> loadMedicalRecords());
+//        statusFilter.addActionListener(e -> loadMedicalRecords());
+//        courseFilter.addActionListener(e -> loadMedicalRecords());
+//
+//        searchField.addActionListener(e -> loadMedicalRecords());
 
 
 
