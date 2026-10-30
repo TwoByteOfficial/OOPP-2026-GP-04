@@ -4,3 +4,16 @@ out/
 # JetBrains IDE configuration directory
 .idea/
 *.iml
+
+# Untrack the out directory
+git rm -r --cached out/
+
+# Untrack any remaining .iml or .idea files if they reappear
+git rm -r --cached .idea/
+git rm --cached OOPP-2026-GP-04.iml
+
+# Commit the untracking changes and the updated .gitignore
+git add .gitignore
+git commit -m "chore: untrack build and IDE configuration files"
+
+LecturerTestMain

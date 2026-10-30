@@ -13,6 +13,9 @@ public class AttendanceRecord {
 
     public AttendanceRecord() {}
 
+    public AttendanceRecord(long attendanceRecordId, long attendanceSessionId, long studentId, String attendanceStatus, String remarks, Long recordedBy, Timestamp recordedAt, Timestamp updatedAt) {
+    }
+
     public long getAttendanceRecordId() { return attendanceRecordId; }
     public void setAttendanceRecordId(long attendanceRecordId) { this.attendanceRecordId = attendanceRecordId; }
     public long getAttendanceSessionId() { return attendanceSessionId; }

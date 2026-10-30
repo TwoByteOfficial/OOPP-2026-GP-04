@@ -51,6 +51,9 @@ public class Course {
     }
 
     // Getters and Setters
+    public Course(int courseId, String courseCode, String courseName, String description, BigDecimal theoryCredits, BigDecimal practicalCredits, BigDecimal totalCredits, BigDecimal caWeight, BigDecimal finalWeight, int departmentId, String academicYear, String semester, String status, Timestamp createdAt) {
+    }
+
     public int getCourseId() { return courseId; }
     public void setCourseId(int courseId) { this.courseId = courseId; }
 

@@ -1,4 +1,4 @@
-package service;
+package services;
 
 import util.DBConnection;
 
@@ -44,6 +44,7 @@ public final class AuthService {
                         rs.getLong("user_id"), username,
                         rs.getString("full_name"), rs.getString("email"), rs.getString("role"));
 
+
                 return new LoginResult(user, null);
             }
         }
@@ -87,5 +88,6 @@ public final class AuthService {
             return "This account is inactive.\nPlease contact the Faculty IT Division to activate it.";
         return null;
     }
+
 
 }
