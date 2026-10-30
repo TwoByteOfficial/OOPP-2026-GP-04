@@ -17,14 +17,7 @@ public class LecturerTestMain {
             String role = "Lecturer";
 
             // Open the Lecturer portal directly for testing
-            Lecturer lecturer = new Lecturer(
-                    userId,
-                    username,
-                    fullName,
-                    email,
-                    role
-            );
-
+            Lecturer lecturer = new Lecturer(userId, username, fullName, email, role);
             lecturer.setVisible(true);
         });
     }

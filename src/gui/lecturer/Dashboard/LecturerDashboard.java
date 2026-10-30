@@ -4,26 +4,24 @@ package gui.lecturer.Dashboard;
 import dao.Lecturer.CourseDAO;
 import dao.Lecturer.DashboardStatsDAO;
 import dao.Lecturer.NoticeDAO;
+import dao.Lecturer.LecturerProfileDAO;
+
 import gui.lecturer.Dashboard.DashboardComponents.CourseModulesTable;
 import gui.lecturer.Dashboard.DashboardComponents.DashboardTitleBar;
 import gui.lecturer.Dashboard.DashboardComponents.RecentNotices;
 import gui.lecturer.Dashboard.DashboardComponents.StatCard;
-import dao.Lecturer.LecturerProfileDAO;
+
+import static gui.lecturer.SharedComponents.Colors.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class LecturerDashboard extends JPanel {
-
-    private static final Color PALE_GREEN =
-            new Color(232, 245, 233);
-
-    private static final Color BORDER_GREEN =
-            new Color(200, 230, 201);
 
     private final long userId;
     private final String lecturerName;
@@ -53,26 +51,28 @@ public class LecturerDashboard extends JPanel {
         setBorder(new EmptyBorder(28, 30, 30, 30));
 
         courseModulesTable = new CourseModulesTable();
-        recentNotices = new RecentNotices();
+
+        recentNotices = new RecentNotices(onNavigate);
 
         add(createDashboardContent(), BorderLayout.CENTER);
 
         refreshGreeting();
-
         loadAssignedCourses();
         loadDashboardStats();
         loadRecentNotices();
     }
 
     private JPanel createDashboardContent() {
+
         JPanel content = new JPanel(new BorderLayout(0, 24));
         content.setOpaque(false);
 
-        dashboardTitleBar =
-                new DashboardTitleBar(lecturerName);
+        dashboardTitleBar = new DashboardTitleBar(lecturerName);
 
+        // Statistics
         JPanel statisticsPanel =
                 new JPanel(new GridLayout(1, 4, 18, 0));
+
         statisticsPanel.setOpaque(false);
 
         assignedCoursesCard =
@@ -92,8 +92,10 @@ public class LecturerDashboard extends JPanel {
         statisticsPanel.add(pendingMarksCard);
         statisticsPanel.add(newNoticesCard);
 
+        // Course and notice panels
         JPanel lowerPanels =
                 new JPanel(new GridLayout(1, 2, 22, 0));
+
         lowerPanels.setOpaque(false);
 
         lowerPanels.add(courseModulesTable);
@@ -101,6 +103,7 @@ public class LecturerDashboard extends JPanel {
 
         JPanel middleContent =
                 new JPanel(new BorderLayout(0, 24));
+
         middleContent.setOpaque(false);
 
         middleContent.add(
@@ -110,7 +113,9 @@ public class LecturerDashboard extends JPanel {
 
         JPanel lowerContent =
                 new JPanel(new BorderLayout(0, 24));
+
         lowerContent.setOpaque(false);
+
         lowerContent.add(
                 lowerPanels,
                 BorderLayout.CENTER
@@ -126,15 +131,24 @@ public class LecturerDashboard extends JPanel {
                 BorderLayout.CENTER
         );
 
-        content.add(dashboardTitleBar, BorderLayout.NORTH);
-        content.add(middleContent, BorderLayout.CENTER);
+        content.add(
+                dashboardTitleBar,
+                BorderLayout.NORTH
+        );
+
+        content.add(
+                middleContent,
+                BorderLayout.CENTER
+        );
 
         return content;
     }
 
     private JPanel createQuickActions() {
+
         JPanel panel = new JPanel(new BorderLayout(0, 14));
-        panel.setBackground(Color.WHITE);
+
+        panel.setBackground(WHITE);
 
         panel.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -146,30 +160,37 @@ public class LecturerDashboard extends JPanel {
         );
 
         JLabel title = new JLabel("Quick Actions");
+
         title.setFont(
                 new Font("SansSerif", Font.BOLD, 18)
         );
-        title.setForeground(new Color(27, 94, 32));
 
-        JPanel buttons =
-                new JPanel(new GridLayout(1, 3, 16, 0));
+        title.setForeground(DEEP_GREEN);
+
+        JPanel buttons = new JPanel(
+                new GridLayout(1, 3, 16, 0)
+        );
+
         buttons.setOpaque(false);
 
         buttons.add(
                 createQuickActionButton(
-                        "Enter Marks", "MarksGrades"
+                        "Enter Marks",
+                        "MarksGrades"
                 )
         );
 
         buttons.add(
                 createQuickActionButton(
-                        "Add Material", "CourseMaterials"
+                        "Add Material",
+                        "CourseMaterials"
                 )
         );
 
         buttons.add(
                 createQuickActionButton(
-                        "Check Eligibility", "Eligibility"
+                        "Check Eligibility",
+                        "Eligibility"
                 )
         );
 
@@ -188,7 +209,8 @@ public class LecturerDashboard extends JPanel {
         button.setFont(
                 new Font("SansSerif", Font.BOLD, 14)
         );
-        button.setForeground(new Color(27, 94, 32));
+
+        button.setForeground(DEEP_GREEN);
         button.setBackground(PALE_GREEN);
         button.setFocusPainted(false);
 
@@ -208,6 +230,7 @@ public class LecturerDashboard extends JPanel {
         );
 
         button.addActionListener(event -> {
+
             if (onNavigate != null) {
                 onNavigate.accept(targetPage);
             }
@@ -217,7 +240,9 @@ public class LecturerDashboard extends JPanel {
     }
 
     private void loadAssignedCourses() {
+
         try {
+
             CourseDAO courseDAO = new CourseDAO();
 
             List<Object[]> courses =
@@ -230,6 +255,7 @@ public class LecturerDashboard extends JPanel {
             );
 
         } catch (SQLException exception) {
+
             courseModulesTable.setCourses(List.of());
             assignedCoursesCard.setValue("--");
 
@@ -243,10 +269,12 @@ public class LecturerDashboard extends JPanel {
     }
 
     private void loadDashboardStats() {
+
         DashboardStatsDAO statsDAO =
                 new DashboardStatsDAO();
 
         try {
+
             undergraduatesCard.setValue(
                     String.valueOf(
                             statsDAO.getUndergraduateCount(userId)
@@ -261,11 +289,12 @@ public class LecturerDashboard extends JPanel {
 
             newNoticesCard.setValue(
                     String.valueOf(
-                            statsDAO.getNewNoticesCount()
+                            statsDAO.getNewNoticesCount(userId)
                     )
             );
 
         } catch (SQLException exception) {
+
             undergraduatesCard.setValue("--");
             pendingMarksCard.setValue("--");
             newNoticesCard.setValue("--");
@@ -280,15 +309,18 @@ public class LecturerDashboard extends JPanel {
     }
 
     private void loadRecentNotices() {
+
         try {
+
             NoticeDAO noticeDAO = new NoticeDAO();
 
-            List<String[]> notices =
-                    noticeDAO.getRecentNotices();
+            List<Object[]> notices =
+                    noticeDAO.getRecentNotices(userId);
 
             recentNotices.showNotices(notices);
 
         } catch (SQLException exception) {
+
             recentNotices.showNotices(List.of());
 
             System.err.println(
@@ -298,12 +330,12 @@ public class LecturerDashboard extends JPanel {
 
             exception.printStackTrace();
         }
-
-
     }
 
     public void refreshGreeting() {
+
         try {
+
             LecturerProfileDAO profileDAO =
                     new LecturerProfileDAO();
 
@@ -311,6 +343,7 @@ public class LecturerDashboard extends JPanel {
                     profileDAO.getLecturerProfile(userId);
 
             if (profile != null && dashboardTitleBar != null) {
+
                 String title = (String) profile[3];
                 String name = (String) profile[4];
 
@@ -318,6 +351,7 @@ public class LecturerDashboard extends JPanel {
             }
 
         } catch (SQLException exception) {
+
             System.err.println(
                     "Unable to refresh dashboard greeting: "
                             + exception.getMessage()

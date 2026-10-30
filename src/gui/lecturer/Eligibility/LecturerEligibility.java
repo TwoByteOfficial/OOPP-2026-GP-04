@@ -6,15 +6,15 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class LecturerEligibility extends JPanel {
+import static gui.lecturer.SharedComponents.Colors.ELIGIBILITY_BACKGROUND;
+import static gui.lecturer.SharedComponents.Colors.ELIGIBILITY_DEEP_GREEN;
+import static gui.lecturer.SharedComponents.Colors.ELIGIBILITY_TEXT_GRAY;
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color PALE_GREEN = new Color(232, 245, 233);
-    private static final Color TEXT_GRAY = new Color(96, 112, 100);
+public class LecturerEligibility extends JPanel {
 
     public LecturerEligibility(long lecturerId) {
         setLayout(new BorderLayout(0, 15));
-        setBackground(PALE_GREEN);
+        setBackground(ELIGIBILITY_BACKGROUND);
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
         // Heading
@@ -24,11 +24,11 @@ public class LecturerEligibility extends JPanel {
 
         JLabel title = new JLabel("Final Examination Eligibility");
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
-        title.setForeground(DEEP_GREEN);
+        title.setForeground(ELIGIBILITY_DEEP_GREEN);
 
         JLabel subtitle = new JLabel("Check undergraduate eligibility for final examination (Attendance >= 80% AND CA Mark >= 40%).");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        subtitle.setForeground(TEXT_GRAY);
+        subtitle.setForeground(ELIGIBILITY_TEXT_GRAY);
 
         heading.add(title);
         heading.add(Box.createVerticalStrut(6));

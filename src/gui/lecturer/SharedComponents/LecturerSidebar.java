@@ -4,99 +4,56 @@ package gui.lecturer.SharedComponents;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class LecturerSidebar extends JPanel {
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color LIGHT_GREEN = new Color(200, 230, 201);
-    private static final Color WHITE = Color.WHITE;
-
-    private final Map<String, JButton> navigationButtons =
+    private final Map<String, SidebarButton> navigationButtons =
             new LinkedHashMap<>();
 
     private String selectedPage = "Dashboard";
 
+    private static final Color SIDEBAR_BACKGROUND =
+            new Color(165, 214, 167); // Undergraduate green
+
+    private static final Color ACTIVE_BACKGROUND = Color.WHITE;
+    private static final Color HOVER_BACKGROUND =
+            new Color(232, 245, 233);
+    private static final Color NORMAL_BUTTON_BACKGROUND =
+            new Color(200, 230, 201);
+    private static final Color DANGER =
+            new Color(220, 53, 69);
+
     public LecturerSidebar() {
         setLayout(new BorderLayout());
-        setBackground(DEEP_GREEN);
-        setPreferredSize(new Dimension(250, 0));
-
-        // Keep left padding and remove right padding
+        setBackground(SIDEBAR_BACKGROUND);
+        setPreferredSize(new Dimension(260, 0));
         setBorder(new EmptyBorder(20, 14, 18, 0));
 
         add(createBrandPanel(), BorderLayout.NORTH);
         add(createNavigationPanel(), BorderLayout.CENTER);
-        add(createLogoutButton(), BorderLayout.SOUTH);
+        createLogoutButton();
 
         selectPage("Dashboard");
-    }
-
-    // Custom sidebar button
-    private class SidebarButton extends JButton {
-
-        private boolean selected = false;
-
-        public SidebarButton(String label) {
-            super(label);
-
-            setContentAreaFilled(false);
-            setOpaque(false);
-            setFocusPainted(false);
-            setBorderPainted(false);
-        }
-
-        public void setSelectedStyle(boolean selected) {
-            this.selected = selected;
-            repaint();
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            if (selected) {
-                g2.setColor(getBackground());
-
-                int w = getWidth();
-                int h = getHeight();
-                int arc = 24;
-
-                if ("Logout".equals(getText())) {
-                    // Logout stays rounded on both sides
-                    g2.fillRoundRect(0, 0, w, h, arc, arc);
-                } else {
-                    // Navigation: rounded left, straight right
-                    g2.fillRoundRect(0, 0, w + arc, h, arc, arc);
-                    g2.fillRect(arc, 0, w, h);
-                }
-            }
-
-            g2.dispose();
-            super.paintComponent(g);
-        }
     }
 
     private JPanel createBrandPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(0, 8, 28, 8));
+        panel.setBorder(new EmptyBorder(5, 8, 28, 8));
 
         JLabel brand = new JLabel("UniMIS");
-        brand.setFont(new Font("SansSerif", Font.BOLD, 27));
-        brand.setForeground(WHITE);
+        brand.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        brand.setForeground(Colors.DEEP_GREEN);
         brand.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel subtitle = new JLabel("LECTURER PORTAL");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        subtitle.setForeground(LIGHT_GREEN);
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setForeground(Colors.DEEP_GREEN);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         panel.add(brand);
@@ -106,7 +63,7 @@ public class LecturerSidebar extends JPanel {
         return panel;
     }
 
-    private JPanel createNavigationPanel() {
+    private JScrollPane createNavigationPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setOpaque(false);
@@ -115,6 +72,7 @@ public class LecturerSidebar extends JPanel {
                 {"Dashboard", "Dashboard"},
                 {"My Courses", "MyCourses"},
                 {"Course Materials", "CourseMaterials"},
+                {"Create Assessment", "CreateAssessment"},
                 {"Marks & Grades", "MarksGrades"},
                 {"Undergraduates", "Undergraduates"},
                 {"Eligibility", "Eligibility"},
@@ -127,101 +85,139 @@ public class LecturerSidebar extends JPanel {
             String label = page[0];
             String pageKey = page[1];
 
-            JButton button = createNavigationButton(label);
+            SidebarButton button = new SidebarButton(label, false);
             navigationButtons.put(pageKey, button);
 
             button.addActionListener(e -> {
                 selectPage(pageKey);
-                firePropertyChange(
-                        "pageSelected", null, pageKey
-                );
+                firePropertyChange("pageSelected", null, pageKey);
             });
 
-            // Navigation buttons fill the available width
-            button.setMaximumSize(
-                    new Dimension(Integer.MAX_VALUE, 44)
-            );
+            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+            button.setPreferredSize(new Dimension(236, 44));
+            button.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             panel.add(button);
-            panel.add(Box.createVerticalStrut(5));
+            panel.add(Box.createVerticalStrut(7));
         }
 
-        return panel;
-    }
-
-    private JButton createNavigationButton(String label) {
-        JButton button = new SidebarButton(label);
-
-        button.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setBackground(DEEP_GREEN);
-        button.setForeground(WHITE);
-        button.setCursor(
-                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setHorizontalScrollBarPolicy(
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
         );
-        button.setBorder(new EmptyBorder(12, 14, 12, 10));
-        button.setMaximumSize(new Dimension(220, 44));
-        button.setPreferredSize(new Dimension(220, 44));
-        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        return button;
+        return scrollPane;
     }
-
 
     private JButton createLogoutButton() {
-        JButton logout = new SidebarButton("Logout");
-
-        logout.setFont(new Font("SansSerif", Font.BOLD, 14));
-        logout.setHorizontalAlignment(SwingConstants.LEFT);
-        logout.setBackground(LIGHT_GREEN);
-        logout.setForeground(DEEP_GREEN);
-        logout.setCursor(
-                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-        );
-        logout.setBorder(new EmptyBorder(12, 14, 12, 10));
-        logout.setPreferredSize(new Dimension(220, 44));
-        logout.setMaximumSize(new Dimension(220, 44));
+        SidebarButton logout = new SidebarButton("Logout", true);
+        logout.setPreferredSize(new Dimension(236, 46));
+        logout.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
         logout.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Rounded light-green Logout button
-        ((SidebarButton) logout).setSelectedStyle(true);
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.setBorder(new EmptyBorder(15, 0, 0, 14));
+        bottomPanel.add(logout, BorderLayout.CENTER);
 
         logout.addActionListener(e ->
                 firePropertyChange("logoutRequested", false, true)
         );
 
+        add(bottomPanel, BorderLayout.SOUTH);
         return logout;
     }
-
 
     public void selectPage(String pageKey) {
         selectedPage = pageKey;
 
-        for (Map.Entry<String, JButton> entry
+        for (Map.Entry<String, SidebarButton> entry
                 : navigationButtons.entrySet()) {
 
             boolean selected = entry.getKey().equals(pageKey);
-            JButton button = entry.getValue();
-
-            button.setBackground(
-                    selected ? LIGHT_GREEN : DEEP_GREEN
-            );
-
-            button.setForeground(
-                    selected ? DEEP_GREEN : WHITE
-            );
-
-            button.setFont(new Font(
-                    "SansSerif",
-                    selected ? Font.BOLD : Font.PLAIN,
-                    14
-            ));
-
-            ((SidebarButton) button).setSelectedStyle(selected);
+            entry.getValue().setSelectedStyle(selected);
         }
     }
 
     public String getSelectedPage() {
         return selectedPage;
+    }
+
+    private static class SidebarButton extends JButton {
+
+        private boolean selected;
+        private boolean hovered;
+        private final boolean logoutButton;
+
+        SidebarButton(String text, boolean logoutButton) {
+            super(text);
+            this.logoutButton = logoutButton;
+
+            setFont(new Font(
+                    "Segoe UI",
+                    logoutButton ? Font.BOLD : Font.PLAIN,
+                    15
+            ));
+            setHorizontalAlignment(SwingConstants.LEFT);
+            setForeground(logoutButton ? Color.WHITE : Colors.DEEP_GREEN);
+            setContentAreaFilled(false);
+            setOpaque(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setBorder(new EmptyBorder(0, 18, 0, 10));
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    hovered = true;
+                    repaint();
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    hovered = false;
+                    repaint();
+                }
+            });
+        }
+
+        void setSelectedStyle(boolean selected) {
+            this.selected = selected;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            Color background;
+
+            if (logoutButton) {
+                background = DANGER;
+            } else if (selected) {
+                background = ACTIVE_BACKGROUND;
+            } else if (hovered) {
+                background = HOVER_BACKGROUND;
+            } else {
+                background = NORMAL_BUTTON_BACKGROUND;
+            }
+
+            g2.setColor(background);
+            g2.fillRoundRect(
+                    0, 0, getWidth(), getHeight(), 8, 8
+            );
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
     }
 }

@@ -14,12 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LecturerUndergraduates extends JPanel {
+import static gui.lecturer.SharedComponents.Colors.UNDERGRADUATES_BACKGROUND;
+import static gui.lecturer.SharedComponents.Colors.UNDERGRADUATES_BORDER;
+import static gui.lecturer.SharedComponents.Colors.UNDERGRADUATES_DEEP_GREEN;
+import static gui.lecturer.SharedComponents.Colors.UNDERGRADUATES_TEXT_GRAY;
+import static gui.lecturer.SharedComponents.Colors.UNDERGRADUATES_WHITE;
 
-    private static final Color DEEP_GREEN = new Color(27, 94, 32);
-    private static final Color PALE_GREEN = new Color(232, 245, 233);
-    private static final Color BORDER_GREEN = new Color(200, 230, 201);
-    private static final Color TEXT_GRAY = new Color(96, 112, 100);
+public class LecturerUndergraduates extends JPanel {
 
     private final long lecturerId;
     private final UndergraduateDAO ugDAO = new UndergraduateDAO();
@@ -38,7 +39,7 @@ public class LecturerUndergraduates extends JPanel {
         this.lecturerId = lecturerId;
 
         setLayout(new BorderLayout(0, 20));
-        setBackground(PALE_GREEN);
+        setBackground(UNDERGRADUATES_BACKGROUND);
         setBorder(new EmptyBorder(30, 30, 30, 30));
 
         // Heading
@@ -48,11 +49,11 @@ public class LecturerUndergraduates extends JPanel {
 
         JLabel title = new JLabel("Enrolled Undergraduates");
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
-        title.setForeground(DEEP_GREEN);
+        title.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
         JLabel subtitle = new JLabel("View and search undergraduate students enrolled in your course modules.");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        subtitle.setForeground(TEXT_GRAY);
+        subtitle.setForeground(UNDERGRADUATES_TEXT_GRAY);
 
         heading.add(title);
         heading.add(Box.createVerticalStrut(6));
@@ -64,28 +65,28 @@ public class LecturerUndergraduates extends JPanel {
 
         JLabel courseLabel = new JLabel("Course:");
         courseLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        courseLabel.setForeground(DEEP_GREEN);
+        courseLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
         courseFilterCombo.setPreferredSize(new Dimension(260, 36));
         courseFilterCombo.addActionListener(e -> loadUndergraduates());
 
         JLabel searchLabel = new JLabel("Search:");
         searchLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        searchLabel.setForeground(DEEP_GREEN);
+        searchLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
         searchField.setPreferredSize(new Dimension(200, 36));
 
         JButton searchBtn = new JButton("Search");
         searchBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
-        searchBtn.setBackground(DEEP_GREEN);
-        searchBtn.setForeground(Color.WHITE);
+        searchBtn.setBackground(UNDERGRADUATES_DEEP_GREEN);
+        searchBtn.setForeground(UNDERGRADUATES_WHITE);
         searchBtn.setFocusPainted(false);
         searchBtn.addActionListener(e -> loadUndergraduates());
 
         JButton viewDetailsBtn = new JButton("View Student Details");
         viewDetailsBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
-        viewDetailsBtn.setBackground(DEEP_GREEN);
-        viewDetailsBtn.setForeground(Color.WHITE);
+        viewDetailsBtn.setBackground(UNDERGRADUATES_DEEP_GREEN);
+        viewDetailsBtn.setForeground(UNDERGRADUATES_WHITE);
         viewDetailsBtn.setFocusPainted(false);
         viewDetailsBtn.addActionListener(e -> showSelectedStudentDetails());
 
@@ -117,20 +118,20 @@ public class LecturerUndergraduates extends JPanel {
         studentTable = new JTable(tableModel);
         studentTable.setRowHeight(34);
         studentTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        studentTable.setSelectionBackground(PALE_GREEN);
-        studentTable.setSelectionForeground(DEEP_GREEN);
-        studentTable.setGridColor(BORDER_GREEN);
+        studentTable.setSelectionBackground(UNDERGRADUATES_BACKGROUND);
+        studentTable.setSelectionForeground(UNDERGRADUATES_DEEP_GREEN);
+        studentTable.setGridColor(UNDERGRADUATES_BORDER);
         studentTable.setFillsViewportHeight(true);
 
         studentTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        studentTable.getTableHeader().setBackground(PALE_GREEN);
-        studentTable.getTableHeader().setForeground(DEEP_GREEN);
+        studentTable.getTableHeader().setBackground(UNDERGRADUATES_BACKGROUND);
+        studentTable.getTableHeader().setForeground(UNDERGRADUATES_DEEP_GREEN);
 
         // Hide user_id column
         studentTable.removeColumn(studentTable.getColumnModel().getColumn(0));
 
         JScrollPane scrollPane = new JScrollPane(studentTable);
-        scrollPane.setBorder(new LineBorder(BORDER_GREEN, 1));
+        scrollPane.setBorder(new LineBorder(UNDERGRADUATES_BORDER, 1));
 
         // Footer
         JPanel footer = new JPanel(new BorderLayout());
@@ -203,20 +204,20 @@ public class LecturerUndergraduates extends JPanel {
 
             JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Undergraduate Academic Profile", true);
             dialog.setLayout(new BorderLayout(0, 15));
-            dialog.getContentPane().setBackground(Color.WHITE);
+            dialog.getContentPane().setBackground(UNDERGRADUATES_WHITE);
 
             JPanel header = new JPanel();
-            header.setBackground(PALE_GREEN);
+            header.setBackground(UNDERGRADUATES_BACKGROUND);
             header.setBorder(new EmptyBorder(15, 20, 15, 20));
             header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 
             JLabel nameLabel = new JLabel((String) details[3]);
             nameLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-            nameLabel.setForeground(DEEP_GREEN);
+            nameLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
             JLabel regLabel = new JLabel("Reg No: " + details[1] + " | Index: " + (details[2] != null ? details[2] : "N/A"));
             regLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
-            regLabel.setForeground(TEXT_GRAY);
+            regLabel.setForeground(UNDERGRADUATES_TEXT_GRAY);
 
             header.add(nameLabel);
             header.add(Box.createVerticalStrut(4));
@@ -248,14 +249,14 @@ public class LecturerUndergraduates extends JPanel {
             BigDecimal sgpa = (BigDecimal) details[13];
             JLabel sgpaLabel = new JLabel(sgpa != null ? sgpa.toPlainString() : "N/A");
             sgpaLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-            sgpaLabel.setForeground(DEEP_GREEN);
+            sgpaLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
             detailsPanel.add(sgpaLabel);
 
             detailsPanel.add(new JLabel("Cumulative GPA (CGPA):"));
             BigDecimal cgpa = (BigDecimal) details[14];
             JLabel cgpaLabel = new JLabel(cgpa != null ? cgpa.toPlainString() : "N/A");
             cgpaLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-            cgpaLabel.setForeground(DEEP_GREEN);
+            cgpaLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
             detailsPanel.add(cgpaLabel);
 
             JButton closeBtn = new JButton("Close");
