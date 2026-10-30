@@ -10,9 +10,9 @@ import java.util.function.Supplier;
 
 public class DeleteTimetableComponent extends JButton {
 
-    public DeleteTimetableComponent(Component parentComponent, AdminTimetableDAO timetableDAO, Supplier<TimetableEntry> selectedSupplier, Runnable onSuccess) {
+    public DeleteTimetableComponent(Component parent, AdminTimetableDAO dao, Supplier<TimetableEntry> entrySupplier, Runnable onSuccess) {
         super("Delete Entry");
-        setFont(AdminTheme.FONT_TINY);
+        setFont(AdminTheme.FONT_BODY_BOLD);
         setBackground(AdminTheme.DANGER);
         setForeground(AdminTheme.WHITE);
         setFocusPainted(false);
@@ -20,23 +20,21 @@ public class DeleteTimetableComponent extends JButton {
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         addActionListener(e -> {
-            TimetableEntry selected = selectedSupplier.get();
+            TimetableEntry selected = entrySupplier.get();
             if (selected == null) {
-                JOptionPane.showMessageDialog(parentComponent, "Please select a timetable slot from the table to delete.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(parent, "Please select an entry to delete.", "Selection Required", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-
-            int choice = JOptionPane.showConfirmDialog(parentComponent,
-                    "Are you sure you want to delete Slot TT-" + selected.getTimetableId() + "?",
-                    "Delete Timetable Slot", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
+            int choice = JOptionPane.showConfirmDialog(parent,
+                    "Are you sure you want to delete slot TT-" + selected.getTimetableId() + "?",
+                    "Confirm Deletion", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
             if (choice == JOptionPane.YES_OPTION) {
                 try {
-                    timetableDAO.deleteTimetableEntry(selected.getTimetableId());
-                    JOptionPane.showMessageDialog(parentComponent, "Slot deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    dao.deleteTimetableEntry(selected.getTimetableId());
+                    JOptionPane.showMessageDialog(parent, "Slot deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     if (onSuccess != null) onSuccess.run();
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(parentComponent, "Error deleting slot: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(parent, "Error deleting: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

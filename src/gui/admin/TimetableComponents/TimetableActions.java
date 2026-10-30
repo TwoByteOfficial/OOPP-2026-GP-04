@@ -1,8 +1,6 @@
 package gui.admin.TimetableComponents;
 
-import dao.admin.AdminCourseDAO;
 import dao.admin.AdminTimetableDAO;
-import dao.admin.AdminUserDAO;
 import gui.admin.AdminTheme;
 import model.TimetableEntry;
 
@@ -12,13 +10,9 @@ import java.util.function.Supplier;
 
 public class TimetableActions extends JPanel {
 
-    private ScheduleSlotComponent btnSchedule;
-    private ViewTimetableComponent btnView;
-    private EditTimetableComponent btnEdit;
-    private DeleteTimetableComponent btnDelete;
-
-    public TimetableActions(Component parentComponent, AdminTimetableDAO timetableDAO, AdminCourseDAO courseDAO, AdminUserDAO userDAO, Supplier<TimetableEntry> selectedSupplier, Runnable onSuccess) {
-        setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 10));
+    public TimetableActions(Frame owner, AdminTimetableDAO dao, Supplier<TimetableEntry> entrySupplier, Runnable onSuccess) {
+        setLayout(null);
+        setPreferredSize(new Dimension(1620, 56));
         setBackground(AdminTheme.WHITE);
         setOpaque(true);
         setBorder(BorderFactory.createCompoundBorder(
@@ -26,14 +20,16 @@ public class TimetableActions extends JPanel {
                 BorderFactory.createEmptyBorder(2, 10, 2, 10)
         ));
 
-        btnSchedule = new ScheduleSlotComponent(parentComponent, timetableDAO, courseDAO, userDAO, onSuccess);
-        btnView = new ViewTimetableComponent(parentComponent, selectedSupplier);
-        btnEdit = new EditTimetableComponent(parentComponent, timetableDAO, courseDAO, userDAO, selectedSupplier, onSuccess);
-        btnDelete = new DeleteTimetableComponent(parentComponent, timetableDAO, selectedSupplier, onSuccess);
+        ScheduleSlotComponent btnAdd = new ScheduleSlotComponent(owner, dao, onSuccess);
+        btnAdd.setBounds(1000, 8, 160, 40); add(btnAdd);
 
-        add(btnSchedule);
-        add(btnView);
-        add(btnEdit);
-        add(btnDelete);
+        ViewTimetableComponent btnView = new ViewTimetableComponent(owner, entrySupplier);
+        btnView.setBounds(1170, 8, 130, 40); add(btnView);
+
+        EditTimetableComponent btnEdit = new EditTimetableComponent(owner, dao, entrySupplier, onSuccess);
+        btnEdit.setBounds(1310, 8, 130, 40); add(btnEdit);
+
+        DeleteTimetableComponent btnDelete = new DeleteTimetableComponent(owner, dao, entrySupplier, onSuccess);
+        btnDelete.setBounds(1450, 8, 140, 40); add(btnDelete);
     }
 }

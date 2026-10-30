@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class TimetableTitleBar extends JPanel {
-
     private JLabel lblCount;
 
     public TimetableTitleBar() {
@@ -28,10 +27,6 @@ public class TimetableTitleBar extends JPanel {
     }
 
     public void updateCount(int count) {
-        updateTimetableCount(count);
-    }
-
-    public void updateTimetableCount(int count) {
-        lblCount.setText("Schedule theory lectures, practical labs, venues, and assigned staff • " + count + " Timetable Entries");
+        lblCount.setText("Schedule theory lectures, practical labs, venues, and assigned staff • " + count + " Entries Scheduled");
     }
 }

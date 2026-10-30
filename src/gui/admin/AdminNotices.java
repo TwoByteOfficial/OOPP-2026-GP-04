@@ -23,45 +23,33 @@ public class AdminNotices extends JPanel {
         this.currentAdminUserId = userId;
         this.noticeDAO = new AdminNoticeDAO();
 
-        setLayout(new BorderLayout(0, 12));
-        setBackground(AdminTheme.MINT);
-        setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        setLayout(null);
+        setBackground(AdminTheme.LIGHT_BG);
+        setBounds(30, 30, 1600, 900);
 
         initUI();
         loadNotices();
     }
 
     private void initUI() {
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-        topPanel.setOpaque(false);
-
-        // 1. Title Bar
         titleBar = new NoticeTitleBar();
-        topPanel.add(titleBar);
-        topPanel.add(Box.createVerticalStrut(12));
+        titleBar.setBounds(20, 20, 1620, 80);
+        add(titleBar);
 
-        // 2. Search & Filter Bar (search + type filter + role filter + reset button [left] + refresh button [right])
         filterBar = new NoticeFilterBar(this::onFilterChanged, this::loadNotices);
-        topPanel.add(filterBar);
-        topPanel.add(Box.createVerticalStrut(12));
+        filterBar.setBounds(20, 110, 1620, 60);
+        add(filterBar);
+
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
 
         noticeTable = new NoticeTable();
-
-        // 3. Action Toolbar (Post, View, Edit, Delete notice components)
-        actionToolbar = new NoticeActions(
-                noticeDAO,
-                currentAdminUserId,
-                noticeTable::getSelectedNotice,
-                this::loadNotices
-        );
-        topPanel.add(actionToolbar);
-
-        add(topPanel, BorderLayout.NORTH);
-
-        // 4. Notice Table List Container
         tableContainer = new NoticeList(noticeTable);
-        add(tableContainer, BorderLayout.CENTER);
+        tableContainer.setBounds(20, 250, 1620, 680);
+        add(tableContainer);
+
+        actionToolbar = new NoticeActions(owner, noticeDAO, currentAdminUserId, noticeTable::getSelectedNotice, this::loadNotices);
+        actionToolbar.setBounds(20, 180, 1620, 56);
+        add(actionToolbar);
     }
 
     private void loadNotices() {
@@ -85,16 +73,8 @@ public class AdminNotices extends JPanel {
                 boolean mQuery = query.isEmpty() ||
                         (n.getTitle() != null && n.getTitle().toLowerCase().contains(query)) ||
                         (n.getContent() != null && n.getContent().toLowerCase().contains(query));
-
                 boolean mType = ("All Types".equalsIgnoreCase(typeFilter) || typeFilter.equalsIgnoreCase(n.getNoticeType()));
-
-                // Filter matching: "All Roles" notice matches any target role filter, and "All Roles" filter matches any notice
-                String targetRole = n.getTargetRole();
-                boolean isNoticeAllRoles = (targetRole == null || targetRole.trim().isEmpty() || "All Roles".equalsIgnoreCase(targetRole) || "All".equalsIgnoreCase(targetRole));
-                boolean isFilterAllRoles = ("All Roles".equalsIgnoreCase(roleFilter) || "All".equalsIgnoreCase(roleFilter));
-
-                boolean mRole = isFilterAllRoles || isNoticeAllRoles || roleFilter.equalsIgnoreCase(targetRole);
-
+                boolean mRole = ("All Roles".equalsIgnoreCase(roleFilter) || "All Roles".equalsIgnoreCase(n.getTargetRole()) || roleFilter.equalsIgnoreCase(n.getTargetRole()));
                 return mQuery && mType && mRole;
             }).toList();
 
