@@ -36,6 +36,7 @@ public class AttendanceDAO {
             throw e;
         } finally {
             conn.setAutoCommit(true);
+            conn.close();
         }
         return success;
     }
@@ -164,6 +165,7 @@ public class AttendanceDAO {
             throw e;
         } finally {
             conn.setAutoCommit(true);
+            conn.close();
         }
         return success;
     }

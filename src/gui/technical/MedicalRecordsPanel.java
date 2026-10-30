@@ -252,7 +252,8 @@ public class MedicalRecordsPanel extends JPanel {
             return;
         }
 
-        String status = tableModel.getValueAt(selectedRow, 7).toString();
+        int modelRow = medicalTable.convertRowIndexToModel(selectedRow);
+        String status = tableModel.getValueAt(modelRow, 7).toString();
 
         if (!status.equals("Pending")) {
             JOptionPane.showMessageDialog(
