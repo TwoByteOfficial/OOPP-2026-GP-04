@@ -48,10 +48,10 @@ public final class Colors {
     // =====================================================
 
     public static final Color SIDEBAR_DEEP_GREEN =
-            new Color(27, 94, 32);
+            new Color(165, 214, 167); // #A5D6A7 — sidebar background
 
     public static final Color SIDEBAR_LIGHT_GREEN =
-            new Color(200, 230, 201);
+            new Color(200, 230, 201); // #C8E6C9 — pale green
 
     public static final Color SIDEBAR_WHITE =
             Color.WHITE;
