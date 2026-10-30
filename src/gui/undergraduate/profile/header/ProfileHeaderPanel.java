@@ -14,7 +14,7 @@ public class ProfileHeaderPanel extends JPanel {
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("My Student Profile & Account Security");
+        JLabel title = new JLabel("My Student Profile & Contact Settings");
         title.setFont(AdminTheme.FONT_H1);
         title.setForeground(AdminTheme.DEEP_GREEN);
         title.setAlignmentX(Component.LEFT_ALIGNMENT);

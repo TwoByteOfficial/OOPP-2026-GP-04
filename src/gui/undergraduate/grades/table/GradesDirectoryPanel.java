@@ -1,7 +1,7 @@
 package gui.undergraduate.grades.table;
 
+import dao.undergraduate.UndergraduateGradesDAO.StudentCourseGradeDTO;
 import gui.admin.AdminTheme;
-import gui.undergraduate.grades.model.CourseGradeData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -9,137 +9,189 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Academic transcript directory table displaying module grades, credit weights, and GPV scores.
+ * Grade records directory table displaying course units and semester grades.
+ * Column widths are optimized to eliminate module title truncation.
  */
 public class GradesDirectoryPanel extends JPanel {
 
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
-    private final JTable gradesTable;
-    private final DefaultTableModel tableModel;
+    private final JTable table;
+    private final DefaultTableModel model;
 
-    public GradesDirectoryPanel(Consumer<String> onCourseSelected) {
+    public GradesDirectoryPanel(Consumer<String> onSelectCourse) {
         setOpaque(false);
         setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(18, 20, 18, 20));
+        setBorder(new EmptyBorder(16, 18, 16, 18));
 
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setOpaque(false);
+        // Header Title Row
+        JPanel topRow = new JPanel(new BorderLayout());
+        topRow.setOpaque(false);
 
-        JLabel cardTitle = new JLabel("Semester Course Grade Directory");
-        cardTitle.setFont(AdminTheme.font(Font.BOLD, 16));
-        cardTitle.setForeground(AdminTheme.FOREST_GREEN);
+        JLabel titleLbl = new JLabel("Semester Course Grade Directory");
+        titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
+        titleLbl.setForeground(AdminTheme.FOREST_GREEN);
 
-        JLabel helperText = new JLabel("Select a module to inspect GPA impact");
-        helperText.setFont(AdminTheme.font(Font.PLAIN, 12));
-        helperText.setForeground(AdminTheme.MUTED);
+        JLabel subLbl = new JLabel("Select a module to inspect GPA impact");
+        subLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
+        subLbl.setForeground(AdminTheme.MUTED);
 
-        titlePanel.add(cardTitle, BorderLayout.WEST);
-        titlePanel.add(helperText, BorderLayout.EAST);
-        add(titlePanel, BorderLayout.NORTH);
+        topRow.add(titleLbl, BorderLayout.WEST);
+        topRow.add(subLbl, BorderLayout.EAST);
+        add(topRow, BorderLayout.NORTH);
 
-        String[] columns = {"Code", "Course Name", "Credits", "Grade", "GPV", "Status"};
-        tableModel = new DefaultTableModel(columns, 0) {
+        String[] headers = {"Code", "Course Name", "Credits", "Grade", "GPV", "Status"};
+        model = new DefaultTableModel(headers, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
+            public boolean isCellEditable(int row, int col) {
                 return false;
             }
         };
 
-        gradesTable = new JTable(tableModel);
-        gradesTable.setFont(AdminTheme.font(Font.PLAIN, 13));
-        gradesTable.setRowHeight(40);
-        gradesTable.setShowGrid(false);
-        gradesTable.setIntercellSpacing(new Dimension(0, 0));
-        gradesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        gradesTable.setSelectionBackground(AdminTheme.PASTEL_GREEN);
-        gradesTable.setSelectionForeground(AdminTheme.DEEP_GREEN);
+        table = new JTable(model);
+        table.setFont(AdminTheme.font(Font.PLAIN, 12));
+        table.setRowHeight(36);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionBackground(AdminTheme.PASTEL_GREEN);
+        table.setSelectionForeground(AdminTheme.DEEP_GREEN);
+        table.setFocusable(false);
 
-        JTableHeader header = gradesTable.getTableHeader();
-        header.setFont(AdminTheme.font(Font.BOLD, 13));
-        header.setBackground(AdminTheme.MINT);
-        header.setForeground(AdminTheme.DEEP_GREEN);
-        header.setPreferredSize(new Dimension(0, 36));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
+        JTableHeader th = table.getTableHeader();
+        th.setFont(AdminTheme.font(Font.BOLD, 12));
+        th.setBackground(AdminTheme.MINT);
+        th.setForeground(AdminTheme.DEEP_GREEN);
+        th.setPreferredSize(new Dimension(0, 34));
+        th.setReorderingAllowed(false);
+        th.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
 
-        // Column widths
-        // Column widths balanced for 6 columns
-        gradesTable.getColumnModel().getColumn(0).setPreferredWidth(65);  // Code
-        gradesTable.getColumnModel().getColumn(1).setPreferredWidth(200); // Course Name
-        gradesTable.getColumnModel().getColumn(2).setPreferredWidth(48);  // Credits
-        gradesTable.getColumnModel().getColumn(3).setPreferredWidth(44);  // Grade
-        gradesTable.getColumnModel().getColumn(4).setPreferredWidth(44);  // GPV
-        gradesTable.getColumnModel().getColumn(5).setPreferredWidth(70);  // Status
+        // Column width allocations to prevent text clipping
+        table.getColumnModel().getColumn(0).setPreferredWidth(55);
+        table.getColumnModel().getColumn(0).setMaxWidth(65);
 
-        // Compact cell padding to prevent text truncation
-        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setBorder(new EmptyBorder(0, 5, 0, 5));
-        for (int i = 0; i < 5; i++) {
-            gradesTable.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
-        }
+        // Course Name expanded to 235px to display full title without ellipsis
+        table.getColumnModel().getColumn(1).setPreferredWidth(235);
 
-        // Status badge renderer
-        gradesTable.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
+        table.getColumnModel().getColumn(2).setPreferredWidth(45);
+        table.getColumnModel().getColumn(2).setMaxWidth(55);
+
+        table.getColumnModel().getColumn(3).setPreferredWidth(45);
+        table.getColumnModel().getColumn(3).setMaxWidth(55);
+
+        table.getColumnModel().getColumn(4).setPreferredWidth(50);
+        table.getColumnModel().getColumn(4).setMaxWidth(60);
+
+        table.getColumnModel().getColumn(5).setPreferredWidth(65);
+
+        // Alignments: Left for Code & Course Name
+        DefaultTableCellRenderer left = new DefaultTableCellRenderer();
+        left.setBorder(new EmptyBorder(0, 8, 0, 8));
+        table.getColumnModel().getColumn(0).setCellRenderer(left);
+        table.getColumnModel().getColumn(1).setCellRenderer(left);
+
+        // Alignments: Center for Credits, Grade, GPV, and Status
+        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+        center.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getColumnModel().getColumn(2).setCellRenderer(center);
+        table.getColumnModel().getColumn(3).setCellRenderer(center);
+        table.getColumnModel().getColumn(4).setCellRenderer(center);
+
+        // Custom status badge renderer
+        table.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus,
-                                                           int row, int column) {
-                JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            public Component getTableCellRendererComponent(JTable tbl, Object val, boolean isSel, boolean hasFoc, int r, int c) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(tbl, val, isSel, hasFoc, r, c);
                 lbl.setHorizontalAlignment(SwingConstants.CENTER);
-                lbl.setFont(AdminTheme.font(Font.BOLD, 11));
-                lbl.setBorder(new EmptyBorder(2, 6, 2, 6));
-
-                String status = String.valueOf(value);
-                if ("Completed".equalsIgnoreCase(status)) {
-                    lbl.setForeground(AdminTheme.FOREST_GREEN);
-                } else if ("Pending".equalsIgnoreCase(status)) {
-                    lbl.setForeground(AdminTheme.WARNING);
+                lbl.setFont(AdminTheme.font(Font.BOLD, 12));
+                String text = String.valueOf(val);
+                if ("Completed".equalsIgnoreCase(text)) {
+                    lbl.setForeground(new Color(0x2E, 0x7D, 0x32));
                 } else {
-                    lbl.setForeground(AdminTheme.DANGER);
+                    lbl.setForeground(new Color(0xC6, 0xC6, 0x28));
                 }
                 return lbl;
             }
         });
 
-        gradesTable.getSelectionModel().addListSelectionListener(e -> {
+        table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int selectedRow = gradesTable.getSelectedRow();
-                if (selectedRow != -1 && onCourseSelected != null) {
-                    onCourseSelected.accept((String) gradesTable.getValueAt(selectedRow, 0));
+                int row = table.getSelectedRow();
+                if (row != -1 && onSelectCourse != null) {
+                    onSelectCourse.accept((String) table.getValueAt(row, 0));
                 }
             }
         });
 
-        JScrollPane tableScroll = new JScrollPane(gradesTable);
-        tableScroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
-        tableScroll.getViewport().setBackground(AdminTheme.WHITE);
-        tableScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
+        scroll.getViewport().setBackground(AdminTheme.WHITE);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        add(tableScroll, BorderLayout.CENTER);
+        add(scroll, BorderLayout.CENTER);
     }
 
-    public void setGradesData(List<CourseGradeData> dataList) {
-        tableModel.setRowCount(0);
-        for (CourseGradeData d : dataList) {
-            tableModel.addRow(new Object[]{
-                    d.getCourseCode(),
-                    d.getCourseName(),
-                    d.getCredits(),
-                    d.getGrade(),
-                    String.format("%.2f", d.getGpv()),
-                    d.getStatus()
-            });
+    public void updateData(List<?> list) {
+        model.setRowCount(0);
+        if (list != null) {
+            for (Object item : list) {
+                String code = extractString(item, "getCourseCode", "courseCode");
+                String name = extractString(item, "getCourseName", "courseName");
+                String cred = extractString(item, "getCredits", "credits");
+                String grade = extractString(item, "getGrade", "grade");
+                String rawGpv = extractString(item, "getGpv", "gpv");
+                String status = extractString(item, "getStatus", "status");
+
+                String formattedGpv = formatToTwoDecimals(rawGpv);
+                if (status == null || status.isEmpty()) status = "Completed";
+
+                model.addRow(new Object[]{code, name, cred, grade, formattedGpv, status});
+            }
         }
+        selectFirstRow();
+    }
+
+    public void setGradesData(List<StudentCourseGradeDTO> list) {
+        updateData(list);
+    }
+
+    public void setData(List<StudentCourseGradeDTO> list) {
+        updateData(list);
     }
 
     public void selectFirstRow() {
-        if (gradesTable.getRowCount() > 0) {
-            gradesTable.setRowSelectionInterval(0, 0);
+        if (table.getRowCount() > 0) {
+            table.setRowSelectionInterval(0, 0);
+        }
+    }
+
+    private String formatToTwoDecimals(String val) {
+        try {
+            double d = Double.parseDouble(val);
+            return String.format("%.2f", d);
+        } catch (Exception e) {
+            return val != null ? val : "0.00";
+        }
+    }
+
+    private String extractString(Object obj, String getterName, String fieldName) {
+        try {
+            Method m = obj.getClass().getMethod(getterName);
+            Object res = m.invoke(obj);
+            return res != null ? String.valueOf(res) : "";
+        } catch (Exception e) {
+            try {
+                Object res = obj.getClass().getField(fieldName).get(obj);
+                return res != null ? String.valueOf(res) : "";
+            } catch (Exception ex) {
+                return "";
+            }
         }
     }
 

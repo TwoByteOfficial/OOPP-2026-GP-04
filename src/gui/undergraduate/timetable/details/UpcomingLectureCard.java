@@ -9,6 +9,7 @@ import java.awt.*;
 
 /**
  * Detailed card displaying hall location, time slot, and assigned lecturer for the selected session.
+ * Supports HTML-based automatic wrapping to prevent course title truncation.
  */
 public class UpcomingLectureCard extends JPanel {
 
@@ -47,10 +48,11 @@ public class UpcomingLectureCard extends JPanel {
         topHeader.add(courseCodeLabel, BorderLayout.WEST);
         topHeader.add(componentBadge, BorderLayout.EAST);
         add(topHeader);
-        add(Box.createVerticalStrut(4));
+        add(Box.createVerticalStrut(6));
 
-        courseTitleLabel = new JLabel("Data Structures & Algorithms");
-        courseTitleLabel.setFont(AdminTheme.font(Font.BOLD, 16));
+        // Course title with HTML wrapping to prevent truncation of long course names
+        courseTitleLabel = new JLabel("<html><body style='width: 250px;'>Data Structures & Algorithms</body></html>");
+        courseTitleLabel.setFont(AdminTheme.font(Font.BOLD, 15));
         courseTitleLabel.setForeground(AdminTheme.FOREST_GREEN);
         courseTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(courseTitleLabel);
@@ -104,8 +106,14 @@ public class UpcomingLectureCard extends JPanel {
     public void updateSession(TimetableEntryData data) {
         if (data == null) return;
         courseCodeLabel.setText(data.getCourseCode());
-        courseTitleLabel.setText(data.getCourseName());
-        componentBadge.setText(data.getComponent());
+
+        // Multi-line HTML wrapped title eliminates ellipsis truncation
+        String rawName = data.getCourseName();
+        if (rawName == null) rawName = "";
+        courseTitleLabel.setText("<html><body style='width: 250px;'>" + rawName + "</body></html>");
+
+        String comp = data.getComponent();
+        componentBadge.setText(comp != null && !comp.isEmpty() ? comp : "Theory");
         timeValueLabel.setText(data.getDayOfWeek() + " • " + data.getTimeSlot());
         venueValueLabel.setText(data.getVenue());
         lecturerValueLabel.setText(data.getLecturerName());

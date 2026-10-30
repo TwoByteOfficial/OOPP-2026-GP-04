@@ -1,6 +1,9 @@
 package gui.undergraduate.dashboard;
 
+import dao.undergraduate.UndergraduateDashboardDAO;
+import dao.undergraduate.UndergraduateDashboardDAO.DashboardMetricsDTO;
 import dao.undergraduate.UndergraduateProfileDAO;
+import dao.undergraduate.UndergraduateTimetableDAO;
 import gui.admin.AdminTheme;
 import gui.undergraduate.dashboard.actions.DashboardQuickActionsPanel;
 import gui.undergraduate.dashboard.bottom.DashboardBottomPanel;
@@ -18,7 +21,7 @@ import java.util.function.Consumer;
 
 /**
  * Main Overview Dashboard tab for Undergraduate Portal.
- * Cleanly organizes metrics, charts, and shortcuts with live profile synchronization.
+ * Uses a width-tracking viewport panel to prevent right-edge clipping.
  */
 public class UGDashboardPanel extends JPanel {
 
@@ -27,6 +30,9 @@ public class UGDashboardPanel extends JPanel {
     private final String fullName;
     private final String role;
     private final DashboardHeaderPanel headerPanel;
+    private final SummaryCardPanel summaryCardPanel;
+    private final OverviewBreakdownPanel overviewBreakdownPanel;
+    private final DashboardBottomPanel bottomPanel;
 
     public UGDashboardPanel(long userId, String username, String fullName, String role, Consumer<String> onNavigate) {
         this.userId = userId;
@@ -37,33 +43,51 @@ public class UGDashboardPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(AdminTheme.LIGHT_BG);
 
-        // Content panel layout with standardized padding
-        JPanel content = new JPanel();
+        // Content panel tracks viewport width strictly
+        JPanel content = new JPanel() {
+            @Override
+            public Dimension getPreferredSize() {
+                Dimension d = super.getPreferredSize();
+                Container parent = getParent();
+                if (parent instanceof JViewport) {
+                    d.width = ((JViewport) parent).getWidth();
+                }
+                return d;
+            }
+        };
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBorder(new EmptyBorder(15, 20, 15, 20));
+        content.setBorder(new EmptyBorder(16, 20, 16, 20));
 
         // 1. Header (Welcome text and student avatar)
         headerPanel = new DashboardHeaderPanel(username, fullName, role);
+        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(headerPanel);
         content.add(Box.createVerticalStrut(14));
 
         // 2. Summary Cards (4 Compact Stat Cards)
-        content.add(new SummaryCardPanel());
+        summaryCardPanel = new SummaryCardPanel();
+        summaryCardPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(summaryCardPanel);
         content.add(Box.createVerticalStrut(14));
 
         // 3. Quick Action Buttons
-        content.add(new DashboardQuickActionsPanel(onNavigate));
+        DashboardQuickActionsPanel quickActions = new DashboardQuickActionsPanel(onNavigate);
+        quickActions.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(quickActions);
         content.add(Box.createVerticalStrut(14));
 
         // 4. Attendance Distribution and Academic Status
-        content.add(new OverviewBreakdownPanel());
+        overviewBreakdownPanel = new OverviewBreakdownPanel();
+        overviewBreakdownPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(overviewBreakdownPanel);
         content.add(Box.createVerticalStrut(14));
 
         // 5. Bottom Widgets (Enrolled modules & Notices)
-        content.add(new DashboardBottomPanel(onNavigate));
+        bottomPanel = new DashboardBottomPanel(onNavigate);
+        bottomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(bottomPanel);
 
-        // Scroll pane configured to display clean layout
         JScrollPane scrollPane = new JScrollPane(content);
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
@@ -74,14 +98,12 @@ public class UGDashboardPanel extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        // Initial load of header profile picture and names
-        refreshDashboardHeader();
+        refreshDashboardData();
 
-        // Auto-refresh header every time student navigates back to Dashboard
         addAncestorListener(new AncestorListener() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                refreshDashboardHeader();
+                refreshDashboardData();
             }
 
             @Override
@@ -92,17 +114,24 @@ public class UGDashboardPanel extends JPanel {
         });
     }
 
-    /**
-     * Re-queries latest student profile information from the database and updates top header.
-     */
-    public void refreshDashboardHeader() {
+    public void refreshDashboardData() {
         SwingUtilities.invokeLater(() -> {
             try {
                 UserProfileData profile = UndergraduateProfileDAO.getProfile(userId, username);
                 if (profile != null && headerPanel != null) {
                     headerPanel.setStudentInfo(username, profile.getFullName(), role, profile.getProfilePicture());
                 }
-            } catch (Exception ignored) {}
+
+                DashboardMetricsDTO metrics = UndergraduateDashboardDAO.getDashboardMetrics(userId);
+                summaryCardPanel.updateDashboardMetrics(metrics);
+
+                int slotsCount = UndergraduateTimetableDAO.getStudentWeeklyTimetable(userId).size();
+                overviewBreakdownPanel.updateMetrics(metrics, slotsCount);
+
+                bottomPanel.refreshData(userId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 }

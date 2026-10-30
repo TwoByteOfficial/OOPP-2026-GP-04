@@ -1,7 +1,7 @@
 package gui.undergraduate.attendance.table;
 
+import dao.undergraduate.UndergraduateAttendanceDAO.AttendanceRecordDTO;
 import gui.admin.AdminTheme;
-import gui.undergraduate.attendance.model.CourseAttendanceData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,133 +13,139 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Module-wise attendance directory table with status badges and interactive row selection.
+ * Attendance directory table displaying course module attendance records.
+ * Optimized column widths prevent header and module title truncation.
  */
 public class AttendanceDirectoryPanel extends JPanel {
 
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
-    private final JTable attendanceTable;
-    private final DefaultTableModel tableModel;
+    private final JTable table;
+    private final DefaultTableModel model;
 
-    public AttendanceDirectoryPanel(Consumer<String> onCourseSelected) {
+    public AttendanceDirectoryPanel(Consumer<String> onSelectCourse) {
         setOpaque(false);
         setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(18, 20, 18, 20));
+        setBorder(new EmptyBorder(16, 18, 16, 18));
 
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setOpaque(false);
+        // Header Title Row
+        JPanel topRow = new JPanel(new BorderLayout());
+        topRow.setOpaque(false);
 
-        JLabel cardTitle = new JLabel("Module Attendance Directory");
-        cardTitle.setFont(AdminTheme.font(Font.BOLD, 16));
-        cardTitle.setForeground(AdminTheme.FOREST_GREEN);
+        JLabel titleLbl = new JLabel("Module Attendance Directory");
+        titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
+        titleLbl.setForeground(AdminTheme.FOREST_GREEN);
 
-        JLabel helperText = new JLabel("Select a module to view breakdown");
-        helperText.setFont(AdminTheme.font(Font.PLAIN, 12));
-        helperText.setForeground(AdminTheme.MUTED);
+        JLabel subLbl = new JLabel("Select a module to view breakdown");
+        subLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
+        subLbl.setForeground(AdminTheme.MUTED);
 
-        titlePanel.add(cardTitle, BorderLayout.WEST);
-        titlePanel.add(helperText, BorderLayout.EAST);
-        add(titlePanel, BorderLayout.NORTH);
+        topRow.add(titleLbl, BorderLayout.WEST);
+        topRow.add(subLbl, BorderLayout.EAST);
+        add(topRow, BorderLayout.NORTH);
 
-        String[] columns = {"Code", "Course Name", "Sessions", "Attendance", "Status"};
-        tableModel = new DefaultTableModel(columns, 0) {
+        String[] headers = {"Code", "Course Name", "Sessions", "Attendance", "Status"};
+        model = new DefaultTableModel(headers, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
+            public boolean isCellEditable(int row, int col) {
                 return false;
             }
         };
 
-        attendanceTable = new JTable(tableModel);
-        attendanceTable.setFont(AdminTheme.font(Font.PLAIN, 13));
-        attendanceTable.setRowHeight(40);
-        attendanceTable.setShowGrid(false);
-        attendanceTable.setIntercellSpacing(new Dimension(0, 0));
-        attendanceTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        attendanceTable.setSelectionBackground(AdminTheme.PASTEL_GREEN);
-        attendanceTable.setSelectionForeground(AdminTheme.DEEP_GREEN);
+        table = new JTable(model);
+        table.setFont(AdminTheme.font(Font.PLAIN, 12));
+        table.setRowHeight(36);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionBackground(AdminTheme.PASTEL_GREEN);
+        table.setSelectionForeground(AdminTheme.DEEP_GREEN);
+        table.setFocusable(false);
 
-        JTableHeader header = attendanceTable.getTableHeader();
-        header.setFont(AdminTheme.font(Font.BOLD, 13));
-        header.setBackground(AdminTheme.MINT);
-        header.setForeground(AdminTheme.DEEP_GREEN);
-        header.setPreferredSize(new Dimension(0, 36));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
+        JTableHeader th = table.getTableHeader();
+        th.setFont(AdminTheme.font(Font.BOLD, 12));
+        th.setBackground(AdminTheme.MINT);
+        th.setForeground(AdminTheme.DEEP_GREEN);
+        th.setPreferredSize(new Dimension(0, 34));
+        th.setReorderingAllowed(false);
+        th.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
 
-        // Column widths
-        attendanceTable.getColumnModel().getColumn(0).setPreferredWidth(65);  // Code
-        attendanceTable.getColumnModel().getColumn(1).setPreferredWidth(205); // Course Name
-        attendanceTable.getColumnModel().getColumn(2).setPreferredWidth(65);  // Sessions
-        attendanceTable.getColumnModel().getColumn(3).setPreferredWidth(85);  // Attendance
-        attendanceTable.getColumnModel().getColumn(4).setPreferredWidth(70);  // Status
+        // Column width allocations to avoid text clipping
+        table.getColumnModel().getColumn(0).setPreferredWidth(55);
+        table.getColumnModel().getColumn(0).setMaxWidth(65);
 
-        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setBorder(new EmptyBorder(0, 12, 0, 12));
-        for (int i = 0; i < 4; i++) {
-            attendanceTable.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
-        }
+        table.getColumnModel().getColumn(1).setPreferredWidth(235);
 
-        // Custom renderer for Status column (Eligible / At Risk badge)
-        attendanceTable.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+        table.getColumnModel().getColumn(2).setPreferredWidth(55);
+        table.getColumnModel().getColumn(2).setMaxWidth(65);
+
+        table.getColumnModel().getColumn(3).setPreferredWidth(82);
+
+        table.getColumnModel().getColumn(4).setPreferredWidth(65);
+
+        // Alignments: Left for Code & Course Name
+        DefaultTableCellRenderer left = new DefaultTableCellRenderer();
+        left.setBorder(new EmptyBorder(0, 8, 0, 8));
+        table.getColumnModel().getColumn(0).setCellRenderer(left);
+        table.getColumnModel().getColumn(1).setCellRenderer(left);
+
+        // Alignments: Center for Sessions & Attendance percentage
+        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+        center.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getColumnModel().getColumn(2).setCellRenderer(center);
+        table.getColumnModel().getColumn(3).setCellRenderer(center);
+
+        // Custom status badge renderer
+        table.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus,
-                                                           int row, int column) {
-                JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            public Component getTableCellRendererComponent(JTable tbl, Object val, boolean isSel, boolean hasFoc, int r, int c) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(tbl, val, isSel, hasFoc, r, c);
                 lbl.setHorizontalAlignment(SwingConstants.CENTER);
-                lbl.setFont(AdminTheme.font(Font.BOLD, 11));
-                lbl.setBorder(new EmptyBorder(2, 6, 2, 6));
-
-                String status = String.valueOf(value);
-                if ("Eligible".equalsIgnoreCase(status)) {
-                    lbl.setForeground(AdminTheme.FOREST_GREEN);
+                lbl.setFont(AdminTheme.font(Font.BOLD, 12));
+                String text = String.valueOf(val);
+                if ("Eligible".equalsIgnoreCase(text)) {
+                    lbl.setForeground(new Color(0x2E, 0x7D, 0x32));
                 } else {
-                    lbl.setForeground(AdminTheme.DANGER);
+                    lbl.setForeground(new Color(0xC6, 0x28, 0x28));
                 }
                 return lbl;
             }
         });
 
-        attendanceTable.getSelectionModel().addListSelectionListener(e -> {
+        table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int selectedRow = attendanceTable.getSelectedRow();
-                if (selectedRow != -1 && onCourseSelected != null) {
-                    onCourseSelected.accept((String) attendanceTable.getValueAt(selectedRow, 0));
+                int row = table.getSelectedRow();
+                if (row != -1 && onSelectCourse != null) {
+                    onSelectCourse.accept((String) table.getValueAt(row, 0));
                 }
             }
         });
 
-        JScrollPane tableScroll = new JScrollPane(attendanceTable);
-        tableScroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
-        tableScroll.getViewport().setBackground(AdminTheme.WHITE);
-        tableScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
+        scroll.getViewport().setBackground(AdminTheme.WHITE);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        add(tableScroll, BorderLayout.CENTER);
+        add(scroll, BorderLayout.CENTER);
     }
 
-    public void setCourseData(List<CourseAttendanceData> courseList) {
-        tableModel.setRowCount(0);
-        for (CourseAttendanceData data : courseList) {
-            int total = data.getTotalLectures() + data.getTotalPracticals();
-            int attended = data.getAttendedLectures() + data.getAttendedPracticals() + data.getApprovedMedicals();
-            String sessions = attended + "/" + total;
-            String percentage = String.format("%.1f%%", data.getOverallPercentage());
-            String status = data.isEligible() ? "Eligible" : "At Risk";
-
-            tableModel.addRow(new Object[]{
-                    data.getCourseCode(),
-                    data.getCourseName(),
-                    sessions,
-                    percentage,
-                    status
-            });
+    public void setAttendanceData(List<AttendanceRecordDTO> list) {
+        model.setRowCount(0);
+        if (list != null) {
+            for (AttendanceRecordDTO c : list) {
+                String sessionsStr = c.attendedSessions + "/" + c.totalSessions;
+                String attStr = String.format("%.1f%%", c.adjustedPercentage);
+                String status = c.isEligible() ? "Eligible" : "Not Eligible";
+                model.addRow(new Object[]{c.courseCode, c.courseName, sessionsStr, attStr, status});
+            }
         }
+        selectFirstRow();
     }
 
     public void selectFirstRow() {
-        if (attendanceTable.getRowCount() > 0) {
-            attendanceTable.setRowSelectionInterval(0, 0);
+        if (table.getRowCount() > 0) {
+            table.setRowSelectionInterval(0, 0);
         }
     }
 
