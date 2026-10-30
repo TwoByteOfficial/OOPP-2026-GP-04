@@ -1,27 +1,53 @@
 package gui.undergraduate.medicals.form;
 
+import dao.undergraduate.UndergraduateCourseDAO;
+import dao.undergraduate.UndergraduateCourseDAO.EnrolledCourseDTO;
+import dao.undergraduate.UndergraduateMedicalDAO;
 import gui.admin.AdminTheme;
-import gui.undergraduate.medicals.model.MedicalRecordData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.function.Consumer;
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
- * Student medical certificate submission form using the modular file picker and UniMis courses.
+ * Student medical certificate submission form complying strictly with Zero Local File Handling.
  */
 public class MedicalSubmissionPanel extends JPanel {
 
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
-    private final JComboBox<String> courseComboBox;
+    private final long userId;
+    private final JComboBox<CourseDropdownItem> courseComboBox;
     private final JTextField dateField;
     private final JTextField reasonField;
-    private final MedicalFilePicker filePicker;
+    private final JTextField urlField;
+    private final Runnable onSubmittedCallback;
 
-    public MedicalSubmissionPanel(Consumer<MedicalRecordData> onMedicalSubmitted) {
+    public static class CourseDropdownItem {
+        public final int courseId;
+        public final String courseCode;
+        public final String courseName;
+
+        public CourseDropdownItem(int courseId, String courseCode, String courseName) {
+            this.courseId = courseId;
+            this.courseCode = courseCode;
+            this.courseName = courseName;
+        }
+
+        @Override
+        public String toString() {
+            return courseCode + " - " + courseName;
+        }
+    }
+
+    public MedicalSubmissionPanel(long userId, Runnable onSubmittedCallback) {
+        this.userId = userId;
+        this.onSubmittedCallback = onSubmittedCallback;
+
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(18, 20, 18, 20));
@@ -31,7 +57,7 @@ public class MedicalSubmissionPanel extends JPanel {
         formTitle.setForeground(AdminTheme.FOREST_GREEN);
         formTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel helperText = new JLabel("Upload genuine medical slip certified by university medical officer.");
+        JLabel helperText = new JLabel("Provide cloud document URL certified by university medical officer.");
         helperText.setFont(AdminTheme.font(Font.PLAIN, 12));
         helperText.setForeground(AdminTheme.MUTED);
         helperText.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -41,24 +67,14 @@ public class MedicalSubmissionPanel extends JPanel {
         add(helperText);
         add(Box.createVerticalStrut(14));
 
-        // Course Selector using Database Course Codes
-        String[] courses = {
-                "ICT2112 - Data Structures and Algorithms",
-                "ICT2122 - Computer Networks",
-                "ICT2132 - Object Oriented Programming Practicum",
-                "ICT2142 - Database Management Systems",
-                "ICT2152 - Web Application Development",
-                "ICT2162 - Software Engineering",
-                "ICT2172 - Probability and Statistics",
-                "ICT2182 - Technical Communication Skills"
-        };
-        courseComboBox = new JComboBox<>(courses);
+        courseComboBox = new JComboBox<>();
         courseComboBox.setFont(AdminTheme.font(Font.PLAIN, 13));
         courseComboBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        loadEnrolledCourses();
         add(createField("Target Course Module:", courseComboBox));
         add(Box.createVerticalStrut(10));
 
-        dateField = new JTextField("2026-10-14");
+        dateField = new JTextField(LocalDate.now().toString());
         dateField.setFont(AdminTheme.font(Font.PLAIN, 13));
         dateField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
         add(createField("Absence Date (YYYY-MM-DD):", dateField));
@@ -70,8 +86,24 @@ public class MedicalSubmissionPanel extends JPanel {
         add(createField("Diagnosis / Absence Reason:", reasonField));
         add(Box.createVerticalStrut(10));
 
-        filePicker = new MedicalFilePicker();
-        add(createField("Attach Medical Certificate (PDF / Image):", filePicker));
+        // Cloud URL Input & Test Link Button (Zero Local File Handling)
+        urlField = new JTextField("https://drive.google.com/...");
+        urlField.setFont(AdminTheme.font(Font.PLAIN, 12));
+
+        JButton testBtn = new JButton("Test Link");
+        testBtn.setFont(AdminTheme.font(Font.BOLD, 11));
+        testBtn.setBackground(new Color(0xF1, 0xF5, 0xF9));
+        testBtn.setFocusPainted(false);
+        testBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        testBtn.addActionListener(e -> testUrlInBrowser(urlField.getText().trim()));
+
+        JPanel urlInputBox = new JPanel(new BorderLayout(8, 0));
+        urlInputBox.setOpaque(false);
+        urlInputBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        urlInputBox.add(urlField, BorderLayout.CENTER);
+        urlInputBox.add(testBtn, BorderLayout.EAST);
+
+        add(createField("Medical Certificate Link (Google Drive / Cloud URL):", urlInputBox));
         add(Box.createVerticalStrut(16));
 
         JButton submitBtn = new JButton("Submit Medical Application");
@@ -82,36 +114,64 @@ public class MedicalSubmissionPanel extends JPanel {
         submitBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         submitBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
         submitBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        submitBtn.addActionListener(e -> {
-            String selected = (String) courseComboBox.getSelectedItem();
-            String code = selected != null ? selected.split(" - ")[0] : "ICT2132";
-            String name = selected != null ? selected.split(" - ")[1] : "Course";
-            String date = dateField.getText().trim();
-            String reason = reasonField.getText().trim();
-            String path = filePicker.getFilePath();
-
-            if (reason.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter the reason for absence.", "Input Required", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            MedicalRecordData newRecord = new MedicalRecordData(
-                    System.currentTimeMillis() % 10000,
-                    code, name, date, reason, path.isEmpty() ? "scans/sample.pdf" : path,
-                    "Pending", "Awaiting Technical Officer verification"
-            );
-
-            if (onMedicalSubmitted != null) {
-                onMedicalSubmitted.accept(newRecord);
-            }
-
-            reasonField.setText("");
-            filePicker.clear();
-            JOptionPane.showMessageDialog(this, "Medical application submitted successfully!\nPending verification.", "Submission Received", JOptionPane.INFORMATION_MESSAGE);
-        });
+        submitBtn.addActionListener(e -> handleSubmission());
 
         add(submitBtn);
+    }
+
+    private void loadEnrolledCourses() {
+        courseComboBox.removeAllItems();
+        List<EnrolledCourseDTO> list = UndergraduateCourseDAO.getEnrolledCoursesWithEvaluation(userId);
+        for (EnrolledCourseDTO c : list) {
+            courseComboBox.addItem(new CourseDropdownItem(c.courseId, c.courseCode, c.courseName));
+        }
+    }
+
+    private void handleSubmission() {
+        CourseDropdownItem selected = (CourseDropdownItem) courseComboBox.getSelectedItem();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select an enrolled course module.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String date = dateField.getText().trim();
+        String reason = reasonField.getText().trim();
+        String docUrl = urlField.getText().trim();
+
+        if (date.isEmpty() || reason.isEmpty() || docUrl.isEmpty() || !docUrl.startsWith("http")) {
+            JOptionPane.showMessageDialog(this,
+                    "Please fill all fields and provide a valid cloud document URL (http:// or https://)",
+                    "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        boolean success = UndergraduateMedicalDAO.submitMedical(userId, selected.courseId, date, reason, docUrl);
+        if (success) {
+            JOptionPane.showMessageDialog(this,
+                    "Medical application submitted successfully!\nStatus set to 'Pending' for TO verification.",
+                    "Submission Successful", JOptionPane.INFORMATION_MESSAGE);
+            reasonField.setText("");
+            urlField.setText("");
+            if (onSubmittedCallback != null) {
+                onSubmittedCallback.run();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to submit medical record to database. Verify date format (YYYY-MM-DD).", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void testUrlInBrowser(String url) {
+        if (url == null || url.trim().isEmpty() || !url.startsWith("http")) {
+            JOptionPane.showMessageDialog(this, "Please provide a valid web URL starting with http:// or https://", "Invalid Link", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(url.trim()));
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Failed to launch default browser: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private JPanel createField(String labelText, JComponent input) {
