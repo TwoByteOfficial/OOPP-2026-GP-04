@@ -10,16 +10,34 @@ import java.sql.SQLException;
 
 public class LecturerProfileDAO {
 
-    // READ: Get the lecturer's profile.
+    /**
+     * Retrieve lecturer profile details.
+     *
+     * Object[] indexes:
+     * 0  - user_id
+     * 1  - username
+     * 2  - lecturer_code
+     * 3  - title
+     * 4  - full_name
+     * 5  - nic
+     * 6  - email
+     * 7  - contact_no
+     * 8  - address
+     * 9  - specialization
+     * 10 - department_name
+     * 11 - profile_picture
+     */
     public Object[] getLecturerProfile(long userId)
             throws SQLException {
 
         String sql = "SELECT u.user_id, u.username, l.lecturer_code, " +
                 "l.title, u.full_name, u.nic, u.email, u.contact_no, " +
-                "u.address, l.specialization, d.department_name " +
+                "u.address, l.specialization, d.department_name, " +
+                "u.profile_picture " +
                 "FROM users u " +
                 "JOIN lecturers l ON u.user_id = l.user_id " +
-                "LEFT JOIN departments d ON u.department_id = d.department_id " +
+                "LEFT JOIN departments d " +
+                "ON u.department_id = d.department_id " +
                 "WHERE u.user_id = ?";
 
         try (Connection con = DBConnection.getConnection();
@@ -30,7 +48,6 @@ public class LecturerProfileDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-
                     return new Object[]{
                             rs.getLong("user_id"),
                             rs.getString("username"),
@@ -49,7 +66,9 @@ public class LecturerProfileDAO {
                                     ? "" : rs.getString("specialization"),
                             rs.getString("department_name") == null
                                     ? "Faculty of Technology"
-                                    : rs.getString("department_name")
+                                    : rs.getString("department_name"),
+                            rs.getString("profile_picture") == null
+                                    ? "" : rs.getString("profile_picture")
                     };
                 }
             }
@@ -58,7 +77,10 @@ public class LecturerProfileDAO {
         return null;
     }
 
-    // UPDATE: Update the user's and lecturer's details.
+    /**
+     * Backward-compatible update method.
+     * Keeps the currently saved profile picture unchanged.
+     */
     public boolean updateLecturerProfile(
             long userId,
             String title,
@@ -67,7 +89,49 @@ public class LecturerProfileDAO {
             String email,
             String contactNo,
             String address,
-            String specialization) throws SQLException {
+            String specialization
+    ) throws SQLException {
+
+        Object[] currentProfile = getLecturerProfile(userId);
+
+        if (currentProfile == null) {
+            return false;
+        }
+
+        String existingPicture = currentProfile.length > 11
+                && currentProfile[11] != null
+                ? currentProfile[11].toString()
+                : "";
+
+        return updateLecturerProfile(
+                userId,
+                title,
+                fullName,
+                nic,
+                email,
+                contactNo,
+                address,
+                specialization,
+                existingPicture
+        );
+    }
+
+    /**
+     * Update lecturer profile details and profile picture URL.
+     *
+     * Pass an empty string to remove the profile picture.
+     */
+    public boolean updateLecturerProfile(
+            long userId,
+            String title,
+            String fullName,
+            String nic,
+            String email,
+            String contactNo,
+            String address,
+            String specialization,
+            String profilePicture
+    ) throws SQLException {
 
         if (userId <= 0) {
             throw new IllegalArgumentException("Invalid user ID.");
@@ -81,16 +145,29 @@ public class LecturerProfileDAO {
             throw new IllegalArgumentException("Email is required.");
         }
 
-        String checkSql = "SELECT 1 FROM users u " +
-                "JOIN lecturers l ON u.user_id = l.user_id " +
-                "WHERE u.user_id = ?";
+        if (profilePicture != null && profilePicture.length() > 500) {
+            throw new IllegalArgumentException(
+                    "Profile picture URL must be 500 characters or less."
+            );
+        }
 
-        String userSql = "UPDATE users SET full_name = ?, nic = ?, " +
-                "email = ?, contact_no = ?, address = ?, " +
-                "updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
+        String checkSql =
+                "SELECT 1 FROM users u " +
+                        "JOIN lecturers l ON u.user_id = l.user_id " +
+                        "WHERE u.user_id = ?";
 
-        String lecturerSql = "UPDATE lecturers SET title = ?, " +
-                "specialization = ? WHERE user_id = ?";
+        String userSql =
+                "UPDATE users SET " +
+                        "full_name = ?, nic = ?, email = ?, " +
+                        "contact_no = ?, address = ?, " +
+                        "profile_picture = ?, " +
+                        "updated_at = CURRENT_TIMESTAMP " +
+                        "WHERE user_id = ?";
+
+        String lecturerSql =
+                "UPDATE lecturers SET title = ?, " +
+                        "specialization = ? " +
+                        "WHERE user_id = ?";
 
         try (Connection con = DBConnection.getConnection()) {
 
@@ -99,8 +176,9 @@ public class LecturerProfileDAO {
             try {
                 con.setAutoCommit(false);
 
-                // Check that this user is a lecturer.
-                try (PreparedStatement ps = con.prepareStatement(checkSql)) {
+                // Check whether this user is a lecturer.
+                try (PreparedStatement ps =
+                             con.prepareStatement(checkSql)) {
 
                     ps.setLong(1, userId);
 
@@ -112,20 +190,34 @@ public class LecturerProfileDAO {
                     }
                 }
 
-                // Update the users table.
-                try (PreparedStatement ps = con.prepareStatement(userSql)) {
+                // Update users table.
+                try (PreparedStatement ps =
+                             con.prepareStatement(userSql)) {
 
                     ps.setString(1, fullName.trim());
                     ps.setString(2, nic);
                     ps.setString(3, email.trim());
                     ps.setString(4, contactNo);
                     ps.setString(5, address);
-                    ps.setLong(6, userId);
 
-                    ps.executeUpdate();
+                    // Empty string removes the picture.
+                    ps.setString(
+                            6,
+                            profilePicture == null
+                                    ? "" : profilePicture.trim()
+                    );
+
+                    ps.setLong(7, userId);
+
+                    int userRows = ps.executeUpdate();
+
+                    if (userRows == 0) {
+                        con.rollback();
+                        return false;
+                    }
                 }
 
-                // Update the lecturers table.
+                // Update lecturers table.
                 try (PreparedStatement ps =
                              con.prepareStatement(lecturerSql)) {
 
@@ -133,7 +225,12 @@ public class LecturerProfileDAO {
                     ps.setString(2, specialization);
                     ps.setLong(3, userId);
 
-                    ps.executeUpdate();
+                    int lecturerRows = ps.executeUpdate();
+
+                    if (lecturerRows == 0) {
+                        con.rollback();
+                        return false;
+                    }
                 }
 
                 con.commit();
