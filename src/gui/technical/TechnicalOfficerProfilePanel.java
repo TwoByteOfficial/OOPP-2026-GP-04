@@ -186,6 +186,10 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         }
     }
 
+    private boolean isValidContactNumber(String contact) {
+        return contact.matches("[0-9]{10}");
+    }
+
     private void saveProfile() {
 
         String name = nameField.getText().trim();
@@ -203,6 +207,19 @@ public class TechnicalOfficerProfilePanel extends JPanel {
             );
             return;
         }
+
+
+        if (!isValidContactNumber(contact)) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Contact number must contain exactly 10 digits (0-9).",
+                    "Invalid Contact Number",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            contactField.requestFocus();
+            return;
+        }
+
 
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             JOptionPane.showMessageDialog(
