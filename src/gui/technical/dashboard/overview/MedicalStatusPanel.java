@@ -1,5 +1,8 @@
 
 package gui.technical.dashboard.overview;
+import dao.TODashboardDAO;
+import java.sql.SQLException;
+import java.util.function.Consumer;
 
 import gui.theme.UniMisTheme;
 
@@ -8,12 +11,15 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class MedicalStatusPanel extends JPanel {
-
-    public MedicalStatusPanel() {
+    private final long userId;
+    public MedicalStatusPanel(
+            long userId,
+            Consumer<String> navigationHandler) {
+        this.userId = userId;
 
         setLayout(new BorderLayout(0, 16));
         setBackground(UniMisTheme.WHITE);
-        setBorder(new EmptyBorder(18, 18, 18, 18));
+        setBorder(new EmptyBorder(14, 16, 14, 16));
 
         JLabel heading = new JLabel("Medical Status");
         heading.setFont(UniMisTheme.FONT_H3);
@@ -25,13 +31,26 @@ public class MedicalStatusPanel extends JPanel {
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        JLabel description = new JLabel(
-                "Medical record approval status");
-        description.setFont(UniMisTheme.FONT_TINY);
-        description.setForeground(UniMisTheme.MUTED);
+
+
 
         JLabel pendingLabel = new JLabel(
                 "Pending medical records: —");
+
+        try {
+            TODashboardDAO dashboardDAO = new TODashboardDAO();
+
+            int pendingCount =
+                    dashboardDAO.getPendingMedicalCount(userId);
+
+            pendingLabel.setText(
+                    "Pending medical records: " + pendingCount);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
         pendingLabel.setFont(UniMisTheme.FONT_BODY_BOLD);
         pendingLabel.setForeground(UniMisTheme.PRIMARY_DARK);
 
@@ -45,8 +64,12 @@ public class MedicalStatusPanel extends JPanel {
 
         viewButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        content.add(description);
-        content.add(Box.createVerticalStrut(16));
+
+
+        viewButton.addActionListener(e ->
+                navigationHandler.accept("Medical Records"));
+
+
         content.add(pendingLabel);
         content.add(Box.createVerticalStrut(18));
         content.add(viewButton);

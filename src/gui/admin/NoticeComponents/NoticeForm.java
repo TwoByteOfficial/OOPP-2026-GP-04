@@ -93,14 +93,14 @@ public class NoticeForm extends JDialog {
         gbc.gridx = 0; gbc.gridy = 2;
         pnlForm.add(createLabel("Notice Type:"), gbc);
         gbc.gridx = 1;
-        cmbType = new JComboBox<>(new String[]{ "General", "Academic", "Exam", "Emergency" });
+        cmbType = new JComboBox<>(new String[]{ "General", "Academic", "Exam", "Attendance", "Event", "Emergency" });
         styleCombo(cmbType);
         pnlForm.add(cmbType, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3;
         pnlForm.add(createLabel("Target Role:"), gbc);
         gbc.gridx = 1;
-        cmbTargetRole = new JComboBox<>(new String[]{ "All Roles", "Undergraduate", "Lecturer", "Technical Officer", "Admin" });
+        cmbTargetRole = new JComboBox<>(new String[]{ "All", "Admin", "Lecturer", "Technical Officer", "Undergraduate" });
         styleCombo(cmbTargetRole);
         pnlForm.add(cmbTargetRole, gbc);
 

@@ -45,24 +45,15 @@ public class DashboardHeaderPanel extends JPanel {
     private JPanel buildUserSection(String fullName, String role) {
 
         JPanel section = new JPanel(new FlowLayout(
-                FlowLayout.RIGHT, 12, 0));
+                FlowLayout.RIGHT, 0, 0));
         section.setOpaque(false);
 
-        // Notification button
-        JButton notificationButton = new JButton("\uD83D\uDD14");
-        notificationButton.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
-        notificationButton.setPreferredSize(new Dimension(54, 54));
-        notificationButton.setBackground(Color.WHITE);
-        notificationButton.setFocusPainted(false);
-        notificationButton.setCursor(
-                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        // User information
         JPanel userInfo = new JPanel(new BorderLayout(10, 0));
         userInfo.setBackground(Color.WHITE);
         userInfo.setBorder(new EmptyBorder(7, 10, 7, 12));
 
-        JLabel avatar = new JLabel(getInitials(fullName), SwingConstants.CENTER);
+        JLabel avatar = new JLabel(
+                getInitials(fullName), SwingConstants.CENTER);
         avatar.setOpaque(true);
         avatar.setBackground(new Color(15, 118, 110));
         avatar.setForeground(Color.WHITE);
@@ -88,7 +79,6 @@ public class DashboardHeaderPanel extends JPanel {
         userInfo.add(avatar, BorderLayout.WEST);
         userInfo.add(details, BorderLayout.CENTER);
 
-        section.add(notificationButton);
         section.add(userInfo);
 
         return section;

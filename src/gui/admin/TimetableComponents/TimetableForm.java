@@ -159,7 +159,7 @@ public class TimetableForm extends JDialog {
         pnlForm.add(txtAcademicYear);
 
         pnlForm.add(createLabel("Semester:"));
-        cmbSemester = new JComboBox<>(new String[]{ "Semester 1", "Semester 2" });
+        cmbSemester = new JComboBox<>(new String[]{ "Semester I", "Semester II" });
         styleCombo(cmbSemester);
         pnlForm.add(cmbSemester);
 

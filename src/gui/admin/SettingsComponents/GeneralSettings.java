@@ -21,7 +21,7 @@ public class GeneralSettings extends JPanel {
         this.userId = userId;
         this.userDAO = dao;
 
-        setLayout(new GridLayout(6, 2, 14, 12));
+        setLayout(null); // Absolute positioning with setBounds
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(
@@ -31,45 +31,73 @@ public class GeneralSettings extends JPanel {
                         new Font("Segoe UI", Font.BOLD, 16),
                         new Color(0x1B, 0x5E, 0x20)
                 ),
-                BorderFactory.createEmptyBorder(16, 20, 16, 20)
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
-        addLabel("Full Name:");
+        // Full Name
+        JLabel lblFullName = createLabel("Full Name:");
+        lblFullName.setBounds(30, 45, 180, 35);
+        add(lblFullName);
+
         txtFullName = createTextField(fullName);
+        txtFullName.setBounds(220, 45, 480, 40);
         add(txtFullName);
 
-        addLabel("Email Address:");
+        // Email Address
+        JLabel lblEmail = createLabel("Email Address:");
+        lblEmail.setBounds(30, 105, 180, 35);
+        add(lblEmail);
+
         txtEmail = createTextField(email);
+        txtEmail.setBounds(220, 105, 480, 40);
         add(txtEmail);
 
-        addLabel("Contact Number:");
+        // Contact Number
+        JLabel lblContact = createLabel("Contact Number:");
+        lblContact.setBounds(30, 165, 180, 35);
+        add(lblContact);
+
         txtContact = createTextField("+94 77 123 4567");
+        txtContact.setBounds(220, 165, 480, 40);
         add(txtContact);
 
-        addLabel("NIC Number:");
+        // NIC Number
+        JLabel lblNic = createLabel("NIC Number:");
+        lblNic.setBounds(30, 225, 180, 35);
+        add(lblNic);
+
         txtNic = createTextField("199012345678");
+        txtNic.setBounds(220, 225, 480, 40);
         add(txtNic);
 
-        addLabel("Address:");
+        // Address
+        JLabel lblAddress = createLabel("Address:");
+        lblAddress.setBounds(30, 285, 180, 35);
+        add(lblAddress);
+
         txtAddress = createTextField("Faculty of Technology, University of Ruhuna");
+        txtAddress.setBounds(220, 285, 480, 40);
         add(txtAddress);
 
+        // Save Button
         JButton btnSave = new JButton("Save Profile Changes");
         btnSave.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnSave.setBackground(new Color(0x38, 0x8E, 0x3C));
         btnSave.setForeground(Color.WHITE);
+        btnSave.setFocusPainted(false);
+        btnSave.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnSave.setBounds(220, 355, 240, 45);
         btnSave.addActionListener(e -> saveProfile());
-        add(new JLabel()); // spacer
         add(btnSave);
 
         loadUserData();
     }
 
-    private void addLabel(String text) {
+    private JLabel createLabel(String text) {
         JLabel l = new JLabel(text);
         l.setFont(new Font("Segoe UI", Font.BOLD, 15));
         l.setForeground(Color.BLACK);
-        add(l);
+        return l;
     }
 
     private JTextField createTextField(String val) {
@@ -100,7 +128,7 @@ public class GeneralSettings extends JPanel {
 
     private void saveProfile() {
         try {
-            userDAO.updateAdminProfileSettings(
+            boolean success = userDAO.updateAdminProfileSettings(
                     userId,
                     txtFullName.getText().trim(),
                     txtNic.getText().trim(),
@@ -108,7 +136,11 @@ public class GeneralSettings extends JPanel {
                     txtContact.getText().trim(),
                     txtAddress.getText().trim()
             );
-            JOptionPane.showMessageDialog(this, "Profile updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Profile updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Could not update profile details.", "Update Failed", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error updating profile: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
