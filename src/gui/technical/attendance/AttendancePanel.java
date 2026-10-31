@@ -1,9 +1,9 @@
 
 package gui.technical.attendance;
 
-import dao.AttendanceDAO;
-import dao.CourseDAO;
-import dao.EnrollmentDAO;
+import dao.TechnicalOfficer.AttendanceDAO;
+import dao.TechnicalOfficer.CourseDAO;
+import dao.TechnicalOfficer.EnrollmentDAO;
 
 import model.AttendanceRecord;
 import model.AttendanceSession;

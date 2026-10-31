@@ -1,16 +1,21 @@
 package gui.undergraduate.dashboard.bottom;
 
+import dao.undergraduate.UndergraduateNoticeDAO;
+import dao.undergraduate.UndergraduateNoticeDAO.NoticeItemDTO;
 import gui.admin.AdminTheme;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 1.1.5.2 - Undergraduate Notices Card
+ * Undergraduate Latest Notices Card connected directly to database.
  */
 public class LatestNoticesPanel extends JPanel {
+
+    private final JPanel listPanel;
 
     public LatestNoticesPanel(Consumer<String> navigationCallback) {
         setLayout(new BorderLayout(0, 12));
@@ -20,7 +25,6 @@ public class LatestNoticesPanel extends JPanel {
                 new EmptyBorder(18, 20, 18, 20)
         ));
 
-        // Header Section
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
 
@@ -42,16 +46,35 @@ public class LatestNoticesPanel extends JPanel {
         header.add(viewAllBtn, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // Notices List
-        JPanel listPanel = new JPanel();
+        listPanel = new JPanel();
         listPanel.setOpaque(false);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
-        listPanel.add(createNoticeItem("Semester I Examination Schedule", "Draft examination timetable has been published.", "2026-09-10"));
-        listPanel.add(Box.createVerticalStrut(8));
-        listPanel.add(createNoticeItem("Medical Submissions Deadline", "Submit within 7 days of missed attendance sessions.", "2026-09-08"));
-
         add(listPanel, BorderLayout.CENTER);
+    }
+
+    public void loadLatestNotices() {
+        listPanel.removeAll();
+        List<NoticeItemDTO> notices = UndergraduateNoticeDAO.getActiveNotices();
+
+        int count = 0;
+        for (NoticeItemDTO n : notices) {
+            if (count < 2) {
+                listPanel.add(createNoticeItem(n.title, n.content, n.publishedAt));
+                listPanel.add(Box.createVerticalStrut(8));
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            JLabel empty = new JLabel("No active notices found.");
+            empty.setFont(AdminTheme.font(Font.PLAIN, 12));
+            empty.setForeground(AdminTheme.MUTED);
+            listPanel.add(empty);
+        }
+
+        listPanel.revalidate();
+        listPanel.repaint();
     }
 
     private JPanel createNoticeItem(String noticeTitle, String snippet, String date) {
@@ -66,7 +89,8 @@ public class LatestNoticesPanel extends JPanel {
         titleLbl.setFont(new Font(AdminTheme.FONT_FAMILY, Font.BOLD, 14));
         titleLbl.setForeground(AdminTheme.DEEP_GREEN);
 
-        JLabel desc = new JLabel(snippet);
+        String preview = (snippet.length() > 80) ? snippet.substring(0, 80) + "..." : snippet;
+        JLabel desc = new JLabel(preview);
         desc.setFont(new Font(AdminTheme.FONT_FAMILY, Font.PLAIN, 12));
         desc.setForeground(AdminTheme.TEXT);
 

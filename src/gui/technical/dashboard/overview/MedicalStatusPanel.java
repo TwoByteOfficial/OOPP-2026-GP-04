@@ -1,6 +1,6 @@
 
 package gui.technical.dashboard.overview;
-import dao.TODashboardDAO;
+import dao.TechnicalOfficer.TODashboardDAO;
 import java.sql.SQLException;
 import java.util.function.Consumer;
 

@@ -1,7 +1,7 @@
 
 package gui.technical.dashboard.bottom;
 
-import dao.NoticeDAO;
+import dao.TechnicalOfficer.NoticeDAO;
 import gui.theme.UniMisTheme;
 
 import javax.swing.*;
