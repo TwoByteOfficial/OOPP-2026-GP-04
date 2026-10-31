@@ -242,14 +242,14 @@ public class MarksGradesDAO {
                     }
                 }
 
-                // Insert the mark, or update it if it already exists.
+                // Insert the mark, or update it if it already exists (MySQL 8+ compliant UPSERT syntax).
                 String saveSql =
                         "INSERT INTO marks " +
                                 "(assessment_id, student_id, mark, entered_by) " +
-                                "VALUES (?, ?, ?, ?) " +
+                                "VALUES (?, ?, ?, ?) AS new_val " +
                                 "ON DUPLICATE KEY UPDATE " +
-                                "mark = VALUES(mark), " +
-                                "entered_by = VALUES(entered_by), " +
+                                "mark = new_val.mark, " +
+                                "entered_by = new_val.entered_by, " +
                                 "updated_at = CURRENT_TIMESTAMP";
 
                 try (PreparedStatement statement =
@@ -266,12 +266,12 @@ public class MarksGradesDAO {
                 connection.commit();
 
             } catch (SQLException | RuntimeException e) {
-
                 connection.rollback();
                 throw e;
-
             } finally {
-                connection.setAutoCommit(true);
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException ignored) {}
             }
         }
     }

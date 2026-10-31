@@ -8,7 +8,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,8 @@ public class EligibilityPanel extends JPanel {
     private final JTable eligibilityTable;
     private final JLabel statusLabel = new JLabel("Ready");
 
+    private boolean isUpdatingCombo = false;
+
     public EligibilityPanel(long lecturerId) {
         this.lecturerId = lecturerId;
 
@@ -47,7 +48,11 @@ public class EligibilityPanel extends JPanel {
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(300, 34));
-        courseCombo.addActionListener(e -> loadEligibility());
+        courseCombo.addActionListener(e -> {
+            if (!isUpdatingCombo) {
+                loadEligibility();
+            }
+        });
 
         JButton refreshBtn = new JButton("Refresh");
         refreshBtn.addActionListener(e -> loadEligibility());
@@ -97,6 +102,7 @@ public class EligibilityPanel extends JPanel {
     }
 
     private void loadAssignedCourses() {
+        isUpdatingCombo = true;
         try {
             courseCombo.removeAllItems();
             courseMap.clear();
@@ -110,13 +116,15 @@ public class EligibilityPanel extends JPanel {
                 courseCombo.addItem(label);
                 courseMap.put(label, courseId);
             }
-
-            if (courseCombo.getItemCount() > 0) {
-                loadEligibility();
-            }
         } catch (SQLException e) {
             statusLabel.setText("Failed to load courses.");
             System.err.println("Error loading courses: " + e.getMessage());
+        } finally {
+            isUpdatingCombo = false;
+        }
+
+        if (courseCombo.getItemCount() > 0) {
+            loadEligibility();
         }
     }
 
@@ -135,13 +143,13 @@ public class EligibilityPanel extends JPanel {
             int eligibleCount = 0;
 
             for (Object[] row : rows) {
-                String regNo = (String) row[0];
-                String name = (String) row[1];
-                BigDecimal attPct = (BigDecimal) row[2];
-                BigDecimal caPct = (BigDecimal) row[3];
-                String attReq = (String) row[4];
-                String caReq = (String) row[5];
-                String finalEligibility = (String) row[6];
+                String regNo = row[0] != null ? row[0].toString() : "";
+                String name = row[1] != null ? row[1].toString() : "";
+                String attPct = row[2] != null ? row[2].toString() + "%" : "0.00%";
+                String caPct = row[3] != null ? row[3].toString() + "%" : "0.00%";
+                String attReq = row[4] != null ? row[4].toString() : "";
+                String caReq = row[5] != null ? row[5].toString() : "";
+                String finalEligibility = row[6] != null ? row[6].toString() : "Not Eligible";
 
                 if ("Eligible".equalsIgnoreCase(finalEligibility)) {
                     eligibleCount++;
@@ -150,8 +158,8 @@ public class EligibilityPanel extends JPanel {
                 tableModel.addRow(new Object[]{
                         regNo,
                         name,
-                        attPct != null ? attPct.toPlainString() + "%" : "0.00%",
-                        caPct != null ? caPct.toPlainString() + "%" : "0.00%",
+                        attPct,
+                        caPct,
                         attReq,
                         caReq,
                         finalEligibility
