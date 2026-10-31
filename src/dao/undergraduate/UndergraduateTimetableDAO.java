@@ -8,55 +8,84 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object for Weekly Academic Lecture and Practical Timetable.
+ */
 public class UndergraduateTimetableDAO {
 
-    public static class TimetableSlot {
-        public final String day;
-        public final String timeRange;
-        public final String courseCode;
-        public final String venue;
-        public final String type;
-
-        public TimetableSlot(String day, String timeRange, String courseCode, String venue, String type) {
-            this.day = day;
-            this.timeRange = timeRange;
-            this.courseCode = courseCode;
-            this.venue = venue;
-            this.type = type;
-        }
+    public static class TimetableSlotDTO {
+        public long timetableId;
+        public String dayOfWeek;
+        public String timeRange;
+        public String courseCode;
+        public String courseName;
+        public String component; // 'Theory' or 'Practical'
+        public String venue;
+        public String lecturerName;
     }
 
-    public static List<TimetableSlot> getWeeklyTimetable(String level, String semester) {
-        List<TimetableSlot> slots = new ArrayList<>();
-        String sql = "SELECT t.day_of_week, CONCAT(t.start_time, ' - ', t.end_time) AS timerange, " +
-                "c.course_code, t.venue, t.session_type " +
-                "FROM timetable_entries t JOIN courses c ON t.course_id = c.course_id " +
-                "WHERE c.level = ? AND c.semester = ? ORDER BY t.day_of_week ASC";
+    public static class TimetableSummaryDTO {
+        public int weeklyWorkloadHours = 0;
+        public int activeModulesCount = 0;
+        public int practicalLabsCount = 0;
+        public int activeDaysCount = 0;
+    }
+
+    public static List<TimetableSlotDTO> getStudentWeeklyTimetable(long studentId) {
+        List<TimetableSlotDTO> list = new ArrayList<>();
+        // Query timetable entries for courses the student is enrolled in
+        String sql = "SELECT t.timetable_id, t.day_of_week, " +
+                "DATE_FORMAT(t.start_time, '%H:%i') AS start_t, DATE_FORMAT(t.end_time, '%H:%i') AS end_t, " +
+                "c.course_code, c.course_name, t.component, t.venue, " +
+                "COALESCE(u.full_name, 'Academic Staff') AS lecturer_name " +
+                "FROM timetable_entries t " +
+                "JOIN courses c ON t.course_id = c.course_id " +
+                "JOIN enrollments e ON c.course_id = e.course_id " +
+                "LEFT JOIN users u ON t.lecturer_id = u.user_id " +
+                "WHERE e.student_id = ? AND e.enrollment_status = 'Enrolled' " +
+                "ORDER BY FIELD(t.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), t.start_time ASC";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, level);
-            stmt.setString(2, semester);
-            try (ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    slots.add(new TimetableSlot(
-                            rs.getString("day_of_week"),
-                            rs.getString("timerange"),
-                            rs.getString("course_code"),
-                            rs.getString("venue"),
-                            rs.getString("session_type")
-                    ));
+                    TimetableSlotDTO dto = new TimetableSlotDTO();
+                    dto.timetableId = rs.getLong("timetable_id");
+                    dto.dayOfWeek = rs.getString("day_of_week");
+                    dto.timeRange = rs.getString("start_t") + " - " + rs.getString("end_t");
+                    dto.courseCode = rs.getString("course_code");
+                    dto.courseName = rs.getString("course_name");
+                    dto.component = rs.getString("component");
+                    dto.venue = rs.getString("venue");
+                    dto.lecturerName = rs.getString("lecturer_name");
+                    list.add(dto);
                 }
             }
         } catch (Exception e) {
-            System.err.println("[UndergraduateTimetableDAO] Fallback triggered: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public static TimetableSummaryDTO getTimetableSummary(long studentId) {
+        TimetableSummaryDTO summary = new TimetableSummaryDTO();
+        List<TimetableSlotDTO> slots = getStudentWeeklyTimetable(studentId);
+
+        java.util.Set<String> distinctDays = new java.util.HashSet<>();
+        java.util.Set<String> distinctCourses = new java.util.HashSet<>();
+
+        for (TimetableSlotDTO s : slots) {
+            distinctDays.add(s.dayOfWeek);
+            distinctCourses.add(s.courseCode);
+            summary.weeklyWorkloadHours += 2; // Default 2 hours per session slot
+            if ("Practical".equalsIgnoreCase(s.component)) {
+                summary.practicalLabsCount++;
+            }
         }
 
-        if (slots.isEmpty()) {
-            slots.add(new TimetableSlot("Monday", "08:30 - 10:30", "ICT2132 (Lecture)", "LT-01", "Lecture"));
-            slots.add(new TimetableSlot("Tuesday", "13:30 - 16:30", "ICT2113 (Practical)", "Lab 02", "Lab"));
-            slots.add(new TimetableSlot("Thursday", "10:30 - 12:30", "ICT2122 (Lecture)", "LT-02", "Lecture"));
-        }
-        return slots;
+        summary.activeDaysCount = distinctDays.size();
+        summary.activeModulesCount = distinctCourses.size();
+        return summary;
     }
 }

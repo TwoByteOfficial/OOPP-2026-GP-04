@@ -72,7 +72,6 @@ public class LecturerSidebar extends JPanel {
                 {"Dashboard", "Dashboard"},
                 {"My Courses", "MyCourses"},
                 {"Course Materials", "CourseMaterials"},
-                {"Create Assessment", "CreateAssessment"},
                 {"Marks & Grades", "MarksGrades"},
                 {"Undergraduates", "Undergraduates"},
                 {"Eligibility", "Eligibility"},

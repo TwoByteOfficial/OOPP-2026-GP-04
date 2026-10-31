@@ -1,7 +1,8 @@
 package gui.undergraduate.grades.details;
 
+import dao.undergraduate.UndergraduateGradesDAO.StudentCourseGradeDTO;
+import dao.undergraduate.UndergraduateGradesDAO.TranscriptSummaryDTO;
 import gui.admin.AdminTheme;
-import gui.undergraduate.grades.model.CourseGradeData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,8 +21,11 @@ public class GpaBreakdownPanel extends JPanel {
     private final JLabel gradeBadge;
 
     private final CustomProgressBar firstClassBar;
+    private final JLabel firstClassStatusLabel;
     private final CustomProgressBar secondUpperBar;
+    private final JLabel secondUpperStatusLabel;
     private final CustomProgressBar secondLowerBar;
+    private final JLabel secondLowerStatusLabel;
 
     private final JLabel gpvValueLabel;
     private final JLabel creditsEarnedLabel;
@@ -31,7 +35,6 @@ public class GpaBreakdownPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(18, 20, 18, 20));
 
-        // 1. Header Row
         JPanel headerRow = new JPanel(new BorderLayout());
         headerRow.setOpaque(false);
         headerRow.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -40,7 +43,7 @@ public class GpaBreakdownPanel extends JPanel {
         titleGroup.setOpaque(false);
         titleGroup.setLayout(new BoxLayout(titleGroup, BoxLayout.Y_AXIS));
 
-        courseTitleLabel = new JLabel("Object Oriented Programming (ICT2112)");
+        courseTitleLabel = new JLabel("Select Course Module");
         courseTitleLabel.setFont(AdminTheme.font(Font.BOLD, 16));
         courseTitleLabel.setForeground(AdminTheme.FOREST_GREEN);
 
@@ -52,7 +55,7 @@ public class GpaBreakdownPanel extends JPanel {
         titleGroup.add(Box.createVerticalStrut(3));
         titleGroup.add(subDetailsLabel);
 
-        gradeBadge = new JLabel("Grade: A");
+        gradeBadge = new JLabel("Grade: -");
         gradeBadge.setFont(AdminTheme.font(Font.BOLD, 12));
         gradeBadge.setForeground(AdminTheme.FOREST_GREEN);
         gradeBadge.setBorder(BorderFactory.createCompoundBorder(
@@ -72,7 +75,6 @@ public class GpaBreakdownPanel extends JPanel {
         add(sep);
         add(Box.createVerticalStrut(14));
 
-        // 2. Honours Benchmarks Heading
         JLabel benchHeading = new JLabel("Degree Classification Benchmarks");
         benchHeading.setFont(AdminTheme.font(Font.BOLD, 14));
         benchHeading.setForeground(AdminTheme.DEEP_GREEN);
@@ -80,34 +82,34 @@ public class GpaBreakdownPanel extends JPanel {
         add(benchHeading);
         add(Box.createVerticalStrut(14));
 
-        // 3. Honours Benchmark Bars
-        firstClassBar = new CustomProgressBar(91, AdminTheme.FOREST_GREEN); // 3.65 on 4.0 scale
-        add(createBenchmarkRow("First Class Honours (CGPA >= 3.70)", "Current: 3.65", firstClassBar));
+        firstClassStatusLabel = new JLabel("Current: 0.00");
+        firstClassBar = new CustomProgressBar(0, AdminTheme.FOREST_GREEN);
+        add(createBenchmarkRow("First Class Honours (CGPA >= 3.70)", firstClassStatusLabel, firstClassBar));
         add(Box.createVerticalStrut(12));
 
-        secondUpperBar = new CustomProgressBar(100, AdminTheme.MEDIUM_GREEN);
-        add(createBenchmarkRow("Second Class Upper (CGPA >= 3.30)", "Qualified", secondUpperBar));
+        secondUpperStatusLabel = new JLabel("Pending");
+        secondUpperBar = new CustomProgressBar(0, AdminTheme.MEDIUM_GREEN);
+        add(createBenchmarkRow("Second Class Upper (CGPA >= 3.30)", secondUpperStatusLabel, secondUpperBar));
         add(Box.createVerticalStrut(12));
 
-        secondLowerBar = new CustomProgressBar(100, AdminTheme.MEDIUM_GREEN);
-        add(createBenchmarkRow("Second Class Lower (CGPA >= 3.00)", "Qualified", secondLowerBar));
+        secondLowerStatusLabel = new JLabel("Pending");
+        secondLowerBar = new CustomProgressBar(0, AdminTheme.MEDIUM_GREEN);
+        add(createBenchmarkRow("Second Class Lower (CGPA >= 3.00)", secondLowerStatusLabel, secondLowerBar));
         add(Box.createVerticalStrut(16));
 
-        // 4. Performance Stat Pills
         JPanel pillsRow = new JPanel(new GridLayout(1, 2, 10, 0));
         pillsRow.setOpaque(false);
         pillsRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         pillsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
 
-        gpvValueLabel = new JLabel("Grade Point (GPV): 4.00");
-        creditsEarnedLabel = new JLabel("Credits Counted: 3");
+        gpvValueLabel = new JLabel("Grade Point (GPV): 0.00");
+        creditsEarnedLabel = new JLabel("Credits Counted: 0");
         pillsRow.add(createStatPill(gpvValueLabel));
         pillsRow.add(createStatPill(creditsEarnedLabel));
         add(pillsRow);
 
         add(Box.createVerticalStrut(12));
 
-        // 5. Senate Regulation Notice
         JPanel noticeCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
         noticeCard.setOpaque(true);
         noticeCard.setBackground(AdminTheme.MINT);
@@ -122,26 +124,64 @@ public class GpaBreakdownPanel extends JPanel {
         add(noticeCard);
     }
 
-    public void updateCourseSelection(CourseGradeData data) {
+    public void updateCourseSelection(StudentCourseGradeDTO data) {
         if (data == null) return;
 
-        courseTitleLabel.setText(data.getCourseName() + " (" + data.getCourseCode() + ")");
-        gradeBadge.setText("Grade: " + data.getGrade());
-        gpvValueLabel.setText(String.format("Grade Point (GPV): %.2f", data.getGpv()));
-        creditsEarnedLabel.setText("Credits Counted: " + data.getCredits());
+        courseTitleLabel.setText(data.courseName + " (" + data.courseCode + ")");
+        gradeBadge.setText("Grade: " + data.grade);
+        gpvValueLabel.setText(String.format("Grade Point (GPV): %.2f", data.gpv));
+        creditsEarnedLabel.setText("Credits Counted: " + data.credits);
 
-        if ("A".equals(data.getGrade()) || "A+".equals(data.getGrade()) || "A-".equals(data.getGrade())) {
+        if (data.grade.startsWith("A")) {
             gradeBadge.setForeground(AdminTheme.FOREST_GREEN);
-        } else if ("B+".equals(data.getGrade()) || "B".equals(data.getGrade()) || "B-".equals(data.getGrade())) {
+        } else if (data.grade.startsWith("B")) {
             gradeBadge.setForeground(AdminTheme.MEDIUM_GREEN);
-        } else if ("Pending".equalsIgnoreCase(data.getStatus())) {
+        } else if (data.grade.startsWith("C")) {
             gradeBadge.setForeground(AdminTheme.WARNING);
         } else {
             gradeBadge.setForeground(AdminTheme.DANGER);
         }
     }
 
-    private JPanel createBenchmarkRow(String name, String status, CustomProgressBar bar) {
+    public void updateHonoursBenchmarks(TranscriptSummaryDTO summary) {
+        if (summary == null) return;
+        double cgpa = summary.cgpa;
+
+        firstClassStatusLabel.setText(String.format("Current: %.2f", cgpa));
+        int firstClassProgress = (int) Math.min(100, Math.round((cgpa / 4.0) * 100.0));
+        firstClassBar.setProgress(firstClassProgress);
+
+        if (cgpa >= 3.70) {
+            firstClassStatusLabel.setText("Qualified (First Class)");
+            firstClassStatusLabel.setForeground(AdminTheme.FOREST_GREEN);
+        } else {
+            firstClassStatusLabel.setForeground(AdminTheme.MUTED);
+        }
+
+        if (cgpa >= 3.30) {
+            secondUpperStatusLabel.setText("Qualified");
+            secondUpperStatusLabel.setForeground(AdminTheme.FOREST_GREEN);
+            secondUpperBar.setProgress(100);
+        } else {
+            int p = (int) Math.min(100, Math.round((cgpa / 3.30) * 100.0));
+            secondUpperStatusLabel.setText(String.format("%.2f / 3.30", cgpa));
+            secondUpperStatusLabel.setForeground(AdminTheme.MUTED);
+            secondUpperBar.setProgress(p);
+        }
+
+        if (cgpa >= 3.00) {
+            secondLowerStatusLabel.setText("Qualified");
+            secondLowerStatusLabel.setForeground(AdminTheme.FOREST_GREEN);
+            secondLowerBar.setProgress(100);
+        } else {
+            int p = (int) Math.min(100, Math.round((cgpa / 3.00) * 100.0));
+            secondLowerStatusLabel.setText(String.format("%.2f / 3.00", cgpa));
+            secondLowerStatusLabel.setForeground(AdminTheme.MUTED);
+            secondLowerBar.setProgress(p);
+        }
+    }
+
+    private JPanel createBenchmarkRow(String name, JLabel valLbl, CustomProgressBar bar) {
         JPanel row = new JPanel(new BorderLayout(0, 5));
         row.setOpaque(false);
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -153,9 +193,7 @@ public class GpaBreakdownPanel extends JPanel {
         title.setFont(AdminTheme.font(Font.PLAIN, 13));
         title.setForeground(new Color(0x33, 0x33, 0x33));
 
-        JLabel valLbl = new JLabel(status);
         valLbl.setFont(AdminTheme.font(Font.BOLD, 12));
-        valLbl.setForeground(AdminTheme.DEEP_GREEN);
 
         header.add(title, BorderLayout.WEST);
         header.add(valLbl, BorderLayout.EAST);
@@ -200,6 +238,11 @@ public class GpaBreakdownPanel extends JPanel {
             this.progress = progress;
             this.fillColor = fillColor;
             setPreferredSize(new Dimension(0, 8));
+        }
+
+        void setProgress(int p) {
+            this.progress = Math.min(100, Math.max(0, p));
+            repaint();
         }
 
         @Override

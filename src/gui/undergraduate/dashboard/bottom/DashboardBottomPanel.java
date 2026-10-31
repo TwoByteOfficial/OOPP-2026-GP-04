@@ -5,18 +5,26 @@ import java.awt.*;
 import java.util.function.Consumer;
 
 /**
- * 1.1.5 - Bottom Row combining Timetable & Notices
+ * Bottom Row combining Timetable & Notices with dynamic DB loading.
  */
 public class DashboardBottomPanel extends JPanel {
+
+    private final StudentTimetablePanel timetablePanel;
+    private final LatestNoticesPanel noticesPanel;
 
     public DashboardBottomPanel(Consumer<String> navigationCallback) {
         setOpaque(false);
         setLayout(new GridLayout(1, 2, 16, 0));
 
-        // 1.1.5.1
-        add(new StudentTimetablePanel(navigationCallback));
+        timetablePanel = new StudentTimetablePanel(navigationCallback);
+        noticesPanel = new LatestNoticesPanel(navigationCallback);
 
-        // 1.1.5.2
-        add(new LatestNoticesPanel(navigationCallback));
+        add(timetablePanel);
+        add(noticesPanel);
+    }
+
+    public void refreshData(long studentId) {
+        timetablePanel.loadTodaySchedule(studentId);
+        noticesPanel.loadLatestNotices();
     }
 }

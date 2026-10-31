@@ -1,9 +1,9 @@
-package dao;
+package dao.TechnicalOfficer;
 import model.AttendanceSession;
 
 import util.DBConnection;
 import model.AttendanceRecord;
-import model.Medical;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package dao;
+package dao.TechnicalOfficer;
 
 import util.DBConnection;
 import model.Course;
