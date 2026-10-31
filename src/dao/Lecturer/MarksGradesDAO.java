@@ -23,9 +23,8 @@ public class MarksGradesDAO {
                         "AND c.status = 'Active' " +
                         "ORDER BY c.course_code";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
             statement.setLong(1, lecturerUserId);
 
@@ -63,9 +62,8 @@ public class MarksGradesDAO {
                         ") " +
                         "ORDER BY a.assessment_date, a.assessment_id";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
             statement.setInt(1, courseId);
             statement.setLong(2, lecturerUserId);
@@ -114,9 +112,8 @@ public class MarksGradesDAO {
                         ") " +
                         "ORDER BY ug.registration_no";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
             statement.setInt(1, courseId);
             statement.setLong(2, assessmentId);
@@ -163,116 +160,111 @@ public class MarksGradesDAO {
             );
         }
 
-        try (Connection connection = DBConnection.getConnection()) {
+        DBConnection.LEC_CON.setAutoCommit(false);
 
-            connection.setAutoCommit(false);
+        try {
+            // Verify lecturer assignment and obtain the assessment maximum.
+            String assessmentSql =
+                    "SELECT a.max_mark " +
+                            "FROM assessments a " +
+                            "WHERE a.assessment_id = ? " +
+                            "AND a.course_id = ? " +
+                            "AND EXISTS (" +
+                            "    SELECT 1 FROM course_lecturers cl " +
+                            "    WHERE cl.course_id = a.course_id " +
+                            "    AND cl.lecturer_id = ?" +
+                            ") " +
+                            "FOR UPDATE";
 
-            try {
-                // Verify lecturer assignment and obtain the assessment maximum.
-                String assessmentSql =
-                        "SELECT a.max_mark " +
-                                "FROM assessments a " +
-                                "WHERE a.assessment_id = ? " +
-                                "AND a.course_id = ? " +
-                                "AND EXISTS (" +
-                                "    SELECT 1 FROM course_lecturers cl " +
-                                "    WHERE cl.course_id = a.course_id " +
-                                "    AND cl.lecturer_id = ?" +
-                                ") " +
-                                "FOR UPDATE";
+            BigDecimal maxMark;
 
-                BigDecimal maxMark;
+            try (PreparedStatement statement =
+                         DBConnection.LEC_CON.prepareStatement(assessmentSql)) {
 
-                try (PreparedStatement statement =
-                             connection.prepareStatement(assessmentSql)) {
+                statement.setLong(1, assessmentId);
+                statement.setInt(2, courseId);
+                statement.setLong(3, lecturerUserId);
 
-                    statement.setLong(1, assessmentId);
-                    statement.setInt(2, courseId);
-                    statement.setLong(3, lecturerUserId);
-
-                    try (ResultSet result = statement.executeQuery()) {
-                        if (!result.next()) {
-                            throw new SQLException(
-                                    "Assessment not found or you are not " +
-                                            "assigned to this course."
-                            );
-                        }
-
-                        maxMark = result.getBigDecimal("max_mark");
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
+                        throw new SQLException(
+                                "Assessment not found or you are not " +
+                                        "assigned to this course."
+                        );
                     }
+
+                    maxMark = result.getBigDecimal("max_mark");
                 }
-
-                if (maxMark == null ||
-                        maxMark.compareTo(BigDecimal.ZERO) <= 0) {
-
-                    throw new SQLException(
-                            "The assessment maximum mark is invalid."
-                    );
-                }
-
-                if (mark.compareTo(maxMark) > 0) {
-                    throw new IllegalArgumentException(
-                            "Mark cannot exceed the assessment maximum of " +
-                                    maxMark.toPlainString() + "."
-                    );
-                }
-
-                // Verify that the student is actively enrolled.
-                String enrollmentSql =
-                        "SELECT 1 " +
-                                "FROM enrollments " +
-                                "WHERE course_id = ? " +
-                                "AND student_id = ? " +
-                                "AND enrollment_status = 'Enrolled' " +
-                                "LIMIT 1";
-
-                try (PreparedStatement statement =
-                             connection.prepareStatement(enrollmentSql)) {
-
-                    statement.setInt(1, courseId);
-                    statement.setLong(2, studentId);
-
-                    try (ResultSet result = statement.executeQuery()) {
-                        if (!result.next()) {
-                            throw new SQLException(
-                                    "The student is not actively enrolled " +
-                                            "in this course."
-                            );
-                        }
-                    }
-                }
-
-                // Insert the mark, or update it if it already exists (MySQL 8+ compliant UPSERT syntax).
-                String saveSql =
-                        "INSERT INTO marks " +
-                                "(assessment_id, student_id, mark, entered_by) " +
-                                "VALUES (?, ?, ?, ?) AS new_val " +
-                                "ON DUPLICATE KEY UPDATE " +
-                                "mark = new_val.mark, " +
-                                "entered_by = new_val.entered_by, " +
-                                "updated_at = CURRENT_TIMESTAMP";
-
-                try (PreparedStatement statement =
-                             connection.prepareStatement(saveSql)) {
-
-                    statement.setLong(1, assessmentId);
-                    statement.setLong(2, studentId);
-                    statement.setBigDecimal(3, mark);
-                    statement.setLong(4, lecturerUserId);
-
-                    statement.executeUpdate();
-                }
-
-                connection.commit();
-
-            } catch (SQLException | RuntimeException e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                try {
-                    connection.setAutoCommit(true);
-                } catch (SQLException ignored) {}
             }
+
+            if (maxMark == null ||
+                    maxMark.compareTo(BigDecimal.ZERO) <= 0) {
+
+                throw new SQLException(
+                        "The assessment maximum mark is invalid."
+                );
+            }
+
+            if (mark.compareTo(maxMark) > 0) {
+                throw new IllegalArgumentException(
+                        "Mark cannot exceed the assessment maximum of " +
+                                maxMark.toPlainString() + "."
+                );
+            }
+
+            // Verify that the student is actively enrolled.
+            String enrollmentSql =
+                    "SELECT 1 " +
+                            "FROM enrollments " +
+                            "WHERE course_id = ? " +
+                            "AND student_id = ? " +
+                            "AND enrollment_status = 'Enrolled' " +
+                            "LIMIT 1";
+
+            try (PreparedStatement statement =
+                         DBConnection.LEC_CON.prepareStatement(enrollmentSql)) {
+
+                statement.setInt(1, courseId);
+                statement.setLong(2, studentId);
+
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
+                        throw new SQLException(
+                                "The student is not actively enrolled " +
+                                        "in this course."
+                        );
+                    }
+                }
+            }
+
+            // Insert the mark, or update it if it already exists (MySQL 8+ compliant UPSERT syntax).
+            String saveSql =
+                    "INSERT INTO marks " +
+                            "(assessment_id, student_id, mark, entered_by) " +
+                            "VALUES (?, ?, ?, ?) AS new_val " +
+                            "ON DUPLICATE KEY UPDATE " +
+                            "mark = new_val.mark, " +
+                            "entered_by = new_val.entered_by, " +
+                            "updated_at = CURRENT_TIMESTAMP";
+
+            try (PreparedStatement statement =
+                         DBConnection.LEC_CON.prepareStatement(saveSql)) {
+
+                statement.setLong(1, assessmentId);
+                statement.setLong(2, studentId);
+                statement.setBigDecimal(3, mark);
+                statement.setLong(4, lecturerUserId);
+
+                statement.executeUpdate();
+            }
+
+            DBConnection.LEC_CON.commit();
+
+        } catch (SQLException | RuntimeException e) {
+            DBConnection.LEC_CON.rollback();
+            throw e;
+        } finally {
+            DBConnection.LEC_CON.setAutoCommit(true);
         }
     }
 }

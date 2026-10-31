@@ -26,8 +26,8 @@ public final class AuthService {
         String sql = "SELECT user_id, full_name, email, role, password_hash, user_status " +
                 "FROM users WHERE username = ?";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        // Uses DBConnection.AUTH_CON (the unimisauth connection object)
+        try (PreparedStatement ps = DBConnection.AUTH_CON.prepareStatement(sql)) {
 
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
@@ -54,11 +54,14 @@ public final class AuthService {
 
     public static boolean resetPassword(String username, String email, String nic, String newPassword)
             throws SQLException {
-        String sql = "UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP " +
+        // updated_at is not set here: the column is ON UPDATE CURRENT_TIMESTAMP,
+        // so MySQL refreshes it automatically and the AUTH account only needs
+        // UPDATE permission on password_hash.
+        String sql = "UPDATE users SET password_hash = ? " +
                 "WHERE username = ? AND email = ? AND nic = ? AND user_status <> 'Suspended'";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        // Uses DBConnection.AUTH_CON (the unimisauth connection object)
+        try (PreparedStatement ps = DBConnection.AUTH_CON.prepareStatement(sql)) {
             ps.setString(1, hashPassword(newPassword));
             ps.setString(2, username);
             ps.setString(3, email);

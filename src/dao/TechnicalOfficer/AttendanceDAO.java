@@ -1,8 +1,8 @@
 package dao.TechnicalOfficer;
-import model.AttendanceSession;
 
-import util.DBConnection;
+import model.AttendanceSession;
 import model.AttendanceRecord;
+import util.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,12 +13,12 @@ public class AttendanceDAO {
 
     public boolean recordAttendanceBatch(List<AttendanceRecord> records) throws SQLException {
         String sql = "INSERT INTO attendance_records (attendance_session_id, student_id, attendance_status, remarks, recorded_by) " +
-                     "VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE attendance_status = VALUES(attendance_status), remarks = VALUES(remarks)";
-        Connection conn = DBConnection.getConnection();
-        boolean success = false;
+                "VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE attendance_status = VALUES(attendance_status), remarks = VALUES(remarks)";
+
+        DBConnection.TO_CON.setAutoCommit(false);
+
         try {
-            conn.setAutoCommit(false);
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
                 for (AttendanceRecord r : records) {
                     stmt.setLong(1, r.getAttendanceSessionId());
                     stmt.setLong(2, r.getStudentId());
@@ -29,20 +29,16 @@ public class AttendanceDAO {
                 }
                 stmt.executeBatch();
             }
-            conn.commit();
-            success = true;
-        } catch (SQLException e) {
-            conn.rollback();
+
+            DBConnection.TO_CON.commit();
+            return true;
+        } catch (SQLException | RuntimeException e) {
+            DBConnection.TO_CON.rollback();
             throw e;
         } finally {
-            try {
-                conn.close();
-            } catch (SQLException ignored) {}
+            DBConnection.TO_CON.setAutoCommit(true);
         }
-        return success;
     }
-
-
 
 
     public List<AttendanceSession> getSessionsByCourse(
@@ -54,8 +50,7 @@ public class AttendanceDAO {
                 "WHERE course_id = ? AND component = ? " +
                 "ORDER BY session_no";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setInt(1, courseId);
             stmt.setString(2, component);
@@ -90,8 +85,6 @@ public class AttendanceDAO {
     }
 
 
-
-
     public List<AttendanceRecord> getAttendanceBySession(
             long sessionId) throws SQLException {
 
@@ -103,8 +96,7 @@ public class AttendanceDAO {
                 "WHERE attendance_session_id = ? " +
                 "ORDER BY student_id";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, sessionId);
 
@@ -136,42 +128,35 @@ public class AttendanceDAO {
     }
 
 
-
-
     public boolean approveMedical(long medicalId, long reviewerId, String comment) throws SQLException {
-        Connection conn = DBConnection.getConnection();
-        boolean success = false;
-        try {
-            conn.setAutoCommit(false);
+        String mSql = "UPDATE medicals SET approval_status = 'Approved', reviewed_by = ?, reviewed_at = NOW(), review_comment = ? WHERE medical_id = ?";
+        String arSql = "UPDATE attendance_records ar JOIN medicals m ON m.attendance_record_id = ar.attendance_record_id " +
+                "SET ar.attendance_status = 'PRESENT' WHERE m.medical_id = ? AND ar.attendance_record_id > 0";
 
-            String mSql = "UPDATE medicals SET approval_status = 'Approved', reviewed_by = ?, reviewed_at = NOW(), review_comment = ? WHERE medical_id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(mSql)) {
+        DBConnection.TO_CON.setAutoCommit(false);
+
+        try {
+            try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(mSql)) {
                 stmt.setLong(1, reviewerId);
                 stmt.setString(2, comment);
                 stmt.setLong(3, medicalId);
                 stmt.executeUpdate();
             }
 
-            String arSql = "UPDATE attendance_records ar JOIN medicals m ON m.attendance_record_id = ar.attendance_record_id " +
-                           "SET ar.attendance_status = 'PRESENT' WHERE m.medical_id = ? AND ar.attendance_record_id > 0";
-            try (PreparedStatement stmt = conn.prepareStatement(arSql)) {
+            try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(arSql)) {
                 stmt.setLong(1, medicalId);
                 stmt.executeUpdate();
             }
 
-            conn.commit();
-            success = true;
-        } catch (SQLException e) {
-            conn.rollback();
+            DBConnection.TO_CON.commit();
+            return true;
+        } catch (SQLException | RuntimeException e) {
+            DBConnection.TO_CON.rollback();
             throw e;
         } finally {
-            try {
-                conn.close();
-            } catch (SQLException ignored) {}
+            DBConnection.TO_CON.setAutoCommit(true);
         }
-        return success;
     }
-
 
 
     public boolean rejectMedical(long medicalId, long reviewerId, String comment)
@@ -182,8 +167,7 @@ public class AttendanceDAO {
                 "reviewed_by = ?, reviewed_at = NOW(), review_comment = ? " +
                 "WHERE medical_id = ? AND approval_status = 'Pending'";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, reviewerId);
             stmt.setString(2, comment);
@@ -192,7 +176,5 @@ public class AttendanceDAO {
             return stmt.executeUpdate() > 0;
         }
     }
-
-
 
 }

@@ -1,9 +1,7 @@
-
 package dao.Lecturer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,8 +38,7 @@ public class LecturerProfileDAO {
                 "ON u.department_id = d.department_id " +
                 "WHERE u.user_id = ?";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             ps.setLong(1, userId);
 
@@ -156,12 +153,14 @@ public class LecturerProfileDAO {
                         "JOIN lecturers l ON u.user_id = l.user_id " +
                         "WHERE u.user_id = ?";
 
+        // updated_at is not set here: it refreshes itself through
+        // ON UPDATE CURRENT_TIMESTAMP, and the lecturer account has no
+        // UPDATE privilege on that column.
         String userSql =
                 "UPDATE users SET " +
                         "full_name = ?, nic = ?, email = ?, " +
                         "contact_no = ?, address = ?, " +
-                        "profile_picture = ?, " +
-                        "updated_at = CURRENT_TIMESTAMP " +
+                        "profile_picture = ? " +
                         "WHERE user_id = ?";
 
         String lecturerSql =
@@ -169,86 +168,75 @@ public class LecturerProfileDAO {
                         "specialization = ? " +
                         "WHERE user_id = ?";
 
-        try (Connection con = DBConnection.getConnection()) {
+        DBConnection.LEC_CON.setAutoCommit(false);
 
-            boolean originalAutoCommit = con.getAutoCommit();
+        try {
 
-            try {
-                con.setAutoCommit(false);
+            // Check whether this user is a lecturer.
+            try (PreparedStatement ps =
+                         DBConnection.LEC_CON.prepareStatement(checkSql)) {
 
-                // Check whether this user is a lecturer.
-                try (PreparedStatement ps =
-                             con.prepareStatement(checkSql)) {
+                ps.setLong(1, userId);
 
-                    ps.setLong(1, userId);
-
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (!rs.next()) {
-                            con.rollback();
-                            return false;
-                        }
-                    }
-                }
-
-                // Update users table.
-                try (PreparedStatement ps =
-                             con.prepareStatement(userSql)) {
-
-                    ps.setString(1, fullName.trim());
-                    ps.setString(2, nic);
-                    ps.setString(3, email.trim());
-                    ps.setString(4, contactNo);
-                    ps.setString(5, address);
-
-                    // Empty string removes the picture.
-                    ps.setString(
-                            6,
-                            profilePicture == null
-                                    ? "" : profilePicture.trim()
-                    );
-
-                    ps.setLong(7, userId);
-
-                    int userRows = ps.executeUpdate();
-
-                    if (userRows == 0) {
-                        con.rollback();
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        DBConnection.LEC_CON.rollback();
                         return false;
                     }
                 }
-
-                // Update lecturers table.
-                try (PreparedStatement ps =
-                             con.prepareStatement(lecturerSql)) {
-
-                    ps.setString(1, title);
-                    ps.setString(2, specialization);
-                    ps.setLong(3, userId);
-
-                    int lecturerRows = ps.executeUpdate();
-
-                    if (lecturerRows == 0) {
-                        con.rollback();
-                        return false;
-                    }
-                }
-
-                con.commit();
-                return true;
-
-            } catch (SQLException e) {
-
-                try {
-                    con.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
-
-                throw e;
-
-            } finally {
-                con.setAutoCommit(originalAutoCommit);
             }
+
+            // Update users table.
+            try (PreparedStatement ps =
+                         DBConnection.LEC_CON.prepareStatement(userSql)) {
+
+                ps.setString(1, fullName.trim());
+                ps.setString(2, nic);
+                ps.setString(3, email.trim());
+                ps.setString(4, contactNo);
+                ps.setString(5, address);
+
+                // Empty string removes the picture.
+                ps.setString(
+                        6,
+                        profilePicture == null
+                                ? "" : profilePicture.trim()
+                );
+
+                ps.setLong(7, userId);
+
+                int userRows = ps.executeUpdate();
+
+                if (userRows == 0) {
+                    DBConnection.LEC_CON.rollback();
+                    return false;
+                }
+            }
+
+            // Update lecturers table.
+            try (PreparedStatement ps =
+                         DBConnection.LEC_CON.prepareStatement(lecturerSql)) {
+
+                ps.setString(1, title);
+                ps.setString(2, specialization);
+                ps.setLong(3, userId);
+
+                int lecturerRows = ps.executeUpdate();
+
+                if (lecturerRows == 0) {
+                    DBConnection.LEC_CON.rollback();
+                    return false;
+                }
+            }
+
+            DBConnection.LEC_CON.commit();
+            return true;
+
+        } catch (SQLException | RuntimeException e) {
+            DBConnection.LEC_CON.rollback();
+            throw e;
+        } finally {
+            DBConnection.LEC_CON.setAutoCommit(true);
         }
     }
 }

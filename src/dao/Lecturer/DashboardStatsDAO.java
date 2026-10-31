@@ -1,9 +1,7 @@
-
 package dao.Lecturer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,8 +24,7 @@ public class DashboardStatsDAO {
                         "AND c.status = 'Active' " +
                         "AND e.enrollment_status = 'Enrolled'";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             ps.setLong(1, lecturerId);
 
@@ -63,8 +60,7 @@ public class DashboardStatsDAO {
                         "AND e.enrollment_status = 'Enrolled' " +
                         "AND m.mark_id IS NULL";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             ps.setLong(1, lecturerId);
 
@@ -95,8 +91,7 @@ public class DashboardStatsDAO {
                         "OR n.department_id = " +
                         "(SELECT department_id FROM users WHERE user_id = ?))";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             ps.setLong(1, lecturerId);
 

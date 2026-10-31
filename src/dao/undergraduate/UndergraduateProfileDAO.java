@@ -3,7 +3,6 @@ package dao.undergraduate;
 import util.DBConnection;
 import gui.undergraduate.profile.model.UserProfileData;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -17,8 +16,7 @@ public class UndergraduateProfileDAO {
                 "LEFT JOIN departments d ON u.department_id = d.department_id " +
                 "WHERE u.user_id = ? OR u.username = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = DBConnection.UG_CON.prepareStatement(query)) {
 
             stmt.setLong(1, userId);
             stmt.setString(2, username);
@@ -59,8 +57,7 @@ public class UndergraduateProfileDAO {
 
     public static boolean updateContactDetails(long userId, String contactNo, String address, String picturePath) {
         String query = "UPDATE users SET contact_no = ?, address = ?, profile_picture = ? WHERE user_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = DBConnection.UG_CON.prepareStatement(query)) {
             stmt.setString(1, contactNo);
             stmt.setString(2, address);
             stmt.setString(3, picturePath);
@@ -74,8 +71,7 @@ public class UndergraduateProfileDAO {
 
     public static boolean updatePassword(long userId, String newPassword) {
         String query = "UPDATE users SET password_hash = ? WHERE user_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = DBConnection.UG_CON.prepareStatement(query)) {
             stmt.setString(1, newPassword);
             stmt.setLong(2, userId);
             return stmt.executeUpdate() > 0;
