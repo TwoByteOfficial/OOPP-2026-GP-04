@@ -1,7 +1,7 @@
 
 package gui.technical;
 
-import dao.TechnicalOfficerProfileDAO;
+import dao.TechnicalOfficer.TechnicalOfficerProfileDAO;
 import gui.theme.UniMisTheme;
 import model.TechnicalOfficer;
 

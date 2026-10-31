@@ -1,7 +1,7 @@
 
 package gui.technical.dashboard.summary;
 
-import dao.TODashboardDAO;
+import dao.TechnicalOfficer.TODashboardDAO;
 
 import javax.swing.*;
 import java.awt.*;
