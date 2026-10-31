@@ -9,6 +9,9 @@ public class TechnicalOfficer extends User {
         setRole("Technical Officer");
     }
 
+    public TechnicalOfficer(long userId, String technicalOfficerCode, String designation) {
+    }
+
     public String getTechnicalOfficerCode() { return technicalOfficerCode; }
     public void setTechnicalOfficerCode(String technicalOfficerCode) { this.technicalOfficerCode = technicalOfficerCode; }
     public String getDesignation() { return designation; }

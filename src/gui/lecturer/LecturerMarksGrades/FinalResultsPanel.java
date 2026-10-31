@@ -31,6 +31,8 @@ public class FinalResultsPanel extends JPanel {
     private final JTable resultsTable;
     private final JLabel statusLabel = new JLabel("Ready");
 
+    private boolean isUpdatingCombo = false;
+
     public FinalResultsPanel(long lecturerId) {
         this.lecturerId = lecturerId;
 
@@ -47,7 +49,11 @@ public class FinalResultsPanel extends JPanel {
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(300, 34));
-        courseCombo.addActionListener(e -> loadFinalResults());
+        courseCombo.addActionListener(e -> {
+            if (!isUpdatingCombo) {
+                loadFinalResults();
+            }
+        });
 
         JButton refreshBtn = new JButton("Refresh");
         refreshBtn.addActionListener(e -> loadFinalResults());
@@ -97,6 +103,7 @@ public class FinalResultsPanel extends JPanel {
     }
 
     private void loadAssignedCourses() {
+        isUpdatingCombo = true;
         try {
             courseCombo.removeAllItems();
             courseMap.clear();
@@ -110,13 +117,15 @@ public class FinalResultsPanel extends JPanel {
                 courseCombo.addItem(label);
                 courseMap.put(label, courseId);
             }
-
-            if (courseCombo.getItemCount() > 0) {
-                loadFinalResults();
-            }
         } catch (SQLException e) {
             statusLabel.setText("Failed to load courses.");
             System.err.println("Error loading courses: " + e.getMessage());
+        } finally {
+            isUpdatingCombo = false;
+        }
+
+        if (courseCombo.getItemCount() > 0) {
+            loadFinalResults();
         }
     }
 
@@ -134,19 +143,34 @@ public class FinalResultsPanel extends JPanel {
             List<Object[]> results = resultsDAO.getFinalResults(courseId);
 
             for (Object[] row : results) {
+                // Bounds-safe array mapping for row indices 0..12
+                String regNo = row.length > 0 && row[0] != null ? row[0].toString() : "";
+                String name  = row.length > 1 && row[1] != null ? row[1].toString() : "";
+                String credits = row.length > 2 && row[2] != null ? row[2].toString() : "2.0";
+                String caMark = row.length > 3 && row[3] != null ? row[3].toString() : "0.00";
+                String finalExam = row.length > 4 && row[4] != null ? row[4].toString() : "0.00";
+                String finalMark = row.length > 5 && row[5] != null ? row[5].toString() : "0.00";
+                String attPct = row.length > 6 && row[6] != null ? row[6].toString() + "%" : "0.0%";
+                String eligibility = row.length > 7 && row[7] != null ? row[7].toString() : "Not Eligible";
+                String grade = row.length > 8 && row[8] != null ? row[8].toString() : "F";
+                String gradePoint = row.length > 9 && row[9] != null ? row[9].toString() : "0.00";
+                String sgpa = row.length > 10 && row[10] != null ? row[10].toString() : "N/A";
+                // Index 11 is semester_credits from DAO
+                String cgpa = row.length > 12 && row[12] != null ? row[12].toString() : "N/A";
+
                 tableModel.addRow(new Object[]{
-                        row[0], // Reg No
-                        row[1], // Name
-                        row[2] != null ? row[2].toString() : "2.0", // Credits
-                        row[3] != null ? row[3].toString() : "0.00", // CA Mark
-                        row[4] != null ? row[4].toString() : "0.00", // Final Exam
-                        row[5] != null ? row[5].toString() : "0.00", // Final Mark
-                        row[6] != null ? row[6].toString() + "%" : "0.0%", // Attendance %
-                        row[7], // Eligibility
-                        row[8], // Grade
-                        row[9] != null ? row[9].toString() : "0.00", // Grade Point
-                        row[10] != null ? row[10].toString() : "N/A", // SGPA
-                        row[12] != null ? row[12].toString() : "N/A"  // CGPA
+                        regNo,
+                        name,
+                        credits,
+                        caMark,
+                        finalExam,
+                        finalMark,
+                        attPct,
+                        eligibility,
+                        grade,
+                        gradePoint,
+                        sgpa,
+                        cgpa
                 });
             }
 

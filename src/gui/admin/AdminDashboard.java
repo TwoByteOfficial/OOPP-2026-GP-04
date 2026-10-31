@@ -1,78 +1,83 @@
 package gui.admin;
 
 import gui.admin.DashboardComponents.*;
-
+import dao.admin.AdminDashboardDAO;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
+import java.util.HashMap;
 
-/**
- * Dashboard page.
- * Composes all dashboard components (title bar + summary widgets).
- * Currently shows simple logged-in-admin test data so sub-components
- * can be developed/tested one by one.
- */
 public class AdminDashboard extends JPanel {
 
-    private final long   userId;
-    private final String username;
-    private final String fullName;
-    private final String email;
-    private final String role;
+    private DashboardTitleBar   titleBar;
+    private SimpleAnalyticView  analyticsRow;
+    private StatusSummary       statusPanel;
+    private AttendanceSummary   attendancePanel;
+    private UserSummary         userPanel;
+    private NoticesSummary      noticesPanel;
+    private AdminDashboardDAO   dashboardDAO;
 
-    public AdminDashboard(long userId, String username, String fullName,
-                          String email, String role) {
-        this.userId   = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email    = email;
-        this.role     = role;
+    public AdminDashboard(long userId, String username, String fullName, String email, String role) {
+        setLayout(new BorderLayout(0, 16));
+        setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
 
-        initUI();
+        dashboardDAO = new AdminDashboardDAO();
+        Map<String, Integer> dbMetrics = loadLiveDatabaseMetrics();
+
+        titleBar = new DashboardTitleBar(fullName);
+        add(titleBar, BorderLayout.NORTH);
+
+        JPanel body = new JPanel(null);
+        body.setOpaque(false);
+        //body.setPreferredSize(new Dimension(1620, 960));
+
+        analyticsRow = new SimpleAnalyticView(dbMetrics);
+        analyticsRow.setBounds(0, 0, 1620, 130);
+        body.add(analyticsRow);
+
+        //--------------------------------------------------------
+
+        statusPanel = new StatusSummary();
+        statusPanel.setBounds(0, 125, 778, 260);
+        body.add(statusPanel);
+
+        attendancePanel = new AttendanceSummary(dbMetrics);
+        attendancePanel.setBounds(798, 125, 778, 260);
+        body.add(attendancePanel);
+
+        userPanel = new UserSummary();
+        userPanel.setBounds(0, 400, 778, 450);
+        body.add(userPanel);
+
+        noticesPanel = new NoticesSummary();
+        noticesPanel.setBounds(798, 400, 778, 450);
+        body.add(noticesPanel);
+
+        JScrollPane scrollPane = new JScrollPane(body);
+        scrollPane.getViewport().setBackground(new Color(0xE8, 0xF5, 0xE9));
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        add(scrollPane, BorderLayout.CENTER);
     }
 
-    private void initUI() {
-        setLayout(new BorderLayout());
-        setBackground(AdminTheme.LIGHT_BG);
+    private Map<String, Integer> loadLiveDatabaseMetrics() {
+        try {
+            return dashboardDAO.getDashboardSummaryCounts();
+        } catch (Exception e) {
+            System.err.println("[Dashboard DB Error] Failed to aggregate system summary counts.");
+            e.printStackTrace();
 
-        /* Top: title bar (page header with greeting) */
-        add(new DashboardTitleBar(userId, username, fullName, email, role),
-                BorderLayout.NORTH);
-
-        /* Center: body with all summary widgets */
-        JScrollPane scroll = new JScrollPane(buildBody(),
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
-        scroll.getViewport().setBackground(AdminTheme.LIGHT_BG);
-        add(scroll, BorderLayout.CENTER);
-    }
-
-    private JPanel buildBody() {
-        JPanel body = new JPanel();
-        body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
-        body.setBackground(AdminTheme.LIGHT_BG);
-        body.setBorder(AdminTheme.emptyBorder(25, 35, 25, 35));
-
-        /* Row 1: Four summary cards */
-        JPanel statsGrid = new JPanel(new GridLayout(1, 4, 18, 18));
-        statsGrid.setOpaque(false);
-        statsGrid.add(new UserSummary(userId, username, fullName, email, role));
-        statsGrid.add(new NoticesSummary(userId, username, fullName, email, role));
-        statsGrid.add(new AttendanceSummary(userId, username, fullName, email, role));
-        statsGrid.add(new StatusSummary(userId, username, fullName, email, role));
-        statsGrid.setAlignmentX(Component.LEFT_ALIGNMENT);
-        body.add(statsGrid);
-
-        body.add(Box.createVerticalStrut(22));
-
-        /* Row 2: Analytic/overview panel */
-        SimpleAnalyticView analytics =
-                new SimpleAnalyticView(userId, username, fullName, email, role);
-        analytics.setAlignmentX(Component.LEFT_ALIGNMENT);
-        body.add(analytics);
-
-        body.add(Box.createVerticalGlue());
-        return body;
+            Map<String, Integer> fallbacks = new HashMap<>();
+            fallbacks.put("admins", 0);
+            fallbacks.put("lecturers", 0);
+            fallbacks.put("technical_officers", 0);
+            fallbacks.put("undergraduates", 0);
+            fallbacks.put("courses", 0);
+            fallbacks.put("notices", 0);
+            fallbacks.put("timetables", 0);
+            return fallbacks;
+        }
     }
 }

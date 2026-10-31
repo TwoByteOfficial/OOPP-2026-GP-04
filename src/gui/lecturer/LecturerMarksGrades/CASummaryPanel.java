@@ -32,6 +32,8 @@ public class CASummaryPanel extends JPanel {
     private final JTable caTable;
     private final JLabel statusLabel = new JLabel("Ready");
 
+    private boolean isUpdatingCombo = false;
+
     public CASummaryPanel(long lecturerId) {
         this.lecturerId = lecturerId;
 
@@ -48,7 +50,11 @@ public class CASummaryPanel extends JPanel {
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(300, 34));
-        courseCombo.addActionListener(e -> loadCASummary());
+        courseCombo.addActionListener(e -> {
+            if (!isUpdatingCombo) {
+                loadCASummary();
+            }
+        });
 
         JButton refreshBtn = new JButton("Refresh");
         refreshBtn.addActionListener(e -> loadCASummary());
@@ -94,6 +100,7 @@ public class CASummaryPanel extends JPanel {
     }
 
     private void loadAssignedCourses() {
+        isUpdatingCombo = true;
         try {
             courseCombo.removeAllItems();
             courseMap.clear();
@@ -107,13 +114,15 @@ public class CASummaryPanel extends JPanel {
                 courseCombo.addItem(label);
                 courseMap.put(label, courseId);
             }
-
-            if (courseCombo.getItemCount() > 0) {
-                loadCASummary();
-            }
         } catch (SQLException e) {
             statusLabel.setText("Failed to load courses.");
             System.err.println("Error loading courses: " + e.getMessage());
+        } finally {
+            isUpdatingCombo = false;
+        }
+
+        if (courseCombo.getItemCount() > 0) {
+            loadCASummary();
         }
     }
 
@@ -132,12 +141,13 @@ public class CASummaryPanel extends JPanel {
             int eligibleCount = 0;
 
             for (Object[] row : summaryRows) {
-                String regNo = (String) row[0];
-                String name = (String) row[1];
-                BigDecimal caMark = (BigDecimal) row[2];
-                BigDecimal caWeight = (BigDecimal) row[3];
-                BigDecimal caPercent = (BigDecimal) row[4];
-                String eligibility = (String) row[5];
+                String regNo = row[0] != null ? row[0].toString() : "";
+                String name = row[1] != null ? row[1].toString() : "";
+
+                String caMark = row[2] != null ? row[2].toString() : "0.00";
+                String caWeight = row[3] != null ? row[3].toString() + "%" : "40%";
+                String caPercent = row[4] != null ? row[4].toString() + "%" : "0.00%";
+                String eligibility = row[5] != null ? row[5].toString() : "Not Eligible";
 
                 if ("Eligible".equalsIgnoreCase(eligibility)) {
                     eligibleCount++;
@@ -146,9 +156,9 @@ public class CASummaryPanel extends JPanel {
                 tableModel.addRow(new Object[]{
                         regNo,
                         name,
-                        caMark != null ? caMark.toPlainString() : "0.00",
-                        caWeight != null ? caWeight.toPlainString() + "%" : "40%",
-                        caPercent != null ? caPercent.toPlainString() + "%" : "0.00%",
+                        caMark,
+                        caWeight,
+                        caPercent,
                         eligibility
                 });
             }

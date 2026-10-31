@@ -26,8 +26,8 @@ public final class TermsDialog {
                     + "The faculty reserves the right to modify these terms at any time.");
 
     public static void show(JFrame owner) {
-        JFrame frame = new JFrame("Terms and Conditions");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JDialog frame = new JDialog(owner, "Terms and Conditions", true);
+        frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
 
         JTextArea area = new JTextArea(TERMS_TEXT);

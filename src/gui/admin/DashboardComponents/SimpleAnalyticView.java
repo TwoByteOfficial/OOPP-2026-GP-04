@@ -1,91 +1,106 @@
+
 package gui.admin.DashboardComponents;
 
-import gui.admin.AdminTheme;
-
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Map;
 
-/**
- * Simple analytics card.
- * For now shows the logged-in administrator's details for testing.
- * Will later host charts and real analytics data.
- */
 public class SimpleAnalyticView extends JPanel {
 
-    private final long   userId;
-    private final String username;
-    private final String fullName;
-    private final String email;
-    private final String role;
+    private final Color WHITE        = Color.WHITE;
+    private final Color DEEP_GREEN   = new Color(0x1B, 0x5E, 0x20);
+    private final Color FOREST_GREEN = new Color(0x38, 0x8E, 0x3C);
+    private final Color MUTED        = new Color(0x4F, 0x6B, 0x52);
 
-    public SimpleAnalyticView(long userId, String username, String fullName,
-                              String email, String role) {
-        this.userId   = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email    = email;
-        this.role     = role;
+    public SimpleAnalyticView(Map<String, Integer> metrics) {
 
-        initUI();
+        setLayout(null);
+        setBounds(0, 0, 1620, 130);
+        setOpaque(false);
+
+        int totalUsers = metrics.getOrDefault("admins", 0)
+                + metrics.getOrDefault("lecturers", 0)
+                + metrics.getOrDefault("technical_officers", 0)
+                + metrics.getOrDefault("undergraduates", 0);
+
+        int totalUG = metrics.getOrDefault("undergraduates", 0);
+        int totalLecturers = metrics.getOrDefault("lecturers", 0);
+        int totalCourses = metrics.getOrDefault("courses", 0);
+
+        // Dashboard Statistic Cards
+
+        addCustomStatCard("Total Users", totalUsers + " Users Active", "📊", 0, 0);
+        addCustomStatCard("Undergraduates", totalUG + " Students Registered", "🎓", 400, 0);
+        addCustomStatCard("Lecturers", totalLecturers + " Staff Active", "📝", 800, 0);
+        addCustomStatCard("Active Courses", totalCourses + " Modules Live", "📚", 1200, 0);
     }
 
-    private void initUI() {
-        setLayout(new BorderLayout());
-        setBackground(AdminTheme.WHITE);
-        setBorder(AdminTheme.cardBorder());
-        setMaximumSize(new Dimension(Integer.MAX_VALUE, 320));
+    private void addCustomStatCard(String title, String countValue, String emoji, int x, int y) {
+        // Main Card
+        JPanel card = new JPanel(null) {
 
-        /* Header */
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
-        header.setBorder(new EmptyBorder(0, 0, 14, 0));
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Card Background
+                g2.setColor(WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                // Card Border
+                g2.setColor(new Color(0x1B, 0x5E, 0x20, 30));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+                g2.dispose();
+            }
+        };
 
-        JLabel title = new JLabel("Overview");
-        title.setFont(AdminTheme.FONT_H3);
-        title.setForeground(AdminTheme.PRIMARY);
+        card.setBounds(x, y, 380, 110);
+        card.setOpaque(false);
 
-        JLabel hint = new JLabel("Logged-in Administrator (test data)");
-        hint.setFont(AdminTheme.FONT_TINY);
-        hint.setForeground(AdminTheme.MUTED);
+        // Icon Background
+        JPanel iconPlaceholder = new JPanel(new GridBagLayout()) {
 
-        header.add(title, BorderLayout.WEST);
-        header.add(hint,  BorderLayout.EAST);
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Green Rounded Background
+                g2.setColor(FOREST_GREEN);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+            }
+        };
 
-        /* Details grid */
-        JPanel details = new JPanel(new GridBagLayout());
-        details.setOpaque(false);
+        iconPlaceholder.setBounds(20, 20, 52, 52);
+        iconPlaceholder.setOpaque(false);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 8, 6, 8);
-        gbc.anchor = GridBagConstraints.WEST;
+        // Emoji Icon
+        JLabel emojiLabel = new JLabel(emoji);
 
-        int row = 0;
-        addRow(details, gbc, row++, "User ID:",   String.valueOf(userId));
-        addRow(details, gbc, row++, "Username:",  safe(username));
-        addRow(details, gbc, row++, "Full Name:", safe(fullName));
-        addRow(details, gbc, row++, "Email:",     safe(email));
-        addRow(details, gbc, row,   "Role:",      safe(role));
+        emojiLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 27));
+        emojiLabel.setForeground(Color.WHITE);
+        emojiLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        emojiLabel.setVerticalAlignment(SwingConstants.CENTER);
 
-        add(header,  BorderLayout.NORTH);
-        add(details, BorderLayout.CENTER);
-    }
+        iconPlaceholder.add(emojiLabel);
 
-    private void addRow(JPanel parent, GridBagConstraints gbc, int row,
-                        String label, String value) {
-        JLabel l = new JLabel(label);
-        l.setFont(AdminTheme.FONT_BODY_BOLD);
-        l.setForeground(AdminTheme.TEXT);
+        card.add(iconPlaceholder);
 
-        JLabel v = new JLabel(value);
-        v.setFont(AdminTheme.FONT_BODY);
-        v.setForeground(new Color(50, 55, 70));
+        // Statistic Value
+        JLabel valueLabel = new JLabel(countValue);
 
-        gbc.gridx = 0; gbc.gridy = row; parent.add(l, gbc);
-        gbc.gridx = 1; gbc.gridy = row; parent.add(v, gbc);
-    }
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        valueLabel.setForeground(DEEP_GREEN);
+        valueLabel.setBounds(88, 22, 270, 34);
 
-    private static String safe(String s) {
-        return (s == null || s.isBlank()) ? "-" : s;
+        card.add(valueLabel);
+
+        // Card Title
+        JLabel labelText = new JLabel(title);
+        labelText.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        labelText.setForeground(MUTED);
+        labelText.setBounds(88, 56, 270, 22);
+        card.add(labelText);
+        // Add Card to Dashboard
+        add(card);
     }
 }

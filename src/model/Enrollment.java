@@ -14,6 +14,9 @@ public class Enrollment {
 
     public Enrollment() {}
 
+    public Enrollment(long enrollmentId, long studentId, int courseId, String academicYear, String semester, String enrollmentType, String enrollmentStatus, Timestamp enrolledAt) {
+    }
+
     public long getEnrollmentId() { return enrollmentId; }
     public void setEnrollmentId(long enrollmentId) { this.enrollmentId = enrollmentId; }
     public long getStudentId() { return studentId; }

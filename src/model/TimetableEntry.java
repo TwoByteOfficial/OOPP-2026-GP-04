@@ -16,7 +16,14 @@ public class TimetableEntry {
     private String academicYear;
     private String semester;
 
+    private String courseCode;
+    private String courseName;
+    private String lecturerName;
+
     public TimetableEntry() {}
+
+    public TimetableEntry(long timetableId, int departmentId, int courseId, Long lecturerId, int batchYear, String component, String dayOfWeek, Time startTime, Time endTime, String venue, String academicYear, String semester) {
+    }
 
     public long getTimetableId() { return timetableId; }
     public void setTimetableId(long timetableId) { this.timetableId = timetableId; }
@@ -42,4 +49,31 @@ public class TimetableEntry {
     public void setAcademicYear(String academicYear) { this.academicYear = academicYear; }
     public String getSemester() { return semester; }
     public void setSemester(String semester) { this.semester = semester; }
+
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public String getLecturerName() {
+        return lecturerName;
+    }
+
+    public void setLecturerName(String lecturerName) {
+        this.lecturerName = lecturerName;
+    }
+
+
 }

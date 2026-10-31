@@ -11,6 +11,9 @@ public class GradeScale {
 
     public GradeScale() {}
 
+    public GradeScale(int gradeId, String gradeCode, BigDecimal minimumMark, BigDecimal gradePoint, String description) {
+    }
+
     public int getGradeId() { return gradeId; }
     public void setGradeId(int gradeId) { this.gradeId = gradeId; }
     public String getGradeCode() { return gradeCode; }
