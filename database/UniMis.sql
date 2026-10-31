@@ -7,6 +7,15 @@
 -- Faculty: Faculty of Technology, University of Ruhuna
 -- Database: unimis
 -- Compatibility: MySQL 8.0+
+--
+-- FIX NOTE (CA eligibility):
+--   ca_mark is expressed on the scale of each course's ca_weight (e.g. out of
+--   30, 40 or 50). CA eligibility is therefore:
+--        ca_mark >= 40% of ca_weight   ->  'Eligible'
+--        otherwise                     ->  'Not Eligible'
+--   (Previously ca_mark was compared against a flat 40, which was wrong.)
+--   Changed in: v_ca_summary (4.4), v_eligibility (4.6), v_final_results (4.7),
+--   system_settings.MIN_CA_PERCENT description, and the CA Eligibility notice.
 -- ============================================================================
 
 DROP DATABASE IF EXISTS unimis;
@@ -558,39 +567,49 @@ WHERE q.rn <= 2
 GROUP BY q.student_id, q.course_id;
 
 -- 4.4 Continuous Assessment (CA) Summary View
+-- ca_mark is on the scale of the course's ca_weight (e.g. out of 30 / 40 / 50).
+-- FIXED: ca_eligibility = 'Eligible' when ca_mark >= 40% of ca_weight, else 'Not Eligible'.
+-- The ca_mark is calculated once in the inner query, so the value shown in the
+-- ca_mark column is exactly the value used for the eligibility decision.
 CREATE OR REPLACE VIEW v_ca_summary AS
 SELECT
-    e.student_id,
-    ug.registration_no,
-    usr.full_name,
-    e.course_id,
-    c.course_code,
-    c.course_name,
-    c.ca_weight,
-    ROUND(
-            COALESCE(qb.quiz_mark_contribution, 0) +
-            COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-            COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-            COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0),
-            2
-    ) AS ca_mark,
+    t.student_id,
+    t.registration_no,
+    t.full_name,
+    t.course_id,
+    t.course_code,
+    t.course_name,
+    t.ca_weight,
+    t.ca_mark,
     CASE
-        WHEN (
-                 COALESCE(qb.quiz_mark_contribution, 0) +
-                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0)
-                 ) >= 40.0 THEN 'Eligible'
+        WHEN t.ca_mark >= ROUND(t.ca_weight * 0.40, 2) THEN 'Eligible'
         ELSE 'Not Eligible'
         END AS ca_eligibility
-FROM enrollments e
-         JOIN undergraduates ug ON e.student_id = ug.user_id
-         JOIN users usr ON ug.user_id = usr.user_id
-         JOIN courses c ON e.course_id = c.course_id
-         LEFT JOIN v_quiz_best2 qb ON qb.student_id = e.student_id AND qb.course_id = e.course_id
-         LEFT JOIN assessments a ON a.course_id = c.course_id AND a.assessment_category = 'CA' AND a.assessment_type NOT IN ('Quiz1', 'Quiz2', 'Quiz3') AND a.assessment_name NOT LIKE '%Quiz%'
-         LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
-GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name, c.ca_weight, qb.quiz_mark_contribution;
+FROM (
+         SELECT
+             e.student_id,
+             ug.registration_no,
+             usr.full_name,
+             e.course_id,
+             c.course_code,
+             c.course_name,
+             c.ca_weight,
+             ROUND(
+                     COALESCE(qb.quiz_mark_contribution, 0) +
+                     COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+                     COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+                     COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0),
+                     2
+             ) AS ca_mark
+         FROM enrollments e
+                  JOIN undergraduates ug ON e.student_id = ug.user_id
+                  JOIN users usr ON ug.user_id = usr.user_id
+                  JOIN courses c ON e.course_id = c.course_id
+                  LEFT JOIN v_quiz_best2 qb ON qb.student_id = e.student_id AND qb.course_id = e.course_id
+                  LEFT JOIN assessments a ON a.course_id = c.course_id AND a.assessment_category = 'CA' AND a.assessment_type NOT IN ('Quiz1', 'Quiz2', 'Quiz3') AND a.assessment_name NOT LIKE '%Quiz%'
+                  LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
+         GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name, c.ca_weight, qb.quiz_mark_contribution
+     ) t;
 
 -- 4.5 Final Exam Marks Contribution View
 CREATE OR REPLACE VIEW v_final_exam_marks AS
@@ -613,7 +632,8 @@ FROM enrollments e
          LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
 GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name;
 
--- 4.6 Eligibility View (Attendance >= 80% AND CA Mark >= 40%)
+-- 4.6 Eligibility View (Attendance >= 80% AND CA Mark >= 40% of CA weight)
+-- FIXED: CA requirement now uses v_ca_summary.ca_eligibility (ca_mark >= 40% of ca_weight)
 CREATE OR REPLACE VIEW v_eligibility AS
 SELECT
     ca.student_id,
@@ -625,15 +645,16 @@ SELECT
     ROUND(COALESCE(att.adjusted_attendance_percent, 0), 2) AS attendance_percent,
     ROUND(ca.ca_mark, 2) AS ca_mark,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND ca.ca_mark >= 40 THEN 'Eligible'
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND ca.ca_eligibility = 'Eligible' THEN 'Eligible'
         ELSE 'Not Eligible'
         END AS final_exam_eligibility,
     CASE WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 THEN 'Pass Attendance Requirement' ELSE 'Fail Attendance Requirement' END AS attendance_requirement,
-    CASE WHEN ca.ca_mark >= 40 THEN 'Pass CA Requirement' ELSE 'Fail CA Requirement' END AS ca_requirement
+    CASE WHEN ca.ca_eligibility = 'Eligible' THEN 'Pass CA Requirement' ELSE 'Fail CA Requirement' END AS ca_requirement
 FROM v_ca_summary ca
          LEFT JOIN v_attendance_summary att ON att.student_id = ca.student_id AND att.course_id = ca.course_id;
 
 -- 4.7 Final Course Results View
+-- FIXED: eligibility / grade / grade_point use the CA rule (ca_mark >= 40% of ca_weight)
 CREATE OR REPLACE VIEW v_final_results AS
 SELECT
     e.student_id,
@@ -649,11 +670,13 @@ SELECT
     ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2) AS final_mark,
     COALESCE(att.adjusted_attendance_percent, 0) AS attendance_percent,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND COALESCE(ca.ca_mark, 0) >= 40 THEN 'Eligible'
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80
+            AND COALESCE(ca.ca_eligibility, 'Not Eligible') = 'Eligible' THEN 'Eligible'
         ELSE 'Not Eligible'
         END AS eligibility,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80 OR COALESCE(ca.ca_mark, 0) < 40 THEN 'E*'
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80
+            OR COALESCE(ca.ca_eligibility, 'Not Eligible') <> 'Eligible' THEN 'E*'
         ELSE (
             SELECT gs.grade_code
             FROM grade_scales gs
@@ -662,7 +685,8 @@ SELECT
         )
         END AS grade,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80 OR COALESCE(ca.ca_mark, 0) < 40 THEN 0.00
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80
+            OR COALESCE(ca.ca_eligibility, 'Not Eligible') <> 'Eligible' THEN 0.00
         ELSE (
             SELECT gs.grade_point
             FROM grade_scales gs
@@ -734,13 +758,14 @@ INSERT INTO grade_scales (grade_code, minimum_mark, grade_point, description) VA
                                                                                   ('E',   0.00, 0.00, 'Fail');
 
 -- 5.3 System Settings
+-- FIXED: MIN_CA_PERCENT description - it is a percentage of the course's CA weight
 INSERT INTO system_settings (setting_key, setting_value, description) VALUES
                                                                           ('UNIVERSITY_NAME', 'University of Ruhuna', 'University name'),
                                                                           ('FACULTY_NAME', 'Faculty of Technology', 'Faculty name'),
                                                                           ('ACADEMIC_YEAR', '2026', 'Current academic year'),
                                                                           ('SEMESTER', 'Semester I', 'Current semester'),
                                                                           ('MIN_ATTENDANCE_PERCENT', '80', 'Minimum attendance percentage required'),
-                                                                          ('MIN_CA_PERCENT', '40', 'Minimum CA percentage required for final examination eligibility'),
+                                                                          ('MIN_CA_PERCENT', '40', 'Minimum CA mark, as a percentage of the course CA weight, required for final examination eligibility'),
                                                                           ('TOTAL_THEORY_SESSIONS', '15', 'Expected theory sessions per course'),
                                                                           ('TOTAL_PRACTICAL_SESSIONS', '15', 'Expected practical sessions per course');
 
@@ -764,9 +789,9 @@ INSERT INTO lecturers (user_id, lecturer_code, title, specialization) SELECT use
 
 INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id) VALUES
                                                                                                                                         ('to1', 'to@123', 'Technical Officer', 'K. Silva',        '198678901234', '1986-04-10', 'Male', 'to1@fot.ruh.ac.lk', '0712000001', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to2', 'to@123', 'Technical Officer', 'M. Wijeratne',   '198989012345', '1989-09-25', 'Male', 'to2@fot.ruh.ac.lk', '0712000002', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to3', 'to@123', 'Technical Officer', 'D. Samarasinghe','199190123456', '1991-12-03', 'Male', 'to3@fot.ruh.ac.lk', '0712000003', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to4', 'to@123', 'Technical Officer', 'P. Nandasena',   '198701234567', '1987-07-14', 'Male', 'to4@fot.ruh.ac.lk', '0712000004', 'Department of ICT, Faculty of Technology', 1);
+                                                                                                                                        ('to2', 'to@123', 'Technical Officer', 'M. Wijeratne',    '198989012345', '1989-09-25', 'Male', 'to2@fot.ruh.ac.lk', '0712000002', 'Department of ICT, Faculty of Technology', 1),
+                                                                                                                                        ('to3', 'to@123', 'Technical Officer', 'D. Samarasinghe', '199190123456', '1991-12-03', 'Male', 'to3@fot.ruh.ac.lk', '0712000003', 'Department of ICT, Faculty of Technology', 1),
+                                                                                                                                        ('to4', 'to@123', 'Technical Officer', 'P. Nandasena',    '198701234567', '1987-07-14', 'Male', 'to4@fot.ruh.ac.lk', '0712000004', 'Department of ICT, Faculty of Technology', 1);
 
 INSERT INTO technical_officers (user_id, technical_officer_code, designation) SELECT user_id, 'TO001', 'Technical Officer' FROM users WHERE username = 'to1';
 INSERT INTO technical_officers (user_id, technical_officer_code, designation) SELECT user_id, 'TO002', 'Technical Officer' FROM users WHERE username = 'to2';
@@ -966,10 +991,11 @@ FROM assessments a
          JOIN enrollments e ON e.course_id = a.course_id;
 
 -- 5.14 System Notices
+-- FIXED: CA Eligibility Notice wording - 40% of the course CA weight
 INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, status) VALUES
                                                                                                         ('Semester I Academic Notice', 'Students are requested to regularly check attendance, course and examination information.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
                                                                                                         ('Attendance Eligibility Reminder', 'Students must maintain at least 80% attendance according to academic regulations.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
-                                                                                                        ('CA Eligibility Notice', 'Continuous Assessment marks must satisfy the 40% minimum eligibility requirement before the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
+                                                                                                        ('CA Eligibility Notice', 'Continuous Assessment (CA) marks must be at least 40% of the total CA weight of the course (e.g. 16 out of 40, 20 out of 50, 12 out of 30) to be eligible for the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
 
 -- 5.15 Timetable Schedule
 INSERT INTO timetable_entries (department_id, course_id, lecturer_id, batch_year, component, day_of_week, start_time, end_time, venue, academic_year, semester)
