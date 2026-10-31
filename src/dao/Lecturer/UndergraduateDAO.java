@@ -78,7 +78,7 @@ public class UndergraduateDAO {
                     Object[] student = {
                             rs.getLong("user_id"),
                             rs.getString("registration_no"),
-                            indexNo == null ? "N/A" : indexNo,
+
                             rs.getString("full_name"),
                             rs.getString("student_type"),
                             rs.getString("intake"),
