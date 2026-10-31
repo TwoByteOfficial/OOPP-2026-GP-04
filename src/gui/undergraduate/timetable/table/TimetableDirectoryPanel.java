@@ -1,7 +1,6 @@
 package gui.undergraduate.timetable.table;
 
 import gui.admin.AdminTheme;
-import gui.undergraduate.timetable.model.TimetableEntryData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -9,119 +8,205 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Weekly lecture schedule table with interactive row inspection and column alignments.
+ * Class schedule directory table panel displaying weekly academic lecture entries.
+ * Optimized column allocations prevent title truncation and ensure centered alignments.
  */
 public class TimetableDirectoryPanel extends JPanel {
 
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
-    private final JTable scheduleTable;
-    private final DefaultTableModel tableModel;
+    private final JTable table;
+    private final DefaultTableModel model;
+    private final List<Object> masterList = new ArrayList<>();
+    private final Consumer<Integer> onSelectListener;
+    private String currentDayFilter = "ALL";
 
-    public TimetableDirectoryPanel(Consumer<Integer> onRowSelected) {
+    public TimetableDirectoryPanel() {
+        this(null);
+    }
+
+    public TimetableDirectoryPanel(Consumer<Integer> onSelectListener) {
+        this.onSelectListener = onSelectListener;
+
         setOpaque(false);
         setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(18, 20, 18, 20));
+        setBorder(new EmptyBorder(16, 18, 16, 18));
 
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setOpaque(false);
+        // Header Title Row
+        JPanel topRow = new JPanel(new BorderLayout());
+        topRow.setOpaque(false);
 
-        JLabel cardTitle = new JLabel("Class Schedule Directory");
-        cardTitle.setFont(AdminTheme.font(Font.BOLD, 16));
-        cardTitle.setForeground(AdminTheme.FOREST_GREEN);
+        JLabel titleLbl = new JLabel("Class Schedule Directory");
+        titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
+        titleLbl.setForeground(AdminTheme.FOREST_GREEN);
 
-        JLabel helperText = new JLabel("Select a session to view hall & instructor details");
-        helperText.setFont(AdminTheme.font(Font.PLAIN, 12));
-        helperText.setForeground(AdminTheme.MUTED);
+        JLabel subLbl = new JLabel("Select a session to view hall & instructor details");
+        subLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
+        subLbl.setForeground(AdminTheme.MUTED);
 
-        titlePanel.add(cardTitle, BorderLayout.WEST);
-        titlePanel.add(helperText, BorderLayout.EAST);
-        add(titlePanel, BorderLayout.NORTH);
+        topRow.add(titleLbl, BorderLayout.WEST);
+        topRow.add(subLbl, BorderLayout.EAST);
+        add(topRow, BorderLayout.NORTH);
 
-        String[] columns = {"Day", "Time", "Code", "Course Name", "Type", "Venue"};
-        tableModel = new DefaultTableModel(columns, 0) {
+        String[] headers = {"Day", "Time", "Code", "Course Name", "Type", "Venue"};
+        model = new DefaultTableModel(headers, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
+            public boolean isCellEditable(int row, int col) {
                 return false;
             }
         };
 
-        scheduleTable = new JTable(tableModel);
-        scheduleTable.setFont(AdminTheme.font(Font.PLAIN, 12));
-        scheduleTable.setRowHeight(32); // Rows 10 without scrollbar
-        scheduleTable.setShowGrid(false);
-        scheduleTable.setIntercellSpacing(new Dimension(0, 0));
-        scheduleTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        scheduleTable.setSelectionBackground(AdminTheme.PASTEL_GREEN);
-        scheduleTable.setSelectionForeground(AdminTheme.DEEP_GREEN);
+        table = new JTable(model);
+        table.setFont(AdminTheme.font(Font.PLAIN, 12));
+        table.setRowHeight(36);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionBackground(AdminTheme.PASTEL_GREEN);
+        table.setSelectionForeground(AdminTheme.DEEP_GREEN);
+        table.setFocusable(false);
 
-        JTableHeader header = scheduleTable.getTableHeader();
-        header.setFont(AdminTheme.font(Font.BOLD, 12));
-        header.setBackground(AdminTheme.MINT);
-        header.setForeground(AdminTheme.DEEP_GREEN);
-        header.setPreferredSize(new Dimension(0, 32));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
+        JTableHeader th = table.getTableHeader();
+        th.setFont(AdminTheme.font(Font.BOLD, 12));
+        th.setBackground(AdminTheme.MINT);
+        th.setForeground(AdminTheme.DEEP_GREEN);
+        th.setPreferredSize(new Dimension(0, 34));
+        th.setReorderingAllowed(false);
+        th.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
 
-        // Column widths for the expanded table area
-        scheduleTable.getColumnModel().getColumn(0).setPreferredWidth(85);  // Day
-        scheduleTable.getColumnModel().getColumn(1).setPreferredWidth(100); // Time
-        scheduleTable.getColumnModel().getColumn(2).setPreferredWidth(65);  // Code
-        scheduleTable.getColumnModel().getColumn(3).setPreferredWidth(210); // Course Name
-        scheduleTable.getColumnModel().getColumn(4).setPreferredWidth(65);  // Type
-        scheduleTable.getColumnModel().getColumn(5).setPreferredWidth(125); // Venue
+        // Column width allocations to prevent text clipping
+        table.getColumnModel().getColumn(0).setPreferredWidth(65);
+        table.getColumnModel().getColumn(0).setMaxWidth(75);
 
-        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setBorder(new EmptyBorder(0, 6, 0, 6));
-        for (int i = 0; i < 6; i++) {
-            if (i != 4) {
-                scheduleTable.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
+        table.getColumnModel().getColumn(1).setPreferredWidth(85);
+        table.getColumnModel().getColumn(1).setMaxWidth(95);
+
+        table.getColumnModel().getColumn(2).setPreferredWidth(55);
+        table.getColumnModel().getColumn(2).setMaxWidth(65);
+
+        // Course Name expanded to 235px to display full title without truncation
+        table.getColumnModel().getColumn(3).setPreferredWidth(235);
+
+        table.getColumnModel().getColumn(4).setPreferredWidth(55);
+        table.getColumnModel().getColumn(4).setMaxWidth(65);
+
+        table.getColumnModel().getColumn(5).setPreferredWidth(95);
+
+        // Alignments: Center for Day, Time, Code, Type, and Venue
+        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+        center.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getColumnModel().getColumn(0).setCellRenderer(center);
+        table.getColumnModel().getColumn(1).setCellRenderer(center);
+        table.getColumnModel().getColumn(2).setCellRenderer(center);
+        table.getColumnModel().getColumn(4).setCellRenderer(center);
+        table.getColumnModel().getColumn(5).setCellRenderer(center);
+
+        // Alignments: Left for Course Name
+        DefaultTableCellRenderer left = new DefaultTableCellRenderer();
+        left.setBorder(new EmptyBorder(0, 8, 0, 8));
+        table.getColumnModel().getColumn(3).setCellRenderer(left);
+
+        // Type Column Custom Badge Style Renderer
+        table.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tbl, Object val, boolean isSel, boolean hasFoc, int r, int c) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(tbl, val, isSel, hasFoc, r, c);
+                lbl.setHorizontalAlignment(SwingConstants.CENTER);
+                lbl.setFont(AdminTheme.font(Font.BOLD, 12));
+                String text = String.valueOf(val);
+                if ("Lab".equalsIgnoreCase(text) || "Practical".equalsIgnoreCase(text)) {
+                    lbl.setForeground(new Color(0x29, 0x80, 0xB9));
+                } else {
+                    lbl.setForeground(new Color(0x2E, 0x7D, 0x32));
+                }
+                return lbl;
             }
-        }
+        });
 
-        // Dedicated badge renderer for Type column
-        scheduleTable.getColumnModel().getColumn(4).setCellRenderer(new TimetableBadgeRenderer());
-
-        scheduleTable.getSelectionModel().addListSelectionListener(e -> {
+        table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int row = scheduleTable.getSelectedRow();
-                if (row != -1 && onRowSelected != null) {
-                    onRowSelected.accept(row);
+                int row = table.getSelectedRow();
+                if (row != -1 && this.onSelectListener != null) {
+                    this.onSelectListener.accept(row);
                 }
             }
         });
 
-        JScrollPane tableScroll = new JScrollPane(scheduleTable);
-        tableScroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
-        tableScroll.getViewport().setBackground(AdminTheme.WHITE);
-        tableScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        tableScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
+        scroll.getViewport().setBackground(AdminTheme.WHITE);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        add(tableScroll, BorderLayout.CENTER);
+        add(scroll, BorderLayout.CENTER);
     }
 
-    public void setEntries(List<TimetableEntryData> entries) {
-        tableModel.setRowCount(0);
-        for (TimetableEntryData d : entries) {
-            tableModel.addRow(new Object[]{
-                    d.getDayOfWeek(),
-                    d.getTimeSlot(),
-                    d.getCourseCode(),
-                    d.getCourseName(),
-                    d.getComponent(),
-                    d.getVenue()
-            });
+    public void setTimetableData(List<?> list) {
+        masterList.clear();
+        if (list != null) {
+            masterList.addAll(list);
         }
+        applyFilter(currentDayFilter);
+    }
+
+    public void setEntries(List<?> list) {
+        setTimetableData(list);
+    }
+
+    public void updateData(List<?> list) {
+        setTimetableData(list);
+    }
+
+    public void filterByDay(String dayName) {
+        this.currentDayFilter = (dayName == null || dayName.trim().isEmpty() || "ALL".equalsIgnoreCase(dayName) || "ALL DAYS".equalsIgnoreCase(dayName))
+                ? "ALL" : dayName.trim();
+        applyFilter(this.currentDayFilter);
+    }
+
+    private void applyFilter(String day) {
+        model.setRowCount(0);
+        for (Object item : masterList) {
+            String itemDay = extractString(item, "getDayOfWeek", "dayOfWeek", "getDay", "day");
+            if ("ALL".equalsIgnoreCase(day) || itemDay.equalsIgnoreCase(day)) {
+                String time = extractString(item, "getTimeSlot", "timeSlot", "getTime", "time");
+                String code = extractString(item, "getCourseCode", "courseCode", "getCode", "code");
+                String name = extractString(item, "getCourseName", "courseName", "getName", "name");
+                String type = extractString(item, "getSessionType", "sessionType", "getType", "type");
+                String venue = extractString(item, "getVenue", "venue", "getLocation", "location");
+
+                if (type.isEmpty()) type = "Theory";
+                model.addRow(new Object[]{itemDay, time, code, name, type, venue});
+            }
+        }
+        selectFirstRow();
     }
 
     public void selectFirstRow() {
-        if (scheduleTable.getRowCount() > 0) {
-            scheduleTable.setRowSelectionInterval(0, 0);
+        if (table.getRowCount() > 0) {
+            table.setRowSelectionInterval(0, 0);
         }
+    }
+
+    private String extractString(Object obj, String... candidates) {
+        if (obj == null) return "";
+        for (String c : candidates) {
+            try {
+                Method m = obj.getClass().getMethod(c);
+                Object res = m.invoke(obj);
+                if (res != null) return String.valueOf(res);
+            } catch (Exception ignored) {}
+            try {
+                Object res = obj.getClass().getField(c).get(obj);
+                if (res != null) return String.valueOf(res);
+            } catch (Exception ignored) {}
+        }
+        return "";
     }
 
     @Override

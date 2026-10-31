@@ -1,6 +1,8 @@
+
 package dao.Lecturer;
 
 import util.DBConnection;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,25 +12,18 @@ import java.util.List;
 
 public class UndergraduateDAO {
 
-    // Retrieve undergraduates enrolled in courses assigned to the specified lecturer
-    public List<Object[]> getUndergraduatesByLecturer(long lecturerUserId, Integer courseIdFilter, String searchQuery)
-            throws SQLException {
+    // READ: Get students enrolled in a lecturer's courses.
+    public List<Object[]> getUndergraduatesByLecturer(
+            long lecturerUserId,
+            Integer courseIdFilter,
+            String searchQuery) throws SQLException {
 
-        List<Object[]> rows = new ArrayList<>();
+        List<Object[]> students = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder(
-                "SELECT DISTINCT " +
-                "ug.user_id, " +
-                "ug.registration_no, " +
-                "ug.index_no, " +
-                "usr.full_name, " +
-                "ug.student_type, " +
-                "ug.intake, " +
-                "ug.batch_year, " +
-                "ug.current_level, " +
-                "ug.current_semester, " +
-                "usr.email, " +
-                "usr.contact_no " +
+        String sql = "SELECT DISTINCT ug.user_id, ug.registration_no, " +
+                "ug.index_no, usr.full_name, ug.student_type, ug.intake, " +
+                "ug.batch_year, ug.current_level, ug.current_semester, " +
+                "usr.email, usr.contact_no " +
                 "FROM enrollments e " +
                 "JOIN undergraduates ug ON e.student_id = ug.user_id " +
                 "JOIN users usr ON ug.user_id = usr.user_id " +
@@ -36,62 +31,81 @@ public class UndergraduateDAO {
                 "JOIN course_lecturers cl ON c.course_id = cl.course_id " +
                 "WHERE cl.lecturer_id = ? " +
                 "AND c.status = 'Active' " +
-                "AND e.enrollment_status = 'Enrolled' "
-        );
+                "AND e.enrollment_status = 'Enrolled'";
 
         if (courseIdFilter != null && courseIdFilter > 0) {
-            sql.append("AND c.course_id = ? ");
+            sql += " AND c.course_id = ?";
         }
 
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            sql.append("AND (LOWER(ug.registration_no) LIKE ? OR LOWER(usr.full_name) LIKE ? OR LOWER(ug.index_no) LIKE ?) ");
+        boolean hasSearch = searchQuery != null
+                && !searchQuery.trim().isEmpty();
+
+        if (hasSearch) {
+            sql += " AND (LOWER(ug.registration_no) LIKE ? " +
+                    "OR LOWER(usr.full_name) LIKE ? " +
+                    "OR LOWER(ug.index_no) LIKE ?)";
         }
 
-        sql.append("ORDER BY ug.registration_no");
+        sql += " ORDER BY ug.registration_no";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            int paramIndex = 1;
-            statement.setLong(paramIndex++, lecturerUserId);
+            int position = 1;
+
+            ps.setLong(position++, lecturerUserId);
 
             if (courseIdFilter != null && courseIdFilter > 0) {
-                statement.setInt(paramIndex++, courseIdFilter);
+                ps.setInt(position++, courseIdFilter);
             }
 
-            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-                String searchPattern = "%" + searchQuery.trim().toLowerCase() + "%";
-                statement.setString(paramIndex++, searchPattern);
-                statement.setString(paramIndex++, searchPattern);
-                statement.setString(paramIndex++, searchPattern);
+            if (hasSearch) {
+                String search = "%" +
+                        searchQuery.trim().toLowerCase() + "%";
+
+                ps.setString(position++, search);
+                ps.setString(position++, search);
+                ps.setString(position++, search);
             }
 
-            try (ResultSet rs = statement.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
+
                 while (rs.next()) {
-                    rows.add(new Object[]{
+
+                    int level = rs.getInt("current_level");
+                    int semester = rs.getInt("current_semester");
+
+                    String indexNo = rs.getString("index_no");
+                    String contact = rs.getString("contact_no");
+
+                    Object[] student = {
                             rs.getLong("user_id"),
                             rs.getString("registration_no"),
-                            rs.getString("index_no") == null ? "N/A" : rs.getString("index_no"),
+                            indexNo == null ? "N/A" : indexNo,
                             rs.getString("full_name"),
                             rs.getString("student_type"),
                             rs.getString("intake"),
-                            "L" + rs.getInt("current_level") + " S" + rs.getInt("current_semester"),
+                            "L" + level + " S" + semester,
                             rs.getString("email"),
-                            rs.getString("contact_no") == null ? "N/A" : rs.getString("contact_no")
-                    });
+                            contact == null ? "N/A" : contact
+                    };
+
+                    students.add(student);
                 }
             }
         }
 
-        return rows;
+        return students;
     }
 
-    // Get detailed academic profile for a single undergraduate
-    public Object[] getUndergraduateDetails(long studentUserId) throws SQLException {
-        String sql =
-                "SELECT ug.user_id, ug.registration_no, ug.index_no, usr.full_name, " +
-                "usr.email, usr.contact_no, usr.address, ug.student_type, ug.batch_year, " +
-                "ug.current_level, ug.current_semester, ug.guardian_name, ug.guardian_contact, " +
+    // READ: Get the academic profile of one student.
+    public Object[] getUndergraduateDetails(long studentUserId)
+            throws SQLException {
+
+        String sql = "SELECT ug.user_id, ug.registration_no, ug.index_no, " +
+                "usr.full_name, usr.email, usr.contact_no, usr.address, " +
+                "ug.student_type, ug.batch_year, ug.current_level, " +
+                "ug.current_semester, ug.guardian_name, ug.guardian_contact, " +
                 "sg.sgpa, cg.cgpa " +
                 "FROM undergraduates ug " +
                 "JOIN users usr ON ug.user_id = usr.user_id " +
@@ -99,13 +113,15 @@ public class UndergraduateDAO {
                 "LEFT JOIN v_cgpa cg ON cg.student_id = ug.user_id " +
                 "WHERE ug.user_id = ?";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            statement.setLong(1, studentUserId);
+            ps.setLong(1, studentUserId);
 
-            try (ResultSet rs = statement.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
+
                 if (rs.next()) {
+
                     return new Object[]{
                             rs.getLong("user_id"),
                             rs.getString("registration_no"),

@@ -1,5 +1,6 @@
 package gui.undergraduate.courses.directory;
 
+import dao.undergraduate.UndergraduateCourseDAO.EnrolledCourseDTO;
 import gui.admin.AdminTheme;
 
 import javax.swing.*;
@@ -8,10 +9,12 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Registered modules list table supporting row selection callbacks.
+ * Registered modules list table connected dynamically to MySQL database.
+ * Optimized column widths and cell alignments to avoid text truncation.
  */
 public class CourseDirectoryPanel extends JPanel {
 
@@ -19,17 +22,18 @@ public class CourseDirectoryPanel extends JPanel {
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
     private final JTable coursesTable;
+    private final DefaultTableModel tableModel;
 
     public CourseDirectoryPanel(Consumer<String> onCourseSelected) {
         setOpaque(false);
         setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(18, 20, 18, 20));
+        setBorder(new EmptyBorder(16, 18, 16, 18));
 
         JPanel titlePanel = new JPanel(new BorderLayout());
         titlePanel.setOpaque(false);
 
         JLabel cardTitle = new JLabel("Registered Module Directory");
-        cardTitle.setFont(AdminTheme.font(Font.BOLD, 16));
+        cardTitle.setFont(AdminTheme.font(Font.BOLD, 15));
         cardTitle.setForeground(AdminTheme.FOREST_GREEN);
 
         JLabel helperText = new JLabel("Click any module to inspect criteria");
@@ -41,46 +45,47 @@ public class CourseDirectoryPanel extends JPanel {
         add(titlePanel, BorderLayout.NORTH);
 
         String[] columns = {"Code", "Course Name", "Credits", "Type"};
-        DefaultTableModel tableModel = new DefaultTableModel(columns, 0) {
+        tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        tableModel.addRow(new Object[]{"ICT2112", "Object Oriented Programming", "3", "Core"});
-        tableModel.addRow(new Object[]{"ICT2123", "Database Management Systems", "3", "Core"});
-        tableModel.addRow(new Object[]{"ICT2133", "Software Engineering Essentials", "3", "Core"});
-        tableModel.addRow(new Object[]{"ICT2142", "Data Communication & Networks", "2", "Core"});
-        tableModel.addRow(new Object[]{"ICT2152", "Operating Systems", "2", "Core"});
-        tableModel.addRow(new Object[]{"ENG2113", "Technical Communication", "3", "Elective"});
-
         coursesTable = new JTable(tableModel);
         coursesTable.setFont(AdminTheme.font(Font.PLAIN, 13));
-        coursesTable.setRowHeight(40);
+        coursesTable.setRowHeight(36);
         coursesTable.setShowGrid(false);
         coursesTable.setIntercellSpacing(new Dimension(0, 0));
         coursesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         coursesTable.setSelectionBackground(AdminTheme.PASTEL_GREEN);
         coursesTable.setSelectionForeground(AdminTheme.DEEP_GREEN);
+        coursesTable.setFocusable(false); // Removes the cell focus outline box
 
         JTableHeader header = coursesTable.getTableHeader();
-        header.setFont(AdminTheme.font(Font.BOLD, 13));
+        header.setFont(AdminTheme.font(Font.BOLD, 12));
         header.setBackground(AdminTheme.MINT);
         header.setForeground(AdminTheme.DEEP_GREEN);
-        header.setPreferredSize(new Dimension(0, 36));
+        header.setPreferredSize(new Dimension(0, 34));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
 
-        coursesTable.getColumnModel().getColumn(0).setPreferredWidth(80);
-        coursesTable.getColumnModel().getColumn(1).setPreferredWidth(220);
-        coursesTable.getColumnModel().getColumn(2).setPreferredWidth(55);
-        coursesTable.getColumnModel().getColumn(3).setPreferredWidth(75);
+        // Optimized Column Width Allocation
+        coursesTable.getColumnModel().getColumn(0).setPreferredWidth(68);  // Code
+        coursesTable.getColumnModel().getColumn(1).setPreferredWidth(240); // Course Name (extra width)
+        coursesTable.getColumnModel().getColumn(2).setPreferredWidth(52);  // Credits
+        coursesTable.getColumnModel().getColumn(3).setPreferredWidth(65);  // Type
 
+        // Alignments: Left for Code & Name
         DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setBorder(new EmptyBorder(0, 12, 0, 12));
-        for (int i = 0; i < coursesTable.getColumnCount(); i++) {
-            coursesTable.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
-        }
+        leftRenderer.setBorder(new EmptyBorder(0, 8, 0, 8));
+        coursesTable.getColumnModel().getColumn(0).setCellRenderer(leftRenderer);
+        coursesTable.getColumnModel().getColumn(1).setCellRenderer(leftRenderer);
+
+        // Center alignment for Credits & Type
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        coursesTable.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+        coursesTable.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
 
         coursesTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -97,6 +102,19 @@ public class CourseDirectoryPanel extends JPanel {
         tableScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         add(tableScroll, BorderLayout.CENTER);
+    }
+
+    public void setCourses(List<EnrolledCourseDTO> courses) {
+        tableModel.setRowCount(0);
+        for (EnrolledCourseDTO c : courses) {
+            tableModel.addRow(new Object[]{
+                    c.courseCode,
+                    c.courseName,
+                    String.valueOf(c.totalCredits),
+                    c.enrollmentType
+            });
+        }
+        selectFirstRow();
     }
 
     public void selectFirstRow() {
