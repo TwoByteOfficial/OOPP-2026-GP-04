@@ -744,30 +744,30 @@ INSERT INTO departments (department_code, department_name, description) VALUES
 
 -- 5.2 UGC Grade Scale
 INSERT INTO grade_scales (grade_code, minimum_mark, grade_point, description) VALUES
-                                                                                  ('A+', 85.00, 4.00, 'Excellent'),
-                                                                                  ('A',  70.00, 4.00, 'Excellent'),
-                                                                                  ('A-', 65.00, 3.70, 'Very Good'),
-                                                                                  ('B+', 60.00, 3.30, 'Good'),
-                                                                                  ('B',  55.00, 3.00, 'Good'),
-                                                                                  ('B-', 50.00, 2.70, 'Good'),
-                                                                                  ('C+', 45.00, 2.30, 'Satisfactory'),
-                                                                                  ('C',  40.00, 2.00, 'Satisfactory'),
-                                                                                  ('C-', 35.00, 1.70, 'Pass'),
-                                                                                  ('D+', 30.00, 1.30, 'Weak Pass'),
-                                                                                  ('D',  25.00, 1.00, 'Weak Pass'),
-                                                                                  ('E',   0.00, 0.00, 'Fail');
+    ('A+', 85.00, 4.00, 'Excellent'),
+    ('A',  70.00, 4.00, 'Excellent'),
+    ('A-', 65.00, 3.70, 'Very Good'),
+    ('B+', 60.00, 3.30, 'Good'),
+    ('B',  55.00, 3.00, 'Good'),
+    ('B-', 50.00, 2.70, 'Good'),
+    ('C+', 45.00, 2.30, 'Satisfactory'),
+    ('C',  40.00, 2.00, 'Satisfactory'),
+    ('C-', 35.00, 1.70, 'Pass'),
+    ('D+', 30.00, 1.30, 'Weak Pass'),
+    ('D',  25.00, 1.00, 'Weak Pass'),
+    ('E',   0.00, 0.00, 'Fail');
 
 -- 5.3 System Settings
 -- FIXED: MIN_CA_PERCENT description - it is a percentage of the course's CA weight
 INSERT INTO system_settings (setting_key, setting_value, description) VALUES
-                                                                          ('UNIVERSITY_NAME', 'University of Ruhuna', 'University name'),
-                                                                          ('FACULTY_NAME', 'Faculty of Technology', 'Faculty name'),
-                                                                          ('ACADEMIC_YEAR', '2026', 'Current academic year'),
-                                                                          ('SEMESTER', 'Semester I', 'Current semester'),
-                                                                          ('MIN_ATTENDANCE_PERCENT', '80', 'Minimum attendance percentage required'),
-                                                                          ('MIN_CA_PERCENT', '40', 'Minimum CA mark, as a percentage of the course CA weight, required for final examination eligibility'),
-                                                                          ('TOTAL_THEORY_SESSIONS', '15', 'Expected theory sessions per course'),
-                                                                          ('TOTAL_PRACTICAL_SESSIONS', '15', 'Expected practical sessions per course');
+    ('UNIVERSITY_NAME', 'University of Ruhuna', 'University name'),
+    ('FACULTY_NAME', 'Faculty of Technology', 'Faculty name'),
+    ('ACADEMIC_YEAR', '2026', 'Current academic year'),
+    ('SEMESTER', 'Semester I', 'Current semester'),
+    ('MIN_ATTENDANCE_PERCENT', '80', 'Minimum attendance percentage required'),
+    ('MIN_CA_PERCENT', '40', 'Minimum CA mark, as a percentage of the course CA weight, required for final examination eligibility'),
+    ('TOTAL_THEORY_SESSIONS', '15', 'Expected theory sessions per course'),
+    ('TOTAL_PRACTICAL_SESSIONS', '15', 'Expected practical sessions per course');
 
 -- 5.4 Users Seed
 INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id) VALUES
@@ -775,11 +775,11 @@ INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth,
 INSERT INTO admins (user_id, admin_code, designation) VALUES (LAST_INSERT_ID(), 'ADM001', 'System Administrator');
 
 INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id) VALUES
-                                                                                                                                        ('lecturer1', 'lec@123', 'Lecturer', 'Dr. N. Perera',       '197823456789', '1978-03-15', 'Male',   'lecturer1@fot.ruh.ac.lk', '0711000001', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('lecturer2', 'lec@123', 'Lecturer', 'Ms. S. Fernando',     '198234567890', '1982-08-22', 'Female', 'lecturer2@fot.ruh.ac.lk', '0711000002', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('lecturer3', 'lec@123', 'Lecturer', 'Mr. A. Gunawardena',  '198045678901', '1980-11-05', 'Male',   'lecturer3@fot.ruh.ac.lk', '0711000003', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('lecturer4', 'lec@123', 'Lecturer', 'Dr. R. Jayasuriya',   '197556789012', '1975-01-30', 'Male',   'lecturer4@fot.ruh.ac.lk', '0711000004', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('lecturer5', 'lec@123', 'Lecturer', 'Ms. T. Karunaratne',  '198867890123', '1988-06-18', 'Female', 'lecturer5@fot.ruh.ac.lk', '0711000005', 'Department of ICT, Faculty of Technology', 1);
+    ('lecturer1', 'lec@123', 'Lecturer', 'Dr. N. Perera',       '197823456789', '1978-03-15', 'Male',   'lecturer1@fot.ruh.ac.lk', '0711000001', 'Department of ICT, Faculty of Technology', 1),
+    ('lecturer2', 'lec@123', 'Lecturer', 'Ms. S. Fernando',     '198234567890', '1982-08-22', 'Female', 'lecturer2@fot.ruh.ac.lk', '0711000002', 'Department of ICT, Faculty of Technology', 1),
+    ('lecturer3', 'lec@123', 'Lecturer', 'Mr. A. Gunawardena',  '198045678901', '1980-11-05', 'Male',   'lecturer3@fot.ruh.ac.lk', '0711000003', 'Department of ICT, Faculty of Technology', 1),
+    ('lecturer4', 'lec@123', 'Lecturer', 'Dr. R. Jayasuriya',   '197556789012', '1975-01-30', 'Male',   'lecturer4@fot.ruh.ac.lk', '0711000004', 'Department of ICT, Faculty of Technology', 1),
+    ('lecturer5', 'lec@123', 'Lecturer', 'Ms. T. Karunaratne',  '198867890123', '1988-06-18', 'Female', 'lecturer5@fot.ruh.ac.lk', '0711000005', 'Department of ICT, Faculty of Technology', 1);
 
 INSERT INTO lecturers (user_id, lecturer_code, title, specialization) SELECT user_id, 'LEC001', 'Dr.', 'Data Structures and Algorithms' FROM users WHERE username = 'lecturer1';
 INSERT INTO lecturers (user_id, lecturer_code, title, specialization) SELECT user_id, 'LEC002', 'Ms.', 'Database Systems' FROM users WHERE username = 'lecturer2';
@@ -788,10 +788,10 @@ INSERT INTO lecturers (user_id, lecturer_code, title, specialization) SELECT use
 INSERT INTO lecturers (user_id, lecturer_code, title, specialization) SELECT user_id, 'LEC005', 'Ms.', 'Web and Application Development' FROM users WHERE username = 'lecturer5';
 
 INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id) VALUES
-                                                                                                                                        ('to1', 'to@123', 'Technical Officer', 'K. Silva',        '198678901234', '1986-04-10', 'Male', 'to1@fot.ruh.ac.lk', '0712000001', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to2', 'to@123', 'Technical Officer', 'M. Wijeratne',    '198989012345', '1989-09-25', 'Male', 'to2@fot.ruh.ac.lk', '0712000002', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to3', 'to@123', 'Technical Officer', 'D. Samarasinghe', '199190123456', '1991-12-03', 'Male', 'to3@fot.ruh.ac.lk', '0712000003', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to4', 'to@123', 'Technical Officer', 'P. Nandasena',    '198701234567', '1987-07-14', 'Male', 'to4@fot.ruh.ac.lk', '0712000004', 'Department of ICT, Faculty of Technology', 1);
+    ('to1', 'to@123', 'Technical Officer', 'K. Silva',        '198678901234', '1986-04-10', 'Male', 'to1@fot.ruh.ac.lk', '0712000001', 'Department of ICT, Faculty of Technology', 1),
+    ('to2', 'to@123', 'Technical Officer', 'M. Wijeratne',    '198989012345', '1989-09-25', 'Male', 'to2@fot.ruh.ac.lk', '0712000002', 'Department of ICT, Faculty of Technology', 1),
+    ('to3', 'to@123', 'Technical Officer', 'D. Samarasinghe', '199190123456', '1991-12-03', 'Male', 'to3@fot.ruh.ac.lk', '0712000003', 'Department of ICT, Faculty of Technology', 1),
+    ('to4', 'to@123', 'Technical Officer', 'P. Nandasena',    '198701234567', '1987-07-14', 'Male', 'to4@fot.ruh.ac.lk', '0712000004', 'Department of ICT, Faculty of Technology', 1);
 
 INSERT INTO technical_officers (user_id, technical_officer_code, designation) SELECT user_id, 'TO001', 'Technical Officer' FROM users WHERE username = 'to1';
 INSERT INTO technical_officers (user_id, technical_officer_code, designation) SELECT user_id, 'TO002', 'Technical Officer' FROM users WHERE username = 'to2';
@@ -799,26 +799,26 @@ INSERT INTO technical_officers (user_id, technical_officer_code, designation) SE
 INSERT INTO technical_officers (user_id, technical_officer_code, designation) SELECT user_id, 'TO004', 'Technical Officer' FROM users WHERE username = 'to4';
 
 INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id) VALUES
-                                                                                                                                        ('tg2061', 'ug@123', 'Undergraduate', 'Kasun Madushan',       '200210002061', '2002-01-10', 'Male',   'tg2061@fot.ruh.ac.lk', '0713002061', 'Matara, Sri Lanka', 1),
-                                                                                                                                        ('tg2062', 'ug@123', 'Undergraduate', 'Nimali Perera',        '200210002062', '2002-02-15', 'Female', 'tg2062@fot.ruh.ac.lk', '0713002062', 'Galle, Sri Lanka', 1),
-                                                                                                                                        ('tg2063', 'ug@123', 'Undergraduate', 'Ravindu Silva',        '200210002063', '2002-03-20', 'Male',   'tg2063@fot.ruh.ac.lk', '0713002063', 'Hambantota, Sri Lanka', 1),
-                                                                                                                                        ('tg2064', 'ug@123', 'Undergraduate', 'Dilini Jayawardena',   '200210002064', '2002-04-25', 'Female', 'tg2064@fot.ruh.ac.lk', '0713002064', 'Colombo, Sri Lanka', 1),
-                                                                                                                                        ('tg2065', 'ug@123', 'Undergraduate', 'Sahan Wickramasinghe', '200210002065', '2002-05-12', 'Male',   'tg2065@fot.ruh.ac.lk', '0713002065', 'Kandy, Sri Lanka', 1),
-                                                                                                                                        ('tg2066', 'ug@123', 'Undergraduate', 'Ishara Gunasekara',    '200210002066', '2002-06-18', 'Female', 'tg2066@fot.ruh.ac.lk', '0713002066', 'Matara, Sri Lanka', 1),
-                                                                                                                                        ('tg2067', 'ug@123', 'Undergraduate', 'Tharindu Fernando',    '200210002067', '2002-07-22', 'Male',   'tg2067@fot.ruh.ac.lk', '0713002067', 'Galle, Sri Lanka', 1),
-                                                                                                                                        ('tg2068', 'ug@123', 'Undergraduate', 'Amaya Rathnayake',     '200210002068', '2002-08-05', 'Female', 'tg2068@fot.ruh.ac.lk', '0713002068', 'Kandy, Sri Lanka', 1),
-                                                                                                                                        ('tg2069', 'ug@123', 'Undergraduate', 'Chamod Dissanayake',   '200210002069', '2002-09-14', 'Male',   'tg2069@fot.ruh.ac.lk', '0713002069', 'Matara, Sri Lanka', 1),
-                                                                                                                                        ('tg2070', 'ug@123', 'Undergraduate', 'Hasini Ekanayake',     '200210002070', '2002-10-28', 'Female', 'tg2070@fot.ruh.ac.lk', '0713002070', 'Galle, Sri Lanka', 1),
-                                                                                                                                        ('tg2071', 'ug@123', 'Undergraduate', 'Pasindu Bandara',      '200210002071', '2002-11-03', 'Male',   'tg2071@fot.ruh.ac.lk', '0713002071', 'Kandy, Sri Lanka', 1),
-                                                                                                                                        ('tg2072', 'ug@123', 'Undergraduate', 'Sanduni Herath',       '200210002072', '2002-12-19', 'Female', 'tg2072@fot.ruh.ac.lk', '0713002072', 'Matara, Sri Lanka', 1),
-                                                                                                                                        ('tg2073', 'ug@123', 'Undergraduate', 'Nuwan Abeysekara',     '200210002073', '2002-01-31', 'Male',   'tg2073@fot.ruh.ac.lk', '0713002073', 'Galle, Sri Lanka', 1),
-                                                                                                                                        ('tg2074', 'ug@123', 'Undergraduate', 'Piumi Senanayake',     '200210002074', '2002-02-24', 'Female', 'tg2074@fot.ruh.ac.lk', '0713002074', 'Colombo, Sri Lanka', 1),
-                                                                                                                                        ('tg2075', 'ug@123', 'Undergraduate', 'Lahiru Weerasinghe',   '200210002075', '2002-03-11', 'Male',   'tg2075@fot.ruh.ac.lk', '0713002075', 'Kandy, Sri Lanka', 1),
-                                                                                                                                        ('tg2076', 'ug@123', 'Undergraduate', 'Thilini Kumari',       '200210002076', '2002-04-08', 'Female', 'tg2076@fot.ruh.ac.lk', '0713002076', 'Matara, Sri Lanka', 1),
-                                                                                                                                        ('tg2077', 'ug@123', 'Undergraduate', 'Janith Rajapaksha',    '200210002077', '2002-05-17', 'Male',   'tg2077@fot.ruh.ac.lk', '0713002077', 'Galle, Sri Lanka', 1),
-                                                                                                                                        ('tg2078', 'ug@123', 'Undergraduate', 'Oshadi Wijesinghe',    '200110002078', '2001-06-25', 'Female', 'tg2078@fot.ruh.ac.lk', '0713002078', 'Hambantota, Sri Lanka', 1),
-                                                                                                                                        ('tg2079', 'ug@123', 'Undergraduate', 'Chathura Peiris',      '200110002079', '2001-07-30', 'Male',   'tg2079@fot.ruh.ac.lk', '0713002079', 'Colombo, Sri Lanka', 1),
-                                                                                                                                        ('tg2080', 'ug@123', 'Undergraduate', 'Menaka Liyanage',      '200010002080', '2000-08-14', 'Female', 'tg2080@fot.ruh.ac.lk', '0713002080', 'Kandy, Sri Lanka', 1);
+    ('tg2061', 'ug@123', 'Undergraduate', 'Kasun Madushan',       '200210002061', '2002-01-10', 'Male',   'tg2061@fot.ruh.ac.lk', '0713002061', 'Matara, Sri Lanka', 1),
+    ('tg2062', 'ug@123', 'Undergraduate', 'Nimali Perera',        '200210002062', '2002-02-15', 'Female', 'tg2062@fot.ruh.ac.lk', '0713002062', 'Galle, Sri Lanka', 1),
+    ('tg2063', 'ug@123', 'Undergraduate', 'Ravindu Silva',        '200210002063', '2002-03-20', 'Male',   'tg2063@fot.ruh.ac.lk', '0713002063', 'Hambantota, Sri Lanka', 1),
+    ('tg2064', 'ug@123', 'Undergraduate', 'Dilini Jayawardena',   '200210002064', '2002-04-25', 'Female', 'tg2064@fot.ruh.ac.lk', '0713002064', 'Colombo, Sri Lanka', 1),
+    ('tg2065', 'ug@123', 'Undergraduate', 'Sahan Wickramasinghe', '200210002065', '2002-05-12', 'Male',   'tg2065@fot.ruh.ac.lk', '0713002065', 'Kandy, Sri Lanka', 1),
+    ('tg2066', 'ug@123', 'Undergraduate', 'Ishara Gunasekara',    '200210002066', '2002-06-18', 'Female', 'tg2066@fot.ruh.ac.lk', '0713002066', 'Matara, Sri Lanka', 1),
+    ('tg2067', 'ug@123', 'Undergraduate', 'Tharindu Fernando',    '200210002067', '2002-07-22', 'Male',   'tg2067@fot.ruh.ac.lk', '0713002067', 'Galle, Sri Lanka', 1),
+    ('tg2068', 'ug@123', 'Undergraduate', 'Amaya Rathnayake',     '200210002068', '2002-08-05', 'Female', 'tg2068@fot.ruh.ac.lk', '0713002068', 'Kandy, Sri Lanka', 1),
+    ('tg2069', 'ug@123', 'Undergraduate', 'Chamod Dissanayake',   '200210002069', '2002-09-14', 'Male',   'tg2069@fot.ruh.ac.lk', '0713002069', 'Matara, Sri Lanka', 1),
+    ('tg2070', 'ug@123', 'Undergraduate', 'Hasini Ekanayake',     '200210002070', '2002-10-28', 'Female', 'tg2070@fot.ruh.ac.lk', '0713002070', 'Galle, Sri Lanka', 1),
+    ('tg2071', 'ug@123', 'Undergraduate', 'Pasindu Bandara',      '200210002071', '2002-11-03', 'Male',   'tg2071@fot.ruh.ac.lk', '0713002071', 'Kandy, Sri Lanka', 1),
+    ('tg2072', 'ug@123', 'Undergraduate', 'Sanduni Herath',       '200210002072', '2002-12-19', 'Female', 'tg2072@fot.ruh.ac.lk', '0713002072', 'Matara, Sri Lanka', 1),
+    ('tg2073', 'ug@123', 'Undergraduate', 'Nuwan Abeysekara',     '200210002073', '2002-01-31', 'Male',   'tg2073@fot.ruh.ac.lk', '0713002073', 'Galle, Sri Lanka', 1),
+    ('tg2074', 'ug@123', 'Undergraduate', 'Piumi Senanayake',     '200210002074', '2002-02-24', 'Female', 'tg2074@fot.ruh.ac.lk', '0713002074', 'Colombo, Sri Lanka', 1),
+    ('tg2075', 'ug@123', 'Undergraduate', 'Lahiru Weerasinghe',   '200210002075', '2002-03-11', 'Male',   'tg2075@fot.ruh.ac.lk', '0713002075', 'Kandy, Sri Lanka', 1),
+    ('tg2076', 'ug@123', 'Undergraduate', 'Thilini Kumari',       '200210002076', '2002-04-08', 'Female', 'tg2076@fot.ruh.ac.lk', '0713002076', 'Matara, Sri Lanka', 1),
+    ('tg2077', 'ug@123', 'Undergraduate', 'Janith Rajapaksha',    '200210002077', '2002-05-17', 'Male',   'tg2077@fot.ruh.ac.lk', '0713002077', 'Galle, Sri Lanka', 1),
+    ('tg2078', 'ug@123', 'Undergraduate', 'Oshadi Wijesinghe',    '200110002078', '2001-06-25', 'Female', 'tg2078@fot.ruh.ac.lk', '0713002078', 'Hambantota, Sri Lanka', 1),
+    ('tg2079', 'ug@123', 'Undergraduate', 'Chathura Peiris',      '200110002079', '2001-07-30', 'Male',   'tg2079@fot.ruh.ac.lk', '0713002079', 'Colombo, Sri Lanka', 1),
+    ('tg2080', 'ug@123', 'Undergraduate', 'Menaka Liyanage',      '200010002080', '2000-08-14', 'Female', 'tg2080@fot.ruh.ac.lk', '0713002080', 'Kandy, Sri Lanka', 1);
 
 INSERT INTO undergraduates (user_id, registration_no, index_no, batch_year, academic_year, student_type, intake, current_level, current_semester, previous_credits, previous_grade_points, admission_date)
 SELECT
