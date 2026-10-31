@@ -1,0 +1,87 @@
+package model;
+
+import java.sql.Date;
+import java.sql.Timestamp;
+
+public class Medical {
+    private long medicalId;
+    private long studentId;
+    private int courseId;
+    private Long attendanceRecordId;
+    private Date medicalDate;
+    private String reason;
+    private String documentPath;
+    private String approvalStatus;
+    private Timestamp submittedAt;
+    private Long reviewedBy;
+    private Timestamp reviewedAt;
+    private String reviewComment;
+    private String registrationNo;
+    private String studentName;
+    private String courseCode;
+    private String courseName;
+
+    public Medical() {}
+
+    public Medical(long medicalId, long studentId, int courseId, Long attendanceRecordId, Date medicalDate, String reason, String documentPath, String approvalStatus, Timestamp submittedAt, Long reviewedBy, Timestamp reviewedAt, String reviewComment) {
+    }
+
+    public long getMedicalId() { return medicalId; }
+    public void setMedicalId(long medicalId) { this.medicalId = medicalId; }
+    public long getStudentId() { return studentId; }
+    public void setStudentId(long studentId) { this.studentId = studentId; }
+    public int getCourseId() { return courseId; }
+    public void setCourseId(int courseId) { this.courseId = courseId; }
+    public Long getAttendanceRecordId() { return attendanceRecordId; }
+    public void setAttendanceRecordId(Long attendanceRecordId) { this.attendanceRecordId = attendanceRecordId; }
+    public Date getMedicalDate() { return medicalDate; }
+    public void setMedicalDate(Date medicalDate) { this.medicalDate = medicalDate; }
+    public String getReason() { return reason; }
+    public void setReason(String reason) { this.reason = reason; }
+    public String getDocumentPath() { return documentPath; }
+    public void setDocumentPath(String documentPath) { this.documentPath = documentPath; }
+    public String getApprovalStatus() { return approvalStatus; }
+    public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
+    public Timestamp getSubmittedAt() { return submittedAt; }
+    public void setSubmittedAt(Timestamp submittedAt) { this.submittedAt = submittedAt; }
+    public Long getReviewedBy() { return reviewedBy; }
+    public void setReviewedBy(Long reviewedBy) { this.reviewedBy = reviewedBy; }
+    public Timestamp getReviewedAt() { return reviewedAt; }
+    public void setReviewedAt(Timestamp reviewedAt) { this.reviewedAt = reviewedAt; }
+    public String getReviewComment() { return reviewComment; }
+    public void setReviewComment(String reviewComment) { this.reviewComment = reviewComment; }
+    public String getRegistrationNo() {
+        return registrationNo;
+    }
+
+    public void setRegistrationNo(String registrationNo) {
+        this.registrationNo = registrationNo;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+
+}
