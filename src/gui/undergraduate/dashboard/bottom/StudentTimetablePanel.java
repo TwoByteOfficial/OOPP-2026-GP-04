@@ -1,16 +1,22 @@
 package gui.undergraduate.dashboard.bottom;
 
+import dao.undergraduate.UndergraduateTimetableDAO;
+import dao.undergraduate.UndergraduateTimetableDAO.TimetableSlotDTO;
 import gui.admin.AdminTheme;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 1.1.5.1 - Undergraduate Today's Timetable Card
+ * Undergraduate Today's Timetable Card connected to database schedule.
  */
 public class StudentTimetablePanel extends JPanel {
+
+    private final JPanel listPanel;
 
     public StudentTimetablePanel(Consumer<String> navigationCallback) {
         setLayout(new BorderLayout(0, 12));
@@ -20,7 +26,6 @@ public class StudentTimetablePanel extends JPanel {
                 new EmptyBorder(18, 20, 18, 20)
         ));
 
-        // Header Section
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
 
@@ -42,16 +47,48 @@ public class StudentTimetablePanel extends JPanel {
         header.add(viewAllBtn, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // Schedule List
-        JPanel listPanel = new JPanel();
+        listPanel = new JPanel();
         listPanel.setOpaque(false);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
-        listPanel.add(createScheduleItem("09:00 AM - 11:00 AM", "ICT2132 - OOP Practicum", "Lab 02 • Faculty of Technology"));
-        listPanel.add(Box.createVerticalStrut(8));
-        listPanel.add(createScheduleItem("01:00 PM - 03:00 PM", "ICT2122 - Database Systems", "Auditorium A • Main Complex"));
-
         add(listPanel, BorderLayout.CENTER);
+    }
+
+    public void loadTodaySchedule(long studentId) {
+        listPanel.removeAll();
+        List<TimetableSlotDTO> slots = UndergraduateTimetableDAO.getStudentWeeklyTimetable(studentId);
+
+        String today = LocalDate.now().getDayOfWeek().toString(); // e.g. MONDAY
+        int added = 0;
+
+        for (TimetableSlotDTO s : slots) {
+            if (s.dayOfWeek.equalsIgnoreCase(today) || (added < 2 && slots.size() <= 2)) {
+                listPanel.add(createScheduleItem(s.timeRange, s.courseCode + " - " + s.courseName, s.venue + " • " + s.lecturerName));
+                listPanel.add(Box.createVerticalStrut(8));
+                added++;
+            }
+        }
+
+        // If no lectures today, display first 2 upcoming sessions
+        if (added == 0) {
+            for (TimetableSlotDTO s : slots) {
+                if (added < 2) {
+                    listPanel.add(createScheduleItem(s.dayOfWeek + " • " + s.timeRange, s.courseCode + " - " + s.courseName, s.venue + " • " + s.lecturerName));
+                    listPanel.add(Box.createVerticalStrut(8));
+                    added++;
+                }
+            }
+        }
+
+        if (added == 0) {
+            JLabel empty = new JLabel("No scheduled lecture sessions found.");
+            empty.setFont(AdminTheme.font(Font.PLAIN, 12));
+            empty.setForeground(AdminTheme.MUTED);
+            listPanel.add(empty);
+        }
+
+        listPanel.revalidate();
+        listPanel.repaint();
     }
 
     private JPanel createScheduleItem(String time, String subject, String venue) {

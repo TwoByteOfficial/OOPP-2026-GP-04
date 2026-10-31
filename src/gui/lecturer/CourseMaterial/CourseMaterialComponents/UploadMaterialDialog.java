@@ -56,8 +56,11 @@ public class UploadMaterialDialog extends JDialog {
         }
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(560, 650);
-        setMinimumSize(new Dimension(500, 600));
+        setSize(850, 800);
+
+        setMinimumSize(
+                new Dimension(750, 700)
+        );
         createLayout();
         setLocationRelativeTo(owner);
     }

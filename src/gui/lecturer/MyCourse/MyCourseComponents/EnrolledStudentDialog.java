@@ -160,9 +160,11 @@ public class EnrolledStudentDialog {
         dialog.add(studentScrollPane, BorderLayout.CENTER);
         dialog.add(footer, BorderLayout.SOUTH);
 
-        dialog.setSize(1000, 600);
+        // Increased popup size
+        dialog.setSize(1350, 950);
+
         dialog.setMinimumSize(
-                new Dimension(800, 450)
+                new Dimension(1100, 700)
         );
 
         dialog.setLocationRelativeTo(parent);

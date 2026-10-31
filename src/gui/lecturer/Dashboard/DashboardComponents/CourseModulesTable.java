@@ -1,6 +1,8 @@
 
 package gui.lecturer.Dashboard.DashboardComponents;
 
+import static gui.lecturer.SharedComponents.Colors.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
@@ -19,7 +21,7 @@ public class CourseModulesTable extends JPanel {
     public CourseModulesTable() {
 
         setLayout(new BorderLayout(0, 14));
-        setBackground(Color.WHITE);
+        setBackground(WHITE);
 
         setBorder(new CompoundBorder(
                 new LineBorder(BORDER_GREEN, 1, true),
@@ -52,7 +54,7 @@ public class CourseModulesTable extends JPanel {
         courseTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         courseTable.setSelectionBackground(PALE_GREEN);
         courseTable.setSelectionForeground(DEEP_GREEN);
-        courseTable.setGridColor(new Color(225, 237, 225));
+        courseTable.setGridColor(GRID_GREEN);
 
         courseTable.getTableHeader().setBackground(PALE_GREEN);
         courseTable.getTableHeader().setForeground(DEEP_GREEN);

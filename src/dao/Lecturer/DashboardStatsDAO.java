@@ -1,3 +1,4 @@
+
 package dao.Lecturer;
 
 import util.DBConnection;
@@ -77,21 +78,32 @@ public class DashboardStatsDAO {
         return 0;
     }
 
-    public int getNewNoticesCount() throws SQLException {
+    /**
+     * Count published, non-expired notices visible to this lecturer.
+     */
+    public int getNewNoticesCount(long lecturerId)
+            throws SQLException {
 
         String sql =
                 "SELECT COUNT(*) " +
-                        "FROM notices " +
-                        "WHERE status = 'Published' " +
-                        "AND target_role IN ('All', 'Lecturer') " +
-                        "AND (expires_at IS NULL OR expires_at >= CURRENT_TIMESTAMP)";
+                        "FROM notices n " +
+                        "WHERE n.status = 'Published' " +
+                        "AND n.target_role IN ('All', 'Lecturer') " +
+                        "AND (n.expires_at IS NULL " +
+                        "OR n.expires_at > CURRENT_TIMESTAMP) " +
+                        "AND (n.department_id IS NULL " +
+                        "OR n.department_id = " +
+                        "(SELECT department_id FROM users WHERE user_id = ?))";
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            if (rs.next()) {
-                return rs.getInt(1);
+            ps.setLong(1, lecturerId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
         }
 

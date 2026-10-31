@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 
 /**
  * Quick action shortcuts panel matching Admin Dashboard design.
- * Removes missing font glyphs and applies interactive hover states.
  */
 public class DashboardQuickActionsPanel extends JPanel {
 
@@ -23,8 +22,9 @@ public class DashboardQuickActionsPanel extends JPanel {
     public DashboardQuickActionsPanel(Consumer<String> onNavigate) {
         this.onNavigate = onNavigate;
         setOpaque(false);
-        setLayout(new GridLayout(1, 4, 15, 0));
-        setPreferredSize(new Dimension(0, 48));
+        setLayout(new GridLayout(1, 4, 12, 0));
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        setPreferredSize(new Dimension(0, 44));
 
         add(createActionButton("View Attendance", "attendance"));
         add(createActionButton("View Grades & GPA", "grades"));
@@ -34,14 +34,14 @@ public class DashboardQuickActionsPanel extends JPanel {
 
     private JButton createActionButton(String title, String tabKey) {
         JButton btn = new JButton(title);
-        btn.setFont(AdminTheme.font(Font.BOLD, 15));
+        btn.setFont(AdminTheme.font(Font.BOLD, 13));
         btn.setForeground(AdminTheme.DEEP_GREEN);
         btn.setBackground(AdminTheme.WHITE);
         btn.setFocusPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         Border line = new LineBorder(new Color(0xD2, 0xD7, 0xE1), 1, true);
-        Border padding = new EmptyBorder(10, 15, 10, 15);
+        Border padding = new EmptyBorder(8, 10, 8, 10);
         btn.setBorder(new CompoundBorder(line, padding));
 
         btn.addMouseListener(new MouseAdapter() {

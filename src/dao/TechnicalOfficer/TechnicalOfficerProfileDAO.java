@@ -1,5 +1,5 @@
 
-package dao;
+package dao.TechnicalOfficer;
 
 import model.TechnicalOfficer;
 import util.DBConnection;

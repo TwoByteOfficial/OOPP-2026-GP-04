@@ -1,16 +1,11 @@
 
 package gui.lecturer.Dashboard.DashboardComponents;
+import static gui.lecturer.SharedComponents.Colors.*;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class DashboardTitleBar extends JPanel {
-
-    private static final Color DEEP_GREEN =
-            new Color(27, 94, 32);
-
-    private static final Color TEXT_GRAY =
-            new Color(96, 112, 100);
 
     private final JLabel welcomeLabel = new JLabel();
 
