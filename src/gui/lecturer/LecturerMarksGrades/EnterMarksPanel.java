@@ -34,6 +34,8 @@ public class EnterMarksPanel extends JPanel {
     private final JTable studentTable;
     private final JLabel statusLabel = new JLabel("Ready");
 
+    private boolean isUpdatingCombo = false;
+
     public EnterMarksPanel(long lecturerId) {
         this.lecturerId = lecturerId;
 
@@ -50,14 +52,22 @@ public class EnterMarksPanel extends JPanel {
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(280, 34));
-        courseCombo.addActionListener(e -> onCourseSelected());
+        courseCombo.addActionListener(e -> {
+            if (!isUpdatingCombo) {
+                onCourseSelected();
+            }
+        });
 
         JLabel assessmentLabel = new JLabel("Select Assessment:");
         assessmentLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         assessmentLabel.setForeground(DEEP_GREEN);
 
         assessmentCombo.setPreferredSize(new Dimension(280, 34));
-        assessmentCombo.addActionListener(e -> loadStudentMarks());
+        assessmentCombo.addActionListener(e -> {
+            if (!isUpdatingCombo) {
+                loadStudentMarks();
+            }
+        });
 
         JButton loadBtn = new JButton("Load Students");
         loadBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -78,7 +88,7 @@ public class EnterMarksPanel extends JPanel {
         headerPanel.add(assessmentInfoLabel, BorderLayout.SOUTH);
 
         // Student Marks Table
-        String[] columns = {"Student ID", "Reg. No.", "Full Name", "Mark (out of 100)", "Status"};
+        String[] columns = {"Student ID", "Reg. No.", "Full Name", "Mark", "Status"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -98,13 +108,13 @@ public class EnterMarksPanel extends JPanel {
         studentTable.getTableHeader().setBackground(PALE_GREEN);
         studentTable.getTableHeader().setForeground(DEEP_GREEN);
 
-        // Hide Student ID column
+        // Hide Student ID column from view while retaining in model
         studentTable.removeColumn(studentTable.getColumnModel().getColumn(0));
 
         JScrollPane scrollPane = new JScrollPane(studentTable);
         scrollPane.setBorder(new LineBorder(BORDER_GREEN, 1));
 
-        // Footer & Save button
+        // Footer & Save buttons
         JButton saveSelectedBtn = new JButton("Save Selected Row Mark");
         saveSelectedBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
         saveSelectedBtn.setBackground(DEEP_GREEN);
@@ -139,6 +149,7 @@ public class EnterMarksPanel extends JPanel {
     }
 
     private void loadAssignedCourses() {
+        isUpdatingCombo = true;
         try {
             courseCombo.removeAllItems();
             courseMap.clear();
@@ -152,13 +163,15 @@ public class EnterMarksPanel extends JPanel {
                 courseCombo.addItem(label);
                 courseMap.put(label, courseId);
             }
-
-            if (courseCombo.getItemCount() > 0) {
-                onCourseSelected();
-            }
         } catch (SQLException e) {
             statusLabel.setText("Failed to load courses.");
             JOptionPane.showMessageDialog(this, "Error loading courses: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            isUpdatingCombo = false;
+        }
+
+        if (courseCombo.getItemCount() > 0) {
+            onCourseSelected();
         }
     }
 
@@ -166,22 +179,32 @@ public class EnterMarksPanel extends JPanel {
         String selectedCourse = (String) courseCombo.getSelectedItem();
         Integer courseId = courseMap.get(selectedCourse);
 
-        assessmentCombo.removeAllItems();
-        assessmentMap.clear();
+        isUpdatingCombo = true;
+        try {
+            assessmentCombo.removeAllItems();
+            assessmentMap.clear();
+        } finally {
+            isUpdatingCombo = false;
+        }
 
         if (courseId == null) return;
 
         try {
             List<Object[]> assessments = marksDAO.getAssessments(lecturerId, courseId);
-            for (Object[] a : assessments) {
-                long aId = (long) a[0];
-                String name = (String) a[1];
-                String category = (String) a[2];
-                BigDecimal maxMark = (BigDecimal) a[4];
+            isUpdatingCombo = true;
+            try {
+                for (Object[] a : assessments) {
+                    long aId = (long) a[0];
+                    String name = (String) a[1];
+                    String category = (String) a[2];
+                    BigDecimal maxMark = (BigDecimal) a[4];
 
-                String label = name + " [" + category + "] (Max: " + (maxMark != null ? maxMark.toPlainString() : "100") + ")";
-                assessmentCombo.addItem(label);
-                assessmentMap.put(label, aId);
+                    String label = name + " [" + category + "] (Max: " + (maxMark != null ? maxMark.toPlainString() : "100") + ")";
+                    assessmentCombo.addItem(label);
+                    assessmentMap.put(label, aId);
+                }
+            } finally {
+                isUpdatingCombo = false;
             }
 
             if (assessmentCombo.getItemCount() > 0) {
@@ -229,27 +252,52 @@ public class EnterMarksPanel extends JPanel {
     }
 
     private void saveSelectedMark() {
-        int row = studentTable.getSelectedRow();
-        if (row < 0) {
+        int viewRow = studentTable.getSelectedRow();
+        if (viewRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a student row first.", "Selection Required", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        saveMarkForRow(row);
+        // Convert view index to model index to prevent sorting/filtering bugs
+        int modelRow = studentTable.convertRowIndexToModel(viewRow);
+        saveMarkForModelRow(modelRow, true);
     }
 
     private void saveAllMarks() {
-        int count = 0;
-        for (int row = 0; row < tableModel.getRowCount(); row++) {
-            if (saveMarkForRow(row)) {
-                count++;
+        int successCount = 0;
+        int errorCount = 0;
+        StringBuilder errorDetails = new StringBuilder();
+
+        for (int modelRow = 0; modelRow < tableModel.getRowCount(); modelRow++) {
+            Object markVal = tableModel.getValueAt(modelRow, 3);
+            if (markVal == null || markVal.toString().trim().isEmpty()) {
+                continue; // Skip empty rows silently during batch save
+            }
+
+            try {
+                if (saveMarkForModelRow(modelRow, false)) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                }
+            } catch (Exception e) {
+                errorCount++;
+                String regNo = (String) tableModel.getValueAt(modelRow, 1);
+                errorDetails.append(regNo).append(": ").append(e.getMessage()).append("\n");
             }
         }
-        JOptionPane.showMessageDialog(this, "Processed and saved marks for " + count + " students.");
+
+        if (errorCount > 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Saved " + successCount + " marks successfully.\nFailed/skipped " + errorCount + " marks.\n" + errorDetails.toString(),
+                    "Batch Save Results", JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Processed and saved marks for " + successCount + " students.", "Save Successful", JOptionPane.INFORMATION_MESSAGE);
+        }
         loadStudentMarks();
     }
 
-    private boolean saveMarkForRow(int row) {
+    private boolean saveMarkForModelRow(int modelRow, boolean showSingleErrorDialog) {
         String selectedCourse = (String) courseCombo.getSelectedItem();
         Integer courseId = courseMap.get(selectedCourse);
 
@@ -258,9 +306,22 @@ public class EnterMarksPanel extends JPanel {
 
         if (courseId == null || assessmentId == null) return false;
 
-        long studentId = (long) tableModel.getValueAt(row, 0);
-        String regNo = (String) tableModel.getValueAt(row, 1);
-        Object markVal = tableModel.getValueAt(row, 3);
+        Object rawStudentId = tableModel.getValueAt(modelRow, 0);
+        if (rawStudentId == null) return false;
+
+        // Safe conversion of Object to primitive long
+        long studentId;
+        try {
+            studentId = Long.parseLong(rawStudentId.toString());
+        } catch (NumberFormatException e) {
+            if (showSingleErrorDialog) {
+                JOptionPane.showMessageDialog(this, "Invalid Student ID format.", "Data Error", JOptionPane.ERROR_MESSAGE);
+            }
+            return false;
+        }
+
+        String regNo = (String) tableModel.getValueAt(modelRow, 1);
+        Object markVal = tableModel.getValueAt(modelRow, 3);
 
         if (markVal == null || markVal.toString().trim().isEmpty()) {
             return false;
@@ -269,13 +330,17 @@ public class EnterMarksPanel extends JPanel {
         try {
             BigDecimal mark = new BigDecimal(markVal.toString().trim());
             marksDAO.saveMark(lecturerId, courseId, assessmentId, studentId, mark);
-            tableModel.setValueAt("Saved", row, 4);
+            tableModel.setValueAt("Saved", modelRow, 4);
             statusLabel.setText("Saved mark for " + regNo);
             return true;
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid mark format for student " + regNo + ". Must be a number.", "Format Error", JOptionPane.ERROR_MESSAGE);
+            if (showSingleErrorDialog) {
+                JOptionPane.showMessageDialog(this, "Invalid mark format for student " + regNo + ". Must be a number.", "Format Error", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error saving mark for " + regNo + ": " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+            if (showSingleErrorDialog) {
+                JOptionPane.showMessageDialog(this, "Error saving mark for " + regNo + ": " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
         return false;
     }

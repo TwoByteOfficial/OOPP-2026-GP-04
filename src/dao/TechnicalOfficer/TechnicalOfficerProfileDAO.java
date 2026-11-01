@@ -1,10 +1,8 @@
-
 package dao.TechnicalOfficer;
 
 import model.TechnicalOfficer;
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,8 +20,7 @@ public class TechnicalOfficerProfileDAO {
                         "JOIN technical_officers t ON u.user_id = t.user_id " +
                         "WHERE u.user_id = ? AND u.role = 'Technical Officer'";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -74,8 +71,7 @@ public class TechnicalOfficerProfileDAO {
                         "WHERE u.user_id = ? " +
                         "AND u.role = 'Technical Officer'";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setString(1, fullName);
             stmt.setString(2, email);

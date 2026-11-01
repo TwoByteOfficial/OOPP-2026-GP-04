@@ -12,9 +12,8 @@ public class EnrollmentDAO {
     public List<Course> getCoursesByStudent(long studentId) throws SQLException {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT c.* FROM courses c JOIN enrollments e ON e.course_id = c.course_id " +
-                     "WHERE e.student_id = ? AND e.enrollment_status = 'Enrolled' ORDER BY c.course_code";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                "WHERE e.student_id = ? AND e.enrollment_status = 'Enrolled' ORDER BY c.course_code";
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
             stmt.setLong(1, studentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -55,8 +54,7 @@ public class EnrollmentDAO {
                 "AND u.user_status = 'Active' " +
                 "ORDER BY ug.registration_no";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setInt(1, courseId);
 
@@ -83,9 +81,4 @@ public class EnrollmentDAO {
 
         return students;
     }
-
-
-
-
-
 }

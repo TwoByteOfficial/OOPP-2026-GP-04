@@ -1,7 +1,6 @@
 package dao.Lecturer;
 
 import util.DBConnection;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -78,9 +77,8 @@ public class AttendanceMedicalDAO {
                         "ORDER BY ug.registration_no"
         );
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql.toString())) {
 
             int parameterIndex = 1;
 
@@ -141,6 +139,7 @@ public class AttendanceMedicalDAO {
 
         return rows;
     }
+
     // Retrieve medical certificate submissions for students in lecturer's courses
     public List<Object[]> getMedicalsByLecturer(long lecturerUserId, Integer courseIdFilter)
             throws SQLException {
@@ -149,13 +148,13 @@ public class AttendanceMedicalDAO {
 
         StringBuilder sql = new StringBuilder(
                 "SELECT m.medical_id, ug.registration_no, usr.full_name, c.course_code, " +
-                "m.medical_date, m.reason, m.approval_status, m.review_comment, m.submitted_at " +
-                "FROM medicals m " +
-                "JOIN undergraduates ug ON m.student_id = ug.user_id " +
-                "JOIN users usr ON ug.user_id = usr.user_id " +
-                "JOIN courses c ON m.course_id = c.course_id " +
-                "JOIN course_lecturers cl ON c.course_id = cl.course_id " +
-                "WHERE cl.lecturer_id = ? "
+                        "m.medical_date, m.reason, m.approval_status, m.review_comment, m.submitted_at " +
+                        "FROM medicals m " +
+                        "JOIN undergraduates ug ON m.student_id = ug.user_id " +
+                        "JOIN users usr ON ug.user_id = usr.user_id " +
+                        "JOIN courses c ON m.course_id = c.course_id " +
+                        "JOIN course_lecturers cl ON c.course_id = cl.course_id " +
+                        "WHERE cl.lecturer_id = ? "
         );
 
         if (courseIdFilter != null && courseIdFilter > 0) {
@@ -164,8 +163,7 @@ public class AttendanceMedicalDAO {
 
         sql.append("ORDER BY m.submitted_at DESC");
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement statement = DBConnection.LEC_CON.prepareStatement(sql.toString())) {
 
             statement.setLong(1, lecturerUserId);
             if (courseIdFilter != null && courseIdFilter > 0) {

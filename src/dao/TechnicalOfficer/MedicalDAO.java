@@ -1,4 +1,3 @@
-
 package dao.TechnicalOfficer;
 
 import model.Medical;
@@ -6,7 +5,6 @@ import util.DBConnection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,8 +24,7 @@ public class MedicalDAO {
                 "JOIN courses c ON m.course_id = c.course_id " +
                 "ORDER BY m.submitted_at DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -64,7 +61,6 @@ public class MedicalDAO {
     }
 
 
-
     public List<Medical> getMedicalRecordsByStatus(String status)
             throws SQLException {
 
@@ -82,8 +78,7 @@ public class MedicalDAO {
                 "WHERE m.approval_status = ? " +
                 "ORDER BY m.submitted_at DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setString(1, status);
 
@@ -122,9 +117,6 @@ public class MedicalDAO {
     }
 
 
-
-
-
     public List<Medical> searchMedicalRecords(
             String status, int courseId, String searchText) throws SQLException {
 
@@ -143,8 +135,7 @@ public class MedicalDAO {
                 "OR c.course_code LIKE ?) " +
                 "ORDER BY m.submitted_at DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             String searchPattern = "%" + searchText.trim() + "%";
 
@@ -192,13 +183,6 @@ public class MedicalDAO {
     }
 
 
-
-
-
-
-
-
-
     public Map<String, Integer> getAllCourses() throws SQLException {
 
         Map<String, Integer> courses = new LinkedHashMap<>();
@@ -206,8 +190,7 @@ public class MedicalDAO {
         String sql = "SELECT course_id, course_code, course_name " +
                 "FROM courses ORDER BY course_code";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -224,15 +207,5 @@ public class MedicalDAO {
 
         return courses;
     }
-
-
-
-
-
-
-
-
-
-
 
 }

@@ -1,10 +1,8 @@
-
 package dao.Lecturer;
 
 import model.CourseMaterial;
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,9 +27,8 @@ public class CourseMaterialDAO {
                         "WHERE cm.lecturer_id = ? " +
                         "ORDER BY cm.uploaded_at DESC";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
             statement.setLong(1, lecturerId);
 
@@ -61,7 +58,6 @@ public class CourseMaterialDAO {
 
     // Check whether this course is assigned to this lecturer.
     private boolean isAssignedCourse(
-            Connection connection,
             long lecturerId,
             int courseId) throws SQLException {
 
@@ -70,7 +66,7 @@ public class CourseMaterialDAO {
                         "WHERE lecturer_id = ? AND course_id = ? LIMIT 1";
 
         try (PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
             statement.setLong(1, lecturerId);
             statement.setInt(2, courseId);
@@ -129,29 +125,25 @@ public class CourseMaterialDAO {
                         "material_type, file_path, external_url) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection connection = DBConnection.getConnection()) {
+        if (!isAssignedCourse(
+                material.getLecturerId(),
+                material.getCourseId())) {
+            throw new SQLException(
+                    "You are not assigned to the selected course.");
+        }
 
-            if (!isAssignedCourse(
-                    connection,
-                    material.getLecturerId(),
-                    material.getCourseId())) {
-                throw new SQLException(
-                        "You are not assigned to the selected course.");
-            }
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
-            try (PreparedStatement statement =
-                         connection.prepareStatement(sql)) {
+            statement.setInt(1, material.getCourseId());
+            statement.setLong(2, material.getLecturerId());
+            statement.setString(3, material.getTitle().trim());
+            statement.setString(4, material.getDescription());
+            statement.setString(5, material.getMaterialType());
+            statement.setString(6, material.getFilePath());
+            statement.setString(7, material.getExternalUrl());
 
-                statement.setInt(1, material.getCourseId());
-                statement.setLong(2, material.getLecturerId());
-                statement.setString(3, material.getTitle().trim());
-                statement.setString(4, material.getDescription());
-                statement.setString(5, material.getMaterialType());
-                statement.setString(6, material.getFilePath());
-                statement.setString(7, material.getExternalUrl());
-
-                return statement.executeUpdate() == 1;
-            }
+            return statement.executeUpdate() == 1;
         }
     }
 
@@ -172,30 +164,26 @@ public class CourseMaterialDAO {
                         "material_type = ?, file_path = ?, external_url = ? " +
                         "WHERE material_id = ? AND lecturer_id = ?";
 
-        try (Connection connection = DBConnection.getConnection()) {
+        if (!isAssignedCourse(
+                material.getLecturerId(),
+                material.getCourseId())) {
+            throw new SQLException(
+                    "You are not assigned to the selected course.");
+        }
 
-            if (!isAssignedCourse(
-                    connection,
-                    material.getLecturerId(),
-                    material.getCourseId())) {
-                throw new SQLException(
-                        "You are not assigned to the selected course.");
-            }
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
-            try (PreparedStatement statement =
-                         connection.prepareStatement(sql)) {
+            statement.setInt(1, material.getCourseId());
+            statement.setString(2, material.getTitle().trim());
+            statement.setString(3, material.getDescription());
+            statement.setString(4, material.getMaterialType());
+            statement.setString(5, material.getFilePath());
+            statement.setString(6, material.getExternalUrl());
+            statement.setLong(7, material.getMaterialId());
+            statement.setLong(8, material.getLecturerId());
 
-                statement.setInt(1, material.getCourseId());
-                statement.setString(2, material.getTitle().trim());
-                statement.setString(3, material.getDescription());
-                statement.setString(4, material.getMaterialType());
-                statement.setString(5, material.getFilePath());
-                statement.setString(6, material.getExternalUrl());
-                statement.setLong(7, material.getMaterialId());
-                statement.setLong(8, material.getLecturerId());
-
-                return statement.executeUpdate() > 0;
-            }
+            return statement.executeUpdate() > 0;
         }
     }
 
@@ -213,9 +201,8 @@ public class CourseMaterialDAO {
                 "DELETE FROM course_materials " +
                         "WHERE material_id = ? AND lecturer_id = ?";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
             statement.setLong(1, materialId);
             statement.setLong(2, lecturerId);
@@ -223,6 +210,4 @@ public class CourseMaterialDAO {
             return statement.executeUpdate() > 0;
         }
     }
-
-
-    }
+}

@@ -1,9 +1,7 @@
-
 package dao.TechnicalOfficer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +14,6 @@ public class NoticeDAO {
             long userId) throws SQLException {
 
         List<Object[]> notices = new ArrayList<>();
-
 
         String sql =
                 "SELECT n.notice_id, n.title, n.content, " +
@@ -34,8 +31,7 @@ public class NoticeDAO {
                         "ORDER BY n.published_at DESC";
 
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -60,7 +56,6 @@ public class NoticeDAO {
                 }
             }
         }
-
         return notices;
     }
 }

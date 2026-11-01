@@ -11,8 +11,7 @@ public class TimetableDAO {
     public List<TimetableEntry> getTimetableByBatch(int batchYear) throws SQLException {
         List<TimetableEntry> list = new ArrayList<>();
         String sql = "SELECT * FROM timetable_entries WHERE batch_year = ? ORDER BY FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
             stmt.setInt(1, batchYear);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -37,7 +36,6 @@ public class TimetableDAO {
     }
 
 
-
     public List<TimetableEntry> getTimetableByDepartment(
             int departmentId, String academicYear, String semester)
             throws SQLException {
@@ -57,8 +55,7 @@ public class TimetableDAO {
                 "'Monday','Tuesday','Wednesday','Thursday'," +
                 "'Friday','Saturday','Sunday'), t.start_time";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setInt(1, departmentId);
             stmt.setString(2, academicYear);
@@ -117,8 +114,7 @@ public class TimetableDAO {
                         "'Monday','Tuesday','Wednesday','Thursday'," +
                         "'Friday','Saturday','Sunday'), t.start_time";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -152,10 +148,5 @@ public class TimetableDAO {
 
         return list;
     }
-
-
-
-
-
 
 }

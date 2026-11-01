@@ -14,7 +14,6 @@ import gui.lecturer.Profile.LecturerProfile;
 import gui.lecturer.SharedComponents.LecturerSidebar;
 import gui.lecturer.SharedComponents.LecturerTopbar;
 import gui.lecturer.Undergraduate.LecturerUndergraduates;
-import gui.lecturer.CreateAssessment.CreateAssessmentPanel;
 import gui.login.Login;
 
 import static gui.lecturer.SharedComponents.Colors.APP_BACKGROUND;
@@ -87,12 +86,6 @@ public class Lecturer extends JFrame {
                 "CourseMaterials"
         );
 
-        // Create Assessment
-        pageContainer.add(
-                new CreateAssessmentPanel(userId),
-                "CreateAssessment"
-        );
-
         // Marks & Grades
         pageContainer.add(
                 new LecturerMarksGrades(userId),
@@ -119,7 +112,7 @@ public class Lecturer extends JFrame {
 
         // Notices
         pageContainer.add(
-                new LecturerNotices(),
+                new LecturerNotices(userId),
                 "Notices"
         );
 

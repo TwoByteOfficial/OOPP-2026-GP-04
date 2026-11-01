@@ -2,7 +2,6 @@ package dao.undergraduate;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -50,8 +49,7 @@ public class UndergraduateAttendanceDAO {
                 "ROUND(s.adjusted_attendance_percent, 1) AS adj_pct " +
                 "FROM v_attendance_summary s WHERE s.student_id = ? ORDER BY s.course_code ASC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -65,7 +63,7 @@ public class UndergraduateAttendanceDAO {
                     dto.absentSessions = rs.getInt("absent_sessions");
                     dto.adjustedPercentage = rs.getDouble("adj_pct");
 
-                    loadHoursBreakdown(conn, studentId, dto.courseId, dto);
+                    loadHoursBreakdown(studentId, dto.courseId, dto);
                     list.add(dto);
                 }
             }
@@ -75,7 +73,7 @@ public class UndergraduateAttendanceDAO {
         return list;
     }
 
-    private static void loadHoursBreakdown(Connection conn, long studentId, int courseId, AttendanceRecordDTO dto) {
+    private static void loadHoursBreakdown(long studentId, int courseId, AttendanceRecordDTO dto) {
         String sql = "SELECT ats.component, " +
                 "COUNT(ats.attendance_session_id) * 2 AS scheduled_hrs, " +
                 "SUM(CASE WHEN ar.attendance_status IN ('PRESENT', 'LATE', 'MEDICAL') THEN 2 ELSE 0 END) AS attended_hrs " +
@@ -84,7 +82,7 @@ public class UndergraduateAttendanceDAO {
                 "WHERE ats.course_id = ? " +
                 "GROUP BY ats.component";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             ps.setInt(2, courseId);
             try (ResultSet rs = ps.executeQuery()) {
