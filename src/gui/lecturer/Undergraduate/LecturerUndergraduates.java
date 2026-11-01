@@ -107,7 +107,7 @@ public class LecturerUndergraduates extends JPanel {
         topContainer.add(controlPanel, BorderLayout.SOUTH);
 
         // Table
-        String[] columns = {"User ID", "Reg. No.", "Index No.", "Full Name", "Student Type", "Intake", "Level / Sem", "Email", "Contact No"};
+        String[] columns = {"User ID", "Index No.", "Full Name", "Student Type", "Intake", "Level / Sem", "Email", "Contact No"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {

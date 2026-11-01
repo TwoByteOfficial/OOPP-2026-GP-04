@@ -2,7 +2,6 @@ package dao.undergraduate;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -41,8 +40,7 @@ public class UndergraduateGradesDAO {
                 "grade, grade_point " +
                 "FROM v_final_results WHERE student_id = ? ORDER BY course_code ASC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -72,8 +70,7 @@ public class UndergraduateGradesDAO {
                 "JOIN v_sgpa s ON c.student_id = s.student_id " +
                 "WHERE c.student_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

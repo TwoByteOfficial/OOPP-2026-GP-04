@@ -112,7 +112,7 @@ public class Lecturer extends JFrame {
 
         // Notices
         pageContainer.add(
-                new LecturerNotices(),
+                new LecturerNotices(userId),
                 "Notices"
         );
 

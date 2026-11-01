@@ -2,7 +2,6 @@ package dao.undergraduate;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,8 +41,7 @@ public class UndergraduateMedicalDAO {
                 "WHERE m.student_id = ? " +
                 "ORDER BY m.medical_id DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -73,8 +71,7 @@ public class UndergraduateMedicalDAO {
                 "SUM(CASE WHEN approval_status = 'Rejected' THEN 1 ELSE 0 END) AS rejected " +
                 "FROM medicals WHERE student_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -94,8 +91,7 @@ public class UndergraduateMedicalDAO {
         String sql = "INSERT INTO medicals (student_id, course_id, medical_date, reason, document_path, approval_status) " +
                 "VALUES (?, ?, ?, ?, ?, 'Pending')";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             ps.setInt(2, courseId);
             ps.setDate(3, Date.valueOf(absenceDate));
