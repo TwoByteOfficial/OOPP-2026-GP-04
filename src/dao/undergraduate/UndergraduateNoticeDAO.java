@@ -2,7 +2,6 @@ package dao.undergraduate;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -40,8 +39,7 @@ public class UndergraduateNoticeDAO {
                 "WHERE n.target_role IN ('All', 'Undergraduate') AND n.status = 'Published' " +
                 "ORDER BY n.published_at DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 NoticeItemDTO dto = new NoticeItemDTO();

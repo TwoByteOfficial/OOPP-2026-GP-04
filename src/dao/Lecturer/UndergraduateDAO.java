@@ -1,9 +1,7 @@
-
 package dao.Lecturer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -48,8 +46,7 @@ public class UndergraduateDAO {
 
         sql += " ORDER BY ug.registration_no";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             int position = 1;
 
@@ -81,7 +78,7 @@ public class UndergraduateDAO {
                     Object[] student = {
                             rs.getLong("user_id"),
                             rs.getString("registration_no"),
-                            indexNo == null ? "N/A" : indexNo,
+
                             rs.getString("full_name"),
                             rs.getString("student_type"),
                             rs.getString("intake"),
@@ -113,8 +110,7 @@ public class UndergraduateDAO {
                 "LEFT JOIN v_cgpa cg ON cg.student_id = ug.user_id " +
                 "WHERE ug.user_id = ?";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             ps.setLong(1, studentUserId);
 

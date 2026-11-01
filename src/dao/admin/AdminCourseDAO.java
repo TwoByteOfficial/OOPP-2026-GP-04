@@ -19,8 +19,7 @@ public class AdminCourseDAO {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT * FROM courses ORDER BY course_code";
 
-        try (Connection con = DBConnection.con();
-             Statement stmt = con.createStatement();
+        try (Statement stmt = DBConnection.ADMIN_CON.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -37,8 +36,7 @@ public class AdminCourseDAO {
     public Course getCourseById(int courseId) throws SQLException {
         String sql = "SELECT * FROM courses WHERE course_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
 
@@ -59,8 +57,7 @@ public class AdminCourseDAO {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT * FROM courses WHERE department_id = ? ORDER BY course_code";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setInt(1, departmentId);
 
@@ -87,66 +84,63 @@ public class AdminCourseDAO {
                 "end_theory_weight, end_practical_weight, department_id, academic_year, semester, status" +
                 ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection con = DBConnection.con()) {
+        DBConnection.ADMIN_CON.setAutoCommit(false);
 
-            con.setAutoCommit(false);
+        try {
+            try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(
+                    sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            try {
-                try (PreparedStatement pstmt = con.prepareStatement(
-                        sql, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setString(1, c.getCourseCode());
+                pstmt.setString(2, c.getCourseName());
+                pstmt.setString(3, c.getDescription() != null ? c.getDescription() : "");
 
-                    pstmt.setString(1, c.getCourseCode());
-                    pstmt.setString(2, c.getCourseName());
-                    pstmt.setString(3, c.getDescription() != null ? c.getDescription() : "");
+                pstmt.setBigDecimal(4, valueOrZero(c.getTheoryCredits()));
+                pstmt.setBigDecimal(5, valueOrZero(c.getPracticalCredits()));
 
-                    pstmt.setBigDecimal(4, valueOrZero(c.getTheoryCredits()));
-                    pstmt.setBigDecimal(5, valueOrZero(c.getPracticalCredits()));
+                pstmt.setBigDecimal(6, valueOrZero(c.getQuizWeight()));
+                pstmt.setBigDecimal(7, valueOrZero(c.getAssignmentWeight()));
+                pstmt.setBigDecimal(8, valueOrZero(c.getMidTheoryWeight()));
+                pstmt.setBigDecimal(9, valueOrZero(c.getMidPracticalWeight()));
+                pstmt.setBigDecimal(10, valueOrZero(c.getCaWeight()));
 
-                    pstmt.setBigDecimal(6, valueOrZero(c.getQuizWeight()));
-                    pstmt.setBigDecimal(7, valueOrZero(c.getAssignmentWeight()));
-                    pstmt.setBigDecimal(8, valueOrZero(c.getMidTheoryWeight()));
-                    pstmt.setBigDecimal(9, valueOrZero(c.getMidPracticalWeight()));
-                    pstmt.setBigDecimal(10, valueOrZero(c.getCaWeight()));
+                pstmt.setBigDecimal(11, valueOrZero(c.getEndTheoryWeight()));
+                pstmt.setBigDecimal(12, valueOrZero(c.getEndPracticalWeight()));
 
-                    pstmt.setBigDecimal(11, valueOrZero(c.getEndTheoryWeight()));
-                    pstmt.setBigDecimal(12, valueOrZero(c.getEndPracticalWeight()));
+                pstmt.setInt(13, c.getDepartmentId() > 0 ? c.getDepartmentId() : 1);
+                pstmt.setString(14, c.getAcademicYear() != null
+                        ? c.getAcademicYear() : "2024/2025");
+                pstmt.setString(15, c.getSemester() != null
+                        ? c.getSemester() : "Semester I");
+                pstmt.setString(16, c.getStatus() != null
+                        ? c.getStatus() : "Active");
 
-                    pstmt.setInt(13, c.getDepartmentId() > 0 ? c.getDepartmentId() : 1);
-                    pstmt.setString(14, c.getAcademicYear() != null
-                            ? c.getAcademicYear() : "2024/2025");
-                    pstmt.setString(15, c.getSemester() != null
-                            ? c.getSemester() : "Semester I");
-                    pstmt.setString(16, c.getStatus() != null
-                            ? c.getStatus() : "Active");
+                int rows = pstmt.executeUpdate();
 
-                    int rows = pstmt.executeUpdate();
-
-                    if (rows == 0) {
-                        con.rollback();
-                        return false;
-                    }
-
-                    try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                        if (!rs.next()) {
-                            throw new SQLException("Course ID was not generated.");
-                        }
-
-                        c.setCourseId(rs.getInt(1));
-                    }
+                if (rows == 0) {
+                    DBConnection.ADMIN_CON.rollback();
+                    return false;
                 }
 
-                // Automatically create applicable assessment definitions.
-                synchronizeAssessmentDefinitions(con, c);
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        throw new SQLException("Course ID was not generated.");
+                    }
 
-                con.commit();
-                return true;
-
-            } catch (SQLException | RuntimeException e) {
-                con.rollback();
-                throw e;
-            } finally {
-                con.setAutoCommit(true);
+                    c.setCourseId(rs.getInt(1));
+                }
             }
+
+            // Automatically create applicable assessment definitions.
+            synchronizeAssessmentDefinitions(c);
+
+            DBConnection.ADMIN_CON.commit();
+            return true;
+
+        } catch (SQLException | RuntimeException e) {
+            DBConnection.ADMIN_CON.rollback();
+            throw e;
+        } finally {
+            DBConnection.ADMIN_CON.setAutoCommit(true);
         }
     }
 
@@ -166,73 +160,70 @@ public class AdminCourseDAO {
                 "department_id = ?, academic_year = ?, semester = ?, status = ? " +
                 "WHERE course_id = ?";
 
-        try (Connection con = DBConnection.con()) {
+        DBConnection.ADMIN_CON.setAutoCommit(false);
 
-            con.setAutoCommit(false);
+        try {
+            int rowsAffected;
 
-            try {
-                int rowsAffected;
+            try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
-                try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, c.getCourseCode());
+                pstmt.setString(2, c.getCourseName());
+                pstmt.setString(3, c.getDescription() != null
+                        ? c.getDescription() : "");
 
-                    pstmt.setString(1, c.getCourseCode());
-                    pstmt.setString(2, c.getCourseName());
-                    pstmt.setString(3, c.getDescription() != null
-                            ? c.getDescription() : "");
+                pstmt.setBigDecimal(4, valueOrZero(c.getTheoryCredits()));
+                pstmt.setBigDecimal(5, valueOrZero(c.getPracticalCredits()));
 
-                    pstmt.setBigDecimal(4, valueOrZero(c.getTheoryCredits()));
-                    pstmt.setBigDecimal(5, valueOrZero(c.getPracticalCredits()));
+                pstmt.setBigDecimal(6, valueOrZero(c.getQuizWeight()));
+                pstmt.setBigDecimal(7, valueOrZero(c.getAssignmentWeight()));
+                pstmt.setBigDecimal(8, valueOrZero(c.getMidTheoryWeight()));
+                pstmt.setBigDecimal(9, valueOrZero(c.getMidPracticalWeight()));
+                pstmt.setBigDecimal(10, valueOrZero(c.getCaWeight()));
 
-                    pstmt.setBigDecimal(6, valueOrZero(c.getQuizWeight()));
-                    pstmt.setBigDecimal(7, valueOrZero(c.getAssignmentWeight()));
-                    pstmt.setBigDecimal(8, valueOrZero(c.getMidTheoryWeight()));
-                    pstmt.setBigDecimal(9, valueOrZero(c.getMidPracticalWeight()));
-                    pstmt.setBigDecimal(10, valueOrZero(c.getCaWeight()));
+                pstmt.setBigDecimal(11, valueOrZero(c.getEndTheoryWeight()));
+                pstmt.setBigDecimal(12, valueOrZero(c.getEndPracticalWeight()));
 
-                    pstmt.setBigDecimal(11, valueOrZero(c.getEndTheoryWeight()));
-                    pstmt.setBigDecimal(12, valueOrZero(c.getEndPracticalWeight()));
+                pstmt.setInt(13, c.getDepartmentId());
+                pstmt.setString(14, c.getAcademicYear());
+                pstmt.setString(15, c.getSemester());
+                pstmt.setString(16, c.getStatus());
+                pstmt.setInt(17, c.getCourseId());
 
-                    pstmt.setInt(13, c.getDepartmentId());
-                    pstmt.setString(14, c.getAcademicYear());
-                    pstmt.setString(15, c.getSemester());
-                    pstmt.setString(16, c.getStatus());
-                    pstmt.setInt(17, c.getCourseId());
-
-                    rowsAffected = pstmt.executeUpdate();
-                }
-
-                if (rowsAffected == 0) {
-                    // Check whether the course exists. MySQL can report
-                    // zero affected rows when values have not changed.
-                    if (!courseExists(con, c.getCourseId())) {
-                        con.rollback();
-                        return false;
-                    }
-                }
-
-                // Synchronize assessment definitions with the new weights.
-                synchronizeAssessmentDefinitions(con, c);
-
-                con.commit();
-                return true;
-
-            } catch (SQLException | RuntimeException e) {
-                con.rollback();
-                throw e;
-            } finally {
-                con.setAutoCommit(true);
+                rowsAffected = pstmt.executeUpdate();
             }
+
+            if (rowsAffected == 0) {
+                // Check whether the course exists. MySQL can report
+                // zero affected rows when values have not changed.
+                if (!courseExists(c.getCourseId())) {
+                    DBConnection.ADMIN_CON.rollback();
+                    return false;
+                }
+            }
+
+            // Synchronize assessment definitions with the new weights.
+            synchronizeAssessmentDefinitions(c);
+
+            DBConnection.ADMIN_CON.commit();
+            return true;
+
+        } catch (SQLException | RuntimeException e) {
+            DBConnection.ADMIN_CON.rollback();
+            throw e;
+        } finally {
+            DBConnection.ADMIN_CON.setAutoCommit(true);
         }
     }
 
     // =========================================================
     // CHECK COURSE EXISTS
     // =========================================================
-    private boolean courseExists(Connection con, int courseId) throws SQLException {
+    private boolean courseExists(int courseId) throws SQLException {
 
         String sql = "SELECT 1 FROM courses WHERE course_id = ?";
 
-        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
             pstmt.setInt(1, courseId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -257,8 +248,7 @@ public class AdminCourseDAO {
     //   Always use weight_percent = 0.
     //   The best-two calculation uses courses.quiz_weight.
     // =========================================================
-    private void synchronizeAssessmentDefinitions(
-            Connection con, Course c) throws SQLException {
+    private void synchronizeAssessmentDefinitions(Course c) throws SQLException {
 
         if (c.getCourseId() <= 0) {
             throw new SQLException("Invalid course ID for assessment synchronization.");
@@ -273,47 +263,47 @@ public class AdminCourseDAO {
 
         // Quiz group: create all three only if quiz weight is positive.
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "Quiz 1", "CA", "Quiz1", "Theory",
                 BigDecimal.ZERO, quizWeight.signum() > 0
         );
 
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "Quiz 2", "CA", "Quiz2", "Theory",
                 BigDecimal.ZERO, quizWeight.signum() > 0
         );
 
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "Quiz 3", "CA", "Quiz3", "Theory",
                 BigDecimal.ZERO, quizWeight.signum() > 0
         );
 
         // Assignment
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "Assignment 1", "CA", "Assignment", "Theory",
                 assignmentWeight, assignmentWeight.signum() > 0
         );
 
         // Mid Exam Theory
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "Mid Exam Theory", "CA", "Mid Exam Theory", "Theory",
                 midTheoryWeight, midTheoryWeight.signum() > 0
         );
 
         // Mid Exam Practical
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "Mid Exam Practical", "CA", "Mid Exam Practical", "Practical",
                 midPracticalWeight, midPracticalWeight.signum() > 0
         );
 
         // End Exam Theory
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "End Semester Theory Exam", "FINAL",
                 "End Exam Theory", "Theory",
                 endTheoryWeight, endTheoryWeight.signum() > 0
@@ -321,7 +311,7 @@ public class AdminCourseDAO {
 
         // End Exam Practical
         synchronizeOneAssessment(
-                con, c.getCourseId(),
+                c.getCourseId(),
                 "End Semester Practical Exam", "FINAL",
                 "End Exam Practical", "Practical",
                 endPracticalWeight, endPracticalWeight.signum() > 0
@@ -332,7 +322,6 @@ public class AdminCourseDAO {
     // SYNCHRONIZE ONE ASSESSMENT TYPE
     // =========================================================
     private void synchronizeOneAssessment(
-            Connection con,
             int courseId,
             String assessmentName,
             String category,
@@ -347,7 +336,7 @@ public class AdminCourseDAO {
 
         int existingCount = 0;
 
-        try (PreparedStatement pstmt = con.prepareStatement(countSql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(countSql)) {
             pstmt.setInt(1, courseId);
             pstmt.setString(2, type);
 
@@ -369,7 +358,7 @@ public class AdminCourseDAO {
                             "weight_percent = ? " +
                             "WHERE course_id = ? AND assessment_type = ?";
 
-            try (PreparedStatement pstmt = con.prepareStatement(updateSql)) {
+            try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(updateSql)) {
                 pstmt.setString(1, category);
                 pstmt.setString(2, component);
                 pstmt.setBigDecimal(3, weight);
@@ -388,7 +377,7 @@ public class AdminCourseDAO {
                             "assessment_type, component, weight_percent, max_mark" +
                             ") VALUES (?, ?, ?, ?, ?, ?, 100.00)";
 
-            try (PreparedStatement pstmt = con.prepareStatement(insertSql)) {
+            try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(insertSql)) {
                 pstmt.setInt(1, courseId);
                 pstmt.setString(2, assessmentName);
                 pstmt.setString(3, category);
@@ -408,8 +397,7 @@ public class AdminCourseDAO {
     public boolean deleteCourse(int courseId) throws SQLException {
         String sql = "DELETE FROM courses WHERE course_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
             return pstmt.executeUpdate() > 0;
@@ -427,8 +415,7 @@ public class AdminCourseDAO {
                         "(course_id, lecturer_id, responsibility) VALUES (?, ?, ?) " +
                         "ON DUPLICATE KEY UPDATE responsibility = VALUES(responsibility)";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
             pstmt.setLong(2, lecturerId);
@@ -449,8 +436,7 @@ public class AdminCourseDAO {
                 "DELETE FROM course_lecturers " +
                         "WHERE course_id = ? AND lecturer_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
             pstmt.setLong(2, lecturerId);
@@ -467,8 +453,7 @@ public class AdminCourseDAO {
         List<CourseLecturer> list = new ArrayList<>();
         String sql = "SELECT * FROM course_lecturers WHERE course_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setInt(1, courseId);
 

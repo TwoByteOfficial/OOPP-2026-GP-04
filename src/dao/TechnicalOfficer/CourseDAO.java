@@ -12,8 +12,7 @@ public class CourseDAO {
     public List<Course> getAllCourses() throws SQLException {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT * FROM courses WHERE status = 'Active' ORDER BY course_code";
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = DBConnection.TO_CON.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 list.add(mapResultSetToCourse(rs));
@@ -25,8 +24,7 @@ public class CourseDAO {
     public List<Course> getCoursesByLecturer(long lecturerId) throws SQLException {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT c.* FROM courses c JOIN course_lecturers cl ON cl.course_id = c.course_id WHERE cl.lecturer_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
             stmt.setLong(1, lecturerId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -40,8 +38,7 @@ public class CourseDAO {
     public List<CourseMaterial> getMaterialsByCourse(int courseId) throws SQLException {
         List<CourseMaterial> list = new ArrayList<>();
         String sql = "SELECT * FROM course_materials WHERE course_id = ? ORDER BY uploaded_at DESC";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
             stmt.setInt(1, courseId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
