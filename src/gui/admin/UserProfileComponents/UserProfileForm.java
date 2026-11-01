@@ -169,7 +169,7 @@ public class UserProfileForm extends JDialog {
         pnlUG.setBackground(WHITE);
         addGridRow(pnlUG, gbc, 0, "Reg No:", txtRegNo = createTextField("TG/2024/001"), "Index No:", txtIndexNo = createTextField("TG001"));
         addGridRow(pnlUG, gbc, 1, "Batch Year:", txtBatchYear = createTextField("2024"), "Academic Year:", txtAcademicYear = createTextField("2024/2025"));
-        addGridRow(pnlUG, gbc, 2, "Student Type:", cmbStudentType = createComboBox(new String[]{ "Regular", "Repeat", "Direct Intake" }), "Lvl & Sem:", createLvlSemPanel());
+        addGridRow(pnlUG, gbc, 2, "Student Type:", cmbStudentType = createComboBox(new String[]{ "Proper","Repeat","Batch Missed" }), "Lvl & Sem:", createLvlSemPanel());
         addGridRow(pnlUG, gbc, 3, "Guardian Name:", txtGuardianName = createTextField(""), "Guardian Contact:", txtGuardianContact = createTextField(""));
         roleCardPanel.add(pnlUG, "Undergraduate");
 

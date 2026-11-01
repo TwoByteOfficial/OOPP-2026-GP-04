@@ -33,7 +33,7 @@ public class LecturerSidebar extends JPanel {
     public LecturerSidebar() {
         setLayout(new BorderLayout());
         setBackground(SIDEBAR_BACKGROUND);
-        setPreferredSize(new Dimension(260, 0));
+        setPreferredSize(new Dimension(280, 0));
         setBorder(new EmptyBorder(20, 14, 18, 0));
 
         add(createBrandPanel(), BorderLayout.NORTH);
@@ -95,8 +95,8 @@ public class LecturerSidebar extends JPanel {
                 firePropertyChange("pageSelected", null, pageKey);
             });
 
-            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-            button.setPreferredSize(new Dimension(236, 44));
+            button.setMaximumSize(new Dimension(270, 44));
+            button.setPreferredSize(new Dimension(270, 44));
             button.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             panel.add(button);
@@ -159,11 +159,7 @@ public class LecturerSidebar extends JPanel {
             super(text);
             this.logoutButton = logoutButton;
 
-            setFont(new Font(
-                    "Segoe UI",
-                    logoutButton ? Font.BOLD : Font.PLAIN,
-                    15
-            ));
+            setFont(new Font("Segoe UI", Font.BOLD, 15));
             setHorizontalAlignment(SwingConstants.LEFT);
             setForeground(logoutButton ? Color.WHITE : Colors.DEEP_GREEN);
             setContentAreaFilled(false);
@@ -207,9 +203,9 @@ public class LecturerSidebar extends JPanel {
             if (logoutButton) {
                 background = hovered ? DANGER_HOVER : DANGER;
             } else if (selected) {
-                background = ACTIVE_BACKGROUND;
-            } else if (hovered) {
                 background = HOVER_BACKGROUND;
+            } else if (hovered) {
+                background = ACTIVE_BACKGROUND;
             } else {
                 background = NORMAL_BUTTON_BACKGROUND;
             }

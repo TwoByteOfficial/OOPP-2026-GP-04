@@ -1,9 +1,7 @@
-
 package dao.TechnicalOfficer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,8 +21,7 @@ public class TODashboardDAO {
                         "AND student.role = 'Undergraduate' " +
                         "AND student.user_status = 'Active'";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -37,8 +34,6 @@ public class TODashboardDAO {
 
         return 0;
     }
-
-
 
 
     public int getPendingMedicalCount(long userId)
@@ -54,8 +49,7 @@ public class TODashboardDAO {
                         "AND student.role = 'Undergraduate' " +
                         "AND m.approval_status = 'Pending'";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -68,7 +62,6 @@ public class TODashboardDAO {
 
         return 0;
     }
-
 
 
     public int getAttendanceProfileCount(long userId)
@@ -84,8 +77,7 @@ public class TODashboardDAO {
                         "AND student.role = 'Undergraduate' " +
                         "AND student.user_status = 'Active'";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -98,7 +90,6 @@ public class TODashboardDAO {
 
         return 0;
     }
-
 
 
     public int getTodaySessionsCount(long userId)
@@ -112,8 +103,7 @@ public class TODashboardDAO {
                         "AND officer.role = 'Technical Officer' " +
                         "AND te.day_of_week = DAYNAME(CURDATE())";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -126,11 +116,6 @@ public class TODashboardDAO {
 
         return 0;
     }
-
-
-
-
-
 
 
     public int[] getAttendanceOverview(long userId) throws SQLException {
@@ -148,8 +133,7 @@ public class TODashboardDAO {
                         "AND officer.role = 'Technical Officer' " +
                         "AND student.role = 'Undergraduate'";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
 
@@ -168,18 +152,5 @@ public class TODashboardDAO {
 
         return new int[] {0, 0, 0, 0, 0};
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
