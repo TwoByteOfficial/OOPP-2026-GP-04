@@ -1,3 +1,4 @@
+
 package model;
 
 import java.sql.Timestamp;
@@ -6,6 +7,8 @@ public class CourseMaterial {
     private long materialId;
     private int courseId;
     private long lecturerId;
+    private String courseCode;
+    private String courseName;
     private String title;
     private String description;
     private String materialType;
@@ -14,6 +17,9 @@ public class CourseMaterial {
     private Timestamp uploadedAt;
 
     public CourseMaterial() {}
+
+    public CourseMaterial(long materialId, int courseId, long lecturerId, String title, String description, String materialType, String filePath, String externalUrl, Timestamp uploadedAt, Timestamp updatedAt) {
+    }
 
     public long getMaterialId() { return materialId; }
     public void setMaterialId(long materialId) { this.materialId = materialId; }
@@ -33,4 +39,20 @@ public class CourseMaterial {
     public void setExternalUrl(String externalUrl) { this.externalUrl = externalUrl; }
     public Timestamp getUploadedAt() { return uploadedAt; }
     public void setUploadedAt(Timestamp uploadedAt) { this.uploadedAt = uploadedAt; }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
 }
