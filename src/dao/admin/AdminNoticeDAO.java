@@ -12,8 +12,7 @@ public class AdminNoticeDAO {
         List<Notice> list = new ArrayList<>();
         String sql = "SELECT * FROM notices ORDER BY published_at DESC";
 
-        try (Connection con = DBConnection.con();
-             Statement stmt = con.createStatement();
+        try (Statement stmt = DBConnection.ADMIN_CON.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -26,8 +25,7 @@ public class AdminNoticeDAO {
     public Notice getNoticeById(long noticeId) throws SQLException {
         String sql = "SELECT * FROM notices WHERE notice_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setLong(1, noticeId);
 
@@ -42,10 +40,9 @@ public class AdminNoticeDAO {
 
     public boolean createNotice(Notice n) throws SQLException {
         String sql = "INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, expires_at, status) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, n.getTitle());
             pstmt.setString(2, n.getContent());
@@ -72,8 +69,7 @@ public class AdminNoticeDAO {
     public boolean updateNotice(Notice n) throws SQLException {
         String sql = "UPDATE notices SET title = ?, content = ?, notice_type = ?, target_role = ?, department_id = ?, expires_at = ?, status = ? WHERE notice_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setString(1, n.getTitle());
             pstmt.setString(2, n.getContent());
@@ -92,8 +88,7 @@ public class AdminNoticeDAO {
     public boolean deleteNotice(long noticeId) throws SQLException {
         String sql = "DELETE FROM notices WHERE notice_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setLong(1, noticeId);
 
@@ -105,8 +100,7 @@ public class AdminNoticeDAO {
     public boolean updateNoticeStatus(long noticeId, String status) throws SQLException {
         String sql = "UPDATE notices SET status = ? WHERE notice_id = ?";
 
-        try (Connection con = DBConnection.con();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DBConnection.ADMIN_CON.prepareStatement(sql)) {
 
             pstmt.setString(1, status);
             pstmt.setLong(2, noticeId);

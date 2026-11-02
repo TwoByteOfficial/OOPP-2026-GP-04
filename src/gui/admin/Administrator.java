@@ -21,6 +21,7 @@ public class Administrator extends JFrame {
     private AdminDashboard pageDashboard;
     private AdminUserProfiles pageUsers;
     private AdminCourses pageCourses;
+    private AdminEnrollment pageEnrollment;
     private AdminNotices pageNotices;
     private AdminTimetable pageTimetable;
     private AdminSettings pageSettings;
@@ -76,6 +77,9 @@ public class Administrator extends JFrame {
 
         pageCourses = new AdminCourses(userId, username, fullName, email, role);
         contentArea.add(pageCourses, AdminSidebar.PAGE_COURSES);
+
+        pageEnrollment = new AdminEnrollment(userId, username, fullName, email, role);
+        contentArea.add(pageEnrollment, AdminSidebar.PAGE_ENROLLMENT);
 
         pageNotices = new AdminNotices(userId, username, fullName, email, role);
         contentArea.add(pageNotices, AdminSidebar.PAGE_NOTICES);

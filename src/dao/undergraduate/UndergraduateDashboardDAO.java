@@ -2,7 +2,6 @@ package dao.undergraduate;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -32,8 +31,7 @@ public class UndergraduateDashboardDAO {
 
         // 1. Enrolled Courses Count
         String sqlEnroll = "SELECT COUNT(*) FROM enrollments WHERE student_id = ? AND enrollment_status = 'Enrolled'";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlEnroll)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sqlEnroll)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) dto.enrolledCount = rs.getInt(1);
@@ -44,8 +42,7 @@ public class UndergraduateDashboardDAO {
 
         // 2. CGPA & SGPA from Views
         String sqlGpa = "SELECT c.cgpa, s.sgpa FROM v_cgpa c LEFT JOIN v_sgpa s ON c.student_id = s.student_id WHERE c.student_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlGpa)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sqlGpa)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -59,8 +56,7 @@ public class UndergraduateDashboardDAO {
 
         // 3. Attendance Distribution & Average from v_attendance_summary
         String sqlAtt = "SELECT COALESCE(adjusted_attendance_percent, 0) AS pct FROM v_attendance_summary WHERE student_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlAtt)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sqlAtt)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 double totalPct = 0;
@@ -86,8 +82,7 @@ public class UndergraduateDashboardDAO {
                 "SUM(CASE WHEN approval_status = 'Approved' THEN 1 ELSE 0 END) AS approved, " +
                 "SUM(CASE WHEN approval_status = 'Pending' THEN 1 ELSE 0 END) AS pending " +
                 "FROM medicals WHERE student_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlMed)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sqlMed)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -101,8 +96,7 @@ public class UndergraduateDashboardDAO {
 
         // 5. Continuous Assessments Below 40% from v_ca_summary
         String sqlCa = "SELECT COUNT(*) FROM v_ca_summary WHERE student_id = ? AND ca_mark < 40.0";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlCa)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sqlCa)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) dto.caBelow40Count = rs.getInt(1);

@@ -1,9 +1,7 @@
-
 package dao.Lecturer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,8 +42,7 @@ public class NoticeDAO {
                         "ORDER BY n.published_at DESC " +
                         "LIMIT 5";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             ps.setLong(1, lecturerId);
 
@@ -103,8 +100,7 @@ public class NoticeDAO {
 
         sql += " ORDER BY published_at DESC";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             int position = 1;
 

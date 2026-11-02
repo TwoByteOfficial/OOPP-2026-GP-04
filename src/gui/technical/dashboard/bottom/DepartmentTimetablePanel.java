@@ -1,7 +1,7 @@
 
 package gui.technical.dashboard.bottom;
 
-import dao.TimetableDAO;
+import dao.TechnicalOfficer.TimetableDAO;
 import gui.theme.UniMisTheme;
 import model.TimetableEntry;
 

@@ -1,9 +1,7 @@
-
 package dao.Lecturer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,8 +31,7 @@ public class CourseDAO {
                 "c.total_credits, c.theory_credits, c.practical_credits, " +
                 "c.ca_weight ORDER BY c.course_code";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
             ps.setLong(1, lecturerUserId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -78,8 +75,7 @@ public class CourseDAO {
                 "AND e.enrollment_status = 'Enrolled' " +
                 "ORDER BY u.registration_no";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.LEC_CON.prepareStatement(sql)) {
 
             ps.setInt(1, courseId);
 

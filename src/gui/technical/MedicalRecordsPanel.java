@@ -1,10 +1,10 @@
 
 package gui.technical;
 
-import dao.MedicalDAO;
+import dao.TechnicalOfficer.MedicalDAO;
 import model.Medical;
 import gui.theme.UniMisTheme;
-import dao.AttendanceDAO;
+import dao.TechnicalOfficer.AttendanceDAO;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

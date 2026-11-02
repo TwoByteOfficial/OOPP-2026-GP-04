@@ -2,7 +2,6 @@ package dao.Lecturer;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,9 +23,8 @@ public class CASummaryDAO {
                         "WHERE course_id = ? " +
                         "ORDER BY registration_no";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     DBConnection.LEC_CON.prepareStatement(sql)) {
 
             statement.setInt(1, courseId);
 

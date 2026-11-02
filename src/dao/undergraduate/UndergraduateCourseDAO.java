@@ -2,7 +2,6 @@ package dao.undergraduate;
 
 import util.DBConnection;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -48,8 +47,7 @@ public class UndergraduateCourseDAO {
                 "WHERE e.student_id = ? " +
                 "ORDER BY c.course_code ASC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
