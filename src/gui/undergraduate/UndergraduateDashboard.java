@@ -1,110 +1,115 @@
 package gui.undergraduate;
 
+import gui.admin.AdminTheme;
 import gui.login.Login;
-import gui.login.LoginTheme;
+import gui.undergraduate.dashboard.UGDashboardPanel;
+import gui.undergraduate.courses.UGCoursesPanel;
+import gui.undergraduate.attendance.UGAttendancePanel;
+import gui.undergraduate.grades.UGGradesPanel;
+import gui.undergraduate.medicals.UGMedicalsPanel;
+import gui.undergraduate.timetable.UGTimetablePanel;
+import gui.undergraduate.notices.UGNoticesPanel;
+import gui.undergraduate.profile.UGProfilePanel;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Undergraduate dashboard. Same constructor signature as the other dashboards,
- * so Login's DashboardFactory map can build it via a method reference.
+ * 1 - Undergraduate Main Dashboard Frame
+ * UniMis Management Information System
  */
 public class UndergraduateDashboard extends JFrame {
 
     private final long userId;
-    private final String username, fullName, email, role;
+    private final String username;
+    private final String fullName;
+    private final String email;
+    private final String role;
 
-    public UndergraduateDashboard(long userId, String username, String fullName,
-                                  String email, String role) {
-        this.userId   = userId;
+    private final CardLayout cardLayout = new CardLayout();
+    private final JPanel contentCards = new JPanel(cardLayout);
+    private UGSidebarPanel sidebar;
+
+    public UndergraduateDashboard(long userId, String username, String fullName, String email, String role) {
+        super(Login.APP_TITLE);
+        this.userId = userId;
         this.username = username;
         this.fullName = fullName;
-        this.email    = email;
-        this.role     = role;
+        this.email = email;
+        this.role = role;
 
-        setTitle("UniMis - Undergraduate Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
-
-        JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(LoginTheme.MINT);
-        root.add(buildHeader(), BorderLayout.NORTH);
-        root.add(buildCenter(), BorderLayout.CENTER);
-        root.add(buildFooter(), BorderLayout.SOUTH);
-
-        setContentPane(root);
+        setSize(1280, 800);
+        setMinimumSize(new Dimension(1024, 650));
         setLocationRelativeTo(null);
+
+        initUI();
     }
 
-    /* ---------- Header ---------- */
+    private void initUI() {
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(AdminTheme.LIGHT_BG);
 
-    private JPanel buildHeader() {
-        JLabel title = new JLabel("Undergraduate Dashboard", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 42));
-        title.setForeground(LoginTheme.FOREST);
-        title.setBorder(new EmptyBorder(50, 20, 10, 20));
+        // Sidebar Navigation
+        sidebar = new UGSidebarPanel(this::navigateTo, this::handleLogout);
+        root.add(sidebar, BorderLayout.WEST);
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(LoginTheme.MINT);
-        header.add(title, BorderLayout.CENTER);
-        return header;
+        // Content Area (CardLayout)
+        contentCards.setOpaque(false);
+
+        // 1.1 - Dashboard View add
+        contentCards.add(new UGDashboardPanel(userId, username, fullName, role, this::navigateTo), "dashboard");
+
+        //  tabs  placeholders
+        contentCards.add(new UGCoursesPanel(userId, username), "courses");
+        contentCards.add(new UGAttendancePanel(userId, username), "attendance");
+        contentCards.add(new UGGradesPanel(userId, username), "grades");
+        contentCards.add(new UGMedicalsPanel(userId, username), "medicals");
+        contentCards.add(new UGTimetablePanel(userId, username), "timetables");
+        contentCards.add(new UGNoticesPanel(userId, username), "notices");
+        contentCards.add(new UGProfilePanel(userId, username), "profile");
+
+        root.add(contentCards, BorderLayout.CENTER);
+        setContentPane(root);
     }
 
-    /* ---------- Centre : profile card ---------- */
-
-    private JPanel buildCenter() {
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(LoginTheme.PASTEL);
-        card.setBorder(new EmptyBorder(30, 60, 30, 60));
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(8, 12, 8, 12);
-        gc.anchor = GridBagConstraints.WEST;
-
-        addRow(card, gc, 0, "User ID:",   String.valueOf(userId));
-        addRow(card, gc, 1, "Username:",  username);
-        addRow(card, gc, 2, "Full Name:", fullName);
-        addRow(card, gc, 3, "Email:",     email);
-        addRow(card, gc, 4, "Role:",      role);
-
-        JPanel wrap = new JPanel(new GridBagLayout());
-        wrap.setBackground(LoginTheme.MINT);
-        wrap.add(card);
-        return wrap;
+    public void navigateTo(String tabKey) {
+        cardLayout.show(contentCards, tabKey);
+        sidebar.setActiveTab(tabKey);
     }
 
-    /* ---------- Footer : logout ---------- */
+    private JPanel createPlaceholderPanel(String title) {
+        JPanel p = new JPanel(new GridBagLayout());
+        p.setBackground(AdminTheme.LIGHT_BG);
 
-    private JPanel buildFooter() {
-        JButton logout = LoginTheme.button("Logout", LoginTheme.F_LABEL);
-        logout.setPreferredSize(new Dimension(150, 44));
-        logout.addActionListener(e -> {
+        JPanel card = AdminTheme.card();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+
+        JLabel titleLbl = AdminTheme.heading(title);
+        titleLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel descLbl = AdminTheme.muted("This module is currently linked and ready for implementation.");
+        descLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        card.add(titleLbl);
+        card.add(Box.createVerticalStrut(8));
+        card.add(descLbl);
+
+        p.add(card);
+        return p;
+    }
+
+    private void handleLogout() {
+        int opt = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to log out of UniMis?",
+                "Logout Confirmation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (opt == JOptionPane.YES_OPTION) {
             dispose();
             Login.showLogin();
-        });
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 25));
-        bottom.setBackground(LoginTheme.MINT);
-        bottom.add(logout);
-        return bottom;
-    }
-
-    /* ---------- Row helper (used inside the card) ---------- */
-
-    private static void addRow(JPanel p, GridBagConstraints gc, int row,
-                               String label, String value) {
-        gc.gridx = 0; gc.gridy = row;
-        JLabel l = new JLabel(label);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(LoginTheme.DEEP);
-        p.add(l, gc);
-
-        gc.gridx = 1;
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        v.setForeground(LoginTheme.DEEP);
-        p.add(v, gc);
+        }
     }
 }
