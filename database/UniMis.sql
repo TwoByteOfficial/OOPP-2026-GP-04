@@ -7,6 +7,38 @@
 -- Faculty: Faculty of Technology, University of Ruhuna
 -- Database: unimis
 -- Compatibility: MySQL 8.0+
+--
+-- FIX NOTE (CA eligibility):
+--   ca_mark is expressed on the scale of each course's ca_weight (e.g. out of
+--   30, 40 or 50). CA eligibility is therefore:
+--        ca_mark >= 40% of ca_weight   ->  'Eligible'
+--        otherwise                     ->  'Not Eligible'
+--   (Previously ca_mark was compared against a flat 40, which was wrong.)
+--   Changed in: v_ca_summary (4.4), v_eligibility (4.6), v_final_results (4.7),
+--   system_settings.MIN_CA_PERCENT description, and the CA Eligibility notice.
+-- ============================================================================
+
+-- ============================================================================
+-- UPDATE NOTE (enrollment requests + hashed seed passwords):
+--   NEW      2.10a  table  enrollment_requests    students request a course, admin accepts / declines
+--   NEW      INDEX  idx_enrollment_requests_status
+--   NEW      4.10   view   v_enrollment_requests  admin / student friendly listing of requests
+--   NEW      5.16   seed   5 sample enrollment requests (3 Pending, 1 Declined, 1 Approved)
+--   CHANGED  5.4    seed   user passwords are stored as SHA-256 hashes (matches AuthService)
+--   All other tables, views and seed rows are unchanged.
+-- ============================================================================
+
+-- ============================================================================
+-- TEST DATA UPDATE NOTE (attendance / medical / timetable / failing-result scenarios):
+--   NEW      4.11   view   v_attendance_by_component  attendance split into Theory / Practical / Combined
+--   CHANGED  5.15   seed   timetable rewritten as explicit, clash-free weekly slots: 8 Theory + 2 Practical
+--                          (ICT2132 is practical-only; ICT2113 has one theory and one practical slot)
+--   NEW      5.17   seed   test scenarios on 28 student / course pairs (legend at the top of 5.17):
+--                          attendance exactly 80%, below 80% with and without medicals, Pending and
+--                          Rejected medicals, CA exactly 40% / just below 40% for CA weights 30, 40 and 50,
+--                          Not Eligible (E*) results, and the grades B+, C, C-, D+, D and E
+--   Schema, all other views and all other seed rows are unchanged. The students tg2065, tg2070,
+--   tg2075 and tg2080 and their original 10 approved medicals are not touched.
 -- ============================================================================
 
 DROP DATABASE IF EXISTS unimis;
@@ -221,6 +253,43 @@ CREATE TABLE enrollments (
                                      REFERENCES courses(course_id)
                                      ON UPDATE CASCADE
                                      ON DELETE RESTRICT
+);
+
+-- 2.10a Enrollment Requests Table (NEW)
+-- A student asks to be enrolled in a course; an admin accepts or declines the request.
+-- When a request is accepted the application inserts the row into enrollments.
+CREATE TABLE enrollment_requests (
+                                     request_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                     student_id BIGINT NOT NULL,
+                                     course_id INT NOT NULL,
+                                     academic_year VARCHAR(20) NOT NULL DEFAULT '2026',
+                                     semester ENUM('Semester I', 'Semester II') NOT NULL DEFAULT 'Semester I',
+                                     enrollment_type ENUM('Normal', 'Repeat', 'Batch Missed') NOT NULL DEFAULT 'Normal',
+                                     request_note VARCHAR(255) NULL,
+                                     status ENUM('Pending', 'Approved', 'Declined') NOT NULL DEFAULT 'Pending',
+                                     decision_note VARCHAR(255) NULL,
+                                     requested_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                     decided_by BIGINT NULL,
+                                     decided_at DATETIME NULL,
+    -- 1 while the request is Pending, NULL otherwise. Together with the UNIQUE key below
+    -- this allows only ONE pending request per student / course / semester.
+                                     pending_flag TINYINT GENERATED ALWAYS AS (CASE WHEN status = 'Pending' THEN 1 ELSE NULL END) STORED,
+                                     UNIQUE KEY uq_one_pending_request (student_id, course_id, academic_year, semester, pending_flag),
+                                     CONSTRAINT fk_enrollment_requests_student
+                                         FOREIGN KEY (student_id)
+                                             REFERENCES undergraduates(user_id)
+                                             ON UPDATE CASCADE
+                                             ON DELETE CASCADE,
+                                     CONSTRAINT fk_enrollment_requests_course
+                                         FOREIGN KEY (course_id)
+                                             REFERENCES courses(course_id)
+                                             ON UPDATE CASCADE
+                                             ON DELETE CASCADE,
+                                     CONSTRAINT fk_enrollment_requests_decider
+                                         FOREIGN KEY (decided_by)
+                                             REFERENCES users(user_id)
+                                             ON UPDATE CASCADE
+                                             ON DELETE SET NULL
 );
 
 -- 2.11 Assessment Definitions Table
@@ -467,6 +536,7 @@ CREATE INDEX idx_assessments_course_category ON assessments(course_id, assessmen
 CREATE INDEX idx_marks_student ON marks(student_id);
 CREATE INDEX idx_medicals_student_status ON medicals(student_id, approval_status);
 CREATE INDEX idx_notices_target ON notices(target_role, status, published_at);
+CREATE INDEX idx_enrollment_requests_status ON enrollment_requests(status, requested_at);
 
 -- ----------------------------------------------------------------------------
 -- DATABASE VIEWS
@@ -558,39 +628,49 @@ WHERE q.rn <= 2
 GROUP BY q.student_id, q.course_id;
 
 -- 4.4 Continuous Assessment (CA) Summary View
+-- ca_mark is on the scale of the course's ca_weight (e.g. out of 30 / 40 / 50).
+-- FIXED: ca_eligibility = 'Eligible' when ca_mark >= 40% of ca_weight, else 'Not Eligible'.
+-- The ca_mark is calculated once in the inner query, so the value shown in the
+-- ca_mark column is exactly the value used for the eligibility decision.
 CREATE OR REPLACE VIEW v_ca_summary AS
 SELECT
-    e.student_id,
-    ug.registration_no,
-    usr.full_name,
-    e.course_id,
-    c.course_code,
-    c.course_name,
-    c.ca_weight,
-    ROUND(
-            COALESCE(qb.quiz_mark_contribution, 0) +
-            COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-            COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-            COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0),
-            2
-    ) AS ca_mark,
+    t.student_id,
+    t.registration_no,
+    t.full_name,
+    t.course_id,
+    t.course_code,
+    t.course_name,
+    t.ca_weight,
+    t.ca_mark,
     CASE
-        WHEN (
-                 COALESCE(qb.quiz_mark_contribution, 0) +
-                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
-                 COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0)
-                 ) >= 40.0 THEN 'Eligible'
+        WHEN t.ca_mark >= ROUND(t.ca_weight * 0.40, 2) THEN 'Eligible'
         ELSE 'Not Eligible'
         END AS ca_eligibility
-FROM enrollments e
-         JOIN undergraduates ug ON e.student_id = ug.user_id
-         JOIN users usr ON ug.user_id = usr.user_id
-         JOIN courses c ON e.course_id = c.course_id
-         LEFT JOIN v_quiz_best2 qb ON qb.student_id = e.student_id AND qb.course_id = e.course_id
-         LEFT JOIN assessments a ON a.course_id = c.course_id AND a.assessment_category = 'CA' AND a.assessment_type NOT IN ('Quiz1', 'Quiz2', 'Quiz3') AND a.assessment_name NOT LIKE '%Quiz%'
-         LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
-GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name, c.ca_weight, qb.quiz_mark_contribution;
+FROM (
+         SELECT
+             e.student_id,
+             ug.registration_no,
+             usr.full_name,
+             e.course_id,
+             c.course_code,
+             c.course_name,
+             c.ca_weight,
+             ROUND(
+                     COALESCE(qb.quiz_mark_contribution, 0) +
+                     COALESCE(SUM(CASE WHEN a.assessment_type = 'Assignment' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+                     COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Theory' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0) +
+                     COALESCE(SUM(CASE WHEN a.assessment_type = 'Mid Exam Practical' THEN m.mark * a.weight_percent / 100.0 ELSE 0 END), 0),
+                     2
+             ) AS ca_mark
+         FROM enrollments e
+                  JOIN undergraduates ug ON e.student_id = ug.user_id
+                  JOIN users usr ON ug.user_id = usr.user_id
+                  JOIN courses c ON e.course_id = c.course_id
+                  LEFT JOIN v_quiz_best2 qb ON qb.student_id = e.student_id AND qb.course_id = e.course_id
+                  LEFT JOIN assessments a ON a.course_id = c.course_id AND a.assessment_category = 'CA' AND a.assessment_type NOT IN ('Quiz1', 'Quiz2', 'Quiz3') AND a.assessment_name NOT LIKE '%Quiz%'
+                  LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
+         GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name, c.ca_weight, qb.quiz_mark_contribution
+     ) t;
 
 -- 4.5 Final Exam Marks Contribution View
 CREATE OR REPLACE VIEW v_final_exam_marks AS
@@ -613,7 +693,8 @@ FROM enrollments e
          LEFT JOIN marks m ON m.assessment_id = a.assessment_id AND m.student_id = e.student_id
 GROUP BY e.student_id, ug.registration_no, usr.full_name, e.course_id, c.course_code, c.course_name;
 
--- 4.6 Eligibility View (Attendance >= 80% AND CA Mark >= 40%)
+-- 4.6 Eligibility View (Attendance >= 80% AND CA Mark >= 40% of CA weight)
+-- FIXED: CA requirement now uses v_ca_summary.ca_eligibility (ca_mark >= 40% of ca_weight)
 CREATE OR REPLACE VIEW v_eligibility AS
 SELECT
     ca.student_id,
@@ -625,15 +706,16 @@ SELECT
     ROUND(COALESCE(att.adjusted_attendance_percent, 0), 2) AS attendance_percent,
     ROUND(ca.ca_mark, 2) AS ca_mark,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND ca.ca_mark >= 40 THEN 'Eligible'
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND ca.ca_eligibility = 'Eligible' THEN 'Eligible'
         ELSE 'Not Eligible'
         END AS final_exam_eligibility,
     CASE WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 THEN 'Pass Attendance Requirement' ELSE 'Fail Attendance Requirement' END AS attendance_requirement,
-    CASE WHEN ca.ca_mark >= 40 THEN 'Pass CA Requirement' ELSE 'Fail CA Requirement' END AS ca_requirement
+    CASE WHEN ca.ca_eligibility = 'Eligible' THEN 'Pass CA Requirement' ELSE 'Fail CA Requirement' END AS ca_requirement
 FROM v_ca_summary ca
          LEFT JOIN v_attendance_summary att ON att.student_id = ca.student_id AND att.course_id = ca.course_id;
 
 -- 4.7 Final Course Results View
+-- FIXED: eligibility / grade / grade_point use the CA rule (ca_mark >= 40% of ca_weight)
 CREATE OR REPLACE VIEW v_final_results AS
 SELECT
     e.student_id,
@@ -649,11 +731,13 @@ SELECT
     ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2) AS final_mark,
     COALESCE(att.adjusted_attendance_percent, 0) AS attendance_percent,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80 AND COALESCE(ca.ca_mark, 0) >= 40 THEN 'Eligible'
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) >= 80
+            AND COALESCE(ca.ca_eligibility, 'Not Eligible') = 'Eligible' THEN 'Eligible'
         ELSE 'Not Eligible'
         END AS eligibility,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80 OR COALESCE(ca.ca_mark, 0) < 40 THEN 'E*'
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80
+            OR COALESCE(ca.ca_eligibility, 'Not Eligible') <> 'Eligible' THEN 'E*'
         ELSE (
             SELECT gs.grade_code
             FROM grade_scales gs
@@ -662,7 +746,8 @@ SELECT
         )
         END AS grade,
     CASE
-        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80 OR COALESCE(ca.ca_mark, 0) < 40 THEN 0.00
+        WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80
+            OR COALESCE(ca.ca_eligibility, 'Not Eligible') <> 'Eligible' THEN 0.00
         ELSE (
             SELECT gs.grade_point
             FROM grade_scales gs
@@ -710,6 +795,109 @@ SELECT
 FROM v_sgpa s
          JOIN undergraduates u ON s.student_id = u.user_id;
 
+-- 4.10 Enrollment Requests View (NEW)
+-- One row per request with student / course / admin names; already_enrolled = 1 when the
+-- student already has an enrollments row for that course and semester.
+CREATE OR REPLACE VIEW v_enrollment_requests AS
+SELECT
+    r.request_id,
+    r.student_id,
+    ug.registration_no,
+    stu.full_name AS student_name,
+    ug.student_type,
+    r.course_id,
+    c.course_code,
+    c.course_name,
+    c.total_credits,
+    r.academic_year,
+    r.semester,
+    r.enrollment_type,
+    r.request_note,
+    r.status,
+    r.requested_at,
+    r.decided_by,
+    adm.full_name AS decided_by_name,
+    r.decided_at,
+    r.decision_note,
+    EXISTS (
+        SELECT 1 FROM enrollments e
+        WHERE e.student_id = r.student_id AND e.course_id = r.course_id
+          AND e.academic_year = r.academic_year AND e.semester = r.semester
+    ) AS already_enrolled
+FROM enrollment_requests r
+         JOIN undergraduates ug ON ug.user_id = r.student_id
+         JOIN users stu ON stu.user_id = r.student_id
+         JOIN courses c ON c.course_id = r.course_id
+         LEFT JOIN users adm ON adm.user_id = r.decided_by;
+
+-- 4.11 Attendance By Component View (NEW)
+-- One row per student / course / component, where component is
+--     'Theory'    - theory sessions only
+--     'Practical' - practical sessions only
+--     'Combined'  - theory + practical together (same figures as v_attendance_summary)
+-- A theory-only course gets 'Theory' and 'Combined' rows, a practical-only course gets
+-- 'Practical' and 'Combined' rows, a course with both gets all three.
+-- Same rules as v_attendance_summary:
+--     raw_attendance_percent      = (PRESENT + LATE) / sessions
+--     adjusted_attendance_percent = (PRESENT + LATE + MEDICAL sessions that have an APPROVED medical) / sessions
+-- A MEDICAL session whose medical is Pending or Rejected earns no credit.
+CREATE OR REPLACE VIEW v_attendance_by_component AS
+SELECT
+    p.student_id,
+    ug.registration_no,
+    usr.full_name,
+    p.course_id,
+    c.course_code,
+    c.course_name,
+    p.component,
+    p.total_sessions,
+    p.attended_sessions,
+    p.medical_sessions,
+    p.approved_medical_sessions,
+    p.absent_sessions,
+    p.attended_sessions * 100.0 / NULLIF(p.total_sessions, 0) AS raw_attendance_percent,
+    (p.attended_sessions + p.approved_medical_sessions) * 100.0 / NULLIF(p.total_sessions, 0) AS adjusted_attendance_percent,
+    CASE
+        WHEN (p.attended_sessions + p.approved_medical_sessions) * 100.0 / NULLIF(p.total_sessions, 0) >= 80
+            THEN 'Pass Attendance Requirement'
+        ELSE 'Fail Attendance Requirement'
+        END AS attendance_requirement
+FROM (
+         SELECT
+             d.student_id,
+             d.course_id,
+             s.component,
+             COUNT(*) AS total_sessions,
+             SUM(CASE WHEN d.attendance_status IN ('PRESENT','LATE') THEN 1 ELSE 0 END) AS attended_sessions,
+             SUM(CASE WHEN d.attendance_status = 'MEDICAL' THEN 1 ELSE 0 END) AS medical_sessions,
+             SUM(CASE WHEN d.attendance_status = 'MEDICAL' AND d.has_approved_medical = 1 THEN 1 ELSE 0 END) AS approved_medical_sessions,
+             SUM(CASE WHEN d.attendance_status = 'ABSENT' THEN 1 ELSE 0 END) AS absent_sessions
+         FROM (
+                  SELECT
+                      e.student_id,
+                      ats.course_id,
+                      ats.component AS session_component,
+                      ar.attendance_status,
+                      EXISTS (
+                          SELECT 1 FROM medicals m
+                          WHERE m.attendance_record_id = ar.attendance_record_id AND m.approval_status = 'Approved'
+                      ) AS has_approved_medical
+                  FROM enrollments e
+                           JOIN attendance_sessions ats ON ats.course_id = e.course_id
+                           JOIN attendance_records ar ON ar.attendance_session_id = ats.attendance_session_id
+                      AND ar.student_id = e.student_id
+              ) d
+                  JOIN (
+             SELECT 'Theory' AS component
+             UNION ALL SELECT 'Practical'
+             UNION ALL SELECT 'Combined'
+         ) s ON s.component = 'Combined' OR s.component = d.session_component
+         GROUP BY d.student_id, d.course_id, s.component
+     ) p
+         JOIN undergraduates ug ON ug.user_id = p.student_id
+         JOIN users usr ON usr.user_id = p.student_id
+         JOIN courses c ON c.course_id = p.course_id;
+
 -- ----------------------------------------------------------------------------
 -- INITIAL SEED DATA
 -- ----------------------------------------------------------------------------
@@ -734,13 +922,14 @@ INSERT INTO grade_scales (grade_code, minimum_mark, grade_point, description) VA
                                                                                   ('E',   0.00, 0.00, 'Fail');
 
 -- 5.3 System Settings
+-- FIXED: MIN_CA_PERCENT description - it is a percentage of the course's CA weight
 INSERT INTO system_settings (setting_key, setting_value, description) VALUES
                                                                           ('UNIVERSITY_NAME', 'University of Ruhuna', 'University name'),
                                                                           ('FACULTY_NAME', 'Faculty of Technology', 'Faculty name'),
                                                                           ('ACADEMIC_YEAR', '2026', 'Current academic year'),
                                                                           ('SEMESTER', 'Semester I', 'Current semester'),
                                                                           ('MIN_ATTENDANCE_PERCENT', '80', 'Minimum attendance percentage required'),
-                                                                          ('MIN_CA_PERCENT', '40', 'Minimum CA percentage required for final examination eligibility'),
+                                                                          ('MIN_CA_PERCENT', '40', 'Minimum CA mark, as a percentage of the course CA weight, required for final examination eligibility'),
                                                                           ('TOTAL_THEORY_SESSIONS', '15', 'Expected theory sessions per course'),
                                                                           ('TOTAL_PRACTICAL_SESSIONS', '15', 'Expected practical sessions per course');
 
@@ -764,9 +953,9 @@ INSERT INTO lecturers (user_id, lecturer_code, title, specialization) SELECT use
 
 INSERT INTO users (username, password_hash, role, full_name, nic, date_of_birth, gender, email, contact_no, address, department_id) VALUES
                                                                                                                                         ('to1', 'to@123', 'Technical Officer', 'K. Silva',        '198678901234', '1986-04-10', 'Male', 'to1@fot.ruh.ac.lk', '0712000001', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to2', 'to@123', 'Technical Officer', 'M. Wijeratne',   '198989012345', '1989-09-25', 'Male', 'to2@fot.ruh.ac.lk', '0712000002', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to3', 'to@123', 'Technical Officer', 'D. Samarasinghe','199190123456', '1991-12-03', 'Male', 'to3@fot.ruh.ac.lk', '0712000003', 'Department of ICT, Faculty of Technology', 1),
-                                                                                                                                        ('to4', 'to@123', 'Technical Officer', 'P. Nandasena',   '198701234567', '1987-07-14', 'Male', 'to4@fot.ruh.ac.lk', '0712000004', 'Department of ICT, Faculty of Technology', 1);
+                                                                                                                                        ('to2', 'to@123', 'Technical Officer', 'M. Wijeratne',    '198989012345', '1989-09-25', 'Male', 'to2@fot.ruh.ac.lk', '0712000002', 'Department of ICT, Faculty of Technology', 1),
+                                                                                                                                        ('to3', 'to@123', 'Technical Officer', 'D. Samarasinghe', '199190123456', '1991-12-03', 'Male', 'to3@fot.ruh.ac.lk', '0712000003', 'Department of ICT, Faculty of Technology', 1),
+                                                                                                                                        ('to4', 'to@123', 'Technical Officer', 'P. Nandasena',    '198701234567', '1987-07-14', 'Male', 'to4@fot.ruh.ac.lk', '0712000004', 'Department of ICT, Faculty of Technology', 1);
 
 INSERT INTO technical_officers (user_id, technical_officer_code, designation) SELECT user_id, 'TO001', 'Technical Officer' FROM users WHERE username = 'to1';
 INSERT INTO technical_officers (user_id, technical_officer_code, designation) SELECT user_id, 'TO002', 'Technical Officer' FROM users WHERE username = 'to2';
@@ -805,6 +994,11 @@ FROM users WHERE role = 'Undergraduate';
 
 UPDATE undergraduates SET student_type = 'Repeat' WHERE registration_no IN ('TG/2024/2078', 'TG/2024/2079');
 UPDATE undergraduates SET student_type = 'Batch Missed', batch_year = 2023 WHERE registration_no = 'TG/2024/2080';
+
+-- CHANGED: store the seed passwords as SHA-256 hashes (same hex format as AuthService.hashPassword).
+-- The login passwords themselves are unchanged: admin / adm@123, lecturer1 / lec@123,
+-- to1 / to@123, tg2061 / ug@123 ...
+UPDATE users SET password_hash = SHA2(password_hash, 256);
 
 -- 5.5 Courses Seed (Level 2 Semester 1 Actual Courses with Sub-weights)
 INSERT INTO courses (course_code, course_name, description, theory_credits, practical_credits, is_gpa, quiz_weight, assignment_weight, mid_theory_weight, mid_practical_weight, ca_weight, end_theory_weight, end_practical_weight, department_id, academic_year, semester) VALUES
@@ -966,25 +1160,311 @@ FROM assessments a
          JOIN enrollments e ON e.course_id = a.course_id;
 
 -- 5.14 System Notices
+-- FIXED: CA Eligibility Notice wording - 40% of the course CA weight
 INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, status) VALUES
                                                                                                         ('Semester I Academic Notice', 'Students are requested to regularly check attendance, course and examination information.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
                                                                                                         ('Attendance Eligibility Reminder', 'Students must maintain at least 80% attendance according to academic regulations.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
-                                                                                                        ('CA Eligibility Notice', 'Continuous Assessment marks must satisfy the 40% minimum eligibility requirement before the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
+                                                                                                        ('CA Eligibility Notice', 'Continuous Assessment (CA) marks must be at least 40% of the total CA weight of the course (e.g. 16 out of 40, 20 out of 50, 12 out of 30) to be eligible for the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
 
--- 5.15 Timetable Schedule
+-- 5.15 Timetable Schedule (REWRITTEN)
+-- Explicit weekly timetable for the 2024 batch, one row per weekly slot (2-hour slots, same
+-- length as the attendance sessions in 5.10):
+--   * 8 theory slots  : every course that has theory credits
+--   * 2 practical slots: ICT2113 (theory + practical course) and ICT2132 (practical-only course)
+-- The lecturer is the course coordinator from 5.6. The schedule has no clashes: no two courses
+-- of the batch overlap, no lecturer is in two places at once and no venue is double-booked.
+--
+--         08:00-10:00            10:00-12:00             13:00-15:00
+--   Mon   ICT2122 Theory         ICT2142 Theory          TCS2112 Theory
+--   Tue   ICT2113 Theory         ICT2152 Theory          TCS2121 Theory
+--   Wed   ICT2162 Theory         ENG2112 Theory          ICT2113 Practical
+--   Thu   -                     -                       ICT2132 Practical
+CREATE TEMPORARY TABLE tmp_timetable_plan (
+                                              course_code  VARCHAR(20) NOT NULL,
+                                              component    VARCHAR(10) NOT NULL,
+                                              day_of_week  VARCHAR(10) NOT NULL,
+                                              start_time   TIME        NOT NULL,
+                                              end_time     TIME        NOT NULL,
+                                              venue        VARCHAR(100) NOT NULL
+);
+
+INSERT INTO tmp_timetable_plan (course_code, component, day_of_week, start_time, end_time, venue) VALUES
+                                                                                                      ('ICT2122', 'Theory',    'Monday',    '08:00:00', '10:00:00', 'Lecture Hall 1'),
+                                                                                                      ('ICT2142', 'Theory',    'Monday',    '10:00:00', '12:00:00', 'Lecture Hall 1'),
+                                                                                                      ('TCS2112', 'Theory',    'Monday',    '13:00:00', '15:00:00', 'Lecture Hall 2'),
+                                                                                                      ('ICT2113', 'Theory',    'Tuesday',   '08:00:00', '10:00:00', 'Lecture Hall 1'),
+                                                                                                      ('ICT2152', 'Theory',    'Tuesday',   '10:00:00', '12:00:00', 'Lecture Hall 1'),
+                                                                                                      ('TCS2121', 'Theory',    'Tuesday',   '13:00:00', '15:00:00', 'Lecture Hall 2'),
+                                                                                                      ('ICT2162', 'Theory',    'Wednesday', '08:00:00', '10:00:00', 'Lecture Hall 1'),
+                                                                                                      ('ENG2112', 'Theory',    'Wednesday', '10:00:00', '12:00:00', 'Lecture Hall 2'),
+                                                                                                      ('ICT2113', 'Practical', 'Wednesday', '13:00:00', '15:00:00', 'ICT Lab 1'),
+                                                                                                      ('ICT2132', 'Practical', 'Thursday',  '13:00:00', '15:00:00', 'ICT Lab 1');
+
 INSERT INTO timetable_entries (department_id, course_id, lecturer_id, batch_year, component, day_of_week, start_time, end_time, venue, academic_year, semester)
 SELECT
-    1, c.course_id, cl.lecturer_id, 2024, 'Theory',
-    CASE MOD(c.course_id, 5)
-        WHEN 0 THEN 'Monday'
-        WHEN 1 THEN 'Tuesday'
-        WHEN 2 THEN 'Wednesday'
-        WHEN 3 THEN 'Thursday'
-        ELSE 'Friday'
-        END,
-    '08:00:00', '10:00:00', CONCAT('Lecture Hall ', c.course_id), '2026', 'Semester I'
-FROM courses c
+    1, c.course_id, cl.lecturer_id, 2024, p.component, p.day_of_week, p.start_time, p.end_time, p.venue, '2026', 'Semester I'
+FROM tmp_timetable_plan p
+         JOIN courses c ON c.course_code = p.course_code
          JOIN course_lecturers cl ON cl.course_id = c.course_id AND cl.responsibility = 'Coordinator';
+
+DROP TEMPORARY TABLE tmp_timetable_plan;
+
+-- 5.16 Enrollment Requests Seed (NEW) - sample data for the admin accept / decline screen
+--   3 Pending  : students asking for courses they are not enrolled in yet
+--   1 Declined : with the admin's reason
+--   1 Approved : (its enrollments row already exists from 5.8)
+INSERT INTO enrollment_requests
+(student_id, course_id, academic_year, semester, enrollment_type, request_note, status, decision_note, decided_by, decided_at)
+VALUES
+    ((SELECT user_id FROM users WHERE username = 'tg2080'), (SELECT course_id FROM courses WHERE course_code = 'ICT2132'),
+     '2026', 'Semester I', 'Batch Missed', 'Batch missed - need to follow this module', 'Pending', NULL, NULL, NULL),
+    ((SELECT user_id FROM users WHERE username = 'tg2080'), (SELECT course_id FROM courses WHERE course_code = 'ICT2162'),
+     '2026', 'Semester I', 'Batch Missed', 'Batch missed - need to follow this module', 'Pending', NULL, NULL, NULL),
+    ((SELECT user_id FROM users WHERE username = 'tg2078'), (SELECT course_id FROM courses WHERE course_code = 'ENG2112'),
+     '2026', 'Semester I', 'Repeat', 'Repeat attempt for this course', 'Pending', NULL, NULL, NULL),
+    ((SELECT user_id FROM users WHERE username = 'tg2079'), (SELECT course_id FROM courses WHERE course_code = 'ENG2112'),
+     '2026', 'Semester I', 'Repeat', 'Repeat attempt for this course', 'Declined', 'Course already completed with a pass grade',
+     (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), NOW()),
+    ((SELECT user_id FROM users WHERE username = 'tg2062'), (SELECT course_id FROM courses WHERE course_code = 'ICT2142'),
+     '2026', 'Semester I', 'Normal', 'Late registration request', 'Approved', 'Approved by admin',
+     (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), NOW());
+
+-- 5.17 Test Scenarios (NEW) - attendance, medical, component, CA and grade edge cases
+-- ----------------------------------------------------------------------------
+-- The generated data in 5.8 - 5.13 gives every student 90-100% attendance and a passing
+-- result. This section overrides specific student/course pairs so every rule has a row to
+-- show. Only the pairs listed below are changed; all other rows keep their generated values.
+-- tg2065, tg2070, tg2075 and tg2080 (the students with the original 10 approved medicals)
+-- are NOT touched.
+--
+-- Eligibility = attendance >= 80% (approved medicals counted, as in v_attendance_summary)
+--               AND CA mark >= 40% of the course CA weight.   Not eligible => grade E*, 0.00 points.
+--
+-- ATTENDANCE (theory-only courses, 15 sessions)            attendance        result
+--  A1  tg2061 ICT2122  exactly 80%: 9 PRESENT + 3 LATE       80.00            Eligible
+--  A2  tg2062 ICT2142  exactly 80% only thanks to 2 medicals 66.67 -> 80.00   Eligible
+--  A3  tg2063 ICT2152  below 80%, no medicals, marks ~90     73.33            Not Eligible (E*)
+--  A4  tg2064 ICT2162  below 80% raw, 3 approved medicals    66.67 -> 86.67   Eligible
+--  A5  tg2066 TCS2112  below 80% even with 2 approved        60.00 -> 73.33   Not Eligible (E*)
+--  A6  tg2067 ICT2122  2 medicals still PENDING (no credit)  73.33            Not Eligible (E*)
+--  A7  tg2068 ICT2142  2 medicals REJECTED (no credit)       73.33            Not Eligible (E*)
+--  A8  tg2069 ICT2152  1 Approved + 1 Pending + 1 Rejected   66.67 -> 80.00   Eligible
+--  A9  tg2071 ICT2162  very low attendance                   40.00            Not Eligible (E*)
+--  A10 tg2072 ICT2152  attendance AND CA both fail           53.33            Not Eligible (E*)
+--
+-- THEORY / PRACTICAL / COMBINED (see v_attendance_by_component)   theory  practical  combined
+--  C1  tg2073 ICT2113  strong theory, weak practical             100.00   60.00      80.00  Eligible
+--  C2  tg2074 ICT2113  strong theory, poor practical             100.00   40.00      70.00  Not Eligible (E*)
+--  C3  tg2076 ICT2113  practical absences covered by medicals    100.00   86.67      93.33  Eligible
+--  C4  tg2077 ICT2132  practical-only course, exactly 80%                 80.00      80.00  Eligible
+--  C5  tg2078 ICT2132  practical-only course, 60%                         60.00      60.00  Not Eligible (E*)
+--  C6  tg2079 ICT2132  practical-only course, 3 approved medicals         86.67      86.67  Eligible
+--
+-- CA RULE (40% of the course CA weight; attendance is normal in all of these)
+--  M1  tg2061 TCS2112  CA 12.00 / 30  = exactly 40%          Eligible,     final 47.00 (C+)
+--  M2  tg2062 TCS2112  CA 11.70 / 30  = just below 40%       Not Eligible (E*)
+--  M3  tg2063 TCS2121  CA 20.00 / 50  = exactly 40%          Eligible,     final 45.00 (C+)
+--  M4  tg2064 TCS2121  CA 19.50 / 50  = just below 40%       Not Eligible (E*)
+--  M5  tg2066 ICT2122  CA 16.00 / 40  = exactly 40%          Eligible,     final 40.00 (C)
+--  M6  tg2068 ICT2122  CA 15.60 / 40  = just below 40%       Not Eligible (E*)
+--  M7  tg2071 ICT2152  assignment not submitted, CA 13.00/40 Not Eligible (E*)
+--
+-- GRADE LADDER (ICT2142, CA exactly 16.00 / 40, only the end exam differs)
+--  G1  tg2073  final 22.00 -> E      (eligible but failed the course)
+--  G2  tg2074  final 28.00 -> D
+--  G3  tg2076  final 32.80 -> D+
+--  G4  tg2077  final 37.60 -> C-
+--  G5  tg2078  CA 24.00, final 63.00 -> B+
+-- ----------------------------------------------------------------------------
+
+-- Attendance plan: each row sets sessions session_from..session_to of one student / course /
+-- component. Every plan covers sessions 1..15 of its component. medical_status is set only on
+-- MEDICAL sessions and creates the linked medicals row with that approval status.
+CREATE TEMPORARY TABLE tmp_att_plan (
+                                        username       VARCHAR(50) NOT NULL,
+                                        course_code    VARCHAR(20) NOT NULL,
+                                        component      VARCHAR(10) NOT NULL,
+                                        session_from   INT         NOT NULL,
+                                        session_to     INT         NOT NULL,
+                                        att_status     VARCHAR(10) NOT NULL,
+                                        medical_status VARCHAR(10) NULL
+);
+
+INSERT INTO tmp_att_plan (username, course_code, component, session_from, session_to, att_status, medical_status) VALUES
+                                                                                                                      -- A1: exactly 80% (12 of 15 attended, 3 of them LATE)
+                                                                                                                      ('tg2061', 'ICT2122', 'Theory', 1,  6,  'PRESENT', NULL),
+                                                                                                                      ('tg2061', 'ICT2122', 'Theory', 7,  9,  'LATE',    NULL),
+                                                                                                                      ('tg2061', 'ICT2122', 'Theory', 10, 12, 'PRESENT', NULL),
+                                                                                                                      ('tg2061', 'ICT2122', 'Theory', 13, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A2: 10 present + 2 approved medicals = exactly 80%
+                                                                                                                      ('tg2062', 'ICT2142', 'Theory', 1,  4,  'PRESENT', NULL),
+                                                                                                                      ('tg2062', 'ICT2142', 'Theory', 5,  6,  'MEDICAL', 'Approved'),
+                                                                                                                      ('tg2062', 'ICT2142', 'Theory', 7,  12, 'PRESENT', NULL),
+                                                                                                                      ('tg2062', 'ICT2142', 'Theory', 13, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A3: 11 present, 4 absent, no medicals = 73.33%
+                                                                                                                      ('tg2063', 'ICT2152', 'Theory', 1,  6,  'PRESENT', NULL),
+                                                                                                                      ('tg2063', 'ICT2152', 'Theory', 7,  8,  'ABSENT',  NULL),
+                                                                                                                      ('tg2063', 'ICT2152', 'Theory', 9,  13, 'PRESENT', NULL),
+                                                                                                                      ('tg2063', 'ICT2152', 'Theory', 14, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A4: 10 present + 3 approved medicals = 86.67% (raw 66.67%)
+                                                                                                                      ('tg2064', 'ICT2162', 'Theory', 1,  5,  'PRESENT', NULL),
+                                                                                                                      ('tg2064', 'ICT2162', 'Theory', 6,  8,  'MEDICAL', 'Approved'),
+                                                                                                                      ('tg2064', 'ICT2162', 'Theory', 9,  13, 'PRESENT', NULL),
+                                                                                                                      ('tg2064', 'ICT2162', 'Theory', 14, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A5: 9 present + 2 approved medicals = 73.33% (still below 80%)
+                                                                                                                      ('tg2066', 'TCS2112', 'Theory', 1,  3,  'PRESENT', NULL),
+                                                                                                                      ('tg2066', 'TCS2112', 'Theory', 4,  5,  'MEDICAL', 'Approved'),
+                                                                                                                      ('tg2066', 'TCS2112', 'Theory', 6,  11, 'PRESENT', NULL),
+                                                                                                                      ('tg2066', 'TCS2112', 'Theory', 12, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A6: 11 present, 2 MEDICAL sessions whose medical is Pending -> not credited = 73.33%
+                                                                                                                      ('tg2067', 'ICT2122', 'Theory', 1,  6,  'PRESENT', NULL),
+                                                                                                                      ('tg2067', 'ICT2122', 'Theory', 7,  8,  'MEDICAL', 'Pending'),
+                                                                                                                      ('tg2067', 'ICT2122', 'Theory', 9,  13, 'PRESENT', NULL),
+                                                                                                                      ('tg2067', 'ICT2122', 'Theory', 14, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A7: 11 present, 2 MEDICAL sessions whose medical was Rejected -> not credited = 73.33%
+                                                                                                                      ('tg2068', 'ICT2142', 'Theory', 1,  6,  'PRESENT', NULL),
+                                                                                                                      ('tg2068', 'ICT2142', 'Theory', 7,  8,  'MEDICAL', 'Rejected'),
+                                                                                                                      ('tg2068', 'ICT2142', 'Theory', 9,  13, 'PRESENT', NULL),
+                                                                                                                      ('tg2068', 'ICT2142', 'Theory', 14, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A8: one Approved, one Pending, one Rejected medical; 10 present + 2 approved = exactly 80%
+                                                                                                                      ('tg2069', 'ICT2152', 'Theory', 1,  4,  'PRESENT', NULL),
+                                                                                                                      ('tg2069', 'ICT2152', 'Theory', 5,  6,  'MEDICAL', 'Approved'),
+                                                                                                                      ('tg2069', 'ICT2152', 'Theory', 7,  7,  'MEDICAL', 'Pending'),
+                                                                                                                      ('tg2069', 'ICT2152', 'Theory', 8,  8,  'MEDICAL', 'Rejected'),
+                                                                                                                      ('tg2069', 'ICT2152', 'Theory', 9,  14, 'PRESENT', NULL),
+                                                                                                                      ('tg2069', 'ICT2152', 'Theory', 15, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A9: 6 present, 9 absent = 40%
+                                                                                                                      ('tg2071', 'ICT2162', 'Theory', 1,  3,  'PRESENT', NULL),
+                                                                                                                      ('tg2071', 'ICT2162', 'Theory', 4,  7,  'ABSENT',  NULL),
+                                                                                                                      ('tg2071', 'ICT2162', 'Theory', 8,  10, 'PRESENT', NULL),
+                                                                                                                      ('tg2071', 'ICT2162', 'Theory', 11, 15, 'ABSENT',  NULL),
+                                                                                                                      -- A10: 8 present, 7 absent = 53.33% (CA also fails, see marks plan)
+                                                                                                                      ('tg2072', 'ICT2152', 'Theory', 1,  4,  'PRESENT', NULL),
+                                                                                                                      ('tg2072', 'ICT2152', 'Theory', 5,  8,  'ABSENT',  NULL),
+                                                                                                                      ('tg2072', 'ICT2152', 'Theory', 9,  12, 'PRESENT', NULL),
+                                                                                                                      ('tg2072', 'ICT2152', 'Theory', 13, 15, 'ABSENT',  NULL),
+                                                                                                                      -- C1: ICT2113 theory 15/15, practical 9/15 -> combined 24/30 = exactly 80%
+                                                                                                                      ('tg2073', 'ICT2113', 'Theory',    1,  15, 'PRESENT', NULL),
+                                                                                                                      ('tg2073', 'ICT2113', 'Practical', 1,  5,  'PRESENT', NULL),
+                                                                                                                      ('tg2073', 'ICT2113', 'Practical', 6,  8,  'ABSENT',  NULL),
+                                                                                                                      ('tg2073', 'ICT2113', 'Practical', 9,  12, 'PRESENT', NULL),
+                                                                                                                      ('tg2073', 'ICT2113', 'Practical', 13, 15, 'ABSENT',  NULL),
+                                                                                                                      -- C2: ICT2113 theory 15/15, practical 6/15 -> combined 21/30 = 70%
+                                                                                                                      ('tg2074', 'ICT2113', 'Theory',    1,  15, 'PRESENT', NULL),
+                                                                                                                      ('tg2074', 'ICT2113', 'Practical', 1,  3,  'PRESENT', NULL),
+                                                                                                                      ('tg2074', 'ICT2113', 'Practical', 4,  6,  'ABSENT',  NULL),
+                                                                                                                      ('tg2074', 'ICT2113', 'Practical', 7,  9,  'PRESENT', NULL),
+                                                                                                                      ('tg2074', 'ICT2113', 'Practical', 10, 15, 'ABSENT',  NULL),
+                                                                                                                      -- C3: ICT2113 theory 15/15, practical 10 present + 3 approved medicals -> combined 28/30 = 93.33%
+                                                                                                                      ('tg2076', 'ICT2113', 'Theory',    1,  15, 'PRESENT', NULL),
+                                                                                                                      ('tg2076', 'ICT2113', 'Practical', 1,  5,  'PRESENT', NULL),
+                                                                                                                      ('tg2076', 'ICT2113', 'Practical', 6,  8,  'MEDICAL', 'Approved'),
+                                                                                                                      ('tg2076', 'ICT2113', 'Practical', 9,  13, 'PRESENT', NULL),
+                                                                                                                      ('tg2076', 'ICT2113', 'Practical', 14, 15, 'ABSENT',  NULL),
+                                                                                                                      -- C4: ICT2132 (practical only) 12/15 = exactly 80%
+                                                                                                                      ('tg2077', 'ICT2132', 'Practical', 1,  8,  'PRESENT', NULL),
+                                                                                                                      ('tg2077', 'ICT2132', 'Practical', 9,  11, 'ABSENT',  NULL),
+                                                                                                                      ('tg2077', 'ICT2132', 'Practical', 12, 15, 'PRESENT', NULL),
+                                                                                                                      -- C5: ICT2132 9/15 = 60%
+                                                                                                                      ('tg2078', 'ICT2132', 'Practical', 1,  4,  'PRESENT', NULL),
+                                                                                                                      ('tg2078', 'ICT2132', 'Practical', 5,  9,  'ABSENT',  NULL),
+                                                                                                                      ('tg2078', 'ICT2132', 'Practical', 10, 14, 'PRESENT', NULL),
+                                                                                                                      ('tg2078', 'ICT2132', 'Practical', 15, 15, 'ABSENT',  NULL),
+                                                                                                                      -- C6: ICT2132 10 present + 3 approved medicals = 86.67% (raw 66.67%)
+                                                                                                                      ('tg2079', 'ICT2132', 'Practical', 1,  5,  'PRESENT', NULL),
+                                                                                                                      ('tg2079', 'ICT2132', 'Practical', 6,  8,  'MEDICAL', 'Approved'),
+                                                                                                                      ('tg2079', 'ICT2132', 'Practical', 9,  13, 'PRESENT', NULL),
+                                                                                                                      ('tg2079', 'ICT2132', 'Practical', 14, 15, 'ABSENT',  NULL);
+
+UPDATE attendance_records ar
+    JOIN attendance_sessions ats ON ats.attendance_session_id = ar.attendance_session_id
+    JOIN courses c ON c.course_id = ats.course_id
+    JOIN users u ON u.user_id = ar.student_id
+    JOIN tmp_att_plan p ON p.username = u.username
+        AND p.course_code = c.course_code
+        AND p.component = ats.component
+        AND ats.session_no BETWEEN p.session_from AND p.session_to
+SET ar.attendance_status = p.att_status;
+
+-- One medicals row per MEDICAL session in the plan, with the planned approval status.
+-- Pending rows have no reviewer yet; Approved / Rejected rows are reviewed by a technical officer.
+INSERT INTO medicals (student_id, course_id, attendance_record_id, medical_date, reason, document_path,
+                      approval_status, reviewed_by, reviewed_at, review_comment)
+SELECT
+    u.user_id, c.course_id, ar.attendance_record_id, ats.session_date,
+    CASE p.medical_status
+        WHEN 'Pending' THEN 'Medical leave - certificate submitted, awaiting review'
+        ELSE 'Medical leave - certified illness'
+        END,
+    CONCAT('medicals/', u.username, '_', c.course_code, '_', LEFT(ats.component, 1), LPAD(ats.session_no, 2, '0'), '.pdf'),
+    p.medical_status,
+    CASE WHEN p.medical_status = 'Pending' THEN NULL ELSE (SELECT user_id FROM technical_officers LIMIT 1) END,
+    CASE WHEN p.medical_status = 'Pending' THEN NULL ELSE NOW() END,
+    CASE p.medical_status
+        WHEN 'Approved' THEN 'Medical document verified'
+        WHEN 'Rejected' THEN 'Medical certificate does not cover the session date'
+        ELSE NULL
+        END
+FROM tmp_att_plan p
+         JOIN users u ON u.username = p.username
+         JOIN courses c ON c.course_code = p.course_code
+         JOIN attendance_sessions ats ON ats.course_id = c.course_id
+    AND ats.component = p.component
+    AND ats.session_no BETWEEN p.session_from AND p.session_to
+         JOIN attendance_records ar ON ar.attendance_session_id = ats.attendance_session_id
+    AND ar.student_id = u.user_id
+WHERE p.medical_status IS NOT NULL;
+
+DROP TEMPORARY TABLE tmp_att_plan;
+
+-- Marks plan: every quiz, the assignment, the mid exam(s) and the end exam(s) of a student's
+-- course are set to the marks below (all out of 100). Components a course does not have are ignored.
+CREATE TEMPORARY TABLE tmp_mark_plan (
+                                         username        VARCHAR(50) NOT NULL,
+                                         course_code     VARCHAR(20) NOT NULL,
+                                         quiz_mark       DECIMAL(5,2) NOT NULL,
+                                         assignment_mark DECIMAL(5,2) NOT NULL,
+                                         mid_mark        DECIMAL(5,2) NOT NULL,
+                                         final_mark      DECIMAL(5,2) NOT NULL
+);
+
+INSERT INTO tmp_mark_plan (username, course_code, quiz_mark, assignment_mark, mid_mark, final_mark) VALUES
+                                                                                                        -- M1 / M2: CA weight 30 -> pass mark 12.00
+                                                                                                        ('tg2061', 'TCS2112', 40, 40, 40, 50),
+                                                                                                        ('tg2062', 'TCS2112', 39, 39, 39, 60),
+                                                                                                        -- M3 / M4: CA weight 50 -> pass mark 20.00
+                                                                                                        ('tg2063', 'TCS2121', 40, 40, 40, 50),
+                                                                                                        ('tg2064', 'TCS2121', 39, 39, 39, 60),
+                                                                                                        -- M5 / M6: CA weight 40 -> pass mark 16.00
+                                                                                                        ('tg2066', 'ICT2122', 40, 40, 40, 40),
+                                                                                                        ('tg2068', 'ICT2122', 39, 39, 39, 60),
+                                                                                                        -- M7: assignment not submitted (0), CA = 13.00 of 40
+                                                                                                        ('tg2071', 'ICT2152', 50,  0, 40, 70),
+                                                                                                        -- A3: excellent marks, but attendance is 73.33% -> still E*
+                                                                                                        ('tg2063', 'ICT2152', 90, 90, 90, 90),
+                                                                                                        -- A10: weak marks (CA 10.00 of 40) and attendance 53.33%
+                                                                                                        ('tg2072', 'ICT2152', 30, 20, 25, 35),
+                                                                                                        -- G1 - G5: grade ladder, CA 16.00 (G5: 24.00), different end-exam marks
+                                                                                                        ('tg2073', 'ICT2142', 40, 40, 40, 10),
+                                                                                                        ('tg2074', 'ICT2142', 40, 40, 40, 20),
+                                                                                                        ('tg2076', 'ICT2142', 40, 40, 40, 28),
+                                                                                                        ('tg2077', 'ICT2142', 40, 40, 40, 36),
+                                                                                                        ('tg2078', 'ICT2142', 60, 60, 60, 65);
+
+UPDATE marks m
+    JOIN assessments a ON a.assessment_id = m.assessment_id
+    JOIN courses c ON c.course_id = a.course_id
+    JOIN users u ON u.user_id = m.student_id
+    JOIN tmp_mark_plan p ON p.username = u.username AND p.course_code = c.course_code
+SET m.mark = CASE
+                 WHEN a.assessment_type IN ('Quiz1', 'Quiz2', 'Quiz3') THEN p.quiz_mark
+                 WHEN a.assessment_type = 'Assignment' THEN p.assignment_mark
+                 WHEN a.assessment_type IN ('Mid Exam Theory', 'Mid Exam Practical') THEN p.mid_mark
+                 WHEN a.assessment_type IN ('End Exam Theory', 'End Exam Practical') THEN p.final_mark
+                 ELSE m.mark
+    END;
+
+DROP TEMPORARY TABLE tmp_mark_plan;
 
 -- Set sample profile picture locations
 UPDATE users SET profile_picture = CONCAT('uploads/profiles/', username, '.jpg') WHERE role = 'Undergraduate';
