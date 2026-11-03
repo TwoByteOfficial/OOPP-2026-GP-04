@@ -42,12 +42,14 @@ CREATE USER 'unimisto'@'localhost'    IDENTIFIED BY 'To@Unimis@123';
 CREATE USER 'unimisug'@'localhost'    IDENTIFIED BY 'Ug@Unimis@123';
 CREATE USER 'unimisauth'@'localhost'  IDENTIFIED BY 'Auth@Unimis@123';
 
+
 -- ----------------------------------------------------------------------------
 -- 2. ADMIN  -  creates and maintains users, courses, notices, timetables
 -- ----------------------------------------------------------------------------
 -- Full data access on every table (and read access on every view) in unimis.
 -- No DDL (CREATE / ALTER / DROP) and no GRANT OPTION.
 GRANT SELECT, INSERT, UPDATE, DELETE ON unimis.* TO 'unimisadmin'@'localhost';
+
 
 -- ----------------------------------------------------------------------------
 -- 3. LECTURER
@@ -56,7 +58,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON unimis.* TO 'unimisadmin'@'localhost';
 -- update their own profile fields, but NOT username, password_hash, role,
 -- department_id or user_status.
 GRANT SELECT ON unimis.users TO 'unimislec'@'localhost';
-GRANT UPDATE (full_name, nic, date_of_birth, gender, email, contact_no, address, profile_picture) ON unimis.users TO 'unimislec'@'localhost';
+GRANT UPDATE (full_name, nic, date_of_birth, gender, email, contact_no, address, profile_picture)
+    ON unimis.users TO 'unimislec'@'localhost';
 GRANT SELECT ON unimis.lecturers TO 'unimislec'@'localhost';
 GRANT UPDATE (title, specialization) ON unimis.lecturers TO 'unimislec'@'localhost';
 
@@ -68,7 +71,7 @@ GRANT SELECT ON unimis.course_lecturers TO 'unimislec'@'localhost';
 GRANT SELECT ON unimis.enrollments     TO 'unimislec'@'localhost';
 
 -- Course materials: add and modify (add DELETE here if lecturers may remove them)
-GRANT SELECT, INSERT, UPDATE, DELETE ON unimis.course_materials TO 'unimislec'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON unimis.course_materials TO 'unimislec'@'localhost';
 
 -- Marks: upload marks for every kind of exam
 -- (assessments hold the quiz / assignment / mid / end-exam definitions that marks point to)
@@ -84,7 +87,6 @@ GRANT SELECT ON unimis.medicals            TO 'unimislec'@'localhost';
 GRANT SELECT ON unimis.notices         TO 'unimislec'@'localhost';
 GRANT SELECT ON unimis.grade_scales    TO 'unimislec'@'localhost';
 GRANT SELECT ON unimis.system_settings TO 'unimislec'@'localhost';
-
 
 -- Eligibility, marks, grades and GPA (read-only views)
 GRANT SELECT ON unimis.v_users              TO 'unimislec'@'localhost';
@@ -110,9 +112,7 @@ GRANT SELECT ON unimis.users TO 'unimisto'@'localhost';
 GRANT UPDATE (full_name, nic, date_of_birth, gender, email, contact_no, address, profile_picture)
     ON unimis.users TO 'unimisto'@'localhost';
 GRANT SELECT ON unimis.technical_officers TO 'unimisto'@'localhost';
-GRANT UPDATE (assigned_labs) ON unimis.technical_officers TO 'unimisto'@'localhost';
 
-GRANT SELECT ON unimis.course_materials TO 'unimisto'@'localhost';
 -- Reference data needed to record attendance / medicals (read-only)
 GRANT SELECT ON unimis.undergraduates   TO 'unimisto'@'localhost';
 GRANT SELECT ON unimis.lecturers        TO 'unimisto'@'localhost';
@@ -158,7 +158,6 @@ GRANT SELECT ON unimis.enrollments      TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.attendance_sessions TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.attendance_records  TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.medicals            TO 'unimisug'@'localhost';
-GRANT INSERT (student_id, course_id, medical_date, reason, document_path, approval_status) ON unimis.medicals TO 'unimisug'@'localhost';
 
 -- Timetables, notices, grading reference data (read-only)
 GRANT SELECT ON unimis.timetable_entries TO 'unimisug'@'localhost';
@@ -172,7 +171,14 @@ GRANT SELECT ON unimis.v_attendance_summary TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_final_results      TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_sgpa               TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_cgpa               TO 'unimisug'@'localhost';
-GRANT SELECT ON unimis.v_ca_summary TO 'unimisug'@'localhost';
+
+-- Course enrollment requests: submit a request and see its status.
+-- INSERT is limited to the columns a student may fill in. status, decision_note,
+-- decided_by and decided_at are left out, so a new request is always 'Pending' and
+-- a student can never approve or decline anything. (No UPDATE / DELETE.)
+GRANT SELECT ON unimis.enrollment_requests TO 'unimisug'@'localhost';
+GRANT INSERT (student_id, course_id, academic_year, semester, enrollment_type, request_note)
+    ON unimis.enrollment_requests TO 'unimisug'@'localhost';
 
 
 -- ----------------------------------------------------------------------------
