@@ -14,3 +14,4 @@
 - [2026-11-04 22:59:59] Style: format button color states for enrollment submission
 - [2026-11-04 23:00:00] Refactor: extract constants for academic year and default semester
 - [2026-11-04 23:00:00] Docs: add inline comments for best 2 of 3 quiz evaluation view
+- [2026-11-04 23:00:00] Fix: ensure consistent semester label mapping across UI forms
