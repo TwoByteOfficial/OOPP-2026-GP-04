@@ -5,3 +5,4 @@
 - [2026-11-04 22:59:55] Style: format component spacing in UGEnrollmentView
 - [2026-11-04 22:59:55] Refactor: optimize enrollment status badge rendering logic
 - [2026-11-04 22:59:56] Docs: add parameter definitions in UndergraduateDAO interface
+- [2026-11-04 22:59:56] Style: standardize table cell alignment in enrollment components
