@@ -12,3 +12,4 @@
 - [2026-11-04 22:59:58] Refactor: clean up exception handling in enrollment data retrieval
 - [2026-11-04 22:59:59] Docs: clarify medical attendance verification logic in model
 - [2026-11-04 22:59:59] Style: format button color states for enrollment submission
+- [2026-11-04 23:00:00] Refactor: extract constants for academic year and default semester
