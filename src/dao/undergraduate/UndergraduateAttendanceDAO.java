@@ -9,30 +9,48 @@ import java.util.List;
 
 /**
  * Data Access Object for Undergraduate Attendance Directory and Detailed Eligibility.
+ * Facilitates attendance metric retrieval, course-wise session aggregates from database views,
+ * component breakdown calculation (Theory vs. Practical hours), and overall student eligibility computation.
  */
 public class UndergraduateAttendanceDAO {
 
+    /**
+     * Data Transfer Object representing detailed attendance records and examination eligibility for an enrolled course.
+     */
     public static class AttendanceRecordDTO {
+        // Enrolled module identifiers and nomenclature
         public int courseId;
         public String courseCode;
         public String courseName;
+
+        // Session frequency distribution counts
         public int totalSessions;
         public int attendedSessions;
         public int medicalSessions;
         public int absentSessions;
+
+        // Final adjusted attendance percentage after applying approved medical leave credit
         public double adjustedPercentage;
 
-        // Specific hours breakdown
+        // Specific contact hours breakdown divided by course component
         public int totalTheoryHours;
         public int attendedTheoryHours;
         public int totalPracticalHours;
         public int attendedPracticalHours;
 
+        /**
+         * Evaluates academic examination eligibility against the statutory 80% attendance regulation.
+         *
+         * @return {@code true} if adjusted attendance meets or exceeds 80.0%, otherwise {@code false}
+         */
         public boolean isEligible() {
             return adjustedPercentage >= 80.0;
         }
     }
 
+    /**
+     * Data Transfer Object aggregating student-wide attendance key performance indicators for metric strip views.
+     */
     public static class AttendanceStripDTO {
         public double overallPercentage = 0.0;
         public int eligibleModulesCount = 0;
@@ -42,6 +60,13 @@ public class UndergraduateAttendanceDAO {
         public int approvedMedicalsCount = 0;
     }
 
+    /**
+     * Queries the attendance summary database view for all enrolled courses assigned to a student,
+     * ordering results lexicographically by course code and enriching each record with component hours breakdown.
+     *
+     * @param studentId Authenticated student primary key identifier
+     * @return List of populated {@link AttendanceRecordDTO} instances
+     */
     public static List<AttendanceRecordDTO> getStudentAttendanceDirectory(long studentId) {
         List<AttendanceRecordDTO> list = new ArrayList<>();
         String sql = "SELECT s.course_id, s.course_code, s.course_name, s.total_sessions, " +
@@ -63,6 +88,7 @@ public class UndergraduateAttendanceDAO {
                     dto.absentSessions = rs.getInt("absent_sessions");
                     dto.adjustedPercentage = rs.getDouble("adj_pct");
 
+                    // Hydrate component-level theory and practical scheduled/attended hours
                     loadHoursBreakdown(studentId, dto.courseId, dto);
                     list.add(dto);
                 }
@@ -73,6 +99,14 @@ public class UndergraduateAttendanceDAO {
         return list;
     }
 
+    /**
+     * Computes scheduled and attended hours partitioned by session component ('Theory' or 'Practical'),
+     * assuming standard 2-hour duration blocks per lecture session slot.
+     *
+     * @param studentId Authenticated student primary key identifier
+     * @param courseId  Specific course primary key identifier
+     * @param dto       Target DTO instance to populate with computed hours breakdown
+     */
     private static void loadHoursBreakdown(long studentId, int courseId, AttendanceRecordDTO dto) {
         String sql = "SELECT ats.component, " +
                 "COUNT(ats.attendance_session_id) * 2 AS scheduled_hrs, " +
@@ -102,6 +136,13 @@ public class UndergraduateAttendanceDAO {
         } catch (Exception ignored) {}
     }
 
+    /**
+     * Calculates high-level cumulative attendance statistics across all enrolled modules for a student,
+     * including average percentage, eligibility tallies, cumulative contact hours, and medical certificates count.
+     *
+     * @param studentId Authenticated student primary key identifier
+     * @return Fully populated {@link AttendanceStripDTO} containing aggregated metrics
+     */
     public static AttendanceStripDTO getAttendanceStripMetrics(long studentId) {
         AttendanceStripDTO strip = new AttendanceStripDTO();
         List<AttendanceRecordDTO> records = getStudentAttendanceDirectory(studentId);
@@ -111,6 +152,7 @@ public class UndergraduateAttendanceDAO {
         strip.totalModulesCount = records.size();
         double sumPct = 0;
 
+        // Aggregate statistics across each registered module record
         for (AttendanceRecordDTO r : records) {
             sumPct += r.adjustedPercentage;
             if (r.isEligible()) strip.eligibleModulesCount++;
@@ -119,6 +161,7 @@ public class UndergraduateAttendanceDAO {
             strip.approvedMedicalsCount += r.medicalSessions;
         }
 
+        // Round aggregate attendance percentage to 1 decimal place
         strip.overallPercentage = Math.round((sumPct / records.size()) * 10.0) / 10.0;
         return strip;
     }

@@ -17,29 +17,41 @@ import java.util.List;
 
 /**
  * Table panel displaying medical history records submitted by the student.
- * Supports double-clicking to preview the cloud medical document URL.
+ * Dynamically sizes viewport to row count to eliminate bottom dead white space.
+ * Encapsulates tabular rendering of previous medical certificates, status indicators,
+ * and double-click actions to inspect attached cloud documents in default browsers.
  */
 public class MedicalHistoryPanel extends JPanel {
 
+    // Card styling constants for rounded geometry and outer border stroke
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
+    // Tabular UI components, data model, and scrolling container
     private final JTable table;
     private final DefaultTableModel model;
+    private final JScrollPane scroll;
+
+    // Cache of currently bound medical records for row event lookups
     private final List<MedicalRecordDTO> currentRecords = new ArrayList<>();
 
+    /**
+     * Constructs the medical history panel, initializes the directory table, and registers event listeners.
+     */
     public MedicalHistoryPanel() {
         setOpaque(false);
-        setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(16, 18, 16, 18));
+        setLayout(new BorderLayout(0, 10));
+        setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        // Header Row
+        // -------------------------------------------------------------
+        // Header Row (Directory Title & Interaction Instruction)
+        // -------------------------------------------------------------
         JPanel topRow = new JPanel(new BorderLayout());
         topRow.setOpaque(false);
 
         JLabel titleLbl = new JLabel("Submitted Applications History");
         titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
-        titleLbl.setForeground(AdminTheme.FOREST_GREEN);
+        titleLbl.setForeground(AdminTheme.DEEP_GREEN);
 
         JLabel subLbl = new JLabel("Double-click row to view document in browser");
         subLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
@@ -49,6 +61,9 @@ public class MedicalHistoryPanel extends JPanel {
         topRow.add(subLbl, BorderLayout.EAST);
         add(topRow, BorderLayout.NORTH);
 
+        // -------------------------------------------------------------
+        // Table Model Setup & Cell Non-Editable Override
+        // -------------------------------------------------------------
         String[] headers = {"ID", "Course", "Date", "Reason", "Status"};
         model = new DefaultTableModel(headers, 0) {
             @Override
@@ -57,6 +72,7 @@ public class MedicalHistoryPanel extends JPanel {
             }
         };
 
+        // Table visual styling, row height, and single row selection mode
         table = new JTable(model);
         table.setFont(AdminTheme.font(Font.PLAIN, 12));
         table.setRowHeight(36);
@@ -67,6 +83,7 @@ public class MedicalHistoryPanel extends JPanel {
         table.setSelectionForeground(AdminTheme.DEEP_GREEN);
         table.setFocusable(false);
 
+        // Header styling configuration matching the administrative theme
         JTableHeader th = table.getTableHeader();
         th.setFont(AdminTheme.font(Font.BOLD, 12));
         th.setBackground(AdminTheme.MINT);
@@ -75,7 +92,7 @@ public class MedicalHistoryPanel extends JPanel {
         th.setReorderingAllowed(false);
         th.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
 
-        // Column width allocations
+        // Column width allocations to prevent text clipping
         table.getColumnModel().getColumn(0).setPreferredWidth(45);
         table.getColumnModel().getColumn(0).setMaxWidth(55);
 
@@ -97,12 +114,12 @@ public class MedicalHistoryPanel extends JPanel {
         table.getColumnModel().getColumn(1).setCellRenderer(center);
         table.getColumnModel().getColumn(2).setCellRenderer(center);
 
-        // Alignments: Left for Reason
+        // Alignments: Left for Reason with horizontal padding
         DefaultTableCellRenderer left = new DefaultTableCellRenderer();
         left.setBorder(new EmptyBorder(0, 8, 0, 8));
         table.getColumnModel().getColumn(3).setCellRenderer(left);
 
-        // Status Column Custom Badge Renderer
+        // Status Column Custom Badge Renderer with color-coded states
         table.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable tbl, Object val, boolean isSel, boolean hasFoc, int r, int c) {
@@ -121,7 +138,9 @@ public class MedicalHistoryPanel extends JPanel {
             }
         });
 
-        // Double-click listener to open Google Drive / Cloud URL in default web browser
+        // -------------------------------------------------------------
+        // Double-Click Mouse Listener to Open Document Cloud Link
+        // -------------------------------------------------------------
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -144,14 +163,33 @@ public class MedicalHistoryPanel extends JPanel {
             }
         });
 
-        JScrollPane scroll = new JScrollPane(table);
+        // -------------------------------------------------------------
+        // Scrolling Container Setup
+        // -------------------------------------------------------------
+        scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
         scroll.getViewport().setBackground(AdminTheme.WHITE);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
+        updateTableViewportHeight();
         add(scroll, BorderLayout.CENTER);
     }
 
+    /**
+     * Recalculates the scroll viewport height based on row count to avoid dead white space.
+     */
+    private void updateTableViewportHeight() {
+        int rowCount = Math.max(model.getRowCount(), 1);
+        int totalHeight = rowCount * table.getRowHeight();
+        table.setPreferredScrollableViewportSize(new Dimension(table.getPreferredScrollableViewportSize().width, totalHeight));
+    }
+
+    /**
+     * Binds submitted medical records to the table model and refreshes the view.
+     *
+     * @param list Collection of student medical records retrieved from database
+     */
     public void setRecords(List<MedicalRecordDTO> list) {
         currentRecords.clear();
         model.setRowCount(0);
@@ -167,8 +205,14 @@ public class MedicalHistoryPanel extends JPanel {
                 });
             }
         }
+        updateTableViewportHeight();
+        revalidate();
+        repaint();
     }
 
+    /**
+     * Paints an anti-aliased rounded white card background and outer perimeter border.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();

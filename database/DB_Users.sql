@@ -4,7 +4,9 @@
 -- Run this AFTER UniMis.sql (the tables and views must already exist), while
 -- connected as root or another account that is allowed to use GRANT.
 -- The script can be re-run safely: it first drops any of these accounts that
--- already exist, then re-creates them and grants the privileges below.
+-- already exist, then re-creates the
+--
+-- m and grants the privileges below.
 --
 -- Accounts
 --   unimisadmin   Admin
