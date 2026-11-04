@@ -1,4 +1,3 @@
-
 package gui.technical;
 
 import dao.TechnicalOfficer.TechnicalOfficerProfileDAO;
@@ -10,12 +9,22 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.SQLException;
 
+/**
+ * Profile management panel for the Technical Officer.
+ * Displays personal, employment, and contact information.
+ * - Read-only fields: Username, Staff Code, Designation, NIC, Date of Birth, Gender, Department, Status
+ * - Editable fields: Full Name, Email, Contact Number, Residential Address, Assigned Laboratories
+ * Validates inputs (e.g. 10-digit contact number, email regex) before saving changes to the database.
+ */
 public class TechnicalOfficerProfilePanel extends JPanel {
 
+    // Logged-in officer's user ID
     private final long userId;
-    private final TechnicalOfficerProfileDAO profileDAO =
-            new TechnicalOfficerProfileDAO();
 
+    // DAO handling database profile fetch and update operations
+    private final TechnicalOfficerProfileDAO profileDAO = new TechnicalOfficerProfileDAO();
+
+    // Form input fields
     private final JTextField nameField = new JTextField(25);
     private final JTextField usernameField = new JTextField(25);
     private final JTextField codeField = new JTextField(25);
@@ -30,6 +39,11 @@ public class TechnicalOfficerProfilePanel extends JPanel {
     private final JTextField labsField = new JTextField(25);
     private final JTextField statusField = new JTextField(25);
 
+    /**
+     * Constructs the profile panel and loads initial user details.
+     *
+     * @param userId The database user ID of the Technical Officer
+     */
     public TechnicalOfficerProfilePanel(long userId) {
 
         this.userId = userId;
@@ -38,12 +52,12 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         setBackground(UniMisTheme.LIGHT_BG);
         setBorder(new EmptyBorder(24, 28, 24, 28));
 
+        // Header section: Title and subtitle
         JLabel heading = new JLabel("My Profile");
         heading.setFont(UniMisTheme.FONT_H2);
         heading.setForeground(UniMisTheme.TEXT);
 
-        JLabel subtitle = new JLabel(
-                "View and update your personal and contact information");
+        JLabel subtitle = new JLabel("View and update your personal and contact information");
         subtitle.setFont(UniMisTheme.FONT_BODY);
         subtitle.setForeground(UniMisTheme.TEXT);
 
@@ -56,10 +70,12 @@ public class TechnicalOfficerProfilePanel extends JPanel {
 
         add(header, BorderLayout.NORTH);
 
+        // Form layout container
         JPanel form = new JPanel(new GridBagLayout());
         form.setBackground(Color.WHITE);
         form.setBorder(new EmptyBorder(22, 24, 22, 24));
 
+        // Mark system-managed fields as read-only
         setReadOnly(usernameField);
         setReadOnly(codeField);
         setReadOnly(designationField);
@@ -73,6 +89,7 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         addressArea.setWrapStyleWord(true);
         addressArea.setFont(UniMisTheme.FONT_BODY);
 
+        // Populate form rows
         int row = 0;
         row = addField(form, "Full Name", nameField, row);
         row = addField(form, "Username", usernameField, row);
@@ -88,6 +105,7 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         row = addField(form, "Assigned Laboratories", labsField, row);
         addField(form, "Account Status", statusField, row);
 
+        // Save button triggering validation and database update
         JButton saveButton = new JButton("Save Changes");
         saveButton.setBackground(new Color(0x2E, 0x7D, 0x32));
         saveButton.setForeground(Color.WHITE);
@@ -110,9 +128,19 @@ public class TechnicalOfficerProfilePanel extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
+        // Initial load of officer data from database
         loadProfile();
     }
 
+    /**
+     * Helper to add a labelled input row to the GridBagLayout form.
+     *
+     * @param panel Target form panel
+     * @param label Field label text
+     * @param field Input component
+     * @param row   Current GridBagLayout row index
+     * @return Next available row index
+     */
     private int addField(
             JPanel panel, String label, Component field, int row) {
 
@@ -133,11 +161,19 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         return row + 1;
     }
 
+    /**
+     * Styles a text field as read-only with a muted background color.
+     *
+     * @param field The text field to disable
+     */
     private void setReadOnly(JTextField field) {
         field.setEditable(false);
         field.setBackground(new Color(240, 243, 240));
     }
 
+    /**
+     * Queries the database via TechnicalOfficerProfileDAO and populates all form fields.
+     */
     private void loadProfile() {
 
         try {
@@ -186,10 +222,20 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         }
     }
 
+    /**
+     * Checks if the given contact number string contains exactly 10 digits (0-9).
+     *
+     * @param contact Input phone number string
+     * @return true if valid 10-digit number
+     */
     private boolean isValidContactNumber(String contact) {
         return contact.matches("[0-9]{10}");
     }
 
+    /**
+     * Validates user inputs and updates the profile in the database.
+     * Ensures mandatory fields are provided and validates email and phone number formats.
+     */
     private void saveProfile() {
 
         String name = nameField.getText().trim();
@@ -198,9 +244,8 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         String address = addressArea.getText().trim();
         String labs = labsField.getText().trim();
 
-        if (name.isEmpty() || email.isEmpty()
-                || contact.isEmpty() || address.isEmpty()) {
-
+        // 1. Check required fields
+        if (name.isEmpty() || email.isEmpty() || contact.isEmpty() || address.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
                     "Name, email, contact number, and address are required."
@@ -208,7 +253,7 @@ public class TechnicalOfficerProfilePanel extends JPanel {
             return;
         }
 
-
+        // 2. Validate contact number format (10 digits)
         if (!isValidContactNumber(contact)) {
             JOptionPane.showMessageDialog(
                     this,
@@ -220,7 +265,7 @@ public class TechnicalOfficerProfilePanel extends JPanel {
             return;
         }
 
-
+        // 3. Validate email format
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             JOptionPane.showMessageDialog(
                     this,
@@ -229,14 +274,14 @@ public class TechnicalOfficerProfilePanel extends JPanel {
             return;
         }
 
+        // 4. Update database
         try {
             boolean updated = profileDAO.updateProfile(
                     userId, name, email, contact, address, labs
             );
 
             if (updated) {
-                loadProfile();
-
+                loadProfile(); // Refresh form values
                 JOptionPane.showMessageDialog(
                         this,
                         "Profile updated successfully."
@@ -261,6 +306,9 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         }
     }
 
+    /**
+     * Helper to return empty string if a database value is null.
+     */
     private String text(String value) {
         return value == null ? "" : value;
     }

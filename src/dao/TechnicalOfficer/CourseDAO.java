@@ -7,8 +7,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object (DAO) for retrieving course information for Technical Officers.
+ * Provides methods to load active courses, query courses by lecturer, and fetch course materials.
+ */
 public class CourseDAO {
 
+    /**
+     * Retrieves all courses currently marked as 'Active' in the system.
+     * Used to populate course selection combo boxes in technical officer panels (Attendance, Medicals, etc.).
+     *
+     * @return List of active Course objects ordered by course code
+     * @throws SQLException if a database query error occurs
+     */
     public List<Course> getAllCourses() throws SQLException {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT * FROM courses WHERE status = 'Active' ORDER BY course_code";
@@ -21,6 +32,13 @@ public class CourseDAO {
         return list;
     }
 
+    /**
+     * Retrieves all courses assigned to a specific lecturer.
+     *
+     * @param lecturerId The user ID of the lecturer
+     * @return List of Course objects taught by this lecturer
+     * @throws SQLException if a query error occurs
+     */
     public List<Course> getCoursesByLecturer(long lecturerId) throws SQLException {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT c.* FROM courses c JOIN course_lecturers cl ON cl.course_id = c.course_id WHERE cl.lecturer_id = ?";
@@ -35,6 +53,13 @@ public class CourseDAO {
         return list;
     }
 
+    /**
+     * Retrieves learning materials uploaded for a course, ordered with newest uploads first.
+     *
+     * @param courseId The course ID
+     * @return List of CourseMaterial objects
+     * @throws SQLException if a database error occurs
+     */
     public List<CourseMaterial> getMaterialsByCourse(int courseId) throws SQLException {
         List<CourseMaterial> list = new ArrayList<>();
         String sql = "SELECT * FROM course_materials WHERE course_id = ? ORDER BY uploaded_at DESC";
@@ -59,6 +84,13 @@ public class CourseDAO {
         return list;
     }
 
+    /**
+     * Helper method to map a single database ResultSet row to a Course object.
+     *
+     * @param rs The active ResultSet positioned at a valid row
+     * @return A populated Course model object
+     * @throws SQLException if reading column values fails
+     */
     private Course mapResultSetToCourse(ResultSet rs) throws SQLException {
         Course c = new Course();
         c.setCourseId(rs.getInt("course_id"));

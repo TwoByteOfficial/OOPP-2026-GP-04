@@ -3,85 +3,115 @@ package model;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+/**
+ * Model representing a student's medical certificate submission.
+ * Technical Officers review these submissions to approve or reject student absences
+ * and automatically update the corresponding attendance record.
+ */
 public class Medical {
+
+    // Unique primary key of the medical record
     private long medicalId;
+
+    // User ID of the student who submitted the medical certificate
     private long studentId;
+
+    // Course ID for which the medical is submitted
     private int courseId;
+
+    // Related attendance record ID (linked when medical covers a specific session)
     private Long attendanceRecordId;
+
+    // Date covered by the medical certificate
     private Date medicalDate;
+
+    // Reason provided by the student for absence (illness description)
     private String reason;
+
+    // File path or filename of the uploaded medical document/scan
     private String documentPath;
+
+    // Approval status: "Pending", "Approved", or "Rejected"
     private String approvalStatus;
+
+    // Timestamp when the student submitted this medical request
     private Timestamp submittedAt;
+
+    // User ID of the Technical Officer who reviewed and approved/rejected it
     private Long reviewedBy;
+
+    // Timestamp when the Technical Officer reviewed this submission
     private Timestamp reviewedAt;
+
+    // Feedback or reason provided by the Technical Officer upon review
     private String reviewComment;
+
+    // Display fields populated from database JOINs (used in tables and dialogs)
     private String registrationNo;
     private String studentName;
     private String courseCode;
     private String courseName;
 
+    /**
+     * Default constructor.
+     */
     public Medical() {}
 
-    public Medical(long medicalId, long studentId, int courseId, Long attendanceRecordId, Date medicalDate, String reason, String documentPath, String approvalStatus, Timestamp submittedAt, Long reviewedBy, Timestamp reviewedAt, String reviewComment) {
+    /**
+     * Parameterized constructor for initializing medical records.
+     */
+    public Medical(long medicalId, long studentId, int courseId, Long attendanceRecordId, 
+                   Date medicalDate, String reason, String documentPath, String approvalStatus, 
+                   Timestamp submittedAt, Long reviewedBy, Timestamp reviewedAt, String reviewComment) {
     }
+
+    // --- Getters and Setters ---
 
     public long getMedicalId() { return medicalId; }
     public void setMedicalId(long medicalId) { this.medicalId = medicalId; }
+
     public long getStudentId() { return studentId; }
     public void setStudentId(long studentId) { this.studentId = studentId; }
+
     public int getCourseId() { return courseId; }
     public void setCourseId(int courseId) { this.courseId = courseId; }
+
     public Long getAttendanceRecordId() { return attendanceRecordId; }
     public void setAttendanceRecordId(Long attendanceRecordId) { this.attendanceRecordId = attendanceRecordId; }
+
     public Date getMedicalDate() { return medicalDate; }
     public void setMedicalDate(Date medicalDate) { this.medicalDate = medicalDate; }
+
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
+
     public String getDocumentPath() { return documentPath; }
     public void setDocumentPath(String documentPath) { this.documentPath = documentPath; }
+
     public String getApprovalStatus() { return approvalStatus; }
     public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
+
     public Timestamp getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(Timestamp submittedAt) { this.submittedAt = submittedAt; }
+
     public Long getReviewedBy() { return reviewedBy; }
     public void setReviewedBy(Long reviewedBy) { this.reviewedBy = reviewedBy; }
+
     public Timestamp getReviewedAt() { return reviewedAt; }
     public void setReviewedAt(Timestamp reviewedAt) { this.reviewedAt = reviewedAt; }
+
     public String getReviewComment() { return reviewComment; }
     public void setReviewComment(String reviewComment) { this.reviewComment = reviewComment; }
-    public String getRegistrationNo() {
-        return registrationNo;
-    }
 
-    public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
-    }
+    public String getRegistrationNo() { return registrationNo; }
+    public void setRegistrationNo(String registrationNo) { this.registrationNo = registrationNo; }
 
-    public String getStudentName() {
-        return studentName;
-    }
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
 
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
-    }
+    public String getCourseCode() { return courseCode; }
+    public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
 
-    public String getCourseCode() {
-        return courseCode;
-    }
-
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode;
-    }
-
-
-    public String getCourseName() {
-        return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
-
+    public String getCourseName() { return courseName; }
+    public void setCourseName(String courseName) { this.courseName = courseName; }
 }

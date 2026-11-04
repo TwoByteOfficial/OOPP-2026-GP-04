@@ -6,8 +6,21 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object (DAO) for retrieving timetable schedules for Technical Officers.
+ * Supports loading timetable schedules by undergraduate batch year, department semester,
+ * and officer department user ID.
+ */
 public class TimetableDAO {
 
+    /**
+     * Retrieves all timetable entries for a specific undergraduate batch year.
+     * Results are sorted logically by day of the week (Monday through Sunday) then start time.
+     *
+     * @param batchYear The academic intake year (e.g. 2022)
+     * @return List of TimetableEntry records
+     * @throws SQLException if a query execution error occurs
+     */
     public List<TimetableEntry> getTimetableByBatch(int batchYear) throws SQLException {
         List<TimetableEntry> list = new ArrayList<>();
         String sql = "SELECT * FROM timetable_entries WHERE batch_year = ? ORDER BY FIELD(day_of_week, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), start_time";
@@ -35,7 +48,16 @@ public class TimetableDAO {
         return list;
     }
 
-
+    /**
+     * Retrieves timetable entries filtered by department ID, academic year, and semester.
+     * Includes course code, course name, and lecturer name via JOINs.
+     *
+     * @param departmentId The department ID
+     * @param academicYear Academic year string (e.g., "2025/2026")
+     * @param semester     Semester string (e.g., "Semester 1")
+     * @return List of TimetableEntry records
+     * @throws SQLException if a database query error occurs
+     */
     public List<TimetableEntry> getTimetableByDepartment(
             int departmentId, String academicYear, String semester)
             throws SQLException {
@@ -95,7 +117,14 @@ public class TimetableDAO {
         return list;
     }
 
-
+    /**
+     * Retrieves the entire department timetable matching the department of the logged-in Technical Officer.
+     * Used by DepartmentTimetablePanel on the dashboard to display the weekly schedule.
+     *
+     * @param userId The user ID of the Technical Officer
+     * @return List of TimetableEntry records for the officer's department
+     * @throws SQLException if a query execution error occurs
+     */
     public List<TimetableEntry> getTimetableByDepartmentUser(long userId)
             throws SQLException {
 
