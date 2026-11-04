@@ -26,15 +26,18 @@ public class LecturerEligibility extends JPanel {
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         title.setForeground(ELIGIBILITY_DEEP_GREEN);
 
-        JLabel subtitle = new JLabel("Check undergraduate eligibility for final examination (Attendance >= 80% AND CA Mark >= 40%).");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        JLabel subtitle = new JLabel(
+                "Check undergraduate eligibility for final examination (Attendance >= 80% AND CA Mark >= 40%)."
+        );
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 16));
         subtitle.setForeground(ELIGIBILITY_TEXT_GRAY);
 
         heading.add(title);
         heading.add(Box.createVerticalStrut(6));
         heading.add(subtitle);
 
-        EligibilityPanel eligibilityPanel = new EligibilityPanel(lecturerId);
+        EligibilityPanel eligibilityPanel =
+                new EligibilityPanel(lecturerId);
 
         add(heading, BorderLayout.NORTH);
         add(eligibilityPanel, BorderLayout.CENTER);

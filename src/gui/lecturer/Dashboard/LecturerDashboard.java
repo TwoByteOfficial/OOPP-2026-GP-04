@@ -162,7 +162,7 @@ public class LecturerDashboard extends JPanel {
         JLabel title = new JLabel("Quick Actions");
 
         title.setFont(
-                new Font("SansSerif", Font.BOLD, 18)
+                new Font("SansSerif", Font.BOLD, 22)
         );
 
         title.setForeground(DEEP_GREEN);
@@ -207,7 +207,7 @@ public class LecturerDashboard extends JPanel {
         JButton button = new JButton(label);
 
         button.setFont(
-                new Font("SansSerif", Font.BOLD, 14)
+                new Font("SansSerif", Font.BOLD, 18)
         );
 
         button.setForeground(DEEP_GREEN);
