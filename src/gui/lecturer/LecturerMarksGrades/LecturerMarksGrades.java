@@ -27,8 +27,10 @@ public class LecturerMarksGrades extends JPanel {
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         title.setForeground(MARKS_DEEP_GREEN);
 
-        JLabel subtitle = new JLabel("Enter assessment marks, view CA summaries, eligibility status, and final grade reports.");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        JLabel subtitle = new JLabel(
+                "Enter assessment marks, view CA summaries, eligibility status, and final grade reports."
+        );
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 16));
         subtitle.setForeground(MARKS_TEXT_GRAY);
 
         heading.add(title);
@@ -37,14 +39,20 @@ public class LecturerMarksGrades extends JPanel {
 
         // Tabbed Pane
         tabbedPane = new JTabbedPane();
-        tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 13));
+        tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 20));
         tabbedPane.setBackground(MARKS_WHITE);
         tabbedPane.setForeground(MARKS_DEEP_GREEN);
 
         tabbedPane.addTab("Enter Marks", new EnterMarksPanel(lecturerId));
         tabbedPane.addTab("CA Summary", new CASummaryPanel(lecturerId));
-        tabbedPane.addTab("Final Exam & Grades", new FinalResultsPanel(lecturerId));
-        tabbedPane.addTab("Eligibility Overview", new EligibilityPanel(lecturerId));
+        tabbedPane.addTab(
+                "Final Exam & Grades",
+                new FinalResultsPanel(lecturerId)
+        );
+        tabbedPane.addTab(
+                "Eligibility Overview",
+                new EligibilityPanel(lecturerId)
+        );
 
         add(heading, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);

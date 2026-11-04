@@ -1,4 +1,3 @@
-
 package gui.technical.dashboard.bottom;
 
 import dao.TechnicalOfficer.TimetableDAO;
@@ -13,30 +12,41 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Panel displaying the weekly academic timetable for the Technical Officer's department.
+ * Features:
+ * - Day filter (All Days, Monday, Tuesday, Wednesday, Thursday, Friday)
+ * - Horizontal scrolling table with Day, Time, Course, Component, Lecturer, Venue, Batch
+ * - Row counter showing the number of timetable sessions loaded
+ */
 public class DepartmentTimetablePanel extends JPanel {
 
+    // Table model and UI components
     private final DefaultTableModel tableModel;
     private final JLabel statusLabel;
     private JComboBox<String> dayFilter;
 
+    /**
+     * Constructs the department timetable view.
+     *
+     * @param userId The database user ID of the logged-in Technical Officer
+     */
     public DepartmentTimetablePanel(long userId) {
 
         setLayout(new BorderLayout(0, 14));
         setBackground(UniMisTheme.WHITE);
         setBorder(new EmptyBorder(18, 18, 18, 18));
 
+        // Section header
         JLabel heading = new JLabel("Department Timetable");
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
 
-
-
-
+        // Day of week filter dropdown
         String[] days = {
                 "All Days", "Monday", "Tuesday", "Wednesday",
                 "Thursday", "Friday"
         };
-
         dayFilter = new JComboBox<>(days);
 
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
@@ -49,13 +59,9 @@ public class DepartmentTimetablePanel extends JPanel {
         filterPanel.add(dayFilter);
 
         topPanel.add(filterPanel, BorderLayout.CENTER);
-
         add(topPanel, BorderLayout.NORTH);
 
-
-
-
-
+        // Configure columns
         String[] columns = {
                 "Day", "Time", "Course Code", "Course Name",
                 "Component", "Lecturer", "Venue", "Batch"
@@ -69,9 +75,9 @@ public class DepartmentTimetablePanel extends JPanel {
         };
 
         JTable table = new JTable(tableModel);
-// Keep the columns wide enough to display their contents.
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
+        // Set column widths to comfortably display descriptions and names
         table.getColumnModel().getColumn(0).setPreferredWidth(95);   // Day
         table.getColumnModel().getColumn(1).setPreferredWidth(150);  // Time
         table.getColumnModel().getColumn(2).setPreferredWidth(100);  // Course Code
@@ -81,15 +87,8 @@ public class DepartmentTimetablePanel extends JPanel {
         table.getColumnModel().getColumn(6).setPreferredWidth(130);  // Venue
         table.getColumnModel().getColumn(7).setPreferredWidth(70);   // Batch
 
-
-        TableRowSorter<DefaultTableModel> sorter =
-                new TableRowSorter<>(tableModel);
-
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
-
-
-
-
 
         table.setFont(UniMisTheme.FONT_TINY);
         table.setRowHeight(30);
@@ -105,14 +104,13 @@ public class DepartmentTimetablePanel extends JPanel {
         table.getTableHeader().setReorderingAllowed(false);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(
-                BorderFactory.createLineBorder(UniMisTheme.BORDER));
+        scrollPane.setBorder(BorderFactory.createLineBorder(UniMisTheme.BORDER));
 
         statusLabel = new JLabel("Loading timetable...");
         statusLabel.setFont(UniMisTheme.FONT_SMALL);
         statusLabel.setForeground(UniMisTheme.TEXT);
 
-
+        // Filter listener: filters rows by Day of Week column (column 0)
         dayFilter.addActionListener(e -> {
             String selectedDay = (String) dayFilter.getSelectedItem();
 
@@ -124,12 +122,8 @@ public class DepartmentTimetablePanel extends JPanel {
                 );
             }
 
-            statusLabel.setText(
-                    "Timetable entries shown: " + table.getRowCount()
-            );
+            statusLabel.setText("Timetable entries shown: " + table.getRowCount());
         });
-
-
 
         JPanel contentPanel = new JPanel(new BorderLayout(0, 8));
         contentPanel.setBackground(UniMisTheme.WHITE);
@@ -138,30 +132,30 @@ public class DepartmentTimetablePanel extends JPanel {
 
         add(contentPanel, BorderLayout.CENTER);
 
+        // Load timetable entries from database
         loadTimetable(userId);
     }
 
+    /**
+     * Loads the department timetable for the officer from the database via TimetableDAO.
+     *
+     * @param userId Logged-in Technical Officer's database user ID
+     */
     private void loadTimetable(long userId) {
 
         tableModel.setRowCount(0);
 
         try {
             TimetableDAO dao = new TimetableDAO();
-
-            List<TimetableEntry> entries =
-                    dao.getTimetableByDepartmentUser(userId);
+            List<TimetableEntry> entries = dao.getTimetableByDepartmentUser(userId);
 
             if (entries.isEmpty()) {
-                statusLabel.setText(
-                        "No timetable entries found for your department.");
+                statusLabel.setText("No timetable entries found for your department.");
                 return;
             }
 
             for (TimetableEntry entry : entries) {
-
-                String time =
-                        entry.getStartTime() + " - " + entry.getEndTime();
-
+                String time = entry.getStartTime() + " - " + entry.getEndTime();
                 String lecturer = entry.getLecturerName();
 
                 if (lecturer == null || lecturer.trim().isEmpty()) {
@@ -180,16 +174,14 @@ public class DepartmentTimetablePanel extends JPanel {
                 });
             }
 
-            statusLabel.setText(
-                    "Timetable entries found: " + entries.size());
+            statusLabel.setText("Timetable entries found: " + entries.size());
 
         } catch (SQLException e) {
             statusLabel.setText("Unable to load the timetable.");
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Could not load the department timetable.\n"
-                            + e.getMessage(),
+                    "Could not load the department timetable.\n" + e.getMessage(),
                     "Database Error",
                     JOptionPane.ERROR_MESSAGE
             );

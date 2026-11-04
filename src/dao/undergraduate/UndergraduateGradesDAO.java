@@ -8,10 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object for Academic Transcript, GPV, SGPA/CGPA and Honours Class.
+ * Data Access Object for Academic Transcript, GPV, SGPA/CGPA, and Honours Class evaluation.
+ * Interfaces with MySQL analytics views (`v_final_results`, `v_cgpa`, `v_sgpa`) to retrieve
+ * completed module scores, letter grades, credit weightings, and calculate degree class standing.
  */
 public class UndergraduateGradesDAO {
 
+    /**
+     * Data Transfer Object representing individual course grade results and assessment performance.
+     */
     public static class StudentCourseGradeDTO {
         public String courseCode;
         public String courseName;
@@ -24,6 +29,10 @@ public class UndergraduateGradesDAO {
         public String status;
     }
 
+    /**
+     * Data Transfer Object encapsulating cumulative grade point averages, credit totals,
+     * and academic honours classification.
+     */
     public static class TranscriptSummaryDTO {
         public double cgpa = 0.00;
         public double sgpa = 0.00;
@@ -31,6 +40,13 @@ public class UndergraduateGradesDAO {
         public String academicStanding = "Good Standing";
     }
 
+    /**
+     * Queries finalized academic results for all completed modules registered to the specified student,
+     * returning records sorted in ascending alphabetical order by course code.
+     *
+     * @param studentId Authenticated student primary key identifier
+     * @return List of populated {@link StudentCourseGradeDTO} records
+     */
     public static List<StudentCourseGradeDTO> getStudentGrades(long studentId) {
         List<StudentCourseGradeDTO> list = new ArrayList<>();
         String sql = "SELECT course_code, course_name, total_credits, " +
@@ -63,6 +79,13 @@ public class UndergraduateGradesDAO {
         return list;
     }
 
+    /**
+     * Queries cumulative GPA, current semester GPA, and earned semester credits from analytical database views,
+     * and computes degree class classification or academic warning standing.
+     *
+     * @param studentId Authenticated student primary key identifier
+     * @return Populated {@link TranscriptSummaryDTO} containing GPA metrics and academic standing
+     */
     public static TranscriptSummaryDTO getTranscriptSummary(long studentId) {
         TranscriptSummaryDTO summary = new TranscriptSummaryDTO();
         String sql = "SELECT c.cgpa, s.sgpa, s.semester_credits " +
@@ -78,6 +101,9 @@ public class UndergraduateGradesDAO {
                     summary.sgpa = rs.getDouble("sgpa");
                     summary.totalCredits = rs.getInt("semester_credits");
 
+                    // -------------------------------------------------------------
+                    // Degree Honours Classification & Academic Standing
+                    // -------------------------------------------------------------
                     if (summary.cgpa >= 3.70) summary.academicStanding = "Dean's List / First Class";
                     else if (summary.cgpa >= 3.30) summary.academicStanding = "Second Class Upper";
                     else if (summary.cgpa >= 3.00) summary.academicStanding = "Second Class Lower";

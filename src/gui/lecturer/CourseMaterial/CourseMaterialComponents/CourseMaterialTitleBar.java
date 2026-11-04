@@ -23,14 +23,14 @@ public class CourseMaterialTitleBar extends JPanel {
         headingPanel.setBackground(APP_BACKGROUND);
 
         JLabel title = new JLabel("Course Materials");
-        title.setFont(new Font("SansSerif", Font.BOLD, 26));
+        title.setFont(new Font("SansSerif", Font.BOLD, 28));
         title.setForeground(MATERIALS_DEEP_GREEN);
 
         JLabel description = new JLabel(
                 "Upload and manage learning materials for your courses."
         );
         description.setFont(new Font(
-                "SansSerif", Font.PLAIN, 13
+                "SansSerif", Font.PLAIN, 16
         ));
         description.setForeground(MATERIALS_TEXT_GRAY);
 
@@ -46,7 +46,7 @@ public class CourseMaterialTitleBar extends JPanel {
         uploadButton = new JButton("+ Upload Material");
 
         uploadButton.setFont(new Font(
-                "SansSerif", Font.BOLD, 13
+                "SansSerif", Font.BOLD, 16
         ));
         uploadButton.setForeground(Color.WHITE);
         uploadButton.setBackground(MATERIALS_DEEP_GREEN);

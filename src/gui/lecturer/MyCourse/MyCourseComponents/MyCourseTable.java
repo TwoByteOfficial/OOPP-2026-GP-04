@@ -1,4 +1,3 @@
-
 package gui.lecturer.MyCourse.MyCourseComponents;
 
 import javax.swing.*;
@@ -49,7 +48,7 @@ public class MyCourseTable extends JPanel {
 
         courseTable.setRowHeight(40);
         courseTable.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         courseTable.setFillsViewportHeight(true);
@@ -62,7 +61,7 @@ public class MyCourseTable extends JPanel {
         courseTable.setAutoCreateRowSorter(true);
 
         courseTable.getTableHeader().setFont(
-                new Font("SansSerif", Font.BOLD, 13)
+                new Font("SansSerif", Font.BOLD, 16)
         );
 
         courseTable.getTableHeader().setBackground(PALE_GREEN);

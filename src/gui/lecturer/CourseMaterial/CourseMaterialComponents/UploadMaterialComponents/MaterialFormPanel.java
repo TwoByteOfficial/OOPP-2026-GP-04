@@ -1,4 +1,3 @@
-
 package gui.lecturer.CourseMaterial.CourseMaterialComponents.UploadMaterialComponents;
 
 import javax.swing.*;
@@ -88,7 +87,7 @@ public class MaterialFormPanel extends JPanel {
         gbc.gridy++;
 
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("SansSerif", Font.BOLD, 13));
+        label.setFont(new Font("SansSerif", Font.BOLD, 16));
         label.setForeground(new Color(27, 94, 32));
 
         add(label, gbc);

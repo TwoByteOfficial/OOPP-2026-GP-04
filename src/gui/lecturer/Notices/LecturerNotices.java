@@ -1,4 +1,3 @@
-
 package gui.lecturer.Notices;
 
 import dao.Lecturer.NoticeDAO;
@@ -87,7 +86,7 @@ public class LecturerNotices extends JPanel {
         );
 
         subtitle.setFont(
-                new Font("SansSerif", Font.PLAIN, 14)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         subtitle.setForeground(NOTICES_TEXT_GRAY);
@@ -111,14 +110,14 @@ public class LecturerNotices extends JPanel {
         JLabel typeLabel = new JLabel("Notice Type:");
 
         typeLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 13)
+                new Font("SansSerif", Font.BOLD, 16)
         );
 
         typeLabel.setForeground(NOTICES_DEEP_GREEN);
 
 
         typeFilterCombo.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         typeFilterCombo.setBackground(NOTICES_WHITE);
@@ -135,14 +134,14 @@ public class LecturerNotices extends JPanel {
         JLabel searchLabel = new JLabel("Search:");
 
         searchLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 13)
+                new Font("SansSerif", Font.BOLD, 16)
         );
 
         searchLabel.setForeground(NOTICES_DEEP_GREEN);
 
 
         searchField.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         searchField.setPreferredSize(
@@ -296,7 +295,7 @@ public class LecturerNotices extends JPanel {
         footer.setOpaque(false);
 
         statusLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 12)
+                new Font("SansSerif", Font.PLAIN, 15)
         );
 
         statusLabel.setForeground(NOTICES_TEXT_GRAY);
@@ -334,7 +333,7 @@ public class LecturerNotices extends JPanel {
         JButton button = new JButton(text);
 
         button.setFont(
-                new Font("SansSerif", Font.BOLD, 12)
+                new Font("SansSerif", Font.BOLD, 16)
         );
 
         button.setBackground(background);
@@ -697,7 +696,7 @@ public class LecturerNotices extends JPanel {
         JLabel cardTitle = new JLabel(titleText);
 
         cardTitle.setFont(
-                new Font("SansSerif", Font.BOLD, 16)
+                new Font("SansSerif", Font.BOLD, 18)
         );
 
         cardTitle.setForeground(NOTICES_DEEP_GREEN);
@@ -762,7 +761,7 @@ public class LecturerNotices extends JPanel {
         JTextArea contentArea = new JTextArea(contentText);
 
         contentArea.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         contentArea.setForeground(NOTICES_DARK_GRAY);
@@ -814,7 +813,7 @@ public class LecturerNotices extends JPanel {
         JButton expandButton = new JButton("Read more");
 
         expandButton.setFont(
-                new Font("SansSerif", Font.BOLD, 12)
+                new Font("SansSerif", Font.BOLD, 16)
         );
 
         expandButton.setForeground(NOTICES_DEEP_GREEN);
@@ -928,7 +927,7 @@ public class LecturerNotices extends JPanel {
         JLabel badge = new JLabel(type);
 
         badge.setFont(
-                new Font("SansSerif", Font.BOLD, 11)
+                new Font("SansSerif", Font.BOLD, 14)
         );
 
         badge.setOpaque(true);
@@ -991,7 +990,7 @@ public class LecturerNotices extends JPanel {
         JLabel label = new JLabel(text);
 
         label.setFont(
-                new Font("SansSerif", Font.PLAIN, 11)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         label.setForeground(NOTICES_TEXT_GRAY);

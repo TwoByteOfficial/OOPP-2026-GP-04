@@ -1,4 +1,3 @@
-
 package gui.lecturer.MyCourse.MyCourseComponents;
 
 import javax.swing.*;
@@ -17,6 +16,7 @@ public class EnrolledStudentDialog {
 
     private final EnrolledStudentLoader studentLoader =
             new EnrolledStudentLoader();
+
     public void show(
             Component parent,
             int courseId,
@@ -56,7 +56,7 @@ public class EnrolledStudentDialog {
         );
 
         title.setFont(
-                new Font("SansSerif", Font.BOLD, 22)
+                new Font("SansSerif", Font.BOLD, 26)
         );
 
         title.setForeground(DEEP_GREEN);
@@ -64,7 +64,7 @@ public class EnrolledStudentDialog {
         JLabel subtitle = new JLabel(courseName);
 
         subtitle.setFont(
-                new Font("SansSerif", Font.PLAIN, 14)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         heading.add(title);
@@ -85,6 +85,10 @@ public class EnrolledStudentDialog {
         // Student count
         JLabel studentCount = new JLabel(
                 "Loading students..."
+        );
+
+        studentCount.setFont(
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         studentCount.setBorder(

@@ -7,8 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Undergraduate;
 
+/**
+ * Data Access Object (DAO) for querying student course enrollments.
+ * Used by Technical Officers to retrieve the list of students registered in a course
+ * when marking or reviewing attendance.
+ */
 public class EnrollmentDAO {
 
+    /**
+     * Retrieves all active courses a student is currently enrolled in.
+     *
+     * @param studentId The user ID of the student
+     * @return List of enrolled Course objects ordered by course code
+     * @throws SQLException if a database query error occurs
+     */
     public List<Course> getCoursesByStudent(long studentId) throws SQLException {
         List<Course> list = new ArrayList<>();
         String sql = "SELECT c.* FROM courses c JOIN enrollments e ON e.course_id = c.course_id " +
@@ -38,6 +50,14 @@ public class EnrollmentDAO {
         return list;
     }
 
+    /**
+     * Retrieves all active undergraduate students enrolled in a specific course.
+     * Used by AttendancePanel to populate student rows in the attendance sheet.
+     *
+     * @param courseId The course ID
+     * @return List of Undergraduate objects sorted by student registration number
+     * @throws SQLException if a database query error occurs
+     */
     public List<Undergraduate> getEnrolledStudentsByCourse(
             int courseId) throws SQLException {
 
@@ -69,8 +89,7 @@ public class EnrollmentDAO {
                     student.setContactNo(rs.getString("contact_no"));
                     student.setUserStatus(rs.getString("user_status"));
 
-                    student.setRegistrationNo(
-                            rs.getString("registration_no"));
+                    student.setRegistrationNo(rs.getString("registration_no"));
                     student.setBatchYear(rs.getInt("batch_year"));
                     student.setStudentType(rs.getString("student_type"));
 

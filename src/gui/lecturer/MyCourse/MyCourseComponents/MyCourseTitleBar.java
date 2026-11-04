@@ -1,4 +1,3 @@
-
 package gui.lecturer.MyCourse.MyCourseComponents;
 
 import javax.swing.*;
@@ -21,7 +20,7 @@ public class MyCourseTitleBar extends JPanel {
         JLabel subtitle = new JLabel(
                 "View your assigned courses and enrolled undergraduates."
         );
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
         add(title);
         add(Box.createVerticalStrut(8));

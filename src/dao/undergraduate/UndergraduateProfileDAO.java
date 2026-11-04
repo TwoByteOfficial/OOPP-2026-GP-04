@@ -6,8 +6,22 @@ import gui.undergraduate.profile.model.UserProfileData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+/**
+ * Data Access Object for managing Undergraduate Profile information and credentials.
+ * Handles student biographical queries, contact information synchronization,
+ * profile picture path persistence, and security password updates.
+ */
 public class UndergraduateProfileDAO {
 
+    /**
+     * Retrieves student profile data by querying the database for a matching user ID or username.
+     * Joins user, undergraduate, and department tables, and provides deterministic fallback
+     * mock data in the event of an SQL error or missing record.
+     *
+     * @param userId   The unique primary key identifier of the user
+     * @param username The institutional username or registration handle
+     * @return Fully populated {@link UserProfileData} instance containing student details
+     */
     public static UserProfileData getProfile(long userId, String username) {
         String query = "SELECT ug.registration_no, u.full_name, u.email, u.contact_no, u.address, " +
                 "u.profile_picture, d.department_name, ug.current_level, ug.current_semester, ug.student_type " +
@@ -46,6 +60,9 @@ public class UndergraduateProfileDAO {
             System.err.println("[UndergraduateProfileDAO] Fallback triggered: " + e.getMessage());
         }
 
+        // -------------------------------------------------------------
+        // Resilient Fallback Profile Mock (When DB connection or record fails)
+        // -------------------------------------------------------------
         String reg = (username != null && !username.isEmpty()) ? username.toUpperCase() : "TG" + userId;
         return new UserProfileData(userId, "TG/2024/" + (userId > 0 ? userId : "2067"),
                 "THARINDU FERNANDO", "tg2067@fot.ruh.ac.lk",
@@ -55,6 +72,15 @@ public class UndergraduateProfileDAO {
                 "0713002067", "Galle, Sri Lanka", null);
     }
 
+    /**
+     * Updates editable contact details and profile picture path for an undergraduate user.
+     *
+     * @param userId      The unique identifier of the student
+     * @param contactNo   The updated telephone contact number
+     * @param address     The updated residential postal address
+     * @param picturePath File system path or URL to the uploaded profile picture
+     * @return {@code true} if update succeeded (or suppressed on local dev catch), {@code false} otherwise
+     */
     public static boolean updateContactDetails(long userId, String contactNo, String address, String picturePath) {
         String query = "UPDATE users SET contact_no = ?, address = ?, profile_picture = ? WHERE user_id = ?";
         try (PreparedStatement stmt = DBConnection.UG_CON.prepareStatement(query)) {
@@ -69,6 +95,13 @@ public class UndergraduateProfileDAO {
         }
     }
 
+    /**
+     * Updates the password hash credential for the specified user account.
+     *
+     * @param userId      The unique identifier of the student
+     * @param newPassword The new plaintext or hashed password string
+     * @return {@code true} if the database record was updated successfully, {@code false} otherwise
+     */
     public static boolean updatePassword(long userId, String newPassword) {
         String query = "UPDATE users SET password_hash = ? WHERE user_id = ?";
         try (PreparedStatement stmt = DBConnection.UG_CON.prepareStatement(query)) {
