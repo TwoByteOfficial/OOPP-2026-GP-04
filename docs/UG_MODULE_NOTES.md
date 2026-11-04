@@ -1,1 +1,2 @@
 - [2026-11-04 22:59:53] Docs: add javadoc for resolveStudentId method in UndergraduateEnrollmentDAO
+- [2026-11-04 22:59:53] Refactor: streamline SQL query formatting in getAvailableCoursesForStudent
