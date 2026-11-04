@@ -22,12 +22,13 @@ public class AdminSidebar extends JPanel {
     private final Color TEXT          = DEEP_GREEN;
     private final Color DANGER        = new Color(0xDC, 0x35, 0x45);
 
-    public static final String PAGE_DASHBOARD = "Dashboard";
-    public static final String PAGE_USERS     = "User Profiles";
-    public static final String PAGE_COURSES   = "Courses";
-    public static final String PAGE_NOTICES   = "Notices";
-    public static final String PAGE_TIMETABLE = "Timetables";
-    public static final String PAGE_SETTINGS  = "Settings";
+    public static final String PAGE_DASHBOARD  = "Dashboard";
+    public static final String PAGE_USERS      = "User Profiles";
+    public static final String PAGE_COURSES    = "Courses";
+    public static final String PAGE_ENROLLMENT = "Enrollment";
+    public static final String PAGE_NOTICES    = "Notices";
+    public static final String PAGE_TIMETABLE  = "Timetables";
+    public static final String PAGE_SETTINGS   = "Settings";
 
     private Consumer<String> onNavigate;
     private Runnable         onLogout;
@@ -46,7 +47,7 @@ public class AdminSidebar extends JPanel {
         logoLabel.setBounds(32, 30, 210, 48);
         add(logoLabel);
 
-        String[] routes = { PAGE_DASHBOARD, PAGE_USERS, PAGE_COURSES, PAGE_NOTICES, PAGE_TIMETABLE, PAGE_SETTINGS };
+        String[] routes = { PAGE_DASHBOARD, PAGE_USERS, PAGE_COURSES, PAGE_ENROLLMENT, PAGE_NOTICES, PAGE_TIMETABLE, PAGE_SETTINGS };
         int initialY = 100;
         int buttonSpacing = 58;
 
