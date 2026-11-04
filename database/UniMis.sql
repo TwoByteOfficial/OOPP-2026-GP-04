@@ -1161,11 +1161,134 @@ FROM assessments a
 
 -- 5.14 System Notices
 -- FIXED: CA Eligibility Notice wording - 40% of the course CA weight
-INSERT INTO notices (title, content, notice_type, target_role, department_id, published_by, status) VALUES
-                                                                                                        ('Semester I Academic Notice', 'Students are requested to regularly check attendance, course and examination information.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
-                                                                                                        ('Attendance Eligibility Reminder', 'Students must maintain at least 80% attendance according to academic regulations.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
-                                                                                                        ('CA Eligibility Notice', 'Continuous Assessment (CA) marks must be at least 40% of the total CA weight of the course (e.g. 16 out of 40, 20 out of 50, 12 out of 30) to be eligible for the final examination.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
+INSERT INTO notices
+(title, content, notice_type, target_role, department_id, published_by, status)
+VALUES
+-- General Notices
+('General Notice All 1', 'Please check the university notice board regularly for important faculty updates and announcements.', 'General', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice All 2', 'Please check the university notice board regularly for important faculty updates and announcements.', 'General', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice All 3', 'Please check the university notice board regularly for important faculty updates and announcements.', 'General', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
 
+('General Notice Admin 1', 'Please review faculty administration updates and ensure relevant administrative information is communicated.', 'General', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Admin 2', 'Please review faculty administration updates and ensure relevant administrative information is communicated.', 'General', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Admin 3', 'Please review faculty administration updates and ensure relevant administrative information is communicated.', 'General', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('General Notice Lecturer 1', 'Please review faculty announcements and communicate relevant updates to your students.', 'General', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Lecturer 2', 'Please review faculty announcements and communicate relevant updates to your students.', 'General', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Lecturer 3', 'Please review faculty announcements and communicate relevant updates to your students.', 'General', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('General Notice Technical Officer 1', 'Please check faculty updates and ensure relevant technical facilities and resources are ready for use.', 'General', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Technical Officer 2', 'Please check faculty updates and ensure relevant technical facilities and resources are ready for use.', 'General', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Technical Officer 3', 'Please check faculty updates and ensure relevant technical facilities and resources are ready for use.', 'General', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('General Notice Undergraduate 1', 'Please check faculty announcements regularly to stay informed about university activities and updates.', 'General', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Undergraduate 2', 'Please check faculty announcements regularly to stay informed about university activities and updates.', 'General', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('General Notice Undergraduate 3', 'Please check faculty announcements regularly to stay informed about university activities and updates.', 'General', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+-- Academic Notices
+('Academic Notice All 1', 'Please review the academic calendar and stay informed about semester dates and academic activities.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice All 2', 'Please review the academic calendar and stay informed about semester dates and academic activities.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice All 3', 'Please review the academic calendar and stay informed about semester dates and academic activities.', 'Academic', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Academic Notice Admin 1', 'Please review academic calendar updates and coordinate relevant administrative arrangements.', 'Academic', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Admin 2', 'Please review academic calendar updates and coordinate relevant administrative arrangements.', 'Academic', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Admin 3', 'Please review academic calendar updates and coordinate relevant administrative arrangements.', 'Academic', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Academic Notice Lecturer 1', 'Please review academic schedules and prepare teaching activities according to the semester plan.', 'Academic', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Lecturer 2', 'Please review academic schedules and prepare teaching activities according to the semester plan.', 'Academic', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Lecturer 3', 'Please review academic schedules and prepare teaching activities according to the semester plan.', 'Academic', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Academic Notice Technical Officer 1', 'Please prepare laboratory facilities and technical resources required for scheduled academic activities.', 'Academic', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Technical Officer 2', 'Please prepare laboratory facilities and technical resources required for scheduled academic activities.', 'Academic', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Technical Officer 3', 'Please prepare laboratory facilities and technical resources required for scheduled academic activities.', 'Academic', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Academic Notice Undergraduate 1', 'Please check academic announcements and follow the published semester schedule.', 'Academic', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Undergraduate 2', 'Please check academic announcements and follow the published semester schedule.', 'Academic', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Academic Notice Undergraduate 3', 'Please check academic announcements and follow the published semester schedule.', 'Academic', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+-- Exam Notices
+('Exam Notice All 1', 'Please refer to official examination announcements for schedules and examination-related instructions.', 'Exam', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice All 2', 'Please refer to official examination announcements for schedules and examination-related instructions.', 'Exam', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice All 3', 'Please refer to official examination announcements for schedules and examination-related instructions.', 'Exam', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Exam Notice Admin 1', 'Please coordinate administrative arrangements required for upcoming examinations.', 'Exam', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Admin 2', 'Please coordinate administrative arrangements required for upcoming examinations.', 'Exam', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Admin 3', 'Please coordinate administrative arrangements required for upcoming examinations.', 'Exam', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Exam Notice Lecturer 1', 'Please review examination schedules and complete required assessment and examination preparations.', 'Exam', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Lecturer 2', 'Please review examination schedules and complete required assessment and examination preparations.', 'Exam', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Lecturer 3', 'Please review examination schedules and complete required assessment and examination preparations.', 'Exam', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Exam Notice Technical Officer 1', 'Please check examination venues, computers, laboratory equipment, and other required technical resources.', 'Exam', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Technical Officer 2', 'Please check examination venues, computers, laboratory equipment, and other required technical resources.', 'Exam', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Technical Officer 3', 'Please check examination venues, computers, laboratory equipment, and other required technical resources.', 'Exam', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Exam Notice Undergraduate 1', 'Please check the examination timetable and follow all published examination instructions.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Undergraduate 2', 'Please check the examination timetable and follow all published examination instructions.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Exam Notice Undergraduate 3', 'Please check the examination timetable and follow all published examination instructions.', 'Exam', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+-- Attendance Notices
+('Attendance Notice All 1', 'Please review official attendance-related announcements and follow the applicable university procedures.', 'Attendance', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice All 2', 'Please review official attendance-related announcements and follow the applicable university procedures.', 'Attendance', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice All 3', 'Please review official attendance-related announcements and follow the applicable university procedures.', 'Attendance', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Attendance Notice Admin 1', 'Please review attendance administration records and coordinate any required administrative follow-up.', 'Attendance', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Admin 2', 'Please review attendance administration records and coordinate any required administrative follow-up.', 'Attendance', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Admin 3', 'Please review attendance administration records and coordinate any required administrative follow-up.', 'Attendance', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Attendance Notice Lecturer 1', 'Please ensure attendance records for your teaching sessions are maintained accurately.', 'Attendance', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Lecturer 2', 'Please ensure attendance records for your teaching sessions are maintained accurately.', 'Attendance', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Lecturer 3', 'Please ensure attendance records for your teaching sessions are maintained accurately.', 'Attendance', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Attendance Notice Technical Officer 1', 'Please ensure attendance recording facilities and related technical resources are available for sessions.', 'Attendance', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Technical Officer 2', 'Please ensure attendance recording facilities and related technical resources are available for sessions.', 'Attendance', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Technical Officer 3', 'Please ensure attendance recording facilities and related technical resources are available for sessions.', 'Attendance', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Attendance Notice Undergraduate 1', 'Please attend scheduled classes and practical sessions and check your attendance records regularly.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Undergraduate 2', 'Please attend scheduled classes and practical sessions and check your attendance records regularly.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Attendance Notice Undergraduate 3', 'Please attend scheduled classes and practical sessions and check your attendance records regularly.', 'Attendance', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+-- Event Notices
+('Event Notice All 1', 'Please check the announced faculty events and review any published participation information.', 'Event', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice All 2', 'Please check the announced faculty events and review any published participation information.', 'Event', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice All 3', 'Please check the announced faculty events and review any published participation information.', 'Event', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Event Notice Admin 1', 'Please coordinate administrative arrangements and communications for upcoming faculty events.', 'Event', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Admin 2', 'Please coordinate administrative arrangements and communications for upcoming faculty events.', 'Event', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Admin 3', 'Please coordinate administrative arrangements and communications for upcoming faculty events.', 'Event', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Event Notice Lecturer 1', 'Please review upcoming faculty events and communicate relevant information to students.', 'Event', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Lecturer 2', 'Please review upcoming faculty events and communicate relevant information to students.', 'Event', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Lecturer 3', 'Please review upcoming faculty events and communicate relevant information to students.', 'Event', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Event Notice Technical Officer 1', 'Please check event venues, equipment, audiovisual systems, and other technical requirements.', 'Event', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Technical Officer 2', 'Please check event venues, equipment, audiovisual systems, and other technical requirements.', 'Event', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Technical Officer 3', 'Please check event venues, equipment, audiovisual systems, and other technical requirements.', 'Event', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Event Notice Undergraduate 1', 'Please review upcoming faculty events and follow the published participation instructions.', 'Event', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Undergraduate 2', 'Please review upcoming faculty events and follow the published participation instructions.', 'Event', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Event Notice Undergraduate 3', 'Please review upcoming faculty events and follow the published participation instructions.', 'Event', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+-- Emergency Notices
+('Emergency Notice All 1', 'Please follow official university emergency instructions and monitor authorized updates.', 'Emergency', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice All 2', 'Please follow official university emergency instructions and monitor authorized updates.', 'Emergency', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice All 3', 'Please follow official university emergency instructions and monitor authorized updates.', 'Emergency', 'All', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Emergency Notice Admin 1', 'Please follow emergency procedures and coordinate necessary administrative communications.', 'Emergency', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Admin 2', 'Please follow emergency procedures and coordinate necessary administrative communications.', 'Emergency', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Admin 3', 'Please follow emergency procedures and coordinate necessary administrative communications.', 'Emergency', 'Admin', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Emergency Notice Lecturer 1', 'Please follow university emergency instructions and communicate relevant safety information to students.', 'Emergency', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Lecturer 2', 'Please follow university emergency instructions and communicate relevant safety information to students.', 'Emergency', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Lecturer 3', 'Please follow university emergency instructions and communicate relevant safety information to students.', 'Emergency', 'Lecturer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Emergency Notice Technical Officer 1', 'Please follow emergency procedures and report urgent equipment, electrical, or facility safety issues.', 'Emergency', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Technical Officer 2', 'Please follow emergency procedures and report urgent equipment, electrical, or facility safety issues.', 'Emergency', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Technical Officer 3', 'Please follow emergency procedures and report urgent equipment, electrical, or facility safety issues.', 'Emergency', 'Technical Officer', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+
+('Emergency Notice Undergraduate 1', 'Please follow official emergency and safety instructions issued by the university.', 'Emergency', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Undergraduate 2', 'Please follow official emergency and safety instructions issued by the university.', 'Emergency', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published'),
+('Emergency Notice Undergraduate 3', 'Please follow official emergency and safety instructions issued by the university.', 'Emergency', 'Undergraduate', 1, (SELECT user_id FROM admins WHERE admin_code = 'ADM001'), 'Published');
 -- 5.15 Timetable Schedule (REWRITTEN)
 -- Explicit weekly timetable for the 2024 batch, one row per weekly slot (2-hour slots, same
 -- length as the attendance sessions in 5.10):
