@@ -10,3 +10,4 @@
 - [2026-11-04 22:59:57] Docs: update module documentation for student registration flow
 - [2026-11-04 22:59:58] UI: adjust padding and margin constraints in enrollment search bar
 - [2026-11-04 22:59:58] Refactor: clean up exception handling in enrollment data retrieval
+- [2026-11-04 22:59:59] Docs: clarify medical attendance verification logic in model
