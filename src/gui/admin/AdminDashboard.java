@@ -1,110 +1,83 @@
 package gui.admin;
 
-import gui.login.Login;
-import gui.login.LoginTheme;
-
+import gui.admin.DashboardComponents.*;
+import dao.admin.AdminDashboardDAO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Map;
+import java.util.HashMap;
 
-/**
- * Admin dashboard. Same constructor signature as the other dashboards,
- * so Login's DashboardFactory map can build it via a method reference.
- */
-public class AdminDashboard extends JFrame {
+public class AdminDashboard extends JPanel {
 
-    private final long userId;
-    private final String username, fullName, email, role;
+    private DashboardTitleBar   titleBar;
+    private SimpleAnalyticView  analyticsRow;
+    private StatusSummary       statusPanel;
+    private AttendanceSummary   attendancePanel;
+    private UserSummary         userPanel;
+    private NoticesSummary      noticesPanel;
+    private AdminDashboardDAO   dashboardDAO;
 
-    public AdminDashboard(long userId, String username, String fullName,
-                          String email, String role) {
-        this.userId   = userId;
-        this.username = username;
-        this.fullName = fullName;
-        this.email    = email;
-        this.role     = role;
+    public AdminDashboard(long userId, String username, String fullName, String email, String role) {
+        setLayout(new BorderLayout(0, 16));
+        setBackground(new Color(0xE8, 0xF5, 0xE9));
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
 
-        setTitle("UniMis - Admin Dashboard");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+        dashboardDAO = new AdminDashboardDAO();
+        Map<String, Integer> dbMetrics = loadLiveDatabaseMetrics();
 
-        JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(LoginTheme.MINT);
-        root.add(buildHeader(), BorderLayout.NORTH);
-        root.add(buildCenter(), BorderLayout.CENTER);
-        root.add(buildFooter(), BorderLayout.SOUTH);
+        titleBar = new DashboardTitleBar(fullName);
+        add(titleBar, BorderLayout.NORTH);
 
-        setContentPane(root);
-        setLocationRelativeTo(null);
+        JPanel body = new JPanel(null);
+        body.setOpaque(false);
+        //body.setPreferredSize(new Dimension(1620, 960));
+
+        analyticsRow = new SimpleAnalyticView(dbMetrics);
+        analyticsRow.setBounds(0, 0, 1620, 130);
+        body.add(analyticsRow);
+
+        //--------------------------------------------------------
+
+        statusPanel = new StatusSummary();
+        statusPanel.setBounds(0, 125, 778, 260);
+        body.add(statusPanel);
+
+        attendancePanel = new AttendanceSummary(dbMetrics);
+        attendancePanel.setBounds(798, 125, 778, 260);
+        body.add(attendancePanel);
+
+        userPanel = new UserSummary();
+        userPanel.setBounds(0, 400, 778, 450);
+        body.add(userPanel);
+
+        noticesPanel = new NoticesSummary();
+        noticesPanel.setBounds(798, 400, 778, 450);
+        body.add(noticesPanel);
+
+        JScrollPane scrollPane = new JScrollPane(body);
+        scrollPane.getViewport().setBackground(new Color(0xE8, 0xF5, 0xE9));
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        add(scrollPane, BorderLayout.CENTER);
     }
 
-    /* ---------- Header ---------- */
+    private Map<String, Integer> loadLiveDatabaseMetrics() {
+        try {
+            return dashboardDAO.getDashboardSummaryCounts();
+        } catch (Exception e) {
+            System.err.println("[Dashboard DB Error] Failed to aggregate system summary counts.");
+            e.printStackTrace();
 
-    private JPanel buildHeader() {
-        JLabel title = new JLabel("Admin Dashboard", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 42));
-        title.setForeground(LoginTheme.FOREST);
-        title.setBorder(new EmptyBorder(50, 20, 10, 20));
-
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(LoginTheme.MINT);
-        header.add(title, BorderLayout.CENTER);
-        return header;
-    }
-
-    /* ---------- Centre : profile card ---------- */
-
-    private JPanel buildCenter() {
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(LoginTheme.PASTEL);
-        card.setBorder(new EmptyBorder(30, 60, 30, 60));
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(8, 12, 8, 12);
-        gc.anchor = GridBagConstraints.WEST;
-
-        addRow(card, gc, 0, "User ID:",   String.valueOf(userId));
-        addRow(card, gc, 1, "Username:",  username);
-        addRow(card, gc, 2, "Full Name:", fullName);
-        addRow(card, gc, 3, "Email:",     email);
-        addRow(card, gc, 4, "Role:",      role);
-
-        JPanel wrap = new JPanel(new GridBagLayout());
-        wrap.setBackground(LoginTheme.MINT);
-        wrap.add(card);
-        return wrap;
-    }
-
-    /* ---------- Footer : logout ---------- */
-
-    private JPanel buildFooter() {
-        JButton logout = LoginTheme.button("Logout", LoginTheme.F_LABEL);
-        logout.setPreferredSize(new Dimension(150, 44));
-        logout.addActionListener(e -> {
-            dispose();
-            Login.showLogin();
-        });
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 25));
-        bottom.setBackground(LoginTheme.MINT);
-        bottom.add(logout);
-        return bottom;
-    }
-
-    /* ---------- Row helper (used inside the card) ---------- */
-
-    private static void addRow(JPanel p, GridBagConstraints gc, int row,
-                               String label, String value) {
-        gc.gridx = 0; gc.gridy = row;
-        JLabel l = new JLabel(label);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(LoginTheme.DEEP);
-        p.add(l, gc);
-
-        gc.gridx = 1;
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        v.setForeground(LoginTheme.DEEP);
-        p.add(v, gc);
+            Map<String, Integer> fallbacks = new HashMap<>();
+            fallbacks.put("admins", 0);
+            fallbacks.put("lecturers", 0);
+            fallbacks.put("technical_officers", 0);
+            fallbacks.put("undergraduates", 0);
+            fallbacks.put("courses", 0);
+            fallbacks.put("notices", 0);
+            fallbacks.put("timetables", 0);
+            return fallbacks;
+        }
     }
 }

@@ -1,7 +1,9 @@
 package gui.login;
 
-import gui.admin.AdminDashboard;
-import gui.lecturer.LecturerDashboard;
+//import gui.admin.AdminDashboard;
+import gui.admin.Administrator;
+//import gui.lecturer.Dashboard.LecturerDashboard
+import gui.lecturer.Lecturer;
 import gui.technical.TechnicalOfficerDashboard;
 import gui.undergraduate.UndergraduateDashboard;
 import services.AuthService.AuthUser;
@@ -26,10 +28,10 @@ public class Login {
 
     private static final Map<String, DashboardFactory> DASHBOARDS = new HashMap<>();
     static {
-        DASHBOARDS.put("admin",            AdminDashboard::new);
-        DASHBOARDS.put("lecturer",         LecturerDashboard::new);
+        DASHBOARDS.put("admin", Administrator::new);
+        DASHBOARDS.put("lecturer", Lecturer::new);
         DASHBOARDS.put("technicalofficer", TechnicalOfficerDashboard::new);
-        DASHBOARDS.put("undergraduate",    UndergraduateDashboard::new);
+        DASHBOARDS.put("undergraduate", UndergraduateDashboard::new);
     }
 
     private static String roleKey(String role) {
@@ -38,7 +40,7 @@ public class Login {
 
     /* ---- Entry points ---- */
 
-    public static void main(String[] args) {
+    public static void main() {
         SwingUtilities.invokeLater(Login::start);
     }
 
@@ -70,8 +72,7 @@ public class Login {
         DashboardFactory factory = DASHBOARDS.get(roleKey(user.role()));
         if (factory == null) {
             LoginTheme.show(null,
-                    "Unknown role: \"" + user.role() + "\".\nContact the administrator.",
-                    "Login", JOptionPane.ERROR_MESSAGE);
+                    "Unknown role: \"" + user.role() + "\".\nContact the administrator.", "Login", JOptionPane.ERROR_MESSAGE);
             showLogin();
             return;
         }
