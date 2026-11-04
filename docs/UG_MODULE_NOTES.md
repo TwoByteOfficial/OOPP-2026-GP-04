@@ -20,3 +20,4 @@
 - [2026-11-04 23:00:02] Docs: add class-level architectural notes to EnrollmentCourseData
 - [2026-11-04 23:00:02] Style: improve typography hierarchy in undergraduate course details
 - [2026-11-04 23:00:03] Refactor: isolate database connection close sequence in DAO methods
+- [2026-11-04 23:00:03] Docs: add detailed review guidelines for enrollment status changes
