@@ -1,4 +1,3 @@
-
 package gui.lecturer.MyCourse.MyCourseComponents;
 
 import javax.swing.*;
@@ -20,6 +19,7 @@ public class ShowButtonRenderer extends JButton
     public ShowButtonRenderer() {
 
         setText("Show Details");
+        setFont(new Font("SansSerif", Font.BOLD, 16));
         setOpaque(true);
         setFocusPainted(false);
         setBackground(PALE_GREEN);
