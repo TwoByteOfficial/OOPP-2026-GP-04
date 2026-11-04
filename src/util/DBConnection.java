@@ -33,7 +33,7 @@ import java.util.List;
 public final class DBConnection {
 
     private static final String URL =
-            "jdbc:mysql://localhost:3306/unimis?allowPublicKeyRetrieval=true&useSSL=false";
+            "jdbc:mysql://localhost:3307/unimis?allowPublicKeyRetrieval=true&useSSL=false";
 
     private static final String ADMIN_USER = "unimisadmin";
     private static final String ADMIN_PW = "Admin@Unimis@123";
