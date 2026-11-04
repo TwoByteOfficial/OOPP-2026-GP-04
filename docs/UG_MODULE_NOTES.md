@@ -22,3 +22,4 @@
 - [2026-11-04 23:00:03] Refactor: isolate database connection close sequence in DAO methods
 - [2026-11-04 23:00:03] Docs: add detailed review guidelines for enrollment status changes
 - [2026-11-04 23:00:04] Style: align confirmation dialog box for module submission
+- [2026-11-04 23:00:04] Refactor: verify prepared statement parameter ordering in enrollment DAO
