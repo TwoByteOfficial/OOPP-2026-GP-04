@@ -116,11 +116,16 @@ public class Lecturer extends JFrame {
                 "Notices"
         );
 
-        // Profile with dashboard and topbar callbacks
+        // Profile
         LecturerProfile profile = new LecturerProfile(
                 userId,
                 dashboard::refreshGreeting,
                 topbar::setProfilePictureUrl
+        );
+
+        // Update shared topbar name after profile save
+        profile.setOnLecturerNameUpdated(
+                topbar::setLecturerName
         );
 
         pageContainer.add(profile, "Profile");
@@ -133,10 +138,10 @@ public class Lecturer extends JFrame {
 
         connectNavigation();
 
-        // Load saved profile picture from database.
+        // Load saved profile picture
         loadLecturerProfilePicture();
 
-        // Open dashboard first.
+        // Open dashboard first
         cardLayout.show(pageContainer, "Dashboard");
 
         setLocationRelativeTo(null);
@@ -263,7 +268,7 @@ public class Lecturer extends JFrame {
                 }
         );
 
-        // Topbar circular profile picture click
+        // Topbar profile picture click
         topbar.addPropertyChangeListener(
                 "profileRequested",
                 event -> {

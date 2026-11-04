@@ -29,7 +29,11 @@ public class LecturerProfile extends JPanel {
             new LecturerProfileDAO();
 
     private final Runnable onProfileUpdated;
+
     private final Consumer<String> onProfilePictureUpdated;
+
+    // Callback to update lecturer name in the topbar.
+    private Consumer<String> onLecturerNameUpdated;
 
     private final JLabel usernameLabel = new JLabel();
     private final JLabel codeLabel = new JLabel();
@@ -140,7 +144,7 @@ public class LecturerProfile extends JPanel {
         readOnlyPanel.add(codeLabel);
         readOnlyPanel.add(deptLabel);
 
-        // Profile picture section - ABOVE personal details
+        // Profile picture section
         JPanel pictureSection = createPictureSection();
 
         // Personal details form
@@ -259,6 +263,15 @@ public class LecturerProfile extends JPanel {
         add(footer, BorderLayout.SOUTH);
 
         loadProfile();
+    }
+
+    /**
+     * Set callback for updating lecturer name in topbar.
+     */
+    public void setOnLecturerNameUpdated(
+            Consumer<String> callback
+    ) {
+        this.onLecturerNameUpdated = callback;
     }
 
     private JPanel createPictureSection() {
@@ -759,7 +772,20 @@ public class LecturerProfile extends JPanel {
 
                 savedPictureUrl = pictureUrl;
 
-                // Update topbar immediately.
+                // Update lecturer name in topbar immediately.
+                if (onLecturerNameUpdated != null) {
+
+                    String displayName =
+                            (titleStr == null ? "" : titleStr.trim())
+                                    + " "
+                                    + fullNameStr;
+
+                    onLecturerNameUpdated.accept(
+                            displayName.trim()
+                    );
+                }
+
+                // Update topbar profile picture.
                 if (onProfilePictureUpdated != null) {
                     onProfilePictureUpdated.accept(pictureUrl);
                 }
