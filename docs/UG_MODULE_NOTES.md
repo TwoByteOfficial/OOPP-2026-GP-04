@@ -3,3 +3,4 @@
 - [2026-11-04 22:59:54] Fix: sanitize academic year parameter in course enrollment request
 - [2026-11-04 22:59:54] Docs: document permission constraints for unimisug user account
 - [2026-11-04 22:59:55] Style: format component spacing in UGEnrollmentView
+- [2026-11-04 22:59:55] Refactor: optimize enrollment status badge rendering logic
