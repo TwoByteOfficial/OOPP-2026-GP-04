@@ -1,4 +1,3 @@
-
 package gui.lecturer.Profile;
 
 import dao.Lecturer.LecturerProfileDAO;
@@ -99,7 +98,7 @@ public class LecturerProfile extends JPanel {
                 new JLabel("Lecturer Profile & Settings");
 
         pageTitle.setFont(
-                new Font("SansSerif", Font.BOLD, 25)
+                new Font("SansSerif", Font.BOLD, 28)
         );
         pageTitle.setForeground(PROFILE_DEEP_GREEN);
 
@@ -108,7 +107,7 @@ public class LecturerProfile extends JPanel {
         );
 
         subtitle.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
         subtitle.setForeground(PROFILE_TEXT_GRAY);
 
@@ -252,7 +251,7 @@ public class LecturerProfile extends JPanel {
         footer.setOpaque(false);
 
         statusLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 12)
+                new Font("SansSerif", Font.PLAIN, 15)
         );
         statusLabel.setForeground(PROFILE_TEXT_GRAY);
 
@@ -294,7 +293,7 @@ public class LecturerProfile extends JPanel {
 
         JLabel previewTitle = new JLabel("Profile Picture Preview");
         previewTitle.setFont(
-                new Font("SansSerif", Font.BOLD, 14)
+                new Font("SansSerif", Font.BOLD, 18)
         );
         previewTitle.setForeground(PROFILE_DEEP_GREEN);
 
@@ -302,7 +301,7 @@ public class LecturerProfile extends JPanel {
         picturePreview.setBackground(PROFILE_WHITE);
         picturePreview.setForeground(PROFILE_TEXT_GRAY);
         picturePreview.setFont(
-                new Font("SansSerif", Font.PLAIN, 12)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         picturePreview.setBorder(
@@ -321,12 +320,12 @@ public class LecturerProfile extends JPanel {
 
         JLabel urlLabel = new JLabel("Profile Picture URL");
         urlLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 13)
+                new Font("SansSerif", Font.BOLD, 16)
         );
         urlLabel.setForeground(PROFILE_DEEP_GREEN);
 
         profilePictureUrlField.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 18)
         );
 
         profilePictureUrlField.setPreferredSize(
@@ -368,7 +367,7 @@ public class LecturerProfile extends JPanel {
         );
 
         helpText.setFont(
-                new Font("SansSerif", Font.PLAIN, 11)
+                new Font("SansSerif", Font.PLAIN, 15)
         );
         helpText.setForeground(PROFILE_TEXT_GRAY);
 
@@ -389,7 +388,7 @@ public class LecturerProfile extends JPanel {
 
     private void styleInfoLabel(JLabel label) {
         label.setFont(
-                new Font("SansSerif", Font.BOLD, 12)
+                new Font("SansSerif", Font.BOLD, 15)
         );
         label.setForeground(PROFILE_DEEP_GREEN);
     }
@@ -427,12 +426,12 @@ public class LecturerProfile extends JPanel {
 
         JLabel label = new JLabel(labelText);
         label.setFont(
-                new Font("SansSerif", Font.BOLD, 12)
+                new Font("SansSerif", Font.BOLD, 15)
         );
         label.setForeground(PROFILE_DEEP_GREEN);
 
         field.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 18)
         );
 
         field.setPreferredSize(new Dimension(180, 34));
@@ -471,7 +470,7 @@ public class LecturerProfile extends JPanel {
         button.setFont(new Font(
                 "SansSerif",
                 primary ? Font.BOLD : Font.PLAIN,
-                13
+                18
         ));
 
         button.setFocusPainted(false);

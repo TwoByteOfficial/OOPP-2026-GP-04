@@ -38,7 +38,7 @@ public class LecturerTopbar extends JPanel {
         ));
 
         JLabel portalLabel = new JLabel("Lecturer Portal");
-        portalLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        portalLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
         portalLabel.setForeground(DEEP_GREEN);
 
         add(portalLabel, BorderLayout.WEST);
@@ -115,12 +115,12 @@ public class LecturerTopbar extends JPanel {
 
         lecturerNameLabel = new JLabel(name);
         lecturerNameLabel.setFont(
-                new Font("Segoe UI", Font.BOLD, 14)
+                new Font("Segoe UI", Font.BOLD, 18)
         );
         lecturerNameLabel.setForeground(DEEP_GREEN);
 
         JLabel roleLabel = new JLabel("Lecturer");
-        roleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        roleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         roleLabel.setForeground(TEXT_GRAY);
 
         namePanel.add(lecturerNameLabel);

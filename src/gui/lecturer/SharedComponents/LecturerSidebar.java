@@ -55,7 +55,7 @@ public class LecturerSidebar extends JPanel {
         brand.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel subtitle = new JLabel("LECTURER PORTAL");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         subtitle.setForeground(Colors.DEEP_GREEN);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -159,7 +159,7 @@ public class LecturerSidebar extends JPanel {
             super(text);
             this.logoutButton = logoutButton;
 
-            setFont(new Font("Segoe UI", Font.BOLD, 15));
+            setFont(new Font("Segoe UI", Font.BOLD, 19));
             setHorizontalAlignment(SwingConstants.LEFT);
             setForeground(logoutButton ? Color.WHITE : Colors.DEEP_GREEN);
             setContentAreaFilled(false);

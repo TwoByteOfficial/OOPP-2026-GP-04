@@ -48,7 +48,7 @@ public class EnterMarksPanel extends JPanel {
         selectorPanel.setOpaque(false);
 
         JLabel courseLabel = new JLabel("Select Course:");
-        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(280, 34));
@@ -59,7 +59,7 @@ public class EnterMarksPanel extends JPanel {
         });
 
         JLabel assessmentLabel = new JLabel("Select Assessment:");
-        assessmentLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        assessmentLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         assessmentLabel.setForeground(DEEP_GREEN);
 
         assessmentCombo.setPreferredSize(new Dimension(280, 34));
@@ -70,7 +70,7 @@ public class EnterMarksPanel extends JPanel {
         });
 
         JButton loadBtn = new JButton("Load Students");
-        loadBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        loadBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
         loadBtn.addActionListener(e -> loadStudentMarks());
 
         selectorPanel.add(courseLabel);
@@ -79,7 +79,7 @@ public class EnterMarksPanel extends JPanel {
         selectorPanel.add(assessmentCombo);
         selectorPanel.add(loadBtn);
 
-        assessmentInfoLabel.setFont(new Font("SansSerif", Font.ITALIC, 13));
+        assessmentInfoLabel.setFont(new Font("SansSerif", Font.ITALIC, 16));
         assessmentInfoLabel.setForeground(TEXT_GRAY);
 
         JPanel headerPanel = new JPanel(new BorderLayout(0, 8));
@@ -98,13 +98,13 @@ public class EnterMarksPanel extends JPanel {
 
         studentTable = new JTable(tableModel);
         studentTable.setRowHeight(34);
-        studentTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        studentTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
         studentTable.setSelectionBackground(PALE_GREEN);
         studentTable.setSelectionForeground(DEEP_GREEN);
         studentTable.setGridColor(BORDER_GREEN);
         studentTable.setFillsViewportHeight(true);
 
-        studentTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        studentTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
         studentTable.getTableHeader().setBackground(PALE_GREEN);
         studentTable.getTableHeader().setForeground(DEEP_GREEN);
 
@@ -116,7 +116,7 @@ public class EnterMarksPanel extends JPanel {
 
         // Footer & Save buttons
         JButton saveSelectedBtn = new JButton("Save Selected Row Mark");
-        saveSelectedBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        saveSelectedBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
         saveSelectedBtn.setBackground(DEEP_GREEN);
         saveSelectedBtn.setForeground(Color.WHITE);
         saveSelectedBtn.setFocusPainted(false);
@@ -124,7 +124,7 @@ public class EnterMarksPanel extends JPanel {
         saveSelectedBtn.addActionListener(e -> saveSelectedMark());
 
         JButton saveAllBtn = new JButton("Save All Entered Marks");
-        saveAllBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        saveAllBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
         saveAllBtn.setBackground(DEEP_GREEN);
         saveAllBtn.setForeground(Color.WHITE);
         saveAllBtn.setFocusPainted(false);
