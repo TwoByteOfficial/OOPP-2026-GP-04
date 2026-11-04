@@ -21,8 +21,8 @@ public final class LoginTheme {
 
     /* ---- Assets ---- */
     public static final String ASSETS_DIR   = "/home/dasindu-dilvan/Documents/8.OOPP Mini Project/OOPP-2026-GP-04/assets/";
-    public static final String UNI_LOGO     = ASSETS_DIR + "university-logo.png";
-    public static final String FACULTY_LOGO = ASSETS_DIR + "faculty-logo.png";
+    public static final String UNI_LOGO     = "assets/university-logo.png";
+    public static final String FACULTY_LOGO = "assets/faculty-logo.png";
     /* ---- Fonts ---- */
     private static final String FONT = "Segoe UI";
     public static final Font F_TITLE  = new Font(FONT, Font.BOLD, 50);
