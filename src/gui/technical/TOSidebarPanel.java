@@ -10,9 +10,10 @@ import java.util.function.Consumer;
 public class TOSidebarPanel extends JPanel {
 
     private final Consumer<String> navigationHandler;
-    private final Color NAVY = UniMisTheme.PRIMARY_DARK;
-    private final Color SELECTED = UniMisTheme.PASTEL_GREEN;
-    private final Color ACCENT = UniMisTheme.PRIMARY;
+    private final Color SIDEBAR_BG = UniMisTheme.MEDIUM_GREEN;
+    private final Color BUTTON_BG = UniMisTheme.PASTEL_GREEN;
+    private final Color SELECTED_BG = UniMisTheme.MINT;
+    private final Color BUTTON_TEXT = UniMisTheme.TEXT;
 
     private JButton selectedButton;
 
@@ -24,7 +25,7 @@ public class TOSidebarPanel extends JPanel {
         this.navigationHandler = navigationHandler;
 
         setLayout(new BorderLayout(0, 20));
-        setBackground(NAVY);
+        setBackground(SIDEBAR_BG);
         setBorder(new EmptyBorder(20, 12, 16, 12));
         setPreferredSize(
                 new Dimension(UniMisTheme.SIDEBAR_WIDTH, 0));
@@ -41,11 +42,11 @@ public class TOSidebarPanel extends JPanel {
 
         JLabel title = new JLabel("  UniMIS");
         title.setFont(UniMisTheme.FONT_LOGO);
-        title.setForeground(Color.WHITE);
+        title.setForeground(UniMisTheme.TEXT);
 
         JLabel subtitle = new JLabel("  Technical Officer");
         subtitle.setFont(UniMisTheme.FONT_TINY);
-        subtitle.setForeground(UniMisTheme.PASTEL_GREEN);
+        subtitle.setForeground(UniMisTheme.MUTED);
 
         brand.add(title);
         brand.add(Box.createVerticalStrut(7));
@@ -76,9 +77,9 @@ public class TOSidebarPanel extends JPanel {
         JButton button = new JButton(label);
 
         button.setFont(UniMisTheme.FONT_MENU);
-        button.setForeground(
-                selected ? UniMisTheme.TEXT : UniMisTheme.WHITE);
-        button.setBackground(selected ? SELECTED : NAVY);
+        button.setForeground(BUTTON_TEXT);
+
+        button.setBackground(selected ? SELECTED_BG : BUTTON_BG);
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
@@ -105,13 +106,13 @@ public class TOSidebarPanel extends JPanel {
 
     private void setSelectedButton(JButton button) {
         if (selectedButton != null) {
-            selectedButton.setBackground(NAVY);
-            selectedButton.setForeground(UniMisTheme.WHITE);
+            selectedButton.setBackground(BUTTON_BG);
+            selectedButton.setForeground(BUTTON_TEXT);
         }
 
         selectedButton = button;
-        selectedButton.setBackground(SELECTED);
-        selectedButton.setForeground(UniMisTheme.TEXT);
+        selectedButton.setBackground(SELECTED_BG);
+        selectedButton.setForeground(BUTTON_TEXT);
     }
 
     public void selectPage(String pageName) {
@@ -135,10 +136,10 @@ public class TOSidebarPanel extends JPanel {
         JButton logout = new JButton("Logout");
         logout.setFont(UniMisTheme.FONT_BODY_BOLD);
         logout.setForeground(Color.WHITE);
-        logout.setBackground(NAVY);
+        logout.setBackground(UniMisTheme.DANGER);
 
         logout.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UniMisTheme.BORDER),
+                BorderFactory.createLineBorder(UniMisTheme.DANGER),
                 new EmptyBorder(8, 14, 8, 14)
         ));
 

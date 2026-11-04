@@ -121,6 +121,15 @@ public class TechnicalOfficerDashboard extends JFrame {
 
 
     private void logout() {
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to log out?",
+                "Logout Confirmation",
+                JOptionPane.YES_NO_OPTION
+        );
+        if (choice != JOptionPane.YES_OPTION) {
+            return;
+        }
         dispose();
         Login.showLogin();
     }
