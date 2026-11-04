@@ -70,14 +70,14 @@ public class LecturerCourseMaterials extends JPanel {
 
         statusLabel = new JLabel(" ");
         statusLabel.setForeground(Color.GRAY);
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
         // Main content background matches the other Lecturer pages.
         JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
         centerPanel.setBackground(APP_BACKGROUND);
 
         JLabel sectionTitle = new JLabel("Learning Materials");
-        sectionTitle.setFont(new Font("SansSerif", Font.BOLD, 17));
+        sectionTitle.setFont(new Font("SansSerif", Font.BOLD, 22));
         sectionTitle.setForeground(new Color(27, 94, 32));
 
         // White background for the table only.

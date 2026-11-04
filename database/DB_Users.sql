@@ -170,6 +170,7 @@ GRANT SELECT ON unimis.system_settings   TO 'unimisug'@'localhost';
 -- Grades and GPA (read-only views; no direct access to marks / assessments)
 GRANT SELECT ON unimis.v_users              TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_attendance_summary TO 'unimisug'@'localhost';
+GRANT SELECT ON unimis.v_ca_summary         TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_final_results      TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_sgpa               TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_cgpa               TO 'unimisug'@'localhost';

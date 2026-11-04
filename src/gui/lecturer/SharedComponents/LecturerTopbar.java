@@ -23,6 +23,7 @@ public class LecturerTopbar extends JPanel {
     private JButton notificationButton;
     private JPanel notificationBadge;
     private AvatarLabel avatar;
+    private JLabel lecturerNameLabel;
 
     public LecturerTopbar(String lecturerName) {
 
@@ -37,7 +38,7 @@ public class LecturerTopbar extends JPanel {
         ));
 
         JLabel portalLabel = new JLabel("Lecturer Portal");
-        portalLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        portalLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
         portalLabel.setForeground(DEEP_GREEN);
 
         add(portalLabel, BorderLayout.WEST);
@@ -112,15 +113,17 @@ public class LecturerTopbar extends JPanel {
         );
         namePanel.setOpaque(false);
 
-        JLabel nameLabel = new JLabel(name);
-        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        nameLabel.setForeground(DEEP_GREEN);
+        lecturerNameLabel = new JLabel(name);
+        lecturerNameLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 18)
+        );
+        lecturerNameLabel.setForeground(DEEP_GREEN);
 
         JLabel roleLabel = new JLabel("Lecturer");
-        roleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        roleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         roleLabel.setForeground(TEXT_GRAY);
 
-        namePanel.add(nameLabel);
+        namePanel.add(lecturerNameLabel);
         namePanel.add(Box.createVerticalStrut(4));
         namePanel.add(roleLabel);
 
@@ -416,5 +419,21 @@ public class LecturerTopbar extends JPanel {
 
             g2.dispose();
         }
+    }
+
+    /**
+     * Update lecturer name and avatar initials immediately.
+     */
+    public void setLecturerName(String lecturerName) {
+
+        String name = lecturerName == null || lecturerName.isBlank()
+                ? "Lecturer"
+                : lecturerName.trim();
+
+        lecturerNameLabel.setText(name);
+        avatar.setText(getInitials(name));
+
+        revalidate();
+        repaint();
     }
 }

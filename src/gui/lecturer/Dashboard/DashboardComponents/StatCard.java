@@ -1,4 +1,3 @@
-
 package gui.lecturer.Dashboard.DashboardComponents;
 import static gui.lecturer.SharedComponents.Colors.*;
 
@@ -31,7 +30,7 @@ public class StatCard extends JPanel {
         DashboardIcon icon = new DashboardIcon(getIconType(title));
 
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        titleLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
         titleLabel.setForeground(TEXT_GRAY);
 
         headingPanel.add(icon, BorderLayout.WEST);

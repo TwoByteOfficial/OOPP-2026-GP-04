@@ -1,4 +1,3 @@
-
 package gui.lecturer.CourseMaterial.CourseMaterialComponents.MaterialActionComponents;
 
 import javax.swing.*;
@@ -35,7 +34,7 @@ public class MaterialActionPanel extends JPanel {
         JButton button = new JButton(text);
 
         button.setFont(
-                new Font("SansSerif", Font.BOLD, 12)
+                new Font("SansSerif", Font.BOLD, 16)
         );
         button.setForeground(DEEP_GREEN);
         button.setBackground(PALE_GREEN);
