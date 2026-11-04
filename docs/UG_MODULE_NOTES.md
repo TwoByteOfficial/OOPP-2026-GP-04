@@ -17,3 +17,4 @@
 - [2026-11-04 23:00:00] Fix: ensure consistent semester label mapping across UI forms
 - [2026-11-04 23:00:01] Style: format borders and layout containers in enrollment panel
 - [2026-11-04 23:00:01] Refactor: validate student registration number format before mapping
+- [2026-11-04 23:00:02] Docs: add class-level architectural notes to EnrollmentCourseData
