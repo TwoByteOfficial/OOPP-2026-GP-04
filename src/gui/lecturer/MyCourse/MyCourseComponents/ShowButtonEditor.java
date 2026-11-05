@@ -1,4 +1,3 @@
-
 package gui.lecturer.MyCourse.MyCourseComponents;
 
 import javax.swing.*;
@@ -27,6 +26,7 @@ public class ShowButtonEditor extends AbstractCellEditor
 
         this.onShowCourse = onShowCourse;
 
+        button.setFont(new Font("SansSerif", Font.BOLD, 16));
         button.setFocusPainted(false);
         button.setBackground(PALE_GREEN);
         button.setForeground(DEEP_GREEN);

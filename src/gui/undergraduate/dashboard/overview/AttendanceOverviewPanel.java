@@ -8,10 +8,12 @@ import java.awt.*;
 
 /**
  * 1.1.4.1 - Undergraduate Attendance & Exam Eligibility Overview Card
+ * Displays theory, practical, and overall attendance percentages against the 80% faculty threshold.
  */
 public class AttendanceOverviewPanel extends JPanel {
 
     public AttendanceOverviewPanel(double theoryPct, double practicalPct, double combinedPct) {
+        // Configure main panel layout, white background, and compound border with padding
         setLayout(new BorderLayout(0, 14));
         setBackground(AdminTheme.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
@@ -19,7 +21,9 @@ public class AttendanceOverviewPanel extends JPanel {
                 new EmptyBorder(18, 20, 18, 20)
         ));
 
-        // Header Title
+        // -------------------------------------------------------------
+        // Header Title Row (Title & Dynamic Exam Eligibility Status Badge)
+        // -------------------------------------------------------------
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
 
@@ -27,6 +31,7 @@ public class AttendanceOverviewPanel extends JPanel {
         title.setFont(new Font(AdminTheme.FONT_FAMILY, Font.BOLD, 17));
         title.setForeground(AdminTheme.DEEP_GREEN);
 
+        // Dynamic status badge reflecting 80% faculty exam entry requirement
         JLabel statusBadge = new JLabel(combinedPct >= 80.0 ? "● Eligible for Exams" : "● Below Requirement (<80%)");
         statusBadge.setFont(new Font(AdminTheme.FONT_FAMILY, Font.BOLD, 13));
         statusBadge.setForeground(combinedPct >= 80.0 ? AdminTheme.FOREST_GREEN : AdminTheme.DANGER);
@@ -35,7 +40,9 @@ public class AttendanceOverviewPanel extends JPanel {
         header.add(statusBadge, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // Progress Bars Section
+        // -------------------------------------------------------------
+        // Progress Bars Section (Theory, Practical, and Combined Overall)
+        // -------------------------------------------------------------
         JPanel barsPanel = new JPanel();
         barsPanel.setOpaque(false);
         barsPanel.setLayout(new BoxLayout(barsPanel, BoxLayout.Y_AXIS));
@@ -49,6 +56,9 @@ public class AttendanceOverviewPanel extends JPanel {
         add(barsPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Factory method creating a labeled progress row with percentage values and color-coded bars.
+     */
     private JPanel createProgressRow(String labelText, double percentage) {
         JPanel row = new JPanel(new BorderLayout(0, 6));
         row.setOpaque(false);
@@ -67,6 +77,7 @@ public class AttendanceOverviewPanel extends JPanel {
         labelBox.add(name, BorderLayout.WEST);
         labelBox.add(value, BorderLayout.EAST);
 
+        // Configure progress bar with conditional color highlighting (Forest Green if >=80%, Danger Red otherwise)
         JProgressBar bar = new JProgressBar(0, 100);
         bar.setValue((int) Math.round(percentage));
         bar.setPreferredSize(new Dimension(100, 10));

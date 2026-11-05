@@ -5,118 +5,131 @@ import gui.admin.AdminTheme;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.font.GlyphVector;
-import java.awt.geom.Rectangle2D;
 
 /**
- * Metric cards container displaying 4 key credit and module statistics
- * with true visual pixel-centered 1:1 square badges.
+ * Summary metrics strip for enrolled courses displaying registered credits,
+ * core curriculum, elective tracks, and registration standing.
+ * Renders 4 high-level stat cards with vector-drawn custom iconography.
  */
 public class CoursesSummaryStripPanel extends JPanel {
 
-    private static final int CORNER_RADIUS = 16;
-    private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
-
-    private final JLabel creditsValLabel;
-    private final JLabel modulesValLabel;
-    private final JLabel electiveValLabel;
-    private final JLabel statusValLabel;
+    // Labels displaying quantitative values across summary cards
+    private final JLabel totalCreditsVal = new JLabel("12 Credits");
+    private final JLabel coreCountVal = new JLabel("0 Core");
+    private final JLabel electiveCountVal = new JLabel("6 Electives");
+    private final JLabel statusVal = new JLabel("100% Valid");
 
     public CoursesSummaryStripPanel() {
+        // Transparent container with a 4-column single-row grid layout
+        setLayout(new GridLayout(1, 4, 16, 0));
         setOpaque(false);
-        setLayout(new GridLayout(1, 4, 12, 0));
-        setMaximumSize(new Dimension(Integer.MAX_VALUE, 78));
-        setPreferredSize(new Dimension(0, 78));
+        setPreferredSize(new Dimension(0, 72));
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, 72));
 
-        creditsValLabel = new JLabel("0 Credits");
-        modulesValLabel = new JLabel("0 Modules");
-        electiveValLabel = new JLabel("0 Modules");
-        statusValLabel = new JLabel("100% Valid");
-
-        add(createMiniStatCard("📖", creditsValLabel, "Registered Total", AdminTheme.FOREST_GREEN));
-        add(createMiniStatCard("📚", modulesValLabel, "Core Mandatory", AdminTheme.FOREST_GREEN));
-        add(createMiniStatCard("🎯", electiveValLabel, "Elective Track", AdminTheme.FOREST_GREEN));
-        add(createMiniStatCard("✅", statusValLabel, "Dean Registered", AdminTheme.FOREST_GREEN));
+        // Construct 4 metric cards: Credits (Icon 1), Core (Icon 2), Electives (Icon 3), Status (Icon 4)
+        add(createStatCard(totalCreditsVal, "Registered Total", 1));
+        add(createStatCard(coreCountVal, "Mandatory Track", 2));
+        add(createStatCard(electiveCountVal, "Elective Track", 3));
+        add(createStatCard(statusVal, "Dean Registered", 4));
     }
 
-    public void updateMetrics(int totalCredits, int coreCount, int electiveCount) {
-        creditsValLabel.setText(totalCredits + " Credits");
-        modulesValLabel.setText(coreCount + " Modules");
-        electiveValLabel.setText(electiveCount + (electiveCount == 1 ? " Module" : " Modules"));
-        statusValLabel.setText("100% Valid");
-    }
-
-    private JPanel createMiniStatCard(String iconSymbol, JLabel valLbl, String subVal, Color badgeColor) {
-        JPanel card = new JPanel() {
+    /**
+     * Builds an individual stat card featuring a custom vector icon and text metrics.
+     */
+    private JPanel createStatCard(JLabel valueLbl, String sub, int iconType) {
+        // Outer rounded card panel with custom anti-aliased border painting
+        JPanel card = new JPanel(new BorderLayout(14, 0)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(AdminTheme.WHITE);
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
-                g2.setColor(CARD_BORDER_COLOR);
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
+                // Draw rounded white card background
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 14, 14);
+                // Draw subtle card border line
+                g2.setColor(new Color(225, 235, 228));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 14, 14);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
         card.setOpaque(false);
-        card.setLayout(new BorderLayout(10, 0));
-        card.setBorder(new EmptyBorder(10, 12, 10, 12));
+        card.setPreferredSize(new Dimension(0, 72));
+        card.setBorder(new EmptyBorder(12, 16, 12, 16));
 
-        // 1:1 Badge with Pixel-Perfect Visual Center
-        JPanel iconBadge = new JPanel() {
+        // Custom painted 38x38 square icon box rendering vector glyphs
+        JPanel iconBox = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-                int size = 38;
-                int bx = (getWidth() - size) / 2;
-                int by = (getHeight() - size) / 2;
-                g2.setColor(badgeColor);
-                g2.fillRoundRect(bx, by, size, size, 10, 10);
+                // Rounded colored badge background
+                g2.setColor(AdminTheme.PRIMARY);
+                g2.fillRoundRect(0, 0, 38, 38, 12, 12);
 
-                if (iconSymbol != null && !iconSymbol.isEmpty()) {
-                    Font font = new Font("Segoe UI Emoji", Font.PLAIN, 16);
-                    g2.setFont(font);
-                    g2.setColor(Color.WHITE);
+                // Set white stroke for foreground vector drawing
+                g2.setColor(Color.WHITE);
+                g2.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-                    // Calculate true optical visual bounds
-                    GlyphVector gv = font.createGlyphVector(g2.getFontRenderContext(), iconSymbol);
-                    Rectangle2D bounds = gv.getVisualBounds();
+                int cx = 19;
+                int cy = 19;
 
-                    float tx = (float) (bx + (size - bounds.getWidth()) / 2.0 - bounds.getX());
-                    float ty = (float) (by + (size - bounds.getHeight()) / 2.0 - bounds.getY());
-                    g2.drawString(iconSymbol, tx, ty);
+                // Vector drawings: 1=Book/Credits, 2=Core/Layers, 3=Elective/Target, 4=Checkmark/Valid
+                if (iconType == 1) {
+                    g2.drawRoundRect(cx - 7, cy - 7, 14, 14, 2, 2);
+                    g2.drawLine(cx, cy - 7, cx, cy + 7);
+                } else if (iconType == 2) {
+                    g2.drawRect(cx - 7, cy - 6, 14, 4);
+                    g2.drawRect(cx - 7, cy, 14, 4);
+                    g2.drawRect(cx - 7, cy + 6, 14, 4);
+                } else if (iconType == 3) {
+                    g2.drawOval(cx - 7, cy - 7, 14, 14);
+                    g2.drawOval(cx - 3, cy - 3, 6, 6);
+                } else {
+                    g2.drawLine(cx - 6, cy, cx - 2, cy + 4);
+                    g2.drawLine(cx - 2, cy + 4, cx + 6, cy - 4);
                 }
                 g2.dispose();
             }
         };
-        iconBadge.setOpaque(false);
-        iconBadge.setPreferredSize(new Dimension(38, 38));
+        iconBox.setPreferredSize(new Dimension(38, 38));
+        iconBox.setMinimumSize(new Dimension(38, 38));
+        iconBox.setMaximumSize(new Dimension(38, 38));
+        iconBox.setOpaque(false);
 
+        // Center icon vertically inside a wrapper panel
+        JPanel iconWrapper = new JPanel(new GridBagLayout());
+        iconWrapper.setOpaque(false);
+        iconWrapper.add(iconBox);
+        card.add(iconWrapper, BorderLayout.WEST);
+
+        // Value and subtitle text container
         JPanel textPanel = new JPanel();
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
 
-        valLbl.setFont(AdminTheme.font(Font.BOLD, 13));
-        valLbl.setForeground(AdminTheme.DEEP_GREEN);
+        valueLbl.setFont(AdminTheme.font(Font.BOLD, 15));
+        valueLbl.setForeground(new Color(30, 41, 59));
 
-        JLabel subLbl = new JLabel(subVal);
+        JLabel subLbl = new JLabel(sub);
         subLbl.setFont(AdminTheme.font(Font.PLAIN, 11));
-        subLbl.setForeground(AdminTheme.MUTED);
+        subLbl.setForeground(new Color(100, 116, 139));
 
-        textPanel.add(Box.createVerticalGlue());
-        textPanel.add(valLbl);
+        textPanel.add(valueLbl);
         textPanel.add(Box.createVerticalStrut(2));
         textPanel.add(subLbl);
-        textPanel.add(Box.createVerticalGlue());
-
-        card.add(iconBadge, BorderLayout.WEST);
         card.add(textPanel, BorderLayout.CENTER);
+
         return card;
+    }
+
+    /**
+     * Updates label counts dynamically based on fetched database records.
+     */
+    public void updateMetrics(int totalCredits, int coreCount, int electiveCount) {
+        totalCreditsVal.setText(totalCredits + " Credits");
+        coreCountVal.setText(coreCount + " Core");
+        electiveCountVal.setText(electiveCount + " Electives");
     }
 }

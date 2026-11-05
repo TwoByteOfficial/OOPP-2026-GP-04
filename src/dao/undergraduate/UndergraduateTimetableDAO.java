@@ -1,4 +1,3 @@
-
 package dao.undergraduate;
 
 import util.DBConnection;
@@ -14,11 +13,15 @@ import java.util.Set;
 
 /**
  * Data Access Object for Weekly Academic Lecture and Practical Timetable.
- *
+ * <p>
  * Undergraduate permissions:
- * - View enrolled course timetables.
- * - View lecturer and venue information.
- * - Calculate weekly timetable statistics.
+ * <ul>
+ *   <li>View enrolled course timetables.</li>
+ *   <li>View lecturer and venue information.</li>
+ *   <li>Calculate weekly timetable statistics.</li>
+ * </ul>
+ * Maps timetable scheduling slots, session durations, course details,
+ * and weekly workload summaries directly to database entries.
  */
 public class UndergraduateTimetableDAO {
 
@@ -26,6 +29,9 @@ public class UndergraduateTimetableDAO {
     // 1. TIMETABLE SLOT DTO
     // ============================================================
 
+    /**
+     * Data Transfer Object representing an individual scheduled lecture or practical session slot.
+     */
     public static class TimetableSlotDTO {
 
         public long timetableId;
@@ -46,6 +52,10 @@ public class UndergraduateTimetableDAO {
     // 2. TIMETABLE SUMMARY DTO
     // ============================================================
 
+    /**
+     * Data Transfer Object holding high-level aggregate scheduling statistics
+     * for metric display cards across the student's active academic week.
+     */
     public static class TimetableSummaryDTO {
 
         public int weeklyWorkloadHours = 0;
@@ -59,6 +69,13 @@ public class UndergraduateTimetableDAO {
     // 3. GET STUDENT WEEKLY TIMETABLE
     // ============================================================
 
+    /**
+     * Queries the complete weekly timetable schedule for courses actively enrolled by the student.
+     * Orders records chronologically from Monday through Sunday and by session start time.
+     *
+     * @param studentId Authenticated student primary key identifier
+     * @return List of populated {@link TimetableSlotDTO} entities representing scheduled sessions
+     */
     public static List<TimetableSlotDTO> getStudentWeeklyTimetable(
             long studentId) {
 
@@ -152,6 +169,14 @@ public class UndergraduateTimetableDAO {
     // 4. GET TIMETABLE SUMMARY
     // ============================================================
 
+    /**
+     * Computes weekly workload summary statistics for enrolled courses, including
+     * distinct module counts, active lecture weekdays, practical lab allocations,
+     * and total contact hours rounded from minutes.
+     *
+     * @param studentId Authenticated student primary key identifier
+     * @return Fully populated {@link TimetableSummaryDTO} instance
+     */
     public static TimetableSummaryDTO getTimetableSummary(
             long studentId) {
 

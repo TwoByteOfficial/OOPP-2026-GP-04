@@ -1,4 +1,3 @@
-
 package gui.lecturer.Dashboard.DashboardComponents;
 
 import static gui.lecturer.SharedComponents.Colors.*;
@@ -33,11 +32,11 @@ public class RecentNotices extends JPanel {
         header.setOpaque(false);
 
         JLabel titleLabel = new JLabel("Recent Notices");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         titleLabel.setForeground(DEEP_GREEN);
 
         JLabel subtitle = new JLabel("Latest faculty announcements");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 15));
         subtitle.setForeground(TEXT_GRAY);
 
         JPanel heading = new JPanel();
@@ -49,7 +48,7 @@ public class RecentNotices extends JPanel {
         heading.add(subtitle);
 
         JButton viewAllButton = new JButton("View All →");
-        viewAllButton.setFont(new Font("SansSerif", Font.BOLD, 12));
+        viewAllButton.setFont(new Font("SansSerif", Font.BOLD, 16));
         viewAllButton.setForeground(MEDIUM_GREEN);
         viewAllButton.setBackground(WHITE);
         viewAllButton.setBorderPainted(false);
@@ -101,7 +100,7 @@ public class RecentNotices extends JPanel {
 
             JLabel emptyText = new JLabel("No recent notices");
             emptyText.setFont(
-                    new Font("SansSerif", Font.BOLD, 13)
+                    new Font("SansSerif", Font.BOLD, 16)
             );
             emptyText.setForeground(TEXT_GRAY);
             emptyText.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -211,14 +210,14 @@ public class RecentNotices extends JPanel {
         JLabel titleLabel = new JLabel(
                 "<html><b>" + escapeHtml(title) + "</b></html>"
         );
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         titleLabel.setForeground(DEEP_GREEN);
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Category label
         JLabel categoryLabel = new JLabel(type.toUpperCase());
         categoryLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 9)
+                new Font("SansSerif", Font.BOLD, 13)
         );
         categoryLabel.setForeground(categoryColor);
         categoryLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -237,7 +236,7 @@ public class RecentNotices extends JPanel {
         );
 
         descriptionLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 11)
+                new Font("SansSerif", Font.PLAIN, 15)
         );
         descriptionLabel.setForeground(TEXT_GRAY);
         descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -253,7 +252,7 @@ public class RecentNotices extends JPanel {
         );
 
         metadataLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 10)
+                new Font("SansSerif", Font.PLAIN, 14)
         );
         metadataLabel.setForeground(TEXT_GRAY);
         metadataLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -261,7 +260,7 @@ public class RecentNotices extends JPanel {
         // Read more button
         JButton readMoreButton = new JButton("Read more →");
         readMoreButton.setFont(
-                new Font("SansSerif", Font.BOLD, 10)
+                new Font("SansSerif", Font.BOLD, 14)
         );
         readMoreButton.setForeground(MEDIUM_GREEN);
         readMoreButton.setBorderPainted(false);
@@ -329,7 +328,7 @@ public class RecentNotices extends JPanel {
         );
 
         categoryLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 12)
+                new Font("SansSerif", Font.BOLD, 16)
         );
         categoryLabel.setForeground(getCategoryColor(type));
 
@@ -340,7 +339,7 @@ public class RecentNotices extends JPanel {
         );
 
         titleLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 21)
+                new Font("SansSerif", Font.BOLD, 26)
         );
         titleLabel.setForeground(DEEP_GREEN);
 
@@ -355,7 +354,7 @@ public class RecentNotices extends JPanel {
         );
 
         metadata.setFont(
-                new Font("SansSerif", Font.PLAIN, 12)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
         metadata.setForeground(TEXT_GRAY);
 
@@ -373,7 +372,7 @@ public class RecentNotices extends JPanel {
 
         JTextArea contentArea = new JTextArea(content);
         contentArea.setFont(
-                new Font("SansSerif", Font.PLAIN, 14)
+                new Font("SansSerif", Font.PLAIN, 18)
         );
         contentArea.setForeground(Color.DARK_GRAY);
         contentArea.setLineWrap(true);
@@ -393,7 +392,7 @@ public class RecentNotices extends JPanel {
         closeButton.setBackground(DEEP_GREEN);
         closeButton.setForeground(WHITE);
         closeButton.setFont(
-                new Font("SansSerif", Font.BOLD, 12)
+                new Font("SansSerif", Font.BOLD, 16)
         );
         closeButton.setFocusPainted(false);
         closeButton.addActionListener(e -> dialog.dispose());

@@ -52,7 +52,7 @@ public class LecturerUndergraduates extends JPanel {
         title.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
         JLabel subtitle = new JLabel("View and search undergraduate students enrolled in your course modules.");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 16));
         subtitle.setForeground(UNDERGRADUATES_TEXT_GRAY);
 
         heading.add(title);
@@ -64,27 +64,27 @@ public class LecturerUndergraduates extends JPanel {
         controlPanel.setOpaque(false);
 
         JLabel courseLabel = new JLabel("Course:");
-        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         courseLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
         courseFilterCombo.setPreferredSize(new Dimension(260, 36));
         courseFilterCombo.addActionListener(e -> loadUndergraduates());
 
         JLabel searchLabel = new JLabel("Search:");
-        searchLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        searchLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         searchLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
         searchField.setPreferredSize(new Dimension(200, 36));
 
         JButton searchBtn = new JButton("Search");
-        searchBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        searchBtn.setFont(new Font("SansSerif", Font.BOLD, 18));
         searchBtn.setBackground(UNDERGRADUATES_DEEP_GREEN);
         searchBtn.setForeground(UNDERGRADUATES_WHITE);
         searchBtn.setFocusPainted(false);
         searchBtn.addActionListener(e -> loadUndergraduates());
 
         JButton viewDetailsBtn = new JButton("View Student Details");
-        viewDetailsBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        viewDetailsBtn.setFont(new Font("SansSerif", Font.BOLD, 18));
         viewDetailsBtn.setBackground(UNDERGRADUATES_DEEP_GREEN);
         viewDetailsBtn.setForeground(UNDERGRADUATES_WHITE);
         viewDetailsBtn.setFocusPainted(false);
@@ -117,13 +117,13 @@ public class LecturerUndergraduates extends JPanel {
 
         studentTable = new JTable(tableModel);
         studentTable.setRowHeight(34);
-        studentTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        studentTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
         studentTable.setSelectionBackground(UNDERGRADUATES_BACKGROUND);
         studentTable.setSelectionForeground(UNDERGRADUATES_DEEP_GREEN);
         studentTable.setGridColor(UNDERGRADUATES_BORDER);
         studentTable.setFillsViewportHeight(true);
 
-        studentTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        studentTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
         studentTable.getTableHeader().setBackground(UNDERGRADUATES_BACKGROUND);
         studentTable.getTableHeader().setForeground(UNDERGRADUATES_DEEP_GREEN);
 
@@ -212,11 +212,11 @@ public class LecturerUndergraduates extends JPanel {
             header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 
             JLabel nameLabel = new JLabel((String) details[3]);
-            nameLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+            nameLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
             nameLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
 
             JLabel regLabel = new JLabel("Reg No: " + details[1] + " | Index: " + (details[2] != null ? details[2] : "N/A"));
-            regLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            regLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
             regLabel.setForeground(UNDERGRADUATES_TEXT_GRAY);
 
             header.add(nameLabel);
@@ -248,14 +248,14 @@ public class LecturerUndergraduates extends JPanel {
             detailsPanel.add(new JLabel("Current SGPA:"));
             BigDecimal sgpa = (BigDecimal) details[13];
             JLabel sgpaLabel = new JLabel(sgpa != null ? sgpa.toPlainString() : "N/A");
-            sgpaLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+            sgpaLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
             sgpaLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
             detailsPanel.add(sgpaLabel);
 
             detailsPanel.add(new JLabel("Cumulative GPA (CGPA):"));
             BigDecimal cgpa = (BigDecimal) details[14];
             JLabel cgpaLabel = new JLabel(cgpa != null ? cgpa.toPlainString() : "N/A");
-            cgpaLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+            cgpaLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
             cgpaLabel.setForeground(UNDERGRADUATES_DEEP_GREEN);
             detailsPanel.add(cgpaLabel);
 

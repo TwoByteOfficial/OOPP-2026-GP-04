@@ -1,4 +1,3 @@
-
 package gui.technical.dashboard.actions;
 
 import gui.theme.UniMisTheme;
@@ -8,8 +7,16 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.function.Consumer;
 
+/**
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the Quick Actions toolbar.
+ */
 public class DashboardQuickActionsPanel extends JPanel {
 
+    /**
+     * Constructs the Quick Actions section with styled shortcut buttons.
+     *
+     * @param navigationHandler [OOP - INTERFACE]: java.util.function.Consumer<String> functional interface
+     */
     public DashboardQuickActionsPanel(Consumer<String> navigationHandler) {
 
         setLayout(new BorderLayout(0, 14));
@@ -18,27 +25,23 @@ public class DashboardQuickActionsPanel extends JPanel {
         JLabel heading = new JLabel("Quick Actions");
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
-
         add(heading, BorderLayout.NORTH);
 
         JPanel buttonsPanel = new JPanel(new GridLayout(1, 4, 12, 0));
         buttonsPanel.setOpaque(false);
 
-        buttonsPanel.add(createButton("Record Attendance",
-                "Attendance", navigationHandler));
-
-        buttonsPanel.add(createButton("Add Medical Record",
-                "Medical Records", navigationHandler));
-
-        buttonsPanel.add(createButton("View Timetable",
-                "Timetables", navigationHandler));
-
-        buttonsPanel.add(createButton("View Notices",
-                "Notices", navigationHandler));
+        buttonsPanel.add(createButton("Record Attendance", "Attendance", navigationHandler));
+        buttonsPanel.add(createButton("Add Medical Record", "Medical Records", navigationHandler));
+        buttonsPanel.add(createButton("View Timetable", "Timetables", navigationHandler));
+        buttonsPanel.add(createButton("View Notices", "Notices", navigationHandler));
 
         add(buttonsPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * [OOP - ENCAPSULATION]: Private helper method creating and configuring styled buttons.
+     * [OOP - INTERFACE]: Implements java.awt.event.ActionListener via lambda (e -> ...).
+     */
     private JButton createButton(String text, String page,
                                  Consumer<String> navigationHandler) {
 
@@ -51,6 +54,7 @@ public class DashboardQuickActionsPanel extends JPanel {
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         button.setBorder(new LineBorder(UniMisTheme.BORDER, 1, true));
 
+        // [OOP - INTERFACE]: ActionListener lambda triggering Consumer.accept()
         button.addActionListener(e -> navigationHandler.accept(page));
 
         return button;

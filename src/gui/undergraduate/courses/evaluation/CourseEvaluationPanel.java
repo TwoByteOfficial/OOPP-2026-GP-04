@@ -8,257 +8,336 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Panel displaying dynamic evaluation scheme, rounded progress indicators, and pass rules.
+ * Course assessment breakdown panel with optimized vertical spacing
+ * and auto-formatted department naming to avoid text truncation.
+ * Visualizes continuous assessments (CA) and final exam weight percentages.
  */
 public class CourseEvaluationPanel extends JPanel {
 
-    private static final int CORNER_RADIUS = 16;
-    private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
+    // Header labels and badge components
+    private final JLabel titleLbl = new JLabel("Course Title");
+    private final JLabel creditBadge = new JLabel("0 Credits");
+    private final JLabel subInfoLbl = new JLabel("Coordinator: Staff • Dept. of ICT");
 
-    private final JLabel courseTitleLabel;
-    private final JLabel lecturerLabel;
-    private final JLabel creditsBadge;
-    private final CustomProgressBar quizBar;
-    private final JLabel quizValLabel;
-    private final CustomProgressBar assignBar;
-    private final JLabel assignValLabel;
-    private final CustomProgressBar midBar;
-    private final JLabel midValLabel;
-    private final CustomProgressBar endExamBar;
-    private final JLabel endExamValLabel;
-    private final JLabel caWeightValLabel;
-    private final JLabel finalWeightValLabel;
+    // Assessment component weight labels and slender progress bar components
+    private final JLabel quizVal = new JLabel("10%");
+    private final JComponent quizBar = createSlenderProgressBar(10, AdminTheme.PRIMARY);
+
+    private final JLabel assignVal = new JLabel("10%");
+    private final JComponent assignBar = createSlenderProgressBar(10, AdminTheme.PRIMARY);
+
+    private final JLabel midVal = new JLabel("20%");
+    private final JComponent midBar = createSlenderProgressBar(20, new Color(230, 126, 34));
+
+    private final JLabel endVal = new JLabel("60%");
+    private final JComponent endBar = createSlenderProgressBar(60, AdminTheme.PRIMARY);
+
+    // Summary percentage labels for CA vs Final exam aggregate splits
+    private final JLabel caValLbl = new JLabel("40%");
+    private final JLabel finalValLbl = new JLabel("60%");
 
     public CourseEvaluationPanel() {
+        setLayout(new BorderLayout());
         setOpaque(false);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(new EmptyBorder(16, 18, 16, 18));
 
-        // 1. Header Section - Clean two-line title with badge on top right
+        // -------------------------------------------------------------
+        // Outer Card Container (Custom Rounded White Card)
+        // -------------------------------------------------------------
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Draw rounded white background
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 14, 14);
+                // Draw card border outline
+                g2.setColor(new Color(225, 235, 228));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 14, 14);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setOpaque(false);
+        card.setBorder(new EmptyBorder(18, 20, 18, 20));
+
+        // -------------------------------------------------------------
+        // 1. Header: Course Title & Credit Badge
+        // -------------------------------------------------------------
         JPanel headerRow = new JPanel(new BorderLayout(10, 0));
         headerRow.setOpaque(false);
         headerRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
 
-        JPanel titleGroup = new JPanel();
-        titleGroup.setOpaque(false);
-        titleGroup.setLayout(new BoxLayout(titleGroup, BoxLayout.Y_AXIS));
+        titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
+        titleLbl.setForeground(AdminTheme.DEEP_GREEN);
 
-        courseTitleLabel = new JLabel("Module Name");
-        courseTitleLabel.setFont(AdminTheme.font(Font.BOLD, 15));
-        courseTitleLabel.setForeground(AdminTheme.FOREST_GREEN);
+        creditBadge.setFont(AdminTheme.font(Font.BOLD, 12));
+        creditBadge.setForeground(AdminTheme.PRIMARY);
 
-        lecturerLabel = new JLabel("Lecturer Info");
-        lecturerLabel.setFont(AdminTheme.font(Font.PLAIN, 12));
-        lecturerLabel.setForeground(AdminTheme.MUTED);
+        // Rounded pill badge wrapper for credit value display
+        JPanel pillBadge = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(240, 248, 243));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setColor(new Color(185, 220, 198));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+                g2.dispose();
+            }
+        };
+        pillBadge.setOpaque(false);
+        pillBadge.setBorder(new EmptyBorder(3, 8, 3, 8));
+        pillBadge.add(creditBadge, BorderLayout.CENTER);
 
-        titleGroup.add(courseTitleLabel);
-        titleGroup.add(Box.createVerticalStrut(2));
-        titleGroup.add(lecturerLabel);
+        headerRow.add(titleLbl, BorderLayout.WEST);
+        headerRow.add(pillBadge, BorderLayout.EAST);
+        card.add(headerRow);
 
-        creditsBadge = new JLabel("0 Credits", SwingConstants.CENTER);
-        creditsBadge.setFont(AdminTheme.font(Font.BOLD, 11));
-        creditsBadge.setForeground(AdminTheme.FOREST_GREEN);
-        creditsBadge.setBackground(AdminTheme.MINT);
-        creditsBadge.setOpaque(true);
-        creditsBadge.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1, true),
-                new EmptyBorder(4, 8, 4, 8)
-        ));
+        // Course coordinator and department metadata sub-label
+        card.add(Box.createVerticalStrut(4));
+        subInfoLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
+        subInfoLbl.setForeground(new Color(100, 116, 139));
+        subInfoLbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subInfoLbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
+        card.add(subInfoLbl);
 
-        JPanel badgeWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        badgeWrapper.setOpaque(false);
-        badgeWrapper.add(creditsBadge);
+        card.add(Box.createVerticalStrut(22));
 
-        headerRow.add(titleGroup, BorderLayout.CENTER);
-        headerRow.add(badgeWrapper, BorderLayout.EAST);
-        add(headerRow);
+        // -------------------------------------------------------------
+        // 2. Section Title & Assessment Component Rows
+        // -------------------------------------------------------------
+        JLabel breakdownTitle = new JLabel("Course Assessment & Evaluation Breakdown");
+        breakdownTitle.setFont(AdminTheme.font(Font.BOLD, 13));
+        breakdownTitle.setForeground(AdminTheme.DEEP_GREEN);
+        breakdownTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        breakdownTitle.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
+        card.add(breakdownTitle);
 
-        add(Box.createVerticalStrut(12));
-        JSeparator sep = new JSeparator();
-        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        sep.setForeground(new Color(0xEAEAEA));
-        sep.setAlignmentX(Component.LEFT_ALIGNMENT);
-        add(sep);
-        add(Box.createVerticalStrut(12));
+        card.add(Box.createVerticalStrut(18));
 
-        JLabel evalHeading = new JLabel("Course Assessment & Evaluation Breakdown");
-        evalHeading.setFont(AdminTheme.font(Font.BOLD, 13));
-        evalHeading.setForeground(AdminTheme.DEEP_GREEN);
-        evalHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
-        add(evalHeading);
-        add(Box.createVerticalStrut(12));
+        // Quizzes weight row
+        card.add(createProgressRow("Continuous Quizzes (Best 2 of 3)", quizVal, quizBar));
+        card.add(Box.createVerticalStrut(22));
 
-        quizValLabel = new JLabel("0%");
-        quizBar = new CustomProgressBar(0, AdminTheme.FOREST_GREEN);
-        add(createEvalRow("Continuous Quizzes (Best 2 of 3)", quizValLabel, quizBar));
-        add(Box.createVerticalStrut(10));
+        // Assignments and lab practicals weight row
+        card.add(createProgressRow("Assignments & Lab Practical Tasks", assignVal, assignBar));
+        card.add(Box.createVerticalStrut(22));
 
-        assignValLabel = new JLabel("0%");
-        assignBar = new CustomProgressBar(0, AdminTheme.FOREST_GREEN);
-        add(createEvalRow("Assignments & Lab Practical Tasks", assignValLabel, assignBar));
-        add(Box.createVerticalStrut(10));
+        // Mid-semester exam weight row
+        card.add(createProgressRow("Mid-Semester Written Examination", midVal, midBar));
+        card.add(Box.createVerticalStrut(22));
 
-        midValLabel = new JLabel("0%");
-        midBar = new CustomProgressBar(0, AdminTheme.WARNING);
-        add(createEvalRow("Mid-Semester Written Examination", midValLabel, midBar));
-        add(Box.createVerticalStrut(10));
+        // Final end-semester written exam weight row
+        card.add(createProgressRow("Final End-Semester Written Examination", endVal, endBar));
+        card.add(Box.createVerticalStrut(26));
 
-        endExamValLabel = new JLabel("0%");
-        endExamBar = new CustomProgressBar(0, AdminTheme.FOREST_GREEN);
-        add(createEvalRow("Final End-Semester Written Examination", endExamValLabel, endExamBar));
+        // -------------------------------------------------------------
+        // 3. Side-by-side Metric Split Boxes (CA vs Final Exam)
+        // -------------------------------------------------------------
+        JPanel summaryRow = new JPanel(new GridLayout(1, 2, 10, 0));
+        summaryRow.setOpaque(false);
+        summaryRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        summaryRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
 
-        add(Box.createVerticalStrut(14));
+        summaryRow.add(createSummaryMiniBox("Continuous Assessment (CA)", caValLbl));
+        summaryRow.add(createSummaryMiniBox("Final Written Exam", finalValLbl));
+        card.add(summaryRow);
 
-        JPanel weightRow = new JPanel(new GridLayout(1, 2, 10, 0));
-        weightRow.setOpaque(false);
-        weightRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-        weightRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        card.add(Box.createVerticalStrut(14));
 
-        caWeightValLabel = new JLabel("0%");
-        finalWeightValLabel = new JLabel("0%");
-        weightRow.add(createWeightPill("Continuous Assessment (CA)", caWeightValLabel));
-        weightRow.add(createWeightPill("Final Written Exam", finalWeightValLabel));
-        add(weightRow);
+        // -------------------------------------------------------------
+        // 4. Passing Rule Notice Box
+        // -------------------------------------------------------------
+        JPanel ruleBox = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(240, 248, 242));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setColor(new Color(200, 230, 210));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+                g2.dispose();
+            }
+        };
+        ruleBox.setOpaque(false);
+        ruleBox.setBorder(new EmptyBorder(6, 12, 6, 12));
+        ruleBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        ruleBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        add(Box.createVerticalStrut(12));
+        // Regulation: 40% minimum CA and 40% minimum final exam threshold to pass
+        JLabel ruleLbl = new JLabel("Passing Rule: Minimum CA mark 40% and Final Exam 40% mandatory to pass.");
+        ruleLbl.setFont(AdminTheme.font(Font.PLAIN, 11));
+        ruleLbl.setForeground(new Color(40, 100, 60));
+        ruleBox.add(ruleLbl, BorderLayout.WEST);
+        card.add(ruleBox);
 
-        JPanel noticeCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
-        noticeCard.setOpaque(true);
-        noticeCard.setBackground(AdminTheme.MINT);
-        noticeCard.setBorder(BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1, true));
-        noticeCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-        noticeCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
-
-        JLabel infoText = new JLabel("Passing Rule: Minimum CA mark 40% and Final Exam 40% mandatory to pass.");
-        infoText.setFont(AdminTheme.font(Font.PLAIN, 11));
-        infoText.setForeground(AdminTheme.DEEP_GREEN);
-        noticeCard.add(infoText);
-        add(noticeCard);
+        // Anchor card container to NORTH to eliminate bottom trailing dead space
+        add(card, BorderLayout.NORTH);
     }
 
-    public void updateCourse(EnrolledCourseDTO data) {
-        if (data == null) return;
-        courseTitleLabel.setText(data.courseName + " (" + data.courseCode + ")");
+    /**
+     * Constructs a compact summary mini box for overall weight distributions.
+     */
+    private JPanel createSummaryMiniBox(String title, JLabel valueLbl) {
+        JPanel box = new JPanel(new BorderLayout(10, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setColor(new Color(210, 230, 218));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+                g2.dispose();
+            }
+        };
+        box.setOpaque(false);
+        box.setBorder(new EmptyBorder(6, 10, 6, 10));
 
-        // Clean clean department title without ugly truncation
-        String dept = data.departmentName != null ? data.departmentName : "Department of ICT";
-        if (dept.toLowerCase().contains("information and communication technology") || dept.toLowerCase().contains("ict")) {
-            dept = "Dept. of ICT";
-        }
-        lecturerLabel.setText("Coordinator: " + data.coordinatorName + " • " + dept);
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
+        titleLbl.setForeground(AdminTheme.DEEP_GREEN);
 
-        creditsBadge.setText(data.totalCredits + " Credits");
+        valueLbl.setFont(AdminTheme.font(Font.BOLD, 12));
+        valueLbl.setForeground(AdminTheme.DEEP_GREEN);
+        valueLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        int q = (int) Math.round(data.quizWeight);
-        int a = (int) Math.round(data.assignmentWeight);
-        int m = (int) Math.round(data.midTheoryWeight + data.midPracticalWeight);
-        int fe = (int) Math.round(data.endTheoryWeight + data.endPracticalWeight);
-
-        quizValLabel.setText(q + "%");
-        quizBar.setProgress(q);
-
-        assignValLabel.setText(a + "%");
-        assignBar.setProgress(a);
-
-        midValLabel.setText(m + "%");
-        midBar.setProgress(m);
-
-        endExamValLabel.setText(fe + "%");
-        endExamBar.setProgress(fe);
-
-        caWeightValLabel.setText((int) Math.round(data.caWeight) + "%");
-        finalWeightValLabel.setText((int) Math.round(data.finalWeight) + "%");
+        box.add(titleLbl, BorderLayout.WEST);
+        box.add(valueLbl, BorderLayout.EAST);
+        return box;
     }
 
-    private JPanel createWeightPill(String title, JLabel valLbl) {
-        JPanel pill = new JPanel(new BorderLayout());
-        pill.setOpaque(true);
-        pill.setBackground(new Color(0xF4, 0xF9, 0xF5));
-        pill.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1, true),
-                new EmptyBorder(4, 8, 4, 8)
-        ));
+    /**
+     * Creates an assessment component row with a title, percentage text, and slender progress bar.
+     */
+    private JPanel createProgressRow(String label, JLabel valLabel, JComponent bar) {
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setOpaque(false);
+        container.setAlignmentX(Component.LEFT_ALIGNMENT);
+        container.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 
-        JLabel tLbl = new JLabel(title);
-        tLbl.setFont(AdminTheme.font(Font.PLAIN, 11));
-        tLbl.setForeground(AdminTheme.MUTED);
+        JPanel textRow = new JPanel(new BorderLayout());
+        textRow.setOpaque(false);
+        textRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        textRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
 
-        valLbl.setFont(AdminTheme.font(Font.BOLD, 12));
-        valLbl.setForeground(AdminTheme.DEEP_GREEN);
+        JLabel nameLbl = new JLabel(label);
+        nameLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
+        nameLbl.setForeground(new Color(50, 65, 55));
 
-        pill.add(tLbl, BorderLayout.WEST);
-        pill.add(valLbl, BorderLayout.EAST);
-        return pill;
+        valLabel.setFont(AdminTheme.font(Font.BOLD, 12));
+        valLabel.setForeground(AdminTheme.DEEP_GREEN);
+
+        textRow.add(nameLbl, BorderLayout.WEST);
+        textRow.add(valLabel, BorderLayout.EAST);
+
+        container.add(textRow);
+        container.add(Box.createVerticalStrut(5));
+        container.add(bar);
+        return container;
     }
 
-    private JPanel createEvalRow(String name, JLabel valLbl, CustomProgressBar bar) {
-        JPanel row = new JPanel(new BorderLayout(0, 4));
-        row.setOpaque(false);
-        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+    /**
+     * Factory method creating a lightweight custom progress bar component.
+     */
+    private static JComponent createSlenderProgressBar(int initialPercent, Color fillColor) {
+        class SlenderBar extends JComponent {
+            private int percent;
+            private final Color fill;
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
-
-        JLabel title = new JLabel(name);
-        title.setFont(AdminTheme.font(Font.PLAIN, 12));
-        title.setForeground(new Color(0x33, 0x33, 0x33));
-
-        valLbl.setFont(AdminTheme.font(Font.BOLD, 12));
-        valLbl.setForeground(AdminTheme.DEEP_GREEN);
-
-        header.add(title, BorderLayout.WEST);
-        header.add(valLbl, BorderLayout.EAST);
-
-        row.add(header, BorderLayout.NORTH);
-        row.add(bar, BorderLayout.SOUTH);
-        return row;
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(AdminTheme.WHITE);
-        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
-        g2.setColor(CARD_BORDER_COLOR);
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
-        g2.dispose();
-        super.paintComponent(g);
-    }
-
-    private static class CustomProgressBar extends JComponent {
-        private int progress;
-        private final Color fillColor;
-
-        CustomProgressBar(int progress, Color fillColor) {
-            this.progress = progress;
-            this.fillColor = fillColor;
-            setPreferredSize(new Dimension(0, 7));
-        }
-
-        void setProgress(int progress) {
-            this.progress = progress;
-            repaint();
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int width = getWidth();
-            int height = getHeight();
-
-            g2.setColor(AdminTheme.MINT);
-            g2.fillRoundRect(0, 0, width, height, height, height);
-
-            int fillWidth = (int) (width * (progress / 100.0));
-            if (fillWidth > 0) {
-                g2.setColor(fillColor);
-                g2.fillRoundRect(0, 0, fillWidth, height, height, height);
+            SlenderBar(int p, Color f) {
+                this.percent = p;
+                this.fill = f;
+                setPreferredSize(new Dimension(0, 4));
+                setMinimumSize(new Dimension(0, 4));
+                setMaximumSize(new Dimension(Integer.MAX_VALUE, 4));
+                setAlignmentX(Component.LEFT_ALIGNMENT);
             }
 
-            g2.dispose();
+            void setPercent(int p) {
+                this.percent = p;
+                repaint();
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+
+                // Background track
+                g2.setColor(new Color(225, 240, 232));
+                g2.fillRoundRect(0, 0, w, h, h, h);
+
+                // Foreground active fill
+                int fillWidth = (int) Math.round((w * percent) / 100.0);
+                if (fillWidth > 0) {
+                    g2.setColor(fill);
+                    g2.fillRoundRect(0, 0, Math.max(fillWidth, h), h, h, h);
+                }
+                g2.dispose();
+            }
         }
+        return new SlenderBar(initialPercent, fillColor);
+    }
+
+    /**
+     * Reflectively invokes the internal setPercent method on custom progress bar instances.
+     */
+    private void updateProgress(JComponent comp, int percent) {
+        try {
+            comp.getClass().getDeclaredMethod("setPercent", int.class).invoke(comp, percent);
+        } catch (Exception ignored) {}
+    }
+
+    /**
+     * Binds enrolled course evaluation criteria and assessment weights from DTO to UI components.
+     */
+    public void updateCourse(EnrolledCourseDTO c) {
+        if (c == null) return;
+
+        titleLbl.setText(c.courseName + " (" + c.courseCode + ")");
+        creditBadge.setText(c.totalCredits + " Credits");
+
+        // Format department name cleanly to prevent ellipsis truncation
+        String dept = c.departmentName;
+        if (dept != null && (dept.contains("Information and Communication") || dept.length() > 20)) {
+            dept = "Dept. of ICT";
+        }
+        subInfoLbl.setText("Coordinator: " + c.coordinatorName + " • " + dept);
+
+        // Extract component percentages from DTO
+        int quiz = (int) c.quizWeight;
+        int assign = (int) c.assignmentWeight;
+        int mid = (int) (c.midTheoryWeight + c.midPracticalWeight);
+        int finalExam = (int) c.finalWeight;
+
+        // Update labels and progress bar components
+        quizVal.setText(quiz + "%");
+        updateProgress(quizBar, quiz);
+
+        assignVal.setText(assign + "%");
+        updateProgress(assignBar, assign);
+
+        midVal.setText(mid + "%");
+        updateProgress(midBar, mid);
+
+        endVal.setText(finalExam + "%");
+        updateProgress(endBar, finalExam);
+
+        // Update summary boxes for overall CA and Final Exam weights
+        caValLbl.setText((int) c.caWeight + "%");
+        finalValLbl.setText(finalExam + "%");
+
+        revalidate();
+        repaint();
     }
 }

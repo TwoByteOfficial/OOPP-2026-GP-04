@@ -1,4 +1,3 @@
-
 package gui.technical.dashboard.summary;
 
 import gui.theme.UniMisTheme;
@@ -9,8 +8,24 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 
+/**
+ * [OOP - INHERITANCE]:
+ * 1. Extends javax.swing.JPanel to inherit Swing container rendering and layout capabilities.
+ * 2. Acts as a base superclass for specific dashboard summary card types (AttendanceSummaryCard,
+ *    PendingMedicalCard, TodaySessionsCard, UndergraduateSummaryCard).
+ */
 public class SummaryCardPanel extends JPanel {
+
+    // [OOP - ENCAPSULATION]: Private label component protecting internal visual state.
     private JLabel valueLabel;
+
+    /**
+     * Constructs a summary card with a title, initial value, and left accent border.
+     *
+     * @param title  Description of what the number represents (e.g. "Total Undergraduates")
+     * @param value  Initial metric value string
+     * @param accent Color used for the left vertical indicator stripe
+     */
     public SummaryCardPanel(String title, String value, Color accent) {
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -38,16 +53,12 @@ public class SummaryCardPanel extends JPanel {
         add(titleLabel);
     }
 
-
-
-
+    /**
+     * [OOP - ENCAPSULATION]: Public setter method allowing controlled updates to valueLabel.
+     *
+     * @param value New value string to display
+     */
     public void setValue(String value) {
         valueLabel.setText(value);
     }
-
-
-
-
-
-
 }

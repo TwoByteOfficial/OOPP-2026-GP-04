@@ -7,8 +7,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * [OOP - ABSTRACTION]: Data Access Object for Technical Officer profile operations.
+ * Isolates and abstracts database persistence for officer records across both 
+ * the 'users' and 'technical_officers' tables.
+ */
 public class TechnicalOfficerProfileDAO {
 
+    /**
+     * [OOP - ABSTRACTION]: Queries joined user and technical_officer tables 
+     * and maps the result into a polymorphic TechnicalOfficer instance.
+     *
+     * @param userId The user ID of the Technical Officer
+     * @return Populated TechnicalOfficer object, or null if no matching officer is found
+     * @throws SQLException if a query execution error occurs
+     */
     public TechnicalOfficer getProfile(long userId) throws SQLException {
 
         String sql =
@@ -38,12 +51,10 @@ public class TechnicalOfficerProfileDAO {
                     officer.setEmail(rs.getString("email"));
                     officer.setContactNo(rs.getString("contact_no"));
                     officer.setAddress(rs.getString("address"));
-                    officer.setDepartmentId(
-                            (Integer) rs.getObject("department_id"));
+                    officer.setDepartmentId((Integer) rs.getObject("department_id"));
                     officer.setUserStatus(rs.getString("user_status"));
 
-                    officer.setTechnicalOfficerCode(
-                            rs.getString("technical_officer_code"));
+                    officer.setTechnicalOfficerCode(rs.getString("technical_officer_code"));
                     officer.setDesignation(rs.getString("designation"));
                     officer.setAssignedLabs(rs.getString("assigned_labs"));
 
@@ -55,6 +66,18 @@ public class TechnicalOfficerProfileDAO {
         return null;
     }
 
+    /**
+     * [OOP - ABSTRACTION]: Abstracts the multi-table UPDATE query for user and technical_officers tables.
+     *
+     * @param userId       The user ID of the Technical Officer
+     * @param fullName     Updated full name
+     * @param email        Updated email address
+     * @param contactNo    Updated phone number
+     * @param address      Updated residential address
+     * @param assignedLabs Updated list/description of assigned labs
+     * @return true if the database row was successfully updated
+     * @throws SQLException if an update error occurs
+     */
     public boolean updateProfile(
             long userId,
             String fullName,

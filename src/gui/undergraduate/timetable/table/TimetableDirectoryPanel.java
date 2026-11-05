@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 /**
  * Class schedule directory table panel displaying weekly academic lecture entries.
- * Optimized column allocations prevent title truncation and ensure centered alignments.
+ * Seamless dynamic viewport rendering with zero scroll bars and no dead white space.
  */
 public class TimetableDirectoryPanel extends JPanel {
 
@@ -24,6 +24,7 @@ public class TimetableDirectoryPanel extends JPanel {
 
     private final JTable table;
     private final DefaultTableModel model;
+    private final JScrollPane scroll;
     private final List<Object> masterList = new ArrayList<>();
     private final Consumer<Integer> onSelectListener;
     private String currentDayFilter = "ALL";
@@ -36,8 +37,8 @@ public class TimetableDirectoryPanel extends JPanel {
         this.onSelectListener = onSelectListener;
 
         setOpaque(false);
-        setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(16, 18, 16, 18));
+        setLayout(new BorderLayout(0, 10));
+        setBorder(new EmptyBorder(14, 16, 14, 16));
 
         // Header Title Row
         JPanel topRow = new JPanel(new BorderLayout());
@@ -45,7 +46,7 @@ public class TimetableDirectoryPanel extends JPanel {
 
         JLabel titleLbl = new JLabel("Class Schedule Directory");
         titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
-        titleLbl.setForeground(AdminTheme.FOREST_GREEN);
+        titleLbl.setForeground(AdminTheme.DEEP_GREEN);
 
         JLabel subLbl = new JLabel("Select a session to view hall & instructor details");
         subLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
@@ -65,7 +66,7 @@ public class TimetableDirectoryPanel extends JPanel {
 
         table = new JTable(model);
         table.setFont(AdminTheme.font(Font.PLAIN, 12));
-        table.setRowHeight(36);
+        table.setRowHeight(34);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -77,11 +78,11 @@ public class TimetableDirectoryPanel extends JPanel {
         th.setFont(AdminTheme.font(Font.BOLD, 12));
         th.setBackground(AdminTheme.MINT);
         th.setForeground(AdminTheme.DEEP_GREEN);
-        th.setPreferredSize(new Dimension(0, 34));
+        th.setPreferredSize(new Dimension(0, 32));
         th.setReorderingAllowed(false);
         th.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
 
-        // Column width allocations to prevent text clipping
+        // Column width allocations
         table.getColumnModel().getColumn(0).setPreferredWidth(65);
         table.getColumnModel().getColumn(0).setMaxWidth(75);
 
@@ -91,29 +92,27 @@ public class TimetableDirectoryPanel extends JPanel {
         table.getColumnModel().getColumn(2).setPreferredWidth(55);
         table.getColumnModel().getColumn(2).setMaxWidth(65);
 
-        // Course Name expanded to 235px to display full title without truncation
         table.getColumnModel().getColumn(3).setPreferredWidth(235);
 
-        table.getColumnModel().getColumn(4).setPreferredWidth(55);
-        table.getColumnModel().getColumn(4).setMaxWidth(65);
+        table.getColumnModel().getColumn(4).setPreferredWidth(65);
+        table.getColumnModel().getColumn(4).setMaxWidth(75);
 
         table.getColumnModel().getColumn(5).setPreferredWidth(95);
 
-        // Alignments: Center for Day, Time, Code, Type, and Venue
+        // Center alignment for specific metadata columns
         DefaultTableCellRenderer center = new DefaultTableCellRenderer();
         center.setHorizontalAlignment(SwingConstants.CENTER);
         table.getColumnModel().getColumn(0).setCellRenderer(center);
         table.getColumnModel().getColumn(1).setCellRenderer(center);
         table.getColumnModel().getColumn(2).setCellRenderer(center);
-        table.getColumnModel().getColumn(4).setCellRenderer(center);
         table.getColumnModel().getColumn(5).setCellRenderer(center);
 
-        // Alignments: Left for Course Name
+        // Left alignment for course titles
         DefaultTableCellRenderer left = new DefaultTableCellRenderer();
         left.setBorder(new EmptyBorder(0, 8, 0, 8));
         table.getColumnModel().getColumn(3).setCellRenderer(left);
 
-        // Type Column Custom Badge Style Renderer
+        // Custom component badge renderer for Theory and Practical
         table.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable tbl, Object val, boolean isSel, boolean hasFoc, int r, int c) {
@@ -121,10 +120,10 @@ public class TimetableDirectoryPanel extends JPanel {
                 lbl.setHorizontalAlignment(SwingConstants.CENTER);
                 lbl.setFont(AdminTheme.font(Font.BOLD, 12));
                 String text = String.valueOf(val);
-                if ("Lab".equalsIgnoreCase(text) || "Practical".equalsIgnoreCase(text)) {
-                    lbl.setForeground(new Color(0x29, 0x80, 0xB9));
+                if ("Practical".equalsIgnoreCase(text) || "Lab".equalsIgnoreCase(text)) {
+                    lbl.setForeground(new Color(0x19, 0x76, 0xD2)); // Blue for Practical
                 } else {
-                    lbl.setForeground(new Color(0x2E, 0x7D, 0x32));
+                    lbl.setForeground(new Color(0x2E, 0x7D, 0x32)); // නිවැරදි කළ Dark Green for Theory
                 }
                 return lbl;
             }
@@ -139,12 +138,21 @@ public class TimetableDirectoryPanel extends JPanel {
             }
         });
 
-        JScrollPane scroll = new JScrollPane(table);
+        scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
         scroll.getViewport().setBackground(AdminTheme.WHITE);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
+        updateTableViewportHeight();
         add(scroll, BorderLayout.CENTER);
+    }
+
+    private void updateTableViewportHeight() {
+        int rowCount = model.getRowCount();
+        int visibleRows = (rowCount <= 0) ? 2 : rowCount;
+        int viewportHeight = visibleRows * table.getRowHeight();
+        table.setPreferredScrollableViewportSize(new Dimension(500, viewportHeight));
     }
 
     public void setTimetableData(List<?> list) {
@@ -174,17 +182,22 @@ public class TimetableDirectoryPanel extends JPanel {
         for (Object item : masterList) {
             String itemDay = extractString(item, "getDayOfWeek", "dayOfWeek", "getDay", "day");
             if ("ALL".equalsIgnoreCase(day) || itemDay.equalsIgnoreCase(day)) {
-                String time = extractString(item, "getTimeSlot", "timeSlot", "getTime", "time");
+                String time = extractString(item, "getTimeSlot", "timeSlot", "getTimeRange", "timeRange", "getTime", "time");
                 String code = extractString(item, "getCourseCode", "courseCode", "getCode", "code");
                 String name = extractString(item, "getCourseName", "courseName", "getName", "name");
-                String type = extractString(item, "getSessionType", "sessionType", "getType", "type");
+                String type = extractString(item, "getComponent", "component", "getSessionType", "sessionType", "getType", "type");
                 String venue = extractString(item, "getVenue", "venue", "getLocation", "location");
 
-                if (type.isEmpty()) type = "Theory";
+                if (type == null || type.trim().isEmpty()) {
+                    type = "Theory";
+                }
                 model.addRow(new Object[]{itemDay, time, code, name, type, venue});
             }
         }
+        updateTableViewportHeight();
         selectFirstRow();
+        revalidate();
+        repaint();
     }
 
     public void selectFirstRow() {

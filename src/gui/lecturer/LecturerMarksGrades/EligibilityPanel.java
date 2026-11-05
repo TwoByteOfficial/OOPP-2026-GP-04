@@ -44,7 +44,7 @@ public class EligibilityPanel extends JPanel {
         selectorPanel.setOpaque(false);
 
         JLabel courseLabel = new JLabel("Select Course:");
-        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(300, 34));
@@ -76,13 +76,13 @@ public class EligibilityPanel extends JPanel {
 
         eligibilityTable = new JTable(tableModel);
         eligibilityTable.setRowHeight(34);
-        eligibilityTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        eligibilityTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
         eligibilityTable.setSelectionBackground(PALE_GREEN);
         eligibilityTable.setSelectionForeground(DEEP_GREEN);
         eligibilityTable.setGridColor(BORDER_GREEN);
         eligibilityTable.setFillsViewportHeight(true);
 
-        eligibilityTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        eligibilityTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
         eligibilityTable.getTableHeader().setBackground(PALE_GREEN);
         eligibilityTable.getTableHeader().setForeground(DEEP_GREEN);
 

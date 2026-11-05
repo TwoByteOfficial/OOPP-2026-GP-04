@@ -3,7 +3,17 @@ package model;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+/**
+ * Base User entity class in the system.
+ * 
+ * [OOP - INHERITANCE]: Serves as the generalized superclass for specific system roles 
+ * (TechnicalOfficer, Lecturer, Admin, Undergraduate). Common attributes and behaviors 
+ * are inherited by subclasses, eliminating code duplication.
+ */
 public class User {
+
+    // [OOP - ENCAPSULATION]: All entity fields are declared private to protect internal state 
+    // from unauthorized external modification (Data Hiding).
     private long userId;
     private String username;
     private String passwordHash;
@@ -23,6 +33,7 @@ public class User {
 
     public User() {}
 
+    // [OOP - ENCAPSULATION]: Controlled public access to private fields via getters and setters.
     public long getUserId() { return userId; }
     public void setUserId(long userId) { this.userId = userId; }
     public String getUsername() { return username; }

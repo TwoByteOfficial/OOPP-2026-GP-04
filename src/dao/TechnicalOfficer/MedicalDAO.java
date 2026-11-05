@@ -11,8 +11,20 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * [OOP - ABSTRACTION]: Data Access Object for student medical certificate submissions.
+ * Encapsulates and abstracts database retrieval, filtering, and JOIN queries between 
+ * medicals, undergraduates, users, and courses tables.
+ */
 public class MedicalDAO {
 
+    /**
+     * [OOP - ABSTRACTION]: Retrieves all medical records and automatically constructs 
+     * domain model objects from raw database rows.
+     *
+     * @return List of all Medical records sorted by newest submission first
+     * @throws SQLException if a query execution error occurs
+     */
     public List<Medical> getAllMedicalRecords() throws SQLException {
 
         List<Medical> medicalRecords = new ArrayList<>();
@@ -38,8 +50,7 @@ public class MedicalDAO {
                 medical.setStudentName(rs.getString("full_name"));
                 medical.setCourseCode(rs.getString("course_code"));
 
-                medical.setAttendanceRecordId(
-                        rs.getObject("attendance_record_id", Long.class));
+                medical.setAttendanceRecordId(rs.getObject("attendance_record_id", Long.class));
                 medical.setMedicalDate(rs.getDate("medical_date"));
                 medical.setReason(rs.getString("reason"));
                 medical.setDocumentPath(rs.getString("document_path"));
@@ -47,8 +58,7 @@ public class MedicalDAO {
                 medical.setSubmittedAt(rs.getTimestamp("submitted_at"));
 
                 long reviewedBy = rs.getLong("reviewed_by");
-                medical.setReviewedBy(
-                        rs.wasNull() ? null : reviewedBy);
+                medical.setReviewedBy(rs.wasNull() ? null : reviewedBy);
 
                 medical.setReviewedAt(rs.getTimestamp("reviewed_at"));
                 medical.setReviewComment(rs.getString("review_comment"));
@@ -60,7 +70,13 @@ public class MedicalDAO {
         return medicalRecords;
     }
 
-
+    /**
+     * Retrieves medical records filtered by a specific approval status.
+     *
+     * @param status The status to filter by ("Pending", "Approved", "Rejected", or "All")
+     * @return List of matching Medical records ordered by submission date descending
+     * @throws SQLException if a query error occurs
+     */
     public List<Medical> getMedicalRecordsByStatus(String status)
             throws SQLException {
 
@@ -94,8 +110,7 @@ public class MedicalDAO {
                     medical.setStudentName(rs.getString("full_name"));
                     medical.setCourseCode(rs.getString("course_code"));
 
-                    medical.setAttendanceRecordId(
-                            rs.getObject("attendance_record_id", Long.class));
+                    medical.setAttendanceRecordId(rs.getObject("attendance_record_id", Long.class));
                     medical.setMedicalDate(rs.getDate("medical_date"));
                     medical.setReason(rs.getString("reason"));
                     medical.setDocumentPath(rs.getString("document_path"));
@@ -116,7 +131,17 @@ public class MedicalDAO {
         return medicalRecords;
     }
 
-
+    /**
+     * [OOP - ABSTRACTION]: Advanced query abstraction.
+     * Searches medical records using multiple criteria simultaneously (status, course, keyword)
+     * without exposing SQL LIKE wildcard formatting or JDBC statements to the caller.
+     *
+     * @param status     Approval status filter ("All", "Pending", "Approved", "Rejected")
+     * @param courseId   Course ID filter (or 0 for all courses)
+     * @param searchText Keyword to search in registration no, student name, or course code
+     * @return List of matching Medical records
+     * @throws SQLException if a database query error occurs
+     */
     public List<Medical> searchMedicalRecords(
             String status, int courseId, String searchText) throws SQLException {
 
@@ -160,8 +185,7 @@ public class MedicalDAO {
                     medical.setCourseCode(rs.getString("course_code"));
                     medical.setCourseName(rs.getString("course_name"));
 
-                    medical.setAttendanceRecordId(
-                            rs.getObject("attendance_record_id", Long.class));
+                    medical.setAttendanceRecordId(rs.getObject("attendance_record_id", Long.class));
                     medical.setMedicalDate(rs.getDate("medical_date"));
                     medical.setReason(rs.getString("reason"));
                     medical.setDocumentPath(rs.getString("document_path"));
@@ -182,7 +206,13 @@ public class MedicalDAO {
         return medicalRecords;
     }
 
-
+    /**
+     * Retrieves all courses formatted for dropdown selection.
+     * Maps the visual display string (e.g. "ICT101 - Programming") to its course ID integer.
+     *
+     * @return LinkedHashMap preserving alphabetical order of course codes
+     * @throws SQLException if a query execution error occurs
+     */
     public Map<String, Integer> getAllCourses() throws SQLException {
 
         Map<String, Integer> courses = new LinkedHashMap<>();

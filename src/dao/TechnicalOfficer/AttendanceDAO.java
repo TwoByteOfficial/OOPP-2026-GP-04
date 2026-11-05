@@ -8,39 +8,71 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * [OOP - ABSTRACTION]: Data Access Object (DAO) Pattern.
+ * AttendanceDAO abstracts the complexity of raw SQL queries, database connections, 
+ * batch operations, and transaction management away from the UI layer. 
+ * High-level GUI panels interact with clean Java method signatures without knowing SQL details.
+ */
 public class AttendanceDAO {
 
+    /**
+     * [OOP - ABSTRACTION]: Abstracts batch database transactions.
+     * The GUI simply passes a List of records; this method manages SQL batching, 
+     * disabling auto-commit, executing, and committing or rolling back on error.
+     *
+     * @param records List of AttendanceRecord objects to save
+     * @return true if the batch executed and committed successfully
+     * @throws SQLException if a database error occurs during the operation
+     */
     public boolean recordAttendanceBatch(List<AttendanceRecord> records) throws SQLException {
         String sql = "INSERT INTO attendance_records (attendance_session_id, student_id, attendance_status, remarks, recorded_by) " +
                 "VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE attendance_status = VALUES(attendance_status), remarks = VALUES(remarks)";
 
+        // Disable auto-commit to begin manual transaction
         DBConnection.TO_CON.setAutoCommit(false);
 
         try {
             try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
+                // Add each student record to the SQL batch
                 for (AttendanceRecord r : records) {
                     stmt.setLong(1, r.getAttendanceSessionId());
                     stmt.setLong(2, r.getStudentId());
                     stmt.setString(3, r.getAttendanceStatus());
                     stmt.setString(4, r.getRemarks());
-                    if (r.getRecordedBy() != null) stmt.setLong(5, r.getRecordedBy()); else stmt.setNull(5, Types.BIGINT);
+                    // Record which Technical Officer saved this attendance
+                    if (r.getRecordedBy() != null) {
+                        stmt.setLong(5, r.getRecordedBy());
+                    } else {
+                        stmt.setNull(5, Types.BIGINT);
+                    }
                     stmt.addBatch();
                 }
+                // Execute all batched statements in one roundtrip
                 stmt.executeBatch();
             }
 
+            // Commit transaction after successful execution
             DBConnection.TO_CON.commit();
             return true;
         } catch (SQLException | RuntimeException e) {
+            // Roll back any changes if an error occurs to prevent partial data writes
             DBConnection.TO_CON.rollback();
             throw e;
         } finally {
+            // Restore default auto-commit mode
             DBConnection.TO_CON.setAutoCommit(true);
         }
     }
 
-
+    /**
+     * [OOP - ABSTRACTION]: Hides SQL JOINs and parameter binding behind a clean method call.
+     *
+     * @param courseId  The course ID
+     * @param component The session component (e.g., "Theory" or "Practical")
+     * @return List of AttendanceSession objects sorted by session number
+     * @throws SQLException if a query execution error occurs
+     */
     public List<AttendanceSession> getSessionsByCourse(
             int courseId, String component) throws SQLException {
 
@@ -59,20 +91,17 @@ public class AttendanceDAO {
                 while (rs.next()) {
                     AttendanceSession session = new AttendanceSession();
 
-                    session.setAttendanceSessionId(
-                            rs.getLong("attendance_session_id"));
+                    session.setAttendanceSessionId(rs.getLong("attendance_session_id"));
                     session.setCourseId(rs.getInt("course_id"));
                     session.setComponent(rs.getString("component"));
                     session.setSessionNo(rs.getInt("session_no"));
                     session.setSessionDate(rs.getDate("session_date"));
                     session.setStartTime(rs.getTime("start_time"));
                     session.setEndTime(rs.getTime("end_time"));
-                    session.setDurationHours(
-                            rs.getBigDecimal("duration_hours"));
+                    session.setDurationHours(rs.getBigDecimal("duration_hours"));
 
                     long conductedBy = rs.getLong("conducted_by");
-                    session.setConductedBy(
-                            rs.wasNull() ? null : conductedBy);
+                    session.setConductedBy(rs.wasNull() ? null : conductedBy);
 
                     session.setTopic(rs.getString("topic"));
 
@@ -84,7 +113,13 @@ public class AttendanceDAO {
         return sessions;
     }
 
-
+    /**
+     * Retrieves existing attendance records already saved for a specific session.
+     *
+     * @param sessionId The attendance session ID
+     * @return List of AttendanceRecord objects sorted by student ID
+     * @throws SQLException if a database error occurs
+     */
     public List<AttendanceRecord> getAttendanceBySession(
             long sessionId) throws SQLException {
 
@@ -104,18 +139,14 @@ public class AttendanceDAO {
                 while (rs.next()) {
                     AttendanceRecord record = new AttendanceRecord();
 
-                    record.setAttendanceRecordId(
-                            rs.getLong("attendance_record_id"));
-                    record.setAttendanceSessionId(
-                            rs.getLong("attendance_session_id"));
+                    record.setAttendanceRecordId(rs.getLong("attendance_record_id"));
+                    record.setAttendanceSessionId(rs.getLong("attendance_session_id"));
                     record.setStudentId(rs.getLong("student_id"));
-                    record.setAttendanceStatus(
-                            rs.getString("attendance_status"));
+                    record.setAttendanceStatus(rs.getString("attendance_status"));
                     record.setRemarks(rs.getString("remarks"));
 
                     long recordedBy = rs.getLong("recorded_by");
-                    record.setRecordedBy(
-                            rs.wasNull() ? null : recordedBy);
+                    record.setRecordedBy(rs.wasNull() ? null : recordedBy);
 
                     record.setRecordedAt(rs.getTimestamp("recorded_at"));
 
@@ -127,15 +158,29 @@ public class AttendanceDAO {
         return records;
     }
 
-
+    /**
+     * [OOP - ABSTRACTION]: Multi-table transactional abstraction.
+     * Encapsulates updates across both 'medicals' and 'attendance_records' tables 
+     * inside an atomic database transaction.
+     *
+     * @param medicalId  The ID of the medical submission
+     * @param reviewerId The user ID of the Technical Officer approving the request
+     * @param comment    Feedback or review comment provided by the officer
+     * @return true if both updates succeeded and committed
+     * @throws SQLException if an error occurs during update or rollback
+     */
     public boolean approveMedical(long medicalId, long reviewerId, String comment) throws SQLException {
+        // SQL to mark the medical certificate as Approved with reviewer info
         String mSql = "UPDATE medicals SET approval_status = 'Approved', reviewed_by = ?, reviewed_at = NOW(), review_comment = ? WHERE medical_id = ?";
+        
+        // SQL to update the student's attendance record status to PRESENT
         String arSql = "UPDATE attendance_records ar JOIN medicals m ON m.attendance_record_id = ar.attendance_record_id " +
                 "SET ar.attendance_status = 'PRESENT' WHERE m.medical_id = ? AND ar.attendance_record_id > 0";
 
         DBConnection.TO_CON.setAutoCommit(false);
 
         try {
+            // 1. Update medical table
             try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(mSql)) {
                 stmt.setLong(1, reviewerId);
                 stmt.setString(2, comment);
@@ -143,6 +188,7 @@ public class AttendanceDAO {
                 stmt.executeUpdate();
             }
 
+            // 2. Update linked attendance record to PRESENT
             try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(arSql)) {
                 stmt.setLong(1, medicalId);
                 stmt.executeUpdate();
@@ -158,7 +204,15 @@ public class AttendanceDAO {
         }
     }
 
-
+    /**
+     * Rejects a pending medical request with reviewer ID, review timestamp, and review comment.
+     *
+     * @param medicalId  The ID of the medical submission
+     * @param reviewerId The user ID of the Technical Officer rejecting the request
+     * @param comment    Reason for rejection
+     * @return true if the record was successfully updated
+     * @throws SQLException if a query execution error occurs
+     */
     public boolean rejectMedical(long medicalId, long reviewerId, String comment)
             throws SQLException {
 

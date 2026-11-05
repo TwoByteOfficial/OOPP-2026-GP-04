@@ -1,4 +1,3 @@
-
 package gui.lecturer.CourseMaterial.CourseMaterialComponents;
 
 import gui.lecturer.CourseMaterial.CourseMaterialComponents.UploadMaterialComponents.CourseOption;
@@ -102,7 +101,7 @@ public class UploadMaterialDialog extends JDialog {
                         : "Upload Learning Material"
         );
 
-        title.setFont(new Font("SansSerif", Font.BOLD, 22));
+        title.setFont(new Font("SansSerif", Font.BOLD, 26));
         title.setForeground(DEEP_GREEN);
 
         JLabel description = new JLabel(
@@ -112,7 +111,7 @@ public class UploadMaterialDialog extends JDialog {
         );
 
         description.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
         description.setForeground(Color.GRAY);
 

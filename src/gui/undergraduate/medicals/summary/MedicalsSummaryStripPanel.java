@@ -12,39 +12,62 @@ import java.awt.geom.Rectangle2D;
 /**
  * Metric cards strip displaying 4 key medical submission metrics
  * with optically centered 1:1 aspect ratio square badges.
+ * Presents counts for total, approved, pending, and rejected medical applications.
  */
 public class MedicalsSummaryStripPanel extends JPanel {
 
+    // Card styling constants for rounded geometry and outer perimeter border
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
+    // Dynamic statistical value labels
     private final JLabel totalValLabel;
     private final JLabel approvedValLabel;
     private final JLabel pendingValLabel;
     private final JLabel rejectedValLabel;
 
+    /**
+     * Initializes the medical summary strip with four equal-width stat cards in a horizontal grid.
+     */
     public MedicalsSummaryStripPanel() {
         setOpaque(false);
         setLayout(new GridLayout(1, 4, 12, 0));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 78));
         setPreferredSize(new Dimension(0, 78));
 
+        // Initialize value labels with default placeholder counts
         totalValLabel = new JLabel("0 Submissions");
         approvedValLabel = new JLabel("0 Approved");
         pendingValLabel = new JLabel("0 Pending");
         rejectedValLabel = new JLabel("0 Rejected");
 
+        // -------------------------------------------------------------
+        // Summary Cards Assembly
+        // -------------------------------------------------------------
         add(createMiniStatCard("📋", totalValLabel, "Total Applications", AdminTheme.FOREST_GREEN));
         add(createMiniStatCard("✅", approvedValLabel, "Verified & Counted", AdminTheme.FOREST_GREEN));
         add(createMiniStatCard("⏳", pendingValLabel, "Awaiting Review", new Color(0xE6, 0x7E, 0x22))); // Warning Amber
         add(createMiniStatCard("❌", rejectedValLabel, "Declined / Invalid", new Color(0x7F, 0x8C, 0x8D))); // Muted Slate
     }
 
+    /**
+     * Updates the summary counters using a MedicalMetricsDTO transfer object.
+     *
+     * @param metrics Data transfer object containing medical statistics
+     */
     public void updateCounts(MedicalMetricsDTO metrics) {
         if (metrics == null) return;
         updateCounts(metrics.totalCount, metrics.approvedCount, metrics.pendingCount, metrics.rejectedCount);
     }
 
+    /**
+     * Directly updates the label text for each statistical count.
+     *
+     * @param total    Total applications submitted
+     * @param approved Count of approved certificates
+     * @param pending  Count of certificates awaiting review
+     * @param rejected Count of declined/rejected submissions
+     */
     public void updateCounts(int total, int approved, int pending, int rejected) {
         totalValLabel.setText(total + " Submissions");
         approvedValLabel.setText(approved + " Approved");
@@ -52,14 +75,22 @@ public class MedicalsSummaryStripPanel extends JPanel {
         rejectedValLabel.setText(rejected + " Rejected");
     }
 
+    /**
+     * Factory method creating an individual mini card with 1:1 squircle emoji badge and metric text.
+     */
     private JPanel createMiniStatCard(String iconSymbol, JLabel valLbl, String subVal, Color badgeColor) {
+        // -------------------------------------------------------------
+        // Rounded White Card Background with Anti-Aliased Border
+        // -------------------------------------------------------------
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Draw rounded white background
                 g2.setColor(AdminTheme.WHITE);
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
+                // Draw subtle card border line
                 g2.setColor(CARD_BORDER_COLOR);
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
                 g2.dispose();
@@ -70,7 +101,9 @@ public class MedicalsSummaryStripPanel extends JPanel {
         card.setLayout(new BorderLayout(10, 0));
         card.setBorder(new EmptyBorder(10, 12, 10, 12));
 
+        // -------------------------------------------------------------
         // 1:1 Aspect Ratio Badge with True Pixel-Perfect Optical Visual Center
+        // -------------------------------------------------------------
         JPanel iconBadge = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -90,11 +123,13 @@ public class MedicalsSummaryStripPanel extends JPanel {
                     g2.setFont(font);
                     g2.setColor(Color.WHITE);
 
+                    // Compute optical visual bounds for centered emoji rendering
                     GlyphVector gv = font.createGlyphVector(g2.getFontRenderContext(), iconSymbol);
                     Rectangle2D bounds = gv.getVisualBounds();
 
                     float tx = (float) (bx + (size - bounds.getWidth()) / 2.0 - bounds.getX());
                     float ty = (float) (by + (size - bounds.getHeight()) / 2.0 - bounds.getY());
+
                     g2.drawString(iconSymbol, tx, ty);
                 }
                 g2.dispose();
@@ -103,6 +138,9 @@ public class MedicalsSummaryStripPanel extends JPanel {
         iconBadge.setOpaque(false);
         iconBadge.setPreferredSize(new Dimension(38, 38));
 
+        // -------------------------------------------------------------
+        // Right Text Panel (Stat Value & Subtitle Label)
+        // -------------------------------------------------------------
         JPanel textPanel = new JPanel();
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
@@ -114,12 +152,14 @@ public class MedicalsSummaryStripPanel extends JPanel {
         subLbl.setFont(AdminTheme.font(Font.PLAIN, 11));
         subLbl.setForeground(AdminTheme.MUTED);
 
+        // Center labels vertically inside text panel
         textPanel.add(Box.createVerticalGlue());
         textPanel.add(valLbl);
         textPanel.add(Box.createVerticalStrut(2));
         textPanel.add(subLbl);
         textPanel.add(Box.createVerticalGlue());
 
+        // Assemble card
         card.add(iconBadge, BorderLayout.WEST);
         card.add(textPanel, BorderLayout.CENTER);
         return card;

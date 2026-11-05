@@ -13,13 +13,16 @@ import java.util.function.Consumer;
 
 /**
  * Notice card item rendering category badge, title, publisher, date, preview content, and action link.
- * Uses HTML word wrapping to eliminate content truncation.
+ * Properly wraps content while maintaining bounded height without excessive empty spaces.
+ * Encapsulates dynamic styling per notice classification and hover interactions on the action link.
  */
 public class NoticeCardItem extends JPanel {
 
+    // Card styling constants for rounded corner geometry and subtle border stroke
     private static final int CORNER_RADIUS = 14;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
+    // UI elements displaying notice metadata, content, and interaction links
     private final JLabel categoryBadge;
     private final JLabel publisherLabel;
     private final JLabel dateLabel;
@@ -27,18 +30,28 @@ public class NoticeCardItem extends JPanel {
     private final JLabel contentPreviewLabel;
     private final JLabel readMoreLabel;
 
+    /**
+     * Constructs an individual notice card view and binds event listeners.
+     *
+     * @param notice     Notice data object holding announcement attributes
+     * @param onReadMore Consumer callback triggered when the user clicks the read more link
+     */
     public NoticeCardItem(NoticeData notice, Consumer<NoticeData> onReadMore) {
+        // Base card layout configuration and inner padding
         setOpaque(false);
         setLayout(new BorderLayout(0, 8));
         setBorder(new EmptyBorder(12, 16, 12, 16));
 
+        // -------------------------------------------------------------
         // 1. Top Meta Row: Badge + Publisher on Left, Date on Right
+        // -------------------------------------------------------------
         JPanel topMeta = new JPanel(new BorderLayout());
         topMeta.setOpaque(false);
 
         JPanel leftMeta = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         leftMeta.setOpaque(false);
 
+        // Classification badge (e.g., Exam, Academic, Attendance)
         categoryBadge = new JLabel("General");
         categoryBadge.setFont(AdminTheme.font(Font.BOLD, 11));
         categoryBadge.setForeground(AdminTheme.FOREST_GREEN);
@@ -47,6 +60,7 @@ public class NoticeCardItem extends JPanel {
                 new EmptyBorder(2, 8, 2, 8)
         ));
 
+        // Publishing authority label
         publisherLabel = new JLabel("• Faculty Dean's Office");
         publisherLabel.setFont(AdminTheme.font(Font.PLAIN, 12));
         publisherLabel.setForeground(AdminTheme.MUTED);
@@ -54,6 +68,7 @@ public class NoticeCardItem extends JPanel {
         leftMeta.add(categoryBadge);
         leftMeta.add(publisherLabel);
 
+        // Publication date label
         dateLabel = new JLabel("2026-10-30");
         dateLabel.setFont(AdminTheme.font(Font.PLAIN, 11));
         dateLabel.setForeground(AdminTheme.MUTED);
@@ -62,7 +77,9 @@ public class NoticeCardItem extends JPanel {
         topMeta.add(dateLabel, BorderLayout.EAST);
         add(topMeta, BorderLayout.NORTH);
 
+        // -------------------------------------------------------------
         // 2. Center Content Area: Title + Content Preview
+        // -------------------------------------------------------------
         JPanel centerPanel = new JPanel();
         centerPanel.setOpaque(false);
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -82,7 +99,9 @@ public class NoticeCardItem extends JPanel {
         centerPanel.add(contentPreviewLabel);
         add(centerPanel, BorderLayout.CENTER);
 
-        // 3. Bottom Action Row: "Read Full Notice ->"
+        // -------------------------------------------------------------
+        // 3. Bottom Action Row: Read Full Notice Link with Hover Feedback
+        // -------------------------------------------------------------
         JPanel bottomRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         bottomRow.setOpaque(false);
 
@@ -91,6 +110,7 @@ public class NoticeCardItem extends JPanel {
         readMoreLabel.setForeground(AdminTheme.FOREST_GREEN);
         readMoreLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        // Mouse listener handling click callback and hover color transitions
         readMoreLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -113,10 +133,15 @@ public class NoticeCardItem extends JPanel {
         bottomRow.add(readMoreLabel);
         add(bottomRow, BorderLayout.SOUTH);
 
-        // Populate values dynamically
+        // Populate component fields from the provided notice model
         bindData(notice);
     }
 
+    /**
+     * Binds notice model properties dynamically to UI elements using reflection.
+     *
+     * @param item NoticeData instance or data transfer object
+     */
     private void bindData(NoticeData item) {
         if (item == null) return;
         String type = extractValue(item, "getNoticeType", "getType", "noticeType", "type");
@@ -133,26 +158,30 @@ public class NoticeCardItem extends JPanel {
         dateLabel.setText(!date.isEmpty() ? date : "2026-10-30");
         titleLabel.setText(!title.isEmpty() ? title : "Notice");
 
-        // Format content with HTML word-wrap so that sentences flow smoothly without truncation
         String rawContent = !content.isEmpty() ? content : "";
         contentPreviewLabel.setText("<html><body style='width: 650px;'>" + rawContent + "</body></html>");
     }
 
+    /**
+     * Configures the border stroke and foreground tint of the category badge based on notice type.
+     *
+     * @param type Notice category type string
+     */
     private void setCategoryBadgeColor(String type) {
         if ("Exam".equalsIgnoreCase(type)) {
-            categoryBadge.setForeground(new Color(0x19, 0x76, 0xD2)); // Blue
+            categoryBadge.setForeground(new Color(0x19, 0x76, 0xD2));
             categoryBadge.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(new Color(0xBB, 0xDE, 0xFB), 1, true),
                     new EmptyBorder(2, 8, 2, 8)
             ));
         } else if ("Attendance".equalsIgnoreCase(type)) {
-            categoryBadge.setForeground(new Color(0x2E, 0x7D, 0x32)); // Green
+            categoryBadge.setForeground(new Color(0x2E, 0x7D, 0x32));
             categoryBadge.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(new Color(0xC8, 0xE6, 0xC9), 1, true),
                     new EmptyBorder(2, 8, 2, 8)
             ));
-        } else if ("Urgent".equalsIgnoreCase(type) || "Emergency".equalsIgnoreCase(type)) {
-            categoryBadge.setForeground(new Color(0xC6, 0x28, 0x28)); // Red
+        } else if ("Emergency".equalsIgnoreCase(type) || "Urgent".equalsIgnoreCase(type)) {
+            categoryBadge.setForeground(new Color(0xC6, 0x28, 0x28));
             categoryBadge.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(new Color(0xFF, 0xCD, 0xD2), 1, true),
                     new EmptyBorder(2, 8, 2, 8)
@@ -166,6 +195,13 @@ public class NoticeCardItem extends JPanel {
         }
     }
 
+    /**
+     * Inspects candidate getter method names and field identifiers via reflection to extract text values.
+     *
+     * @param obj                 Target data object
+     * @param methodsOrFields     Ordered candidate names to inspect
+     * @return Extracted string representation, or empty string if not found
+     */
     private String extractValue(Object obj, String... methodsOrFields) {
         if (obj == null) return "";
         for (String name : methodsOrFields) {
@@ -183,6 +219,9 @@ public class NoticeCardItem extends JPanel {
         return "";
     }
 
+    /**
+     * Paints an anti-aliased rounded white card background and outer perimeter border.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();

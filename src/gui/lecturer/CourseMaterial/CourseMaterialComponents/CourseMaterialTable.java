@@ -1,4 +1,3 @@
-
 package gui.lecturer.CourseMaterial.CourseMaterialComponents;
 
 import gui.lecturer.CourseMaterial.CourseMaterialComponents.MaterialActionComponents.MaterialActionEditor;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static gui.lecturer.SharedComponents.Colors.*;
+
 public class CourseMaterialTable extends JPanel {
 
     private JTable materialsTable;
@@ -66,7 +66,7 @@ public class CourseMaterialTable extends JPanel {
         materialsTable.setForeground(Color.BLACK);
         materialsTable.setRowHeight(42);
         materialsTable.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
         materialsTable.setSelectionBackground(MATERIALS_PALE_GREEN);
         materialsTable.setSelectionForeground(MATERIALS_TEXT_BLACK);
@@ -75,7 +75,7 @@ public class CourseMaterialTable extends JPanel {
         materialsTable.setAutoCreateRowSorter(true);
 
         materialsTable.getTableHeader().setFont(
-                new Font("SansSerif", Font.BOLD, 13)
+                new Font("SansSerif", Font.BOLD, 16)
         );
         materialsTable.getTableHeader().setBackground(MATERIALS_PALE_GREEN);
         materialsTable.getTableHeader().setForeground(MATERIALS_DEEP_GREEN);
@@ -122,13 +122,13 @@ public class CourseMaterialTable extends JPanel {
 
         JLabel filterLabel = new JLabel("Filter by Course:");
         filterLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 13)
+                new Font("SansSerif", Font.BOLD, 16)
         );
         filterLabel.setForeground(MATERIALS_DEEP_GREEN);
 
         courseFilter = new JComboBox<>();
         courseFilter.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
         courseFilter.setPreferredSize(new Dimension(320, 34));
         courseFilter.setBackground(Color.WHITE);
