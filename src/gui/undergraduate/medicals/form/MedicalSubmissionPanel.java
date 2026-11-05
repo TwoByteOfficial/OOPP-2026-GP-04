@@ -9,32 +9,31 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
- * Student medical certificate submission form complying strictly with Zero Local File Handling.
- * Dynamically binds absence dates to the selected course and student attendance history.
- * Collects diagnosis details and certified cloud document links (e.g., Google Drive)
- * for academic administration and Technical Officer (TO) verification.
+ * Student medical certificate submission form with an interactive Graphical Calendar Dialog.
+ * Enforces a strict 14-day maximum medical coverage limit by disabling out-of-range dates.
  */
 public class MedicalSubmissionPanel extends JPanel {
 
-    // Card styling constants for rounded geometry and border strokes
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
     private static final Color INPUT_BORDER_COLOR = new Color(0xCF, 0xD8, 0xDC);
 
-    // Authenticated user session state and form input components
     private final long userId;
     private final JComboBox<CourseDropdownItem> courseComboBox;
     private final JComboBox<String> dateComboBox;
+    private final JTextField startDateField;
+    private final JTextField endDateField;
     private final JTextField reasonField;
     private final JTextField urlField;
     private final Runnable onSubmittedCallback;
 
-    /**
-     * Helper model representing selectable course items inside the target course dropdown.
-     */
     public static class CourseDropdownItem {
         public final int courseId;
         public final String courseCode;
@@ -52,21 +51,15 @@ public class MedicalSubmissionPanel extends JPanel {
         }
     }
 
-    /**
-     * Constructs the medical certificate submission form and binds event listeners.
-     */
     public MedicalSubmissionPanel(long userId, Runnable onSubmittedCallback) {
         this.userId = userId;
         this.onSubmittedCallback = onSubmittedCallback;
 
-        // Base container layout configuration and inner card padding
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(18, 20, 18, 20));
 
-        // -------------------------------------------------------------
-        // 1. Header Row (Form Title & Helper Guidance Caption)
-        // -------------------------------------------------------------
+        // 1. Header Group
         JPanel headerGroup = new JPanel();
         headerGroup.setOpaque(false);
         headerGroup.setLayout(new BoxLayout(headerGroup, BoxLayout.Y_AXIS));
@@ -76,7 +69,7 @@ public class MedicalSubmissionPanel extends JPanel {
         formTitle.setFont(AdminTheme.font(Font.BOLD, 15));
         formTitle.setForeground(AdminTheme.DEEP_GREEN);
 
-        JLabel helperText = new JLabel("Provide cloud document URL certified by university medical officer.");
+        JLabel helperText = new JLabel("Provide cloud document URL. Certificates must be submitted within 14 days of absence.");
         helperText.setFont(AdminTheme.font(Font.PLAIN, 12));
         helperText.setForeground(AdminTheme.MUTED);
 
@@ -93,9 +86,7 @@ public class MedicalSubmissionPanel extends JPanel {
         add(sep);
         add(Box.createVerticalStrut(14));
 
-        // -------------------------------------------------------------
-        // 2. Target Course Module Dropdown
-        // -------------------------------------------------------------
+        // 2. Course Dropdown
         courseComboBox = new JComboBox<>();
         courseComboBox.setFont(AdminTheme.font(Font.PLAIN, 12));
         courseComboBox.setBackground(Color.WHITE);
@@ -103,17 +94,14 @@ public class MedicalSubmissionPanel extends JPanel {
         add(createField("Target Course Module:", courseComboBox));
         add(Box.createVerticalStrut(12));
 
-        // -------------------------------------------------------------
-        // 3. Dynamic Absence Date Dropdown
-        // -------------------------------------------------------------
+        // 3. Absence Date Dropdown
         dateComboBox = new JComboBox<>();
         dateComboBox.setFont(AdminTheme.font(Font.PLAIN, 12));
         dateComboBox.setBackground(Color.WHITE);
         dateComboBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
-        add(createField("Absence Date (Lecture Session):", dateComboBox));
+        add(createField("Absence Date (Lecture Session - Within Past 14 Days):", dateComboBox));
         add(Box.createVerticalStrut(12));
 
-        // Event listener to reload dates whenever course selection changes
         courseComboBox.addActionListener(e -> {
             CourseDropdownItem selected = (CourseDropdownItem) courseComboBox.getSelectedItem();
             if (selected != null) {
@@ -121,12 +109,85 @@ public class MedicalSubmissionPanel extends JPanel {
             }
         });
 
-        // Load enrolled courses from database
+        // 4. Graphical Interactive Calendar Fields (Start Date & End Date)
+        LocalDate today = LocalDate.now();
+        startDateField = createReadOnlyDateField(today.toString());
+        endDateField = createReadOnlyDateField(today.toString());
+
+        JButton startCalBtn = createCalendarButton();
+        startCalBtn.addActionListener(e -> {
+            LocalDate initial = parseFieldDate(startDateField.getText(), today);
+            // Start date can be picked within past 14 days up to today
+            LocalDate picked = CalendarDialog.showPicker(
+                    SwingUtilities.getWindowAncestor(this),
+                    initial,
+                    today.minusDays(14),
+                    today,
+                    "Select Medical Start Date"
+            );
+            if (picked != null) {
+                startDateField.setText(picked.toString());
+                // Validate if current end date is now before start date or exceeds 14 days
+                LocalDate curEnd = parseFieldDate(endDateField.getText(), picked);
+                if (curEnd.isBefore(picked) || ChronoUnit.DAYS.between(picked, curEnd) >= 14) {
+                    endDateField.setText(picked.toString());
+                }
+            }
+        });
+
+        JButton endCalBtn = createCalendarButton();
+        endCalBtn.addActionListener(e -> {
+            LocalDate start = parseFieldDate(startDateField.getText(), today);
+            LocalDate initial = parseFieldDate(endDateField.getText(), start);
+            // Strict Rule: End Date cannot be before Start Date, and cannot exceed Start Date + 13 days (Max 14 Days)
+            LocalDate maxAllowedEnd = start.plusDays(13);
+
+            LocalDate picked = CalendarDialog.showPicker(
+                    SwingUtilities.getWindowAncestor(this),
+                    initial,
+                    start,
+                    maxAllowedEnd,
+                    "Select Medical End Date (Max 14 Days Allowed)"
+            );
+            if (picked != null) {
+                endDateField.setText(picked.toString());
+            }
+        });
+
+        JPanel startPickerPanel = new JPanel(new BorderLayout(5, 0));
+        startPickerPanel.setOpaque(false);
+        startPickerPanel.add(startDateField, BorderLayout.CENTER);
+        startPickerPanel.add(startCalBtn, BorderLayout.EAST);
+
+        JPanel endPickerPanel = new JPanel(new BorderLayout(5, 0));
+        endPickerPanel.setOpaque(false);
+        endPickerPanel.add(endDateField, BorderLayout.CENTER);
+        endPickerPanel.add(endCalBtn, BorderLayout.EAST);
+
+        JPanel dateRangeGroup = new JPanel(new GridLayout(1, 2, 12, 0));
+        dateRangeGroup.setOpaque(false);
+        dateRangeGroup.setMaximumSize(new Dimension(Integer.MAX_VALUE, 58));
+        dateRangeGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
+        dateRangeGroup.add(createField("Medical Start Date (Calendar):", startPickerPanel));
+        dateRangeGroup.add(createField("Medical End Date (Max 14 Days):", endPickerPanel));
+        add(dateRangeGroup);
+        add(Box.createVerticalStrut(12));
+
+        // Auto-sync start date when absence date changes
+        dateComboBox.addActionListener(e -> {
+            String selectedDate = (String) dateComboBox.getSelectedItem();
+            if (selectedDate != null && !selectedDate.startsWith("No ")) {
+                try {
+                    LocalDate ld = LocalDate.parse(selectedDate);
+                    startDateField.setText(ld.toString());
+                    endDateField.setText(ld.toString());
+                } catch (Exception ignored) {}
+            }
+        });
+
         loadEnrolledCourses();
 
-        // -------------------------------------------------------------
-        // 4. Diagnosis / Absence Reason Input Field
-        // -------------------------------------------------------------
+        // 5. Diagnosis / Reason
         reasonField = new JTextField();
         reasonField.setFont(AdminTheme.font(Font.PLAIN, 12));
         reasonField.setBorder(BorderFactory.createCompoundBorder(
@@ -137,9 +198,7 @@ public class MedicalSubmissionPanel extends JPanel {
         add(createField("Diagnosis / Absence Reason:", reasonField));
         add(Box.createVerticalStrut(12));
 
-        // -------------------------------------------------------------
-        // 5. Cloud URL Input Field & Browser Test Link Action Button
-        // -------------------------------------------------------------
+        // 6. Cloud Link Field & Test Button
         urlField = new JTextField("https://drive.google.com/...");
         urlField.setFont(AdminTheme.font(Font.PLAIN, 12));
         urlField.setBorder(BorderFactory.createCompoundBorder(
@@ -169,9 +228,7 @@ public class MedicalSubmissionPanel extends JPanel {
         add(createField("Medical Certificate Link (Google Drive / Cloud URL):", urlInputBox));
         add(Box.createVerticalStrut(18));
 
-        // -------------------------------------------------------------
-        // 6. Medical Application Submission Button
-        // -------------------------------------------------------------
+        // 7. Submit Button
         JButton submitBtn = new JButton("Submit Medical Application") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -196,9 +253,40 @@ public class MedicalSubmissionPanel extends JPanel {
         add(submitBtn);
     }
 
-    /**
-     * Retrieves student's enrolled courses from database and populates the course dropdown.
-     */
+    private JTextField createReadOnlyDateField(String text) {
+        JTextField tf = new JTextField(text);
+        tf.setEditable(false);
+        tf.setBackground(Color.WHITE);
+        tf.setFont(AdminTheme.font(Font.BOLD, 12));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(INPUT_BORDER_COLOR, 1, true),
+                new EmptyBorder(5, 10, 5, 10)
+        ));
+        return tf;
+    }
+
+    private JButton createCalendarButton() {
+        JButton btn = new JButton("📅 Pick");
+        btn.setFont(AdminTheme.font(Font.BOLD, 11));
+        btn.setBackground(AdminTheme.MINT);
+        btn.setForeground(AdminTheme.DEEP_GREEN);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1, true),
+                new EmptyBorder(5, 8, 5, 8)
+        ));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    private LocalDate parseFieldDate(String text, LocalDate fallback) {
+        try {
+            return LocalDate.parse(text.trim());
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
     private void loadEnrolledCourses() {
         courseComboBox.removeAllItems();
         List<EnrolledCourseDTO> list = UndergraduateCourseDAO.getEnrolledCoursesWithEvaluation(userId);
@@ -211,24 +299,35 @@ public class MedicalSubmissionPanel extends JPanel {
         }
     }
 
-    /**
-     * Loads lecture session dates for the selected course to populate the absence date dropdown.
-     */
     private void loadLectureDates(int courseId) {
         dateComboBox.removeAllItems();
         try {
             List<String> dates = UndergraduateMedicalDAO.getCourseLectureDates(userId, courseId);
+            LocalDate today = LocalDate.now();
+            LocalDate fourteenDaysAgo = today.minusDays(14);
+            int eligibleCount = 0;
+
             for (String d : dates) {
-                dateComboBox.addItem(d);
+                try {
+                    LocalDate ld = LocalDate.parse(d);
+                    if (!ld.isBefore(fourteenDaysAgo) && !ld.isAfter(today)) {
+                        dateComboBox.addItem(d);
+                        eligibleCount++;
+                    }
+                } catch (Exception ex) {
+                    dateComboBox.addItem(d);
+                    eligibleCount++;
+                }
+            }
+
+            if (eligibleCount == 0) {
+                dateComboBox.addItem("No eligible absence dates within past 14 days");
             }
         } catch (Exception e) {
             dateComboBox.addItem("No lecture dates available");
         }
     }
 
-    /**
-     * Validates student inputs, verifies cloud URL format, and submits the medical claim to database.
-     */
     private void handleSubmission() {
         CourseDropdownItem selected = (CourseDropdownItem) courseComboBox.getSelectedItem();
         if (selected == null) {
@@ -241,7 +340,25 @@ public class MedicalSubmissionPanel extends JPanel {
         String docUrl = urlField.getText().trim();
 
         if (selectedDate == null || selectedDate.isEmpty() || selectedDate.startsWith("No ")) {
-            JOptionPane.showMessageDialog(this, "Please select a valid absence date.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Cannot submit medical: No eligible absence date within the past 14 days selected.",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        LocalDate startLocal = LocalDate.parse(startDateField.getText().trim());
+        LocalDate endLocal = LocalDate.parse(endDateField.getText().trim());
+
+        if (endLocal.isBefore(startLocal)) {
+            JOptionPane.showMessageDialog(this, "Medical End Date cannot be before Start Date.", "Date Range Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        long durationDays = ChronoUnit.DAYS.between(startLocal, endLocal) + 1;
+        if (durationDays > 14) {
+            JOptionPane.showMessageDialog(this,
+                    "Faculty Regulation Limit Exceeded:\nSelected medical duration is " + durationDays + " days.\nMaximum allowed duration is strictly 14 days (2 weeks).",
+                    "Limit Exceeded", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -252,10 +369,14 @@ public class MedicalSubmissionPanel extends JPanel {
             return;
         }
 
-        boolean success = UndergraduateMedicalDAO.submitMedical(userId, selected.courseId, selectedDate, reason, docUrl);
+        String enrichedReason = reason + " [Coverage: " + startLocal + " to " + endLocal + " (" + durationDays + " Days)]";
+
+        boolean success = UndergraduateMedicalDAO.submitMedical(userId, selected.courseId, selectedDate, enrichedReason, docUrl);
         if (success) {
             JOptionPane.showMessageDialog(this,
-                    "Medical application submitted successfully!\nStatus set to 'Pending' for TO verification.",
+                    "Medical application submitted successfully!\n" +
+                            "Duration: " + durationDays + " Day(s) (" + startLocal + " to " + endLocal + ")\n" +
+                            "Status: Pending administrative review.",
                     "Submission Successful", JOptionPane.INFORMATION_MESSAGE);
             reasonField.setText("");
             urlField.setText("");
@@ -267,9 +388,6 @@ public class MedicalSubmissionPanel extends JPanel {
         }
     }
 
-    /**
-     * Opens the provided URL in the student's default web browser for verification.
-     */
     private void testUrlInBrowser(String url) {
         if (url == null || url.trim().isEmpty() || !url.startsWith("http")) {
             JOptionPane.showMessageDialog(this, "Please provide a valid web URL starting with http:// or https://", "Invalid Link", JOptionPane.WARNING_MESSAGE);
@@ -284,9 +402,6 @@ public class MedicalSubmissionPanel extends JPanel {
         }
     }
 
-    /**
-     * Helper layout builder creating a vertical label-and-input field group.
-     */
     private JPanel createField(String labelText, JComponent input) {
         JPanel p = new JPanel();
         p.setOpaque(false);
@@ -307,9 +422,6 @@ public class MedicalSubmissionPanel extends JPanel {
         return p;
     }
 
-    /**
-     * Paints an anti-aliased rounded white card background and outer perimeter border.
-     */
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -320,5 +432,149 @@ public class MedicalSubmissionPanel extends JPanel {
         g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
         g2.dispose();
         super.paintComponent(g);
+    }
+
+    // =========================================================================
+    // CUSTOM INTERACTIVE CALENDAR DIALOG WITH 14-DAY STRICT RANGE LIMITATION
+    // =========================================================================
+    public static class CalendarDialog extends JDialog {
+        private YearMonth currentYearMonth;
+        private LocalDate selectedDate;
+        private final LocalDate minDate;
+        private final LocalDate maxDate;
+        private final JLabel monthLabel;
+        private final JPanel daysPanel;
+
+        public static LocalDate showPicker(Window parent, LocalDate initial, LocalDate min, LocalDate max, String title) {
+            CalendarDialog dialog = new CalendarDialog(parent, initial, min, max, title);
+            dialog.setVisible(true);
+            return dialog.selectedDate;
+        }
+
+        private CalendarDialog(Window parent, LocalDate initial, LocalDate min, LocalDate max, String title) {
+            super(parent, title, ModalityType.APPLICATION_MODAL);
+            this.selectedDate = null;
+            this.minDate = min;
+            this.maxDate = max;
+            this.currentYearMonth = YearMonth.from(initial != null ? initial : LocalDate.now());
+
+            setSize(360, 360);
+            setLocationRelativeTo(parent);
+            setResizable(false);
+            setLayout(new BorderLayout(10, 10));
+            getContentPane().setBackground(Color.WHITE);
+
+            // Month navigation bar
+            JPanel navPanel = new JPanel(new BorderLayout());
+            navPanel.setBackground(AdminTheme.PRIMARY);
+            navPanel.setBorder(new EmptyBorder(8, 12, 8, 12));
+
+            JButton prevBtn = new JButton("◀");
+            prevBtn.setForeground(Color.WHITE);
+            prevBtn.setContentAreaFilled(false);
+            prevBtn.setBorderPainted(false);
+            prevBtn.setFocusPainted(false);
+            prevBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            prevBtn.addActionListener(e -> {
+                currentYearMonth = currentYearMonth.minusMonths(1);
+                updateCalendar();
+            });
+
+            JButton nextBtn = new JButton("▶");
+            nextBtn.setForeground(Color.WHITE);
+            nextBtn.setContentAreaFilled(false);
+            nextBtn.setBorderPainted(false);
+            nextBtn.setFocusPainted(false);
+            nextBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            nextBtn.addActionListener(e -> {
+                currentYearMonth = currentYearMonth.plusMonths(1);
+                updateCalendar();
+            });
+
+            monthLabel = new JLabel("", SwingConstants.CENTER);
+            monthLabel.setFont(AdminTheme.font(Font.BOLD, 14));
+            monthLabel.setForeground(Color.WHITE);
+
+            navPanel.add(prevBtn, BorderLayout.WEST);
+            navPanel.add(monthLabel, BorderLayout.CENTER);
+            navPanel.add(nextBtn, BorderLayout.EAST);
+            add(navPanel, BorderLayout.NORTH);
+
+            // Week header + Day grid
+            JPanel centerPanel = new JPanel(new BorderLayout());
+            centerPanel.setOpaque(false);
+
+            JPanel weekHeader = new JPanel(new GridLayout(1, 7, 2, 2));
+            weekHeader.setOpaque(false);
+            String[] days = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+            for (String d : days) {
+                JLabel l = new JLabel(d, SwingConstants.CENTER);
+                l.setFont(AdminTheme.font(Font.BOLD, 12));
+                l.setForeground(AdminTheme.DEEP_GREEN);
+                weekHeader.add(l);
+            }
+            centerPanel.add(weekHeader, BorderLayout.NORTH);
+
+            daysPanel = new JPanel(new GridLayout(6, 7, 3, 3));
+            daysPanel.setOpaque(false);
+            daysPanel.setBorder(new EmptyBorder(5, 10, 10, 10));
+            centerPanel.add(daysPanel, BorderLayout.CENTER);
+            add(centerPanel, BorderLayout.CENTER);
+
+            updateCalendar();
+        }
+
+        private void updateCalendar() {
+            monthLabel.setText(currentYearMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+            daysPanel.removeAll();
+
+            LocalDate firstDayOfMonth = currentYearMonth.atDay(1);
+            int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() % 7; // Sunday = 0
+            int daysInMonth = currentYearMonth.lengthOfMonth();
+
+            // Leading blanks
+            for (int i = 0; i < dayOfWeek; i++) {
+                daysPanel.add(new JLabel(""));
+            }
+
+            for (int day = 1; day <= daysInMonth; day++) {
+                LocalDate date = currentYearMonth.atDay(day);
+                JButton dayBtn = new JButton(String.valueOf(day));
+                dayBtn.setFont(AdminTheme.font(Font.PLAIN, 11));
+                dayBtn.setMargin(new Insets(2, 2, 2, 2));
+                dayBtn.setFocusPainted(false);
+
+                // STRICT RULE: Disable dates outside [minDate, maxDate]
+                boolean isAllowed = true;
+                if (minDate != null && date.isBefore(minDate)) isAllowed = false;
+                if (maxDate != null && date.isAfter(maxDate)) isAllowed = false;
+
+                if (isAllowed) {
+                    dayBtn.setBackground(new Color(0xE8, 0xF5, 0xE9));
+                    dayBtn.setForeground(AdminTheme.DEEP_GREEN);
+                    dayBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    dayBtn.addActionListener(e -> {
+                        selectedDate = date;
+                        dispose();
+                    });
+                } else {
+                    // Visually disabled and unclickable for dates exceeding 14-day rule
+                    dayBtn.setEnabled(false);
+                    dayBtn.setBackground(new Color(0xF5, 0xF5, 0xF5));
+                    dayBtn.setForeground(Color.LIGHT_GRAY);
+                }
+
+                daysPanel.add(dayBtn);
+            }
+
+            // Fill trailing grid slots
+            int totalSlots = dayOfWeek + daysInMonth;
+            for (int i = totalSlots; i < 42; i++) {
+                daysPanel.add(new JLabel(""));
+            }
+
+            daysPanel.revalidate();
+            daysPanel.repaint();
+        }
     }
 }
