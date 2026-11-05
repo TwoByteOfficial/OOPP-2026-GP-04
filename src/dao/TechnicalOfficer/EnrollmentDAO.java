@@ -8,9 +8,9 @@ import java.util.List;
 import model.Undergraduate;
 
 /**
- * Data Access Object (DAO) for querying student course enrollments.
- * Used by Technical Officers to retrieve the list of students registered in a course
- * when marking or reviewing attendance.
+ * [OOP - ABSTRACTION]: Data Access Object for querying student course enrollments.
+ * Abstracts SQL database joins between enrollments, undergraduates, and users tables,
+ * returning structured Undergraduate domain objects to the AttendancePanel.
  */
 public class EnrollmentDAO {
 
@@ -51,8 +51,7 @@ public class EnrollmentDAO {
     }
 
     /**
-     * Retrieves all active undergraduate students enrolled in a specific course.
-     * Used by AttendancePanel to populate student rows in the attendance sheet.
+     * [OOP - ABSTRACTION]: Hides SQL multi-table JOINs behind a clean Java method call.
      *
      * @param courseId The course ID
      * @return List of Undergraduate objects sorted by student registration number

@@ -13,17 +13,13 @@ import java.awt.*;
 
 /**
  * Main dashboard application frame for Technical Officers.
- * Uses a CardLayout to switch between different functional panels:
- * - Dashboard (Statistics, timetable overview, notices, quick actions)
- * - Attendance (Marking and viewing student attendance)
- * - Medical Records (Reviewing and approving/rejecting medical submissions)
- * - Timetables (Weekly department lecture and lab schedule)
- * - Notices (Viewing published notices)
- * - My Profile (Viewing and updating officer contact details)
+ * 
+ * [OOP - INHERITANCE]: Extends javax.swing.JFrame to inherit top-level desktop window 
+ * capabilities (title bar, window decorations, close operations, menu sizing).
  */
 public class TechnicalOfficerDashboard extends JFrame {
 
-    // Logged-in Technical Officer's account details
+    // [OOP - ENCAPSULATION]: Private fields protect session data and UI container references.
     private final long userId;
     private final String username;
     private final String fullName;
@@ -59,7 +55,7 @@ public class TechnicalOfficerDashboard extends JFrame {
         this.email = email;
         this.role = role;
 
-        // Window configuration
+        // Window configuration (inherited JFrame methods)
         setTitle("UniMIS - Technical Officer Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(1000, 650));
@@ -68,7 +64,8 @@ public class TechnicalOfficerDashboard extends JFrame {
 
         pageContainer.setBackground(UniMisTheme.LIGHT_BG);
 
-        // Sidebar navigation: clicking a menu item flips the CardLayout and updates sidebar selection
+        // [OOP - INTERFACE]: Uses functional interfaces Consumer<String> (for page switching) 
+        // and Runnable (this::logout) to decouple sidebar interactions from the frame.
         sidebar = new TOSidebarPanel(
                 fullName,
                 pageName -> {
@@ -95,7 +92,8 @@ public class TechnicalOfficerDashboard extends JFrame {
         dashboardScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         dashboardScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // Register each page in the CardLayout container
+        // [OOP - POLYMORPHISM]: pageContainer accepts various JPanel subclasses polymorphically 
+        // (TODashboardPanel, AttendancePanel, MedicalRecordsPanel, etc.).
         pageContainer.add(dashboardScrollPane, "Dashboard");
         pageContainer.add(new AttendancePanel(userId), "Attendance");
         pageContainer.add(new MedicalRecordsPanel(userId), "Medical Records");
@@ -114,8 +112,7 @@ public class TechnicalOfficerDashboard extends JFrame {
     }
 
     /**
-     * Prompts the Technical Officer with a confirmation dialog before logging out.
-     * If confirmed, closes this dashboard and displays the login screen.
+     * [OOP - ENCAPSULATION]: Private helper method encapsulating the logout confirmation flow.
      */
     private void logout() {
         int choice = JOptionPane.showConfirmDialog(

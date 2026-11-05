@@ -7,15 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object (DAO) for retrieving timetable schedules for Technical Officers.
- * Supports loading timetable schedules by undergraduate batch year, department semester,
- * and officer department user ID.
+ * [OOP - ABSTRACTION]: Data Access Object for timetable schedules.
+ * Abstracts SQL database queries for weekly lectures and lab slots,
+ * sorting schedules logically and populating TimetableEntry models.
  */
 public class TimetableDAO {
 
     /**
-     * Retrieves all timetable entries for a specific undergraduate batch year.
-     * Results are sorted logically by day of the week (Monday through Sunday) then start time.
+     * [OOP - ABSTRACTION]: Retrieves timetable entries for an undergraduate batch year.
      *
      * @param batchYear The academic intake year (e.g. 2022)
      * @return List of TimetableEntry records
@@ -49,8 +48,7 @@ public class TimetableDAO {
     }
 
     /**
-     * Retrieves timetable entries filtered by department ID, academic year, and semester.
-     * Includes course code, course name, and lecturer name via JOINs.
+     * [OOP - ABSTRACTION]: Retrieves timetable entries filtered by department ID, academic year, and semester.
      *
      * @param departmentId The department ID
      * @param academicYear Academic year string (e.g., "2025/2026")
@@ -118,8 +116,7 @@ public class TimetableDAO {
     }
 
     /**
-     * Retrieves the entire department timetable matching the department of the logged-in Technical Officer.
-     * Used by DepartmentTimetablePanel on the dashboard to display the weekly schedule.
+     * [OOP - ABSTRACTION]: Retrieves department timetable matching the logged-in officer's department.
      *
      * @param userId The user ID of the Technical Officer
      * @return List of TimetableEntry records for the officer's department

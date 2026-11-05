@@ -10,21 +10,23 @@ import java.awt.*;
 import java.sql.SQLException;
 
 /**
- * Profile management panel for the Technical Officer.
- * Displays personal, employment, and contact information.
- * - Read-only fields: Username, Staff Code, Designation, NIC, Date of Birth, Gender, Department, Status
- * - Editable fields: Full Name, Email, Contact Number, Residential Address, Assigned Laboratories
- * Validates inputs (e.g. 10-digit contact number, email regex) before saving changes to the database.
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to build the Technical Officer profile view.
+ * 
+ * [OOP - ENCAPSULATION]:
+ * 1. Encapsulates all user form controls privately.
+ * 2. Implements internal input validation rules (e.g. 10-digit phone number, valid email regex)
+ *    to protect database integrity before saving.
+ * 
+ * [OOP - ABSTRACTION]: Profile persistence is completely decoupled using TechnicalOfficerProfileDAO.
  */
 public class TechnicalOfficerProfilePanel extends JPanel {
 
-    // Logged-in officer's user ID
     private final long userId;
 
-    // DAO handling database profile fetch and update operations
+    // [OOP - ABSTRACTION]: DAO handling profile queries and updates
     private final TechnicalOfficerProfileDAO profileDAO = new TechnicalOfficerProfileDAO();
 
-    // Form input fields
+    // [OOP - ENCAPSULATION]: Private form fields
     private final JTextField nameField = new JTextField(25);
     private final JTextField usernameField = new JTextField(25);
     private final JTextField codeField = new JTextField(25);
@@ -70,12 +72,10 @@ public class TechnicalOfficerProfilePanel extends JPanel {
 
         add(header, BorderLayout.NORTH);
 
-        // Form layout container
         JPanel form = new JPanel(new GridBagLayout());
         form.setBackground(Color.WHITE);
         form.setBorder(new EmptyBorder(22, 24, 22, 24));
 
-        // Mark system-managed fields as read-only
         setReadOnly(usernameField);
         setReadOnly(codeField);
         setReadOnly(designationField);
@@ -89,7 +89,6 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         addressArea.setWrapStyleWord(true);
         addressArea.setFont(UniMisTheme.FONT_BODY);
 
-        // Populate form rows
         int row = 0;
         row = addField(form, "Full Name", nameField, row);
         row = addField(form, "Username", usernameField, row);
@@ -105,11 +104,11 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         row = addField(form, "Assigned Laboratories", labsField, row);
         addField(form, "Account Status", statusField, row);
 
-        // Save button triggering validation and database update
         JButton saveButton = new JButton("Save Changes");
         saveButton.setBackground(new Color(0x2E, 0x7D, 0x32));
         saveButton.setForeground(Color.WHITE);
         saveButton.setFocusPainted(false);
+        // [OOP - INTERFACE]: java.awt.event.ActionListener lambda implementation
         saveButton.addActionListener(e -> saveProfile());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -128,18 +127,11 @@ public class TechnicalOfficerProfilePanel extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        // Initial load of officer data from database
         loadProfile();
     }
 
     /**
-     * Helper to add a labelled input row to the GridBagLayout form.
-     *
-     * @param panel Target form panel
-     * @param label Field label text
-     * @param field Input component
-     * @param row   Current GridBagLayout row index
-     * @return Next available row index
+     * [OOP - ENCAPSULATION]: Private helper for GridBagLayout positioning.
      */
     private int addField(
             JPanel panel, String label, Component field, int row) {
@@ -162,9 +154,7 @@ public class TechnicalOfficerProfilePanel extends JPanel {
     }
 
     /**
-     * Styles a text field as read-only with a muted background color.
-     *
-     * @param field The text field to disable
+     * [OOP - ENCAPSULATION]: Private helper to configure read-only fields.
      */
     private void setReadOnly(JTextField field) {
         field.setEditable(false);
@@ -172,7 +162,7 @@ public class TechnicalOfficerProfilePanel extends JPanel {
     }
 
     /**
-     * Queries the database via TechnicalOfficerProfileDAO and populates all form fields.
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Loads profile data via TechnicalOfficerProfileDAO.
      */
     private void loadProfile() {
 
@@ -223,18 +213,14 @@ public class TechnicalOfficerProfilePanel extends JPanel {
     }
 
     /**
-     * Checks if the given contact number string contains exactly 10 digits (0-9).
-     *
-     * @param contact Input phone number string
-     * @return true if valid 10-digit number
+     * [OOP - ENCAPSULATION]: Encapsulated validation rule for contact number (10 digits).
      */
     private boolean isValidContactNumber(String contact) {
         return contact.matches("[0-9]{10}");
     }
 
     /**
-     * Validates user inputs and updates the profile in the database.
-     * Ensures mandatory fields are provided and validates email and phone number formats.
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Validates input rules before delegating update to DAO.
      */
     private void saveProfile() {
 
@@ -281,7 +267,7 @@ public class TechnicalOfficerProfilePanel extends JPanel {
             );
 
             if (updated) {
-                loadProfile(); // Refresh form values
+                loadProfile();
                 JOptionPane.showMessageDialog(
                         this,
                         "Profile updated successfully."
@@ -306,9 +292,6 @@ public class TechnicalOfficerProfilePanel extends JPanel {
         }
     }
 
-    /**
-     * Helper to return empty string if a database value is null.
-     */
     private String text(String value) {
         return value == null ? "" : value;
     }

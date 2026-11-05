@@ -11,20 +11,20 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Medical status widget displayed on the Technical Officer Dashboard.
- * Shows the current number of student medical certificates awaiting officer review
- * and provides a direct shortcut button to open the full Medical Records management screen.
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the Medical Status dashboard widget.
+ * 
+ * [OOP - ABSTRACTION]: Uses TODashboardDAO to retrieve the pending medical count.
  */
 public class MedicalStatusPanel extends JPanel {
 
-    // Technical Officer user ID
+    // [OOP - ENCAPSULATION]: Private user ID field
     private final long userId;
 
     /**
      * Constructs the Medical Status panel.
      *
      * @param userId            Database user ID of the Technical Officer
-     * @param navigationHandler Callback to navigate to "Medical Records"
+     * @param navigationHandler [OOP - INTERFACE]: Consumer<String> interface callback
      */
     public MedicalStatusPanel(
             long userId,
@@ -36,7 +36,6 @@ public class MedicalStatusPanel extends JPanel {
         setBackground(UniMisTheme.WHITE);
         setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        // Header label
         JLabel heading = new JLabel("Medical Status");
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
@@ -46,10 +45,9 @@ public class MedicalStatusPanel extends JPanel {
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        // Pending count label
         JLabel pendingLabel = new JLabel("Pending medical records: —");
 
-        // Query pending count from database
+        // [OOP - ABSTRACTION]: Delegating count calculation to TODashboardDAO
         try {
             TODashboardDAO dashboardDAO = new TODashboardDAO();
             int pendingCount = dashboardDAO.getPendingMedicalCount(userId);
@@ -61,7 +59,6 @@ public class MedicalStatusPanel extends JPanel {
         pendingLabel.setFont(UniMisTheme.FONT_BODY_BOLD);
         pendingLabel.setForeground(UniMisTheme.PRIMARY_DARK);
 
-        // Shortcut button to open the Medical Records management panel
         JButton viewButton = new JButton("View Medical Records");
         viewButton.setFont(UniMisTheme.FONT_SMALL);
         viewButton.setForeground(UniMisTheme.WHITE);
@@ -70,7 +67,7 @@ public class MedicalStatusPanel extends JPanel {
         viewButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         viewButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // On click: navigate directly to "Medical Records" page
+        // [OOP - INTERFACE]: java.awt.event.ActionListener lambda calling Consumer.accept()
         viewButton.addActionListener(e -> navigationHandler.accept("Medical Records"));
 
         content.add(pendingLabel);
