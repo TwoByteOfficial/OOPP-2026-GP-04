@@ -43,11 +43,14 @@ public class MyCourses extends JPanel {
         // Status label
         statusLabel = new JLabel("Ready");
         statusLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 13)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
 
         // Refresh button
         JButton refreshButton = new JButton("Refresh");
+        refreshButton.setFont(
+                new Font("SansSerif", Font.BOLD, 16)
+        );
         refreshButton.setFocusPainted(false);
         refreshButton.setCursor(
                 Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
@@ -98,7 +101,7 @@ public class MyCourses extends JPanel {
                                 ? "N/A"
                                 : course[6] + "%",
                         course[7],             // Enrolled students
-                        "Show Details"                 // Action button
+                        "Show Details"         // Action button
                 });
             }
 

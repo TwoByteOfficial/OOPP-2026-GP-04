@@ -1,4 +1,3 @@
-
 package gui.lecturer.Dashboard.DashboardComponents;
 import static gui.lecturer.SharedComponents.Colors.*;
 
@@ -18,13 +17,13 @@ public class DashboardTitleBar extends JPanel {
         setOpaque(false);
 
         welcomeLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 26)
+                new Font("SansSerif", Font.BOLD, 28)
         );
         welcomeLabel.setForeground(DEEP_GREEN);
         welcomeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         subtitleLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 14)
+                new Font("SansSerif", Font.PLAIN, 16)
         );
         subtitleLabel.setForeground(TEXT_GRAY);
         subtitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);

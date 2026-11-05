@@ -4,7 +4,9 @@
 -- Run this AFTER UniMis.sql (the tables and views must already exist), while
 -- connected as root or another account that is allowed to use GRANT.
 -- The script can be re-run safely: it first drops any of these accounts that
--- already exist, then re-creates them and grants the privileges below.
+-- already exist, then re-creates the
+--
+-- m and grants the privileges below.
 --
 -- Accounts
 --   unimisadmin   Admin
@@ -157,7 +159,7 @@ GRANT SELECT ON unimis.enrollments      TO 'unimisug'@'localhost';
 -- Attendance and medical details (read-only)
 GRANT SELECT ON unimis.attendance_sessions TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.attendance_records  TO 'unimisug'@'localhost';
-GRANT SELECT ON unimis.medicals            TO 'unimisug'@'localhost';
+GRANT SELECT,INSERT ON unimis.medicals     TO 'unimisug'@'localhost';
 
 -- Timetables, notices, grading reference data (read-only)
 GRANT SELECT ON unimis.timetable_entries TO 'unimisug'@'localhost';
@@ -168,6 +170,7 @@ GRANT SELECT ON unimis.system_settings   TO 'unimisug'@'localhost';
 -- Grades and GPA (read-only views; no direct access to marks / assessments)
 GRANT SELECT ON unimis.v_users              TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_attendance_summary TO 'unimisug'@'localhost';
+GRANT SELECT ON unimis.v_ca_summary         TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_final_results      TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_sgpa               TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.v_cgpa               TO 'unimisug'@'localhost';

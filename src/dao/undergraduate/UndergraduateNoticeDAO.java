@@ -9,9 +9,14 @@ import java.util.List;
 
 /**
  * Data Access Object for Official Notices and Circulars feed.
+ * Interfaces directly with the 'notices' and 'users' tables to query faculty circulars,
+ * official academic announcements, and targeted student communications with category counts.
  */
 public class UndergraduateNoticeDAO {
 
+    /**
+     * Data Transfer Object representing an individual official notice or circular item.
+     */
     public static class NoticeItemDTO {
         public long noticeId;
         public String title;
@@ -22,6 +27,9 @@ public class UndergraduateNoticeDAO {
         public String publisher;
     }
 
+    /**
+     * Data Transfer Object encapsulating aggregated notice category counts for metric strips and filters.
+     */
     public static class NoticeCountsDTO {
         public int totalCount = 0;
         public int academicCount = 0;
@@ -29,6 +37,12 @@ public class UndergraduateNoticeDAO {
         public int urgentCount = 0;
     }
 
+    /**
+     * Retrieves all active published notices addressed to undergraduates or all faculty members.
+     * Joins user details to obtain publisher identity and formats publication dates.
+     *
+     * @return Ordered list of {@link NoticeItemDTO} records sorted chronologically descending
+     */
     public static List<NoticeItemDTO> getActiveNotices() {
         List<NoticeItemDTO> list = new ArrayList<>();
         String sql = "SELECT n.notice_id, n.title, n.content, n.notice_type, n.target_role, " +
@@ -58,6 +72,12 @@ public class UndergraduateNoticeDAO {
         return list;
     }
 
+    /**
+     * Calculates categorical metrics across all currently active undergraduate notices,
+     * tallying totals for academic, examination, and urgent priority announcements.
+     *
+     * @return Populated {@link NoticeCountsDTO} containing category frequency metrics
+     */
     public static NoticeCountsDTO getNoticeCounts() {
         NoticeCountsDTO counts = new NoticeCountsDTO();
         List<NoticeItemDTO> notices = getActiveNotices();

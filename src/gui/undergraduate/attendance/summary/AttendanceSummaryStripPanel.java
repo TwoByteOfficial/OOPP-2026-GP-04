@@ -15,37 +15,48 @@ import java.awt.geom.Rectangle2D;
  */
 public class AttendanceSummaryStripPanel extends JPanel {
 
+    // Card styling constants
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
+    // Value labels for the 4 metric summary cards
     private final JLabel overallValLabel;
     private final JLabel eligibleModulesLabel;
     private final JLabel hoursValLabel;
     private final JLabel medicalsValLabel;
 
     public AttendanceSummaryStripPanel() {
+        // Transparent container with a 4-column single-row grid layout
         setOpaque(false);
         setLayout(new GridLayout(1, 4, 12, 0));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 78));
         setPreferredSize(new Dimension(0, 78));
 
+        // Initialize default metric placeholders
         overallValLabel = new JLabel("0.0%");
         eligibleModulesLabel = new JLabel("0 / 0 Modules");
         hoursValLabel = new JLabel("0 / 0 Hrs");
         medicalsValLabel = new JLabel("0 Approved");
 
+        // Construct and attach the 4 summary cards with icons and themes
         add(createMiniStatCard("📈", overallValLabel, "Overall Attendance", AdminTheme.FOREST_GREEN));
         add(createMiniStatCard("🎓", eligibleModulesLabel, "Eligible for Exams", AdminTheme.FOREST_GREEN));
         add(createMiniStatCard("⏱️", hoursValLabel, "Attended Sessions", AdminTheme.FOREST_GREEN));
         add(createMiniStatCard("🏥", medicalsValLabel, "Valid Medical Covers", AdminTheme.FOREST_GREEN));
     }
 
+    /**
+     * Binds attendance strip summary data from a Data Transfer Object (DTO).
+     */
     public void updateMetrics(AttendanceStripDTO dto) {
         if (dto == null) return;
         updateMetrics(dto.overallPercentage, dto.eligibleModulesCount, dto.totalModulesCount,
                 dto.totalAttendedHours, dto.totalScheduledHours, dto.approvedMedicalsCount);
     }
 
+    /**
+     * Updates label text values across all 4 summary cards.
+     */
     public void updateMetrics(double overallRate, int eligibleCount, int totalModules, int attendedHrs, int totalHrs, int medicalsCount) {
         overallValLabel.setText(String.format("%.1f%%", overallRate));
         eligibleModulesLabel.setText(eligibleCount + " / " + totalModules + " Modules");
@@ -53,7 +64,11 @@ public class AttendanceSummaryStripPanel extends JPanel {
         medicalsValLabel.setText(medicalsCount + " Approved");
     }
 
+    /**
+     * Creates an individual rounded stat card displaying an icon badge and metric values.
+     */
     private JPanel createMiniStatCard(String iconSymbol, JLabel valLbl, String subVal, Color badgeColor) {
+        // Card wrapper panel with custom anti-aliased background painting
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -80,12 +95,14 @@ public class AttendanceSummaryStripPanel extends JPanel {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
+                // Center the square background inside available badge bounds
                 int size = 38;
                 int bx = (getWidth() - size) / 2;
                 int by = (getHeight() - size) / 2;
                 g2.setColor(badgeColor);
                 g2.fillRoundRect(bx, by, size, size, 10, 10);
 
+                // Draw emoji glyph optically centered using visual vector bounds
                 if (iconSymbol != null && !iconSymbol.isEmpty()) {
                     Font font = new Font("Segoe UI Emoji", Font.PLAIN, 16);
                     g2.setFont(font);
@@ -96,6 +113,7 @@ public class AttendanceSummaryStripPanel extends JPanel {
 
                     float tx = (float) (bx + (size - bounds.getWidth()) / 2.0 - bounds.getX());
                     float ty = (float) (by + (size - bounds.getHeight()) / 2.0 - bounds.getY());
+
                     g2.drawString(iconSymbol, tx, ty);
                 }
                 g2.dispose();
@@ -104,6 +122,7 @@ public class AttendanceSummaryStripPanel extends JPanel {
         iconBadge.setOpaque(false);
         iconBadge.setPreferredSize(new Dimension(38, 38));
 
+        // Metric description and value vertical stack
         JPanel textPanel = new JPanel();
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
@@ -121,6 +140,7 @@ public class AttendanceSummaryStripPanel extends JPanel {
         textPanel.add(subLbl);
         textPanel.add(Box.createVerticalGlue());
 
+        // Assemble icon badge and text description into card
         card.add(iconBadge, BorderLayout.WEST);
         card.add(textPanel, BorderLayout.CENTER);
         return card;

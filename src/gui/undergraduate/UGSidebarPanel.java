@@ -14,18 +14,32 @@ import java.util.function.Consumer;
 /**
  * Modular Sidebar for Undergraduate Dashboard.
  * Custom painted flat buttons to prevent Windows Look-and-Feel grey overrides.
+ * Provides application branding, module routing navigation, active tab highlight
+ * tracking, and account logout triggering.
  */
 public class UGSidebarPanel extends JPanel {
 
+    // Routing and action callbacks
     private final Consumer<String> onNavigate;
     private final Runnable onLogout;
+
+    // Preserved insertion-order map of module keys to navigation button instances
     private final Map<String, NavButton> navButtons = new LinkedHashMap<>();
+
+    // Key of the currently active navigation item
     private String currentActiveKey = "dashboard";
 
+    /**
+     * Constructs the undergraduate navigation sidebar with fixed width and theme background.
+     *
+     * @param onNavigate Callback invoked with module key when a navigation button is clicked
+     * @param onLogout   Callback invoked when the logout button is pressed
+     */
     public UGSidebarPanel(Consumer<String> onNavigate, Runnable onLogout) {
         this.onNavigate = onNavigate;
         this.onLogout = onLogout;
 
+        // Container dimensions and theme styling
         setPreferredSize(new Dimension(AdminTheme.SIDEBAR_WIDTH, 0));
         setBackground(AdminTheme.FRESH_GREEN);
         setLayout(new BorderLayout());
@@ -33,8 +47,13 @@ public class UGSidebarPanel extends JPanel {
         initSidebar();
     }
 
+    /**
+     * Initializes sidebar sub-panels: branding logo header, navigation menu, and logout trigger.
+     */
     private void initSidebar() {
-        // --- 1. Top Section: Logo ---
+        // -------------------------------------------------------------
+        // 1. Top Section: Logo Header
+        // -------------------------------------------------------------
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         topPanel.setBorder(new EmptyBorder(25, 22, 20, 22));
@@ -46,21 +65,25 @@ public class UGSidebarPanel extends JPanel {
 
         add(topPanel, BorderLayout.NORTH);
 
-        // --- 2. Center Section: Navigation Buttons ---
+        // -------------------------------------------------------------
+        // 2. Center Section: Navigation Buttons
+        // -------------------------------------------------------------
         JPanel menuPanel = new JPanel();
         menuPanel.setOpaque(false);
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
         menuPanel.setBorder(new EmptyBorder(5, 12, 10, 12));
 
-        addNavButton(menuPanel, "dashboard",  "Dashboard");
-        addNavButton(menuPanel, "courses",    "My Courses");
-        addNavButton(menuPanel, "attendance", "Attendance");
-        addNavButton(menuPanel, "grades",     "Grades & GPA");
-        addNavButton(menuPanel, "medicals",   "Medicals");
+        // Register undergraduate portal modules
+        addNavButton(menuPanel, "dashboard",   "Dashboard");
+        addNavButton(menuPanel, "courses",     "My Courses");
+        addNavButton(menuPanel, "attendance",  "Attendance");
+        addNavButton(menuPanel, "grades",      "Grades & GPA");
+        addNavButton(menuPanel, "medicals",    "Medicals");
         addNavButton(menuPanel, "timetables",  "Timetables");
-        addNavButton(menuPanel, "notices",    "Notices");
-        addNavButton(menuPanel, "profile",    "My Profile");
+        addNavButton(menuPanel, "notices",     "Notices");
+        addNavButton(menuPanel, "profile",     "My Profile");
 
+        // Transparent scrollpane wrapper without scrollbars for clean vertical accommodation
         JScrollPane scrollPane = new JScrollPane(menuPanel);
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
@@ -68,7 +91,9 @@ public class UGSidebarPanel extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- 3. Bottom Section: Solid Red Logout Button ---
+        // -------------------------------------------------------------
+        // 3. Bottom Section: Solid Red Logout Button
+        // -------------------------------------------------------------
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
         bottomPanel.setBorder(new EmptyBorder(15, 15, 20, 15));
@@ -97,9 +122,17 @@ public class UGSidebarPanel extends JPanel {
         bottomPanel.add(logoutBtn, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
+        // Set default active tab
         setActiveTab("dashboard");
     }
 
+    /**
+     * Factory helper to instantiate, style, and bind navigation buttons into the menu container.
+     *
+     * @param container Target JPanel holding navigation buttons
+     * @param key       Unique routing module key
+     * @param title     Display text caption for the button
+     */
     private void addNavButton(JPanel container, String key, String title) {
         NavButton btn = new NavButton(title);
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
@@ -115,6 +148,11 @@ public class UGSidebarPanel extends JPanel {
         container.add(Box.createVerticalStrut(7));
     }
 
+    /**
+     * Updates the visual active state across all navigation buttons to reflect the selected view.
+     *
+     * @param activeKey The key corresponding to the currently selected module
+     */
     public void setActiveTab(String activeKey) {
         this.currentActiveKey = activeKey;
         for (Map.Entry<String, NavButton> entry : navButtons.entrySet()) {
@@ -125,11 +163,17 @@ public class UGSidebarPanel extends JPanel {
 
     /**
      * Custom rendered flat button that bypasses native OS bevels and borders.
+     * Features state-based background fills (Active: White, Hovered: Mint, Inactive: Pastel Green).
      */
     private static class NavButton extends JButton {
         private boolean isActive = false;
         private boolean isHovered = false;
 
+        /**
+         * Constructs a custom flat navigation button with left-aligned typography.
+         *
+         * @param text Button label text
+         */
         NavButton(String text) {
             super(text);
             setFont(AdminTheme.font(Font.BOLD, 15));
@@ -140,6 +184,7 @@ public class UGSidebarPanel extends JPanel {
             setBorder(new EmptyBorder(0, 18, 0, 10));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+            // Mouse hover state tracking
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
@@ -155,11 +200,19 @@ public class UGSidebarPanel extends JPanel {
             });
         }
 
+        /**
+         * Toggles the button's active selection state.
+         *
+         * @param active True if this button represents the current active module
+         */
         void setActive(boolean active) {
             this.isActive = active;
             repaint();
         }
 
+        /**
+         * Custom anti-aliased rounded rectangle background painting based on active/hover status.
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();

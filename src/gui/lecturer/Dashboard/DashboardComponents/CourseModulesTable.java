@@ -1,4 +1,3 @@
-
 package gui.lecturer.Dashboard.DashboardComponents;
 
 import static gui.lecturer.SharedComponents.Colors.*;
@@ -29,7 +28,7 @@ public class CourseModulesTable extends JPanel {
         ));
 
         JLabel titleLabel = new JLabel("My Course Modules");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         titleLabel.setForeground(DEEP_GREEN);
 
         String[] columns = {
@@ -49,7 +48,7 @@ public class CourseModulesTable extends JPanel {
 
         JTable courseTable = new JTable(tableModel);
         courseTable.setRowHeight(34);
-        courseTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        courseTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
         courseTable.setFillsViewportHeight(true);
         courseTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         courseTable.setSelectionBackground(PALE_GREEN);
@@ -59,7 +58,7 @@ public class CourseModulesTable extends JPanel {
         courseTable.getTableHeader().setBackground(PALE_GREEN);
         courseTable.getTableHeader().setForeground(DEEP_GREEN);
         courseTable.getTableHeader().setFont(
-                new Font("SansSerif", Font.BOLD, 12));
+                new Font("SansSerif", Font.BOLD, 16));
         courseTable.getTableHeader().setReorderingAllowed(false);
 
         JScrollPane scrollPane = new JScrollPane(courseTable);
