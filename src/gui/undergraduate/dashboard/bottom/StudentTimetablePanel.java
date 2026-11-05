@@ -8,118 +8,198 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Undergraduate Today's Timetable Card connected to database schedule.
+ * Today's Lecture Schedule widget anchored to NORTH to wrap cards tightly.
+ * Header typography and colors match Attendance Distribution exactly (15px Bold, AdminTheme.PRIMARY).
+ * Fetches and displays today's scheduled lectures or fallback slots for the undergraduate student.
  */
 public class StudentTimetablePanel extends JPanel {
 
-    private final JPanel listPanel;
+    // Cards container panel and navigation action consumer
+    private final JPanel cardsContainer;
+    private final Consumer<String> onNavigate;
 
-    public StudentTimetablePanel(Consumer<String> navigationCallback) {
-        setLayout(new BorderLayout(0, 12));
-        setBackground(AdminTheme.WHITE);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0xD2, 0xD7, 0xE1), 1),
-                new EmptyBorder(18, 20, 18, 20)
-        ));
+    public StudentTimetablePanel(Consumer<String> onNavigate) {
+        this.onNavigate = onNavigate;
+        setLayout(new BorderLayout());
+        setOpaque(false);
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
+        // -------------------------------------------------------------
+        // Outer Rounded Card Container
+        // -------------------------------------------------------------
+        JPanel card = new JPanel(new BorderLayout(0, 10)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Draw rounded white background card
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 14, 14);
+                // Draw subtle card border
+                g2.setColor(new Color(225, 235, 228));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 14, 14);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        card.setOpaque(false);
+        card.setBorder(new EmptyBorder(12, 16, 12, 16));
 
-        JLabel title = new JLabel("Today's Lecture Schedule");
-        title.setFont(new Font(AdminTheme.FONT_FAMILY, Font.BOLD, 17));
-        title.setForeground(AdminTheme.DEEP_GREEN);
+        // -------------------------------------------------------------
+        // Top Header Row (Title & Full Timetable Navigation Button)
+        // -------------------------------------------------------------
+        JPanel headerRow = new JPanel(new BorderLayout());
+        headerRow.setOpaque(false);
 
+        // Header title (15px Bold & AdminTheme.PRIMARY) matching dashboard design standards
+        JLabel titleLbl = new JLabel("Today's Lecture Schedule");
+        titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
+        titleLbl.setForeground(AdminTheme.PRIMARY);
+
+        // "Full Timetable" button directing users to the complete timetable module view
         JButton viewAllBtn = new JButton("Full Timetable →");
-        viewAllBtn.setFont(new Font(AdminTheme.FONT_FAMILY, Font.BOLD, 13));
-        viewAllBtn.setForeground(AdminTheme.FOREST_GREEN);
-        viewAllBtn.setBorder(null);
+        viewAllBtn.setFont(AdminTheme.font(Font.BOLD, 11));
+        viewAllBtn.setForeground(AdminTheme.PRIMARY);
+        viewAllBtn.setBorderPainted(false);
         viewAllBtn.setContentAreaFilled(false);
+        viewAllBtn.setFocusPainted(false);
         viewAllBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         viewAllBtn.addActionListener(e -> {
-            if (navigationCallback != null) navigationCallback.accept("timetables");
+            if (onNavigate != null) onNavigate.accept("timetables");
         });
 
-        header.add(title, BorderLayout.WEST);
-        header.add(viewAllBtn, BorderLayout.EAST);
-        add(header, BorderLayout.NORTH);
+        headerRow.add(titleLbl, BorderLayout.WEST);
+        headerRow.add(viewAllBtn, BorderLayout.EAST);
+        card.add(headerRow, BorderLayout.NORTH);
 
-        listPanel = new JPanel();
-        listPanel.setOpaque(false);
-        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        // -------------------------------------------------------------
+        // Cards List Container
+        // -------------------------------------------------------------
+        cardsContainer = new JPanel();
+        cardsContainer.setLayout(new BoxLayout(cardsContainer, BoxLayout.Y_AXIS));
+        cardsContainer.setOpaque(false);
+        card.add(cardsContainer, BorderLayout.CENTER);
 
-        add(listPanel, BorderLayout.CENTER);
+        // Anchored to NORTH so white background tightly terminates after the last card
+        add(card, BorderLayout.NORTH);
     }
 
+    /**
+     * Asynchronously fetches weekly timetable slots via DAO, filters for today's day of week,
+     * and handles fallback cases using SwingWorker.
+     */
     public void loadTodaySchedule(long studentId) {
-        listPanel.removeAll();
-        List<TimetableSlotDTO> slots = UndergraduateTimetableDAO.getStudentWeeklyTimetable(studentId);
+        SwingWorker<List<TimetableSlotDTO>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<TimetableSlotDTO> doInBackground() {
+                try {
+                    // Fetch full weekly schedule slots for the student
+                    List<TimetableSlotDTO> allSlots = UndergraduateTimetableDAO.getStudentWeeklyTimetable(studentId);
+                    String currentDay = LocalDate.now().getDayOfWeek().toString();
 
-        String today = LocalDate.now().getDayOfWeek().toString(); // e.g. MONDAY
-        int added = 0;
+                    // Filter slots matching today's system day of week
+                    List<TimetableSlotDTO> todaySlots = new ArrayList<>();
+                    for (TimetableSlotDTO s : allSlots) {
+                        if (s.dayOfWeek != null && s.dayOfWeek.equalsIgnoreCase(currentDay)) {
+                            todaySlots.add(s);
+                        }
+                    }
 
-        for (TimetableSlotDTO s : slots) {
-            if (s.dayOfWeek.equalsIgnoreCase(today) || (added < 2 && slots.size() <= 2)) {
-                listPanel.add(createScheduleItem(s.timeRange, s.courseCode + " - " + s.courseName, s.venue + " • " + s.lecturerName));
-                listPanel.add(Box.createVerticalStrut(8));
-                added++;
-            }
-        }
-
-        // If no lectures today, display first 2 upcoming sessions
-        if (added == 0) {
-            for (TimetableSlotDTO s : slots) {
-                if (added < 2) {
-                    listPanel.add(createScheduleItem(s.dayOfWeek + " • " + s.timeRange, s.courseCode + " - " + s.courseName, s.venue + " • " + s.lecturerName));
-                    listPanel.add(Box.createVerticalStrut(8));
-                    added++;
+                    // Fallback to all slots if none found for today
+                    return todaySlots.isEmpty() ? allSlots : todaySlots;
+                } catch (Exception e) {
+                    return new ArrayList<>();
                 }
             }
-        }
 
-        if (added == 0) {
-            JLabel empty = new JLabel("No scheduled lecture sessions found.");
-            empty.setFont(AdminTheme.font(Font.PLAIN, 12));
-            empty.setForeground(AdminTheme.MUTED);
-            listPanel.add(empty);
-        }
-
-        listPanel.revalidate();
-        listPanel.repaint();
+            @Override
+            protected void done() {
+                try {
+                    updateTimetable(get());
+                } catch (Exception ignored) {}
+            }
+        };
+        worker.execute();
     }
 
-    private JPanel createScheduleItem(String time, String subject, String venue) {
-        JPanel p = new JPanel(new BorderLayout(10, 2));
-        p.setOpaque(false);
-        p.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(AdminTheme.PASTEL_GREEN, 1),
-                new EmptyBorder(8, 12, 8, 12)
-        ));
+    /**
+     * Populates timetable card items or empty state text into the UI container.
+     */
+    public void updateTimetable(List<TimetableSlotDTO> slots) {
+        cardsContainer.removeAll();
 
-        JLabel timeLabel = new JLabel(time);
-        timeLabel.setFont(new Font(AdminTheme.FONT_FAMILY, Font.BOLD, 13));
-        timeLabel.setForeground(AdminTheme.FOREST_GREEN);
+        if (slots == null || slots.isEmpty()) {
+            JLabel emptyLbl = new JLabel("No scheduled lectures for today.");
+            emptyLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
+            emptyLbl.setForeground(new Color(120, 140, 130));
+            emptyLbl.setBorder(new EmptyBorder(10, 4, 10, 4));
+            cardsContainer.add(emptyLbl);
+        } else {
+            // Display a maximum of 3 scheduled items on the dashboard widget view
+            int displayCount = Math.min(slots.size(), 3);
+            for (int i = 0; i < displayCount; i++) {
+                if (i > 0) cardsContainer.add(Box.createVerticalStrut(6));
+                cardsContainer.add(createCompactLectureCard(slots.get(i)));
+            }
+        }
+        cardsContainer.revalidate();
+        cardsContainer.repaint();
+    }
 
-        JLabel subj = new JLabel(subject);
-        subj.setFont(new Font(AdminTheme.FONT_FAMILY, Font.BOLD, 14));
-        subj.setForeground(AdminTheme.DEEP_GREEN);
+    /**
+     * Factory method creating a compact lecture card showing time range, course code, venue, and instructor.
+     */
+    private JPanel createCompactLectureCard(TimetableSlotDTO slot) {
+        JPanel rowCard = new JPanel(new BorderLayout(12, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Draw rounded white sub-card background
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                // Draw subtle card border
+                g2.setColor(new Color(215, 235, 222));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        rowCard.setOpaque(false);
+        rowCard.setBorder(new EmptyBorder(6, 12, 6, 12));
+        rowCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
 
-        JLabel ven = new JLabel(venue);
-        ven.setFont(new Font(AdminTheme.FONT_FAMILY, Font.PLAIN, 12));
-        ven.setForeground(AdminTheme.MUTED);
+        // Left: Time Range label
+        JLabel timeLbl = new JLabel(slot.timeRange != null ? slot.timeRange : "00:00 - 00:00");
+        timeLbl.setFont(AdminTheme.font(Font.BOLD, 12));
+        timeLbl.setForeground(AdminTheme.PRIMARY);
+        timeLbl.setPreferredSize(new Dimension(90, 0));
+        rowCard.add(timeLbl, BorderLayout.WEST);
 
-        JPanel info = new JPanel();
-        info.setOpaque(false);
-        info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
-        info.add(subj);
-        info.add(Box.createVerticalStrut(2));
-        info.add(ven);
+        // Center: Course Title & Venue/Lecturer metadata stack
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setOpaque(false);
 
-        p.add(timeLabel, BorderLayout.WEST);
-        p.add(info, BorderLayout.CENTER);
-        return p;
+        JLabel courseLbl = new JLabel(slot.courseCode + " - " + slot.courseName);
+        courseLbl.setFont(AdminTheme.font(Font.BOLD, 12));
+        courseLbl.setForeground(new Color(30, 41, 59));
+
+        String venueStr = slot.venue != null ? slot.venue : "Lecture Hall";
+        String lecturerStr = slot.lecturerName != null ? slot.lecturerName : "Academic Staff";
+        JLabel locationLbl = new JLabel(venueStr + " • " + lecturerStr);
+        locationLbl.setFont(AdminTheme.font(Font.PLAIN, 11));
+        locationLbl.setForeground(new Color(110, 130, 120));
+
+        infoPanel.add(courseLbl);
+        infoPanel.add(Box.createVerticalStrut(1));
+        infoPanel.add(locationLbl);
+
+        rowCard.add(infoPanel, BorderLayout.CENTER);
+        return rowCard;
     }
 }

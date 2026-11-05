@@ -14,26 +14,44 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Visual profile banner card displaying the student's circular avatar, full name,
+ * registration details, and academic standing status badge.
+ * Supports asynchronous remote image downloading from standard URLs or Google Drive share links,
+ * providing graceful initial fallback rendering when no avatar image is present.
+ */
 public class ProfileAvatarCard extends JPanel {
 
+    // Card styling constants for rounded geometry, border strokes, and status badge color accents
     private static final int CORNER_RADIUS = 16;
     private static final Color BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
     private static final Color BADGE_BG = new Color(0xEC, 0xFD, 0xF5);
     private static final Color BADGE_TEXT = new Color(0x04, 0x78, 0x57);
 
+    // Sub-components for avatar graphics, textual identifiers, and standing indicator
     private final AvatarCircle avatarCircle;
     private final JLabel nameLabel;
     private final JLabel subLabel;
     private final JLabel statusBadge;
 
+    /**
+     * Constructs the profile avatar card, initializes circular graphics, and arranges layout regions.
+     */
     public ProfileAvatarCard() {
+        // Base container layout and margin configuration
         setOpaque(false);
         setLayout(new BorderLayout(14, 0));
         setBorder(new EmptyBorder(16, 20, 16, 20));
 
+        // -------------------------------------------------------------
+        // West Region: Circular Avatar Component
+        // -------------------------------------------------------------
         avatarCircle = new AvatarCircle();
         add(avatarCircle, BorderLayout.WEST);
 
+        // -------------------------------------------------------------
+        // Center Region: Student Name and Academic Registration Subtitle
+        // -------------------------------------------------------------
         JPanel textPanel = new JPanel(new GridLayout(2, 1, 0, 2));
         textPanel.setOpaque(false);
         nameLabel = new JLabel("STUDENT NAME");
@@ -48,6 +66,9 @@ public class ProfileAvatarCard extends JPanel {
         textPanel.add(subLabel);
         add(textPanel, BorderLayout.CENTER);
 
+        // -------------------------------------------------------------
+        // East Region: Academic Standing Pill Badge
+        // -------------------------------------------------------------
         statusBadge = new JLabel("Proper Candidate", SwingConstants.CENTER);
         statusBadge.setFont(AdminTheme.font(Font.BOLD, 11));
         statusBadge.setForeground(BADGE_TEXT);
@@ -61,6 +82,11 @@ public class ProfileAvatarCard extends JPanel {
         add(badgeWrapper, BorderLayout.EAST);
     }
 
+    /**
+     * Binds student profile data model properties to the card's labels and avatar renderer.
+     *
+     * @param data User profile entity holding registration details and avatar URL
+     */
     public void updateProfile(UserProfileData data) {
         if (data == null) return;
         nameLabel.setText(data.getFullName());
@@ -69,10 +95,18 @@ public class ProfileAvatarCard extends JPanel {
         avatarCircle.setAvatar(data.getFullName(), data.getProfilePicture());
     }
 
+    /**
+     * Triggers dynamic avatar updating for real-time live preview during URL editing.
+     *
+     * @param imageUrl Web URL or cloud thumbnail link to render
+     */
     public void setLiveImagePreview(String imageUrl) {
         avatarCircle.loadImageFromUrl(imageUrl);
     }
 
+    /**
+     * Paints an anti-aliased rounded white card background and outer perimeter border.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -85,19 +119,36 @@ public class ProfileAvatarCard extends JPanel {
         super.paintComponent(g);
     }
 
+    /**
+     * Custom lightweight component rendering an elliptical clipped profile avatar or initial text fallback.
+     */
     private static class AvatarCircle extends JComponent {
         private String initials = "UG";
         private BufferedImage loadedImage = null;
 
+        /**
+         * Initializes fixed avatar component dimensions.
+         */
         public AvatarCircle() {
             setPreferredSize(new Dimension(54, 54));
         }
 
+        /**
+         * Computes user initials and initiates background image retrieval.
+         *
+         * @param name     Full student name for monogram extraction
+         * @param imageUrl Remote picture link
+         */
         public void setAvatar(String name, String imageUrl) {
             this.initials = extractInitials(name);
             loadImageFromUrl(imageUrl);
         }
 
+        /**
+         * Asynchronously downloads and parses the image bitmap on a background worker thread.
+         *
+         * @param rawUrl Unparsed image URL
+         */
         public void loadImageFromUrl(String rawUrl) {
             if (rawUrl == null || rawUrl.trim().isEmpty() || !rawUrl.startsWith("http")) {
                 this.loadedImage = null;
@@ -136,6 +187,12 @@ public class ProfileAvatarCard extends JPanel {
             worker.execute();
         }
 
+        /**
+         * Converts standard Google Drive view/preview URLs into direct thumbnail image endpoints.
+         *
+         * @param url Original web address
+         * @return Direct image stream URL or original string
+         */
         private String convertToDirectImageUrl(String url) {
             if (url.contains("drive.google.com")) {
                 Pattern pattern = Pattern.compile("/file/d/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)");
@@ -148,6 +205,12 @@ public class ProfileAvatarCard extends JPanel {
             return url;
         }
 
+        /**
+         * Extracts a two-letter uppercase monogram from a person's full name.
+         *
+         * @param name Student full name
+         * @return Two-character uppercase initial string
+         */
         private String extractInitials(String name) {
             if (name == null || name.trim().isEmpty()) return "UG";
             String[] parts = name.trim().split("\\s+");
@@ -157,6 +220,9 @@ public class ProfileAvatarCard extends JPanel {
             return name.substring(0, Math.min(2, name.length())).toUpperCase();
         }
 
+        /**
+         * Renders the circular clipped image bitmap or the centered initial monogram fallback.
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -167,9 +233,11 @@ public class ProfileAvatarCard extends JPanel {
             Shape circle = new Ellipse2D.Float(0, 0, size, size);
 
             if (loadedImage != null) {
+                // Clip rendering surface to circular geometry and draw bitmap
                 g2.setClip(circle);
                 g2.drawImage(loadedImage, 0, 0, size, size, null);
             } else {
+                // Fallback: draw circular forest green background and centered monogram text
                 g2.setColor(AdminTheme.FOREST_GREEN);
                 g2.fill(circle);
                 g2.setColor(Color.WHITE);

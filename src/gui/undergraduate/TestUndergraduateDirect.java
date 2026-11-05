@@ -4,11 +4,12 @@ import javax.swing.*;
 
 /**
  * Developer utility to bypass login and instantly launch the Undergraduate Dashboard.
- * Allows selecting from different test undergraduates.
+ * Allows selecting from different test undergraduates seeded in the database
+ * to verify view coordinators, dashboard cards, and component data-bindings directly.
  */
 public class TestUndergraduateDirect {
 
-    // SRS එකේ සහ Database එකේ ඉන්න test undergraduates ලා
+    // Test undergraduate account records present in the test database and SRS specification
     private static final Object[][] TEST_STUDENTS = {
             {24L, "tg2074", "Piumi Senanayake", "tg2074@fot.ruh.ac.lk"},
             {25L, "tg2076", "Thilini Kumari",   "tg2076@fot.ruh.ac.lk"},
@@ -17,15 +18,23 @@ public class TestUndergraduateDirect {
             {28L, "tg2080", "Menaka Liyanage",   "tg2080@fot.ruh.ac.lk"}
     };
 
+    /**
+     * Application test entry point.
+     * Sets native operating system look-and-feel and launches the dashboard for the selected student profile.
+     *
+     * @param args Command-line execution arguments
+     */
     public static void main(String[] args) {
+        // Set native OS look-and-feel for consistent desktop rendering
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        // Execute GUI initialization safely on the Swing Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
-            // Test කරන්න ඕන student කෙනෙක්ව තෝරාගැනීම (default: 0 - Piumi)
+            // Index selector for test student account (default: 0 - Piumi Senanayake)
             int selectedIndex = 0;
 
             Object[] student = TEST_STUDENTS[selectedIndex];
@@ -37,6 +46,7 @@ public class TestUndergraduateDirect {
 
             System.out.println("[DEV] Launching Undergraduate Dashboard for: " + testFullName + " (" + testUsername + ")");
 
+            // Instantiate and display main student portal view
             UndergraduateDashboard ug = new UndergraduateDashboard(
                     testUserId,
                     testUsername,

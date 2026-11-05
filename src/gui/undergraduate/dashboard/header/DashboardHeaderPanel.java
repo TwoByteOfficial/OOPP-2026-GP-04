@@ -14,10 +14,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Top-level header component for Undergraduate Dashboard displaying student full name and TG number only.
+ * Top-level header component for Undergraduate Dashboard.
+ * Formatted with identical typography, font sizes, and 2px title-to-subtitle
+ * spacing as CoursesHeaderPanel. Renders welcome titles and student user profile badge.
  */
 public class DashboardHeaderPanel extends JPanel {
 
+    // Student profile identifier labels and avatar component references
     private final JLabel studentNameLabel;
     private final JLabel studentIdentifierLabel;
     private final HeaderAvatarCircle avatarCircle;
@@ -33,29 +36,41 @@ public class DashboardHeaderPanel extends JPanel {
     public DashboardHeaderPanel(String username, String fullName, String role, String pictureUrl) {
         setOpaque(false);
         setLayout(new BorderLayout(16, 0));
-        setBorder(new EmptyBorder(0, 0, 16, 0));
+        setBorder(new EmptyBorder(0, 0, 0, 0));
 
-        // 1. Left Welcome Titles
-        JPanel leftTitles = new JPanel(new GridLayout(2, 1, 0, 2));
+        // -------------------------------------------------------------
+        // 1. Left Welcome Titles (Exact structure matching CoursesHeaderPanel)
+        // -------------------------------------------------------------
+        JPanel leftTitles = new JPanel();
+        leftTitles.setLayout(new BoxLayout(leftTitles, BoxLayout.Y_AXIS));
         leftTitles.setOpaque(false);
+        leftTitles.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        // Uses AdminTheme.FONT_H1 to match "My Enrolled Courses" exactly
         JLabel titleLabel = new JLabel("Undergraduate Portal");
-        titleLabel.setFont(AdminTheme.font(Font.BOLD, 22));
+        titleLabel.setFont(AdminTheme.FONT_H1);
         titleLabel.setForeground(AdminTheme.DEEP_GREEN);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        // Subtitle identical to Courses header subtitle
         JLabel subtitleLabel = new JLabel("Academic performance, course attendance and notices");
         subtitleLabel.setFont(AdminTheme.font(Font.PLAIN, 13));
         subtitleLabel.setForeground(AdminTheme.MUTED);
+        subtitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         leftTitles.add(titleLabel);
+        leftTitles.add(Box.createVerticalStrut(2)); // Exact 2px vertical strut
         leftTitles.add(subtitleLabel);
         add(leftTitles, BorderLayout.WEST);
 
-        // 2. Right Student Identifier Panel
-        JPanel rightUserPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 4));
+        // -------------------------------------------------------------
+        // 2. Right Student Identifier Panel (Name, ID, and Avatar)
+        // -------------------------------------------------------------
+        JPanel rightUserPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         rightUserPanel.setOpaque(false);
 
-        JPanel userTextPanel = new JPanel(new GridLayout(2, 1, 0, 2));
+        JPanel userTextPanel = new JPanel();
+        userTextPanel.setLayout(new BoxLayout(userTextPanel, BoxLayout.Y_AXIS));
         userTextPanel.setOpaque(false);
 
         String fName = (fullName != null && !fullName.trim().isEmpty()) ? fullName.toUpperCase() : "STUDENT NAME";
@@ -65,15 +80,19 @@ public class DashboardHeaderPanel extends JPanel {
         studentNameLabel = new JLabel(fName, SwingConstants.RIGHT);
         studentNameLabel.setFont(AdminTheme.font(Font.BOLD, 14));
         studentNameLabel.setForeground(AdminTheme.DEEP_GREEN);
+        studentNameLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         // Bottom line: TG Username only (Plain Muted)
         studentIdentifierLabel = new JLabel(uName, SwingConstants.RIGHT);
         studentIdentifierLabel.setFont(AdminTheme.font(Font.PLAIN, 12));
         studentIdentifierLabel.setForeground(AdminTheme.MUTED);
+        studentIdentifierLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         userTextPanel.add(studentNameLabel);
+        userTextPanel.add(Box.createVerticalStrut(2));
         userTextPanel.add(studentIdentifierLabel);
 
+        // Avatar circle component handling fallback initials and remote image loading
         avatarCircle = new HeaderAvatarCircle();
         avatarCircle.setAvatarData(uName, pictureUrl);
 
@@ -114,6 +133,9 @@ public class DashboardHeaderPanel extends JPanel {
             loadImageFromUrl(imageUrl);
         }
 
+        /**
+         * Asynchronously loads avatar image from a remote URL (supporting Google Drive links) via SwingWorker.
+         */
         public void loadImageFromUrl(String rawUrl) {
             if (rawUrl == null || rawUrl.trim().isEmpty() || !rawUrl.startsWith("http")) {
                 this.loadedImage = null;
@@ -151,6 +173,9 @@ public class DashboardHeaderPanel extends JPanel {
             worker.execute();
         }
 
+        /**
+         * Converts shareable Google Drive URLs into direct thumbnail download links.
+         */
         private String convertToDirectImageUrl(String url) {
             if (url.contains("drive.google.com")) {
                 Pattern pattern = Pattern.compile("/file/d/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)");
@@ -173,9 +198,11 @@ public class DashboardHeaderPanel extends JPanel {
             Shape circle = new Ellipse2D.Float(0, 0, size, size);
 
             if (loadedImage != null) {
+                // Render clipped circular profile image
                 g2.setClip(circle);
                 g2.drawImage(loadedImage, 0, 0, size, size, null);
             } else {
+                // Render fallback colored circle badge with initials
                 g2.setColor(AdminTheme.FOREST_GREEN);
                 g2.fill(circle);
                 g2.setColor(Color.WHITE);

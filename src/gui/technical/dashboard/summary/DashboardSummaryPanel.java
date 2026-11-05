@@ -1,4 +1,3 @@
-
 package gui.technical.dashboard.summary;
 
 import dao.TechnicalOfficer.TODashboardDAO;
@@ -7,24 +6,29 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 
+/**
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel.
+ * 
+ * [OOP - POLYMORPHISM]: Holds and renders different SummaryCardPanel subclasses polymorphically.
+ * Containers accept specialized card instances via the polymorphic Component type.
+ */
 public class DashboardSummaryPanel extends JPanel {
 
+    /**
+     * Constructs the summary cards container and triggers database count queries.
+     *
+     * @param userId The database user ID of the Technical Officer
+     */
     public DashboardSummaryPanel(long userId) {
 
         setLayout(new GridLayout(1, 4, 15, 0));
         setOpaque(false);
 
-        UndergraduateSummaryCard undergraduateCard =
-                new UndergraduateSummaryCard("—");
-
-        AttendanceSummaryCard attendanceCard =
-                new AttendanceSummaryCard("—");
-
-        PendingMedicalCard medicalCard =
-                new PendingMedicalCard("—");
-
-        TodaySessionsCard sessionsCard =
-                new TodaySessionsCard("—");
+        // [OOP - POLYMORPHISM]: Instantiating specific subclasses of SummaryCardPanel
+        UndergraduateSummaryCard undergraduateCard = new UndergraduateSummaryCard("—");
+        AttendanceSummaryCard attendanceCard = new AttendanceSummaryCard("—");
+        PendingMedicalCard medicalCard = new PendingMedicalCard("—");
+        TodaySessionsCard sessionsCard = new TodaySessionsCard("—");
 
         add(undergraduateCard);
         add(attendanceCard);
@@ -40,6 +44,9 @@ public class DashboardSummaryPanel extends JPanel {
         );
     }
 
+    /**
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Queries TODashboardDAO for metrics and updates card values.
+     */
     private void loadSummaryCounts(
             long userId,
             UndergraduateSummaryCard undergraduateCard,
@@ -51,28 +58,19 @@ public class DashboardSummaryPanel extends JPanel {
 
         try {
             undergraduateCard.setValue(
-                    String.valueOf(
-                            dashboardDAO.getDepartmentUndergraduateCount(userId)
-                    )
+                    String.valueOf(dashboardDAO.getDepartmentUndergraduateCount(userId))
             );
 
             attendanceCard.setValue(
-                    String.valueOf(
-                            dashboardDAO.getAttendanceProfileCount(userId)
-                    )
+                    String.valueOf(dashboardDAO.getAttendanceProfileCount(userId))
             );
 
             medicalCard.setValue(
-                    String.valueOf(
-                            dashboardDAO.getPendingMedicalCount(userId)
-                    )
+                    String.valueOf(dashboardDAO.getPendingMedicalCount(userId))
             );
 
-            int todaySessions =
-                    dashboardDAO.getTodaySessionsCount(userId);
-
+            int todaySessions = dashboardDAO.getTodaySessionsCount(userId);
             sessionsCard.setValue(String.valueOf(todaySessions));
-
 
         } catch (SQLException e) {
             e.printStackTrace();

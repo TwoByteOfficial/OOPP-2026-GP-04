@@ -8,11 +8,13 @@ import java.awt.*;
 
 /**
  * 1.1.4.2 - Undergraduate Academic Performance & Medical Summary Card
- * CA Performance, Exam Status , Medicals
+ * CA Performance, Exam Status , Medicals.
+ * Displays academic standing, CA module releases, and medical approval counts.
  */
 public class AcademicOverviewPanel extends JPanel {
 
     public AcademicOverviewPanel(int totalEnrolled, int caCompleted, int approvedMedicals, int pendingMedicals) {
+        // Configure main panel layout, white background, and compound border with padding
         setLayout(new BorderLayout(0, 14));
         setBackground(AdminTheme.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
@@ -20,7 +22,9 @@ public class AcademicOverviewPanel extends JPanel {
                 new EmptyBorder(18, 20, 18, 20)
         ));
 
-        // Header Title
+        // -------------------------------------------------------------
+        // Header Title Row (Title & Semester Subtitle)
+        // -------------------------------------------------------------
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
 
@@ -36,10 +40,13 @@ public class AcademicOverviewPanel extends JPanel {
         header.add(sub, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // Content Rows
+        // -------------------------------------------------------------
+        // Content Rows (CA Progress, Approved Medicals, Pending Medicals)
+        // -------------------------------------------------------------
         JPanel items = new JPanel(new GridLayout(3, 1, 0, 10));
         items.setOpaque(false);
 
+        // Add summary rows with corresponding color-coded status highlights
         items.add(createSummaryRow("Continuous Assessment (CA)",
                 caCompleted + " of " + totalEnrolled + " Modules Released", AdminTheme.FOREST_GREEN));
         items.add(createSummaryRow("Medical Records Approved",
@@ -51,6 +58,9 @@ public class AcademicOverviewPanel extends JPanel {
         add(items, BorderLayout.CENTER);
     }
 
+    /**
+     * Factory method creating a bordered summary row with title text and color-coded detail text.
+     */
     private JPanel createSummaryRow(String titleText, String detailText, Color statusColor) {
         JPanel p = new JPanel(new BorderLayout(10, 0));
         p.setOpaque(false);

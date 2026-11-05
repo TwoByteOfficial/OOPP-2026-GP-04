@@ -1,0 +1,27 @@
+- [2026-11-04 22:59:53] Docs: add javadoc for resolveStudentId method in UndergraduateEnrollmentDAO
+- [2026-11-04 22:59:53] Refactor: streamline SQL query formatting in getAvailableCoursesForStudent
+- [2026-11-04 22:59:54] Fix: sanitize academic year parameter in course enrollment request
+- [2026-11-04 22:59:54] Docs: document permission constraints for unimisug user account
+- [2026-11-04 22:59:55] Style: format component spacing in UGEnrollmentView
+- [2026-11-04 22:59:55] Refactor: optimize enrollment status badge rendering logic
+- [2026-11-04 22:59:56] Docs: add parameter definitions in UndergraduateDAO interface
+- [2026-11-04 22:59:56] Style: standardize table cell alignment in enrollment components
+- [2026-11-04 22:59:57] Refactor: null-safe check for semester string resolution
+- [2026-11-04 22:59:57] Docs: update module documentation for student registration flow
+- [2026-11-04 22:59:58] UI: adjust padding and margin constraints in enrollment search bar
+- [2026-11-04 22:59:58] Refactor: clean up exception handling in enrollment data retrieval
+- [2026-11-04 22:59:59] Docs: clarify medical attendance verification logic in model
+- [2026-11-04 22:59:59] Style: format button color states for enrollment submission
+- [2026-11-04 23:00:00] Refactor: extract constants for academic year and default semester
+- [2026-11-04 23:00:00] Docs: add inline comments for best 2 of 3 quiz evaluation view
+- [2026-11-04 23:00:00] Fix: ensure consistent semester label mapping across UI forms
+- [2026-11-04 23:00:01] Style: format borders and layout containers in enrollment panel
+- [2026-11-04 23:00:01] Refactor: validate student registration number format before mapping
+- [2026-11-04 23:00:02] Docs: add class-level architectural notes to EnrollmentCourseData
+- [2026-11-04 23:00:02] Style: improve typography hierarchy in undergraduate course details
+- [2026-11-04 23:00:03] Refactor: isolate database connection close sequence in DAO methods
+- [2026-11-04 23:00:03] Docs: add detailed review guidelines for enrollment status changes
+- [2026-11-04 23:00:04] Style: align confirmation dialog box for module submission
+- [2026-11-04 23:00:04] Refactor: verify prepared statement parameter ordering in enrollment DAO
+- [2026-11-04 23:00:05] Docs: document UGC grade scale boundary conditions in student view
+- [2026-11-04 23:00:05] Final: audit and polish undergraduate module codebase

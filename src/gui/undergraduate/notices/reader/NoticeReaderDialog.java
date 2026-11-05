@@ -9,20 +9,31 @@ import java.awt.*;
 
 /**
  * Clean modal dialog displaying full notice body and publication metadata.
+ * Presents complete announcements, circular details, issuing authorities,
+ * and timestamped publication records in a dedicated non-resizable popup dialog.
  */
 public class NoticeReaderDialog extends JDialog {
 
+    /**
+     * Constructs the modal dialog, configures window dimensions, and initializes content sections.
+     *
+     * @param owner Parent window owner for modal centering and focus locking
+     * @param data  Notice data object containing full title, body, and metadata
+     */
     public NoticeReaderDialog(Window owner, NoticeData data) {
         super(owner, "Official Notice Details", ModalityType.APPLICATION_MODAL);
         setSize(560, 430);
         setLocationRelativeTo(owner);
         setResizable(false);
 
+        // Main content wrapper panel with white background and padded margins
         JPanel main = new JPanel(new BorderLayout(0, 14));
         main.setBackground(AdminTheme.WHITE);
         main.setBorder(new EmptyBorder(22, 24, 18, 24));
 
-        // 1. Header Area
+        // -------------------------------------------------------------
+        // 1. Header Area (Category Bulletin Tag, Title, and Publisher Meta)
+        // -------------------------------------------------------------
         JPanel head = new JPanel(new BorderLayout(0, 6));
         head.setOpaque(false);
 
@@ -43,7 +54,9 @@ public class NoticeReaderDialog extends JDialog {
         head.add(metaLbl, BorderLayout.SOUTH);
         main.add(head, BorderLayout.NORTH);
 
-        // 2. Body Text
+        // -------------------------------------------------------------
+        // 2. Body Text Area (Word-Wrapped Read-Only Notice Content)
+        // -------------------------------------------------------------
         JTextArea contentArea = new JTextArea(data.getContent());
         contentArea.setFont(AdminTheme.font(Font.PLAIN, 13));
         contentArea.setForeground(new Color(0x2B, 0x2B, 0x2B));
@@ -53,13 +66,16 @@ public class NoticeReaderDialog extends JDialog {
         contentArea.setOpaque(false);
         contentArea.setBorder(new EmptyBorder(8, 0, 8, 0));
 
+        // Scroll pane container with subtle top and bottom dividers
         JScrollPane scroll = new JScrollPane(contentArea);
         scroll.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(0xEAEAEA)));
         scroll.setOpaque(false);
         scroll.getViewport().setOpaque(false);
         main.add(scroll, BorderLayout.CENTER);
 
-        // 3. Footer Close Button
+        // -------------------------------------------------------------
+        // 3. Footer Area (Close Bulletin Action Button)
+        // -------------------------------------------------------------
         JPanel foot = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         foot.setOpaque(false);
 
@@ -72,6 +88,9 @@ public class NoticeReaderDialog extends JDialog {
         closeBtn.addActionListener(e -> dispose());
         foot.add(closeBtn);
 
+        // -------------------------------------------------------------
+        // Assemble Dialog Content Pane
+        // -------------------------------------------------------------
         main.add(foot, BorderLayout.SOUTH);
         setContentPane(main);
     }

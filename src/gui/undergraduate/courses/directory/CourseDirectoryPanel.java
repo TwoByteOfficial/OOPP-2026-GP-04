@@ -7,131 +7,184 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Registered modules list table connected dynamically to MySQL database.
- * Optimized column widths and cell alignments to avoid text truncation.
+ * Directory table panel for enrolled courses.
+ * Dynamically resizes the white card to tightly wrap the exact table row count,
+ * eliminating trailing empty white voids.
  */
 public class CourseDirectoryPanel extends JPanel {
 
-    private static final int CORNER_RADIUS = 16;
-    private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
+    // Table and UI layout components
+    private final JTable table;
+    private final DefaultTableModel model;
+    private final JScrollPane scrollPane;
+    private final JPanel card;
+    private List<EnrolledCourseDTO> courseList = new ArrayList<>();
+    private final Consumer<String> onSelectCourse;
 
-    private final JTable coursesTable;
-    private final DefaultTableModel tableModel;
-
-    public CourseDirectoryPanel(Consumer<String> onCourseSelected) {
+    /**
+     * Initializes the directory table and its card container with event listeners.
+     */
+    public CourseDirectoryPanel(Consumer<String> onSelectCourse) {
+        this.onSelectCourse = onSelectCourse;
+        setLayout(new BorderLayout());
         setOpaque(false);
-        setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(16, 18, 16, 18));
 
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setOpaque(false);
-
-        JLabel cardTitle = new JLabel("Registered Module Directory");
-        cardTitle.setFont(AdminTheme.font(Font.BOLD, 15));
-        cardTitle.setForeground(AdminTheme.FOREST_GREEN);
-
-        JLabel helperText = new JLabel("Click any module to inspect criteria");
-        helperText.setFont(AdminTheme.font(Font.PLAIN, 12));
-        helperText.setForeground(AdminTheme.MUTED);
-
-        titlePanel.add(cardTitle, BorderLayout.WEST);
-        titlePanel.add(helperText, BorderLayout.EAST);
-        add(titlePanel, BorderLayout.NORTH);
-
-        String[] columns = {"Code", "Course Name", "Credits", "Type"};
-        tableModel = new DefaultTableModel(columns, 0) {
+        // -------------------------------------------------------------
+        // 1. Outer Card Container (Custom Rounded White Card)
+        // -------------------------------------------------------------
+        card = new JPanel(new BorderLayout(0, 10)) {
             @Override
-            public boolean isCellEditable(int row, int column) {
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Draw rounded white card background
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 14, 14);
+                // Draw subtle border outline
+                g2.setColor(new Color(225, 235, 228));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 14, 14);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        card.setOpaque(false);
+        card.setBorder(new EmptyBorder(14, 16, 14, 16));
+
+        // -------------------------------------------------------------
+        // 2. Header Caption Row (Section Title & Helper Hint)
+        // -------------------------------------------------------------
+        JPanel tableTitleRow = new JPanel(new BorderLayout(15, 0));
+        tableTitleRow.setOpaque(false);
+
+        JLabel tableTitle = new JLabel("Registered Module Directory");
+        tableTitle.setFont(AdminTheme.font(Font.BOLD, 14));
+        tableTitle.setForeground(AdminTheme.DEEP_GREEN);
+
+        JLabel tableHint = new JLabel("Click any module to inspect criteria");
+        tableHint.setFont(AdminTheme.font(Font.PLAIN, 12));
+        tableHint.setForeground(new Color(110, 130, 120));
+
+        tableTitleRow.add(tableTitle, BorderLayout.WEST);
+        tableTitleRow.add(tableHint, BorderLayout.EAST);
+        card.add(tableTitleRow, BorderLayout.NORTH);
+
+        // -------------------------------------------------------------
+        // 3. Table Model & Properties Configuration
+        // -------------------------------------------------------------
+        String[] columns = {"Code", "Course Name", "Credits", "Type"};
+        model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                // Read-only directory table; prevent cell editing
                 return false;
             }
         };
 
-        coursesTable = new JTable(tableModel);
-        coursesTable.setFont(AdminTheme.font(Font.PLAIN, 13));
-        coursesTable.setRowHeight(36);
-        coursesTable.setShowGrid(false);
-        coursesTable.setIntercellSpacing(new Dimension(0, 0));
-        coursesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        coursesTable.setSelectionBackground(AdminTheme.PASTEL_GREEN);
-        coursesTable.setSelectionForeground(AdminTheme.DEEP_GREEN);
-        coursesTable.setFocusable(false); // Removes the cell focus outline box
+        table = new JTable(model);
+        table.setRowHeight(38);
+        table.setFont(AdminTheme.font(Font.PLAIN, 13));
+        table.setForeground(new Color(30, 41, 59));
+        table.setGridColor(new Color(230, 240, 235));
+        table.setShowVerticalLines(false);
+        table.setSelectionBackground(new Color(220, 245, 230));
+        table.setSelectionForeground(new Color(27, 67, 50));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        JTableHeader header = coursesTable.getTableHeader();
-        header.setFont(AdminTheme.font(Font.BOLD, 12));
-        header.setBackground(AdminTheme.MINT);
-        header.setForeground(AdminTheme.DEEP_GREEN);
-        header.setPreferredSize(new Dimension(0, 34));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xD2, 0xD7, 0xE1)));
+        // Table header visual styling
+        table.getTableHeader().setFont(AdminTheme.font(Font.BOLD, 13));
+        table.getTableHeader().setBackground(new Color(225, 240, 230));
+        table.getTableHeader().setForeground(AdminTheme.DEEP_GREEN);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 36));
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 225, 210)));
 
-        // Optimized Column Width Allocation
-        coursesTable.getColumnModel().getColumn(0).setPreferredWidth(68);  // Code
-        coursesTable.getColumnModel().getColumn(1).setPreferredWidth(240); // Course Name (extra width)
-        coursesTable.getColumnModel().getColumn(2).setPreferredWidth(52);  // Credits
-        coursesTable.getColumnModel().getColumn(3).setPreferredWidth(65);  // Type
-
-        // Alignments: Left for Code & Name
-        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setBorder(new EmptyBorder(0, 8, 0, 8));
-        coursesTable.getColumnModel().getColumn(0).setCellRenderer(leftRenderer);
-        coursesTable.getColumnModel().getColumn(1).setCellRenderer(leftRenderer);
-
-        // Center alignment for Credits & Type
+        // -------------------------------------------------------------
+        // 4. Column Widths & Custom Renderers
+        // -------------------------------------------------------------
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        coursesTable.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
-        coursesTable.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
-        coursesTable.getSelectionModel().addListSelectionListener(e -> {
+        table.getColumnModel().getColumn(0).setPreferredWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(250);
+
+        // Center align Credits column
+        table.getColumnModel().getColumn(2).setPreferredWidth(70);
+        table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+
+        // Custom styled green badge renderer for course Type
+        table.getColumnModel().getColumn(3).setPreferredWidth(100);
+        table.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean isSel, boolean hasFocus, int r, int c) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(t, val, isSel, hasFocus, r, c);
+                label.setHorizontalAlignment(JLabel.CENTER);
+                label.setFont(AdminTheme.font(Font.BOLD, 12));
+                label.setForeground(new Color(46, 125, 50));
+                return label;
+            }
+        });
+
+        // Row selection listener to notify subscriber of selected course code
+        table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int selectedRow = coursesTable.getSelectedRow();
-                if (selectedRow != -1 && onCourseSelected != null) {
-                    onCourseSelected.accept((String) coursesTable.getValueAt(selectedRow, 0));
+                int row = table.getSelectedRow();
+                if (row >= 0 && row < courseList.size() && onSelectCourse != null) {
+                    onSelectCourse.accept(courseList.get(row).courseCode);
                 }
             }
         });
 
-        JScrollPane tableScroll = new JScrollPane(coursesTable);
-        tableScroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
-        tableScroll.getViewport().setBackground(AdminTheme.WHITE);
-        tableScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        // ScrollPane wrapper without default thick borders
+        scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 235, 225), 1));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        card.add(scrollPane, BorderLayout.CENTER);
 
-        add(tableScroll, BorderLayout.CENTER);
+        // Anchored to NORTH so the card wraps the table height and stops immediately after the last row
+        add(card, BorderLayout.NORTH);
     }
 
+    /**
+     * Binds enrolled courses data from database DTO list into the table.
+     * Dynamically calculates exact container height to eliminate bottom dead space.
+     */
     public void setCourses(List<EnrolledCourseDTO> courses) {
-        tableModel.setRowCount(0);
+        this.courseList = courses;
+        model.setRowCount(0);
+
+        // Populate rows with course data
         for (EnrolledCourseDTO c : courses) {
-            tableModel.addRow(new Object[]{
+            String typeDisplay = "Normal".equalsIgnoreCase(c.enrollmentType) ? "Core" : c.enrollmentType;
+            model.addRow(new Object[]{
                     c.courseCode,
                     c.courseName,
-                    String.valueOf(c.totalCredits),
-                    c.enrollmentType
+                    c.totalCredits,
+                    typeDisplay
             });
         }
-        selectFirstRow();
-    }
 
-    public void selectFirstRow() {
-        if (coursesTable.getRowCount() > 0) {
-            coursesTable.setRowSelectionInterval(0, 0);
+        // Dynamically size scrollpane to exact height of rows and header
+        int headerHeight = 36;
+        int rowHeight = 38;
+        int rowCount = Math.max(courses.size(), 1);
+        int totalHeight = headerHeight + (rowCount * rowHeight) + 2;
+
+        scrollPane.setPreferredSize(new Dimension(scrollPane.getPreferredSize().width, totalHeight));
+        scrollPane.setMinimumSize(new Dimension(0, totalHeight));
+        scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, totalHeight));
+
+        // Auto-select first course record if data is present
+        if (!courses.isEmpty()) {
+            table.setRowSelectionInterval(0, 0);
         }
-    }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(AdminTheme.WHITE);
-        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
-        g2.setColor(CARD_BORDER_COLOR);
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
-        g2.dispose();
-        super.paintComponent(g);
+        revalidate();
+        repaint();
     }
 }

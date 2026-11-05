@@ -1,4 +1,3 @@
-
 package gui.technical.dashboard.overview;
 
 import dao.TechnicalOfficer.TODashboardDAO;
@@ -9,8 +8,18 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.SQLException;
 
+/**
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the Attendance Overview widget.
+ * 
+ * [OOP - ABSTRACTION]: Uses TODashboardDAO to aggregate and display department attendance metrics.
+ */
 public class AttendanceOverviewPanel extends JPanel {
 
+    /**
+     * Constructs the Attendance Overview panel.
+     *
+     * @param userId The database user ID of the Technical Officer
+     */
     public AttendanceOverviewPanel(long userId) {
 
         setLayout(new BorderLayout(0, 12));
@@ -20,13 +29,13 @@ public class AttendanceOverviewPanel extends JPanel {
         JLabel heading = new JLabel("Attendance Overview");
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
-
         add(heading, BorderLayout.NORTH);
 
         JPanel content = new JPanel();
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
+        // [OOP - ABSTRACTION]: Delegating attendance calculation to TODashboardDAO
         try {
             TODashboardDAO dao = new TODashboardDAO();
             int[] counts = dao.getAttendanceOverview(userId);
@@ -40,17 +49,18 @@ public class AttendanceOverviewPanel extends JPanel {
         } catch (SQLException e) {
             e.printStackTrace();
 
-            JLabel error = new JLabel(
-                    "Unable to load attendance statistics.");
+            JLabel error = new JLabel("Unable to load attendance statistics.");
             error.setFont(UniMisTheme.FONT_BODY_BOLD);
             error.setForeground(UniMisTheme.PRIMARY_DARK);
-
             content.add(error);
         }
 
         add(content, BorderLayout.CENTER);
     }
 
+    /**
+     * [OOP - ENCAPSULATION]: Private helper method creating styled statistic labels.
+     */
     private void addStat(JPanel panel, String label, int count) {
 
         JLabel stat = new JLabel(label + count);

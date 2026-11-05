@@ -743,8 +743,8 @@ SELECT
             FROM grade_scales gs
             WHERE gs.minimum_mark <= ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2)
             ORDER BY gs.minimum_mark DESC LIMIT 1
-        )
-        END AS grade,
+    )
+END AS grade,
     CASE
         WHEN COALESCE(att.adjusted_attendance_percent, 0) < 80
             OR COALESCE(ca.ca_eligibility, 'Not Eligible') <> 'Eligible' THEN 0.00
@@ -754,7 +754,7 @@ SELECT
             WHERE gs.minimum_mark <= ROUND(COALESCE(ca.ca_mark, 0) + COALESCE(fe.final_exam_contribution, 0), 2)
             ORDER BY gs.minimum_mark DESC LIMIT 1
         )
-        END AS grade_point
+END AS grade_point
 FROM enrollments e
          JOIN undergraduates ug ON e.student_id = ug.user_id
          JOIN users usr ON ug.user_id = usr.user_id
@@ -1088,11 +1088,11 @@ SELECT
     (SELECT cl.lecturer_id FROM course_lecturers cl WHERE cl.course_id = c.course_id LIMIT 1),
     CONCAT('Theory Session ', n.n)
 FROM courses c
-         CROSS JOIN (
+    CROSS JOIN (
     SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
     UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10
     UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15
-) n
+    ) n
 WHERE c.theory_credits > 0;
 
 INSERT INTO attendance_sessions (course_id, component, session_no, session_date, start_time, end_time, duration_hours, conducted_by, topic)
@@ -1103,11 +1103,11 @@ SELECT
     (SELECT cl.lecturer_id FROM course_lecturers cl WHERE cl.course_id = c.course_id LIMIT 1),
     CONCAT('Practical Session ', n.n)
 FROM courses c
-         CROSS JOIN (
+    CROSS JOIN (
     SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
     UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10
     UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15
-) n
+    ) n
 WHERE c.practical_credits > 0;
 
 -- 5.11 Attendance Records
@@ -1121,7 +1121,7 @@ SELECT
         END,
     (SELECT user_id FROM technical_officers LIMIT 1)
 FROM attendance_sessions ats
-         JOIN enrollments e ON e.course_id = ats.course_id;
+    JOIN enrollments e ON e.course_id = ats.course_id;
 
 -- 5.12 Medical Records
 INSERT INTO medicals (student_id, course_id, attendance_record_id, medical_date, reason, approval_status, reviewed_by, reviewed_at, review_comment)
@@ -1130,14 +1130,14 @@ SELECT
     'Medical leave - certified illness', 'Approved',
     (SELECT user_id FROM technical_officers LIMIT 1), NOW(), 'Medical document verified'
 FROM enrollments e
-         JOIN attendance_sessions ats ON ats.course_id = e.course_id
-         JOIN attendance_records ar ON ar.attendance_session_id = ats.attendance_session_id AND ar.student_id = e.student_id
+    JOIN attendance_sessions ats ON ats.course_id = e.course_id
+    JOIN attendance_records ar ON ar.attendance_session_id = ats.attendance_session_id AND ar.student_id = e.student_id
 WHERE ar.attendance_status = 'ABSENT' AND MOD(e.student_id, 5) = 0
-LIMIT 10;
+    LIMIT 10;
 
 UPDATE attendance_records ar
     JOIN medicals m ON m.attendance_record_id = ar.attendance_record_id
-SET ar.attendance_status = 'MEDICAL'
+    SET ar.attendance_status = 'MEDICAL'
 WHERE ar.attendance_record_id > 0 AND m.approval_status = 'Approved';
 
 -- 5.13 Student Marks Seed (including 3 quizzes per student per course)
@@ -1157,7 +1157,7 @@ SELECT
         END,
     (SELECT cl.lecturer_id FROM course_lecturers cl WHERE cl.course_id = a.course_id LIMIT 1)
 FROM assessments a
-         JOIN enrollments e ON e.course_id = a.course_id;
+    JOIN enrollments e ON e.course_id = a.course_id;
 
 -- 5.14 System Notices
 -- FIXED: CA Eligibility Notice wording - 40% of the course CA weight
@@ -1504,10 +1504,10 @@ UPDATE attendance_records ar
     JOIN courses c ON c.course_id = ats.course_id
     JOIN users u ON u.user_id = ar.student_id
     JOIN tmp_att_plan p ON p.username = u.username
-        AND p.course_code = c.course_code
-        AND p.component = ats.component
-        AND ats.session_no BETWEEN p.session_from AND p.session_to
-SET ar.attendance_status = p.att_status;
+    AND p.course_code = c.course_code
+    AND p.component = ats.component
+    AND ats.session_no BETWEEN p.session_from AND p.session_to
+    SET ar.attendance_status = p.att_status;
 
 -- One medicals row per MEDICAL session in the plan, with the planned approval status.
 -- Pending rows have no reviewer yet; Approved / Rejected rows are reviewed by a technical officer.
@@ -1527,7 +1527,7 @@ SELECT
         WHEN 'Approved' THEN 'Medical document verified'
         WHEN 'Rejected' THEN 'Medical certificate does not cover the session date'
         ELSE NULL
-        END
+END
 FROM tmp_att_plan p
          JOIN users u ON u.username = p.username
          JOIN courses c ON c.course_code = p.course_code
@@ -1579,13 +1579,13 @@ UPDATE marks m
     JOIN courses c ON c.course_id = a.course_id
     JOIN users u ON u.user_id = m.student_id
     JOIN tmp_mark_plan p ON p.username = u.username AND p.course_code = c.course_code
-SET m.mark = CASE
-                 WHEN a.assessment_type IN ('Quiz1', 'Quiz2', 'Quiz3') THEN p.quiz_mark
-                 WHEN a.assessment_type = 'Assignment' THEN p.assignment_mark
-                 WHEN a.assessment_type IN ('Mid Exam Theory', 'Mid Exam Practical') THEN p.mid_mark
-                 WHEN a.assessment_type IN ('End Exam Theory', 'End Exam Practical') THEN p.final_mark
-                 ELSE m.mark
-    END;
+    SET m.mark = CASE
+        WHEN a.assessment_type IN ('Quiz1', 'Quiz2', 'Quiz3') THEN p.quiz_mark
+        WHEN a.assessment_type = 'Assignment' THEN p.assignment_mark
+        WHEN a.assessment_type IN ('Mid Exam Theory', 'Mid Exam Practical') THEN p.mid_mark
+        WHEN a.assessment_type IN ('End Exam Theory', 'End Exam Practical') THEN p.final_mark
+        ELSE m.mark
+END;
 
 DROP TEMPORARY TABLE tmp_mark_plan;
 

@@ -1,4 +1,3 @@
-
 package gui.technical;
 
 import dao.TechnicalOfficer.MedicalDAO;
@@ -9,12 +8,21 @@ import dao.TechnicalOfficer.AttendanceDAO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
+import java.net.URI;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the medical records management view.
+ * 
+ * [OOP - ABSTRACTION]: Uses MedicalDAO and AttendanceDAO to fetch, search, and approve/reject
+ * medical submissions without writing SQL queries or managing database connections in the UI.
+ */
 public class MedicalRecordsPanel extends JPanel {
 
-
+    // [OOP - ENCAPSULATION]: Private UI components and state
     private final DefaultTableModel tableModel;
     private final JTable medicalTable;
     private final JComboBox<String> statusFilter;
@@ -22,8 +30,13 @@ public class MedicalRecordsPanel extends JPanel {
     private final JTextField searchField;
     private final long userId;
 
+    private List<Medical> currentRecords = new ArrayList<>();
 
-
+    /**
+     * Constructs the Medical Records panel.
+     *
+     * @param userId The database user ID of the logged-in Technical Officer
+     */
     public MedicalRecordsPanel(long userId) {
         this.userId = userId;
 
@@ -31,6 +44,7 @@ public class MedicalRecordsPanel extends JPanel {
         setBackground(UniMisTheme.LIGHT_BG);
         setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
 
+        // Header section: Title and Refresh button
         JLabel title = new JLabel("Medical Records");
         title.setFont(UniMisTheme.FONT_H2);
         title.setForeground(UniMisTheme.TEXT);
@@ -39,36 +53,39 @@ public class MedicalRecordsPanel extends JPanel {
         refreshButton.setFont(UniMisTheme.FONT_BODY);
         refreshButton.setBackground(UniMisTheme.MEDIUM_GREEN);
         refreshButton.setForeground(UniMisTheme.TEXT);
+        // [OOP - INTERFACE]: java.awt.event.ActionListener via lambda
         refreshButton.addActionListener(e -> loadMedicalRecords());
 
-
+        // Status filter dropdown
         statusFilter = new JComboBox<>(new String[]{
                 "All", "Pending", "Approved", "Rejected"
         });
         statusFilter.setFont(UniMisTheme.FONT_SMALL);
 
+        // Course filter dropdown populated dynamically from the database
         courseFilter = new JComboBox<>();
         courseFilter.setFont(UniMisTheme.FONT_SMALL);
 
+        // Search text input
         searchField = new JTextField(15);
         searchField.setFont(UniMisTheme.FONT_SMALL);
         searchField.setToolTipText(
                 "Search registration number, student name, or course code"
         );
 
+        // [OOP - INTERFACE]: ActionListeners on filters
         statusFilter.addActionListener(e -> loadMedicalRecords());
         courseFilter.addActionListener(e -> loadMedicalRecords());
         searchField.addActionListener(e -> loadMedicalRecords());
 
+        // Assemble filter bar layout
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setOpaque(false);
 
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel filterPanel = new JPanel(
-                new FlowLayout(FlowLayout.LEFT, 8, 5)
-        );
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
         filterPanel.setOpaque(false);
         filterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -85,32 +102,7 @@ public class MedicalRecordsPanel extends JPanel {
         header.add(filterPanel);
         add(header, BorderLayout.NORTH);
 
-
-
-
-
-
-
-
-
-
-        courseFilter.setFont(UniMisTheme.FONT_SMALL);
-
-
-        searchField.setFont(UniMisTheme.FONT_SMALL);
-        searchField.setToolTipText(
-                "Search registration number, student name, or course code"
-        );
-
-//        statusFilter.addActionListener(e -> loadMedicalRecords());
-//        courseFilter.addActionListener(e -> loadMedicalRecords());
-//
-//        searchField.addActionListener(e -> loadMedicalRecords());
-
-
-
-
-
+        // Configure table column headers
         String[] columns = {
                 "Medical ID",
                 "Registration No",
@@ -122,6 +114,9 @@ public class MedicalRecordsPanel extends JPanel {
                 "Status"
         };
 
+        // [OOP - INHERITANCE & POLYMORPHISM (OVERRIDING)]:
+        // Anonymous subclass of DefaultTableModel overriding isCellEditable()
+        // to disable inline table editing dynamically at runtime.
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -132,19 +127,17 @@ public class MedicalRecordsPanel extends JPanel {
         medicalTable = new JTable(tableModel);
         medicalTable.setFont(UniMisTheme.FONT_SMALL);
         medicalTable.setRowHeight(30);
-        medicalTable.getTableHeader().setFont(
-                UniMisTheme.FONT_BODY_BOLD);
-        medicalTable.getTableHeader().setBackground(
-                UniMisTheme.PASTEL_GREEN);
-        medicalTable.setSelectionBackground(
-                UniMisTheme.FRESH_GREEN);
+        medicalTable.getTableHeader().setFont(UniMisTheme.FONT_BODY_BOLD);
+        medicalTable.getTableHeader().setBackground(UniMisTheme.PASTEL_GREEN);
+        medicalTable.setSelectionBackground(UniMisTheme.FRESH_GREEN);
 
+        // [OOP - INTERFACE & INHERITANCE]: MouseAdapter implements MouseListener interface;
+        // mouseClicked is overridden to detect double clicks.
         medicalTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int row = medicalTable.getSelectedRow();
-
                     if (row != -1) {
                         showMedicalDetails(medicalTable.convertRowIndexToModel(row));
                     }
@@ -153,22 +146,22 @@ public class MedicalRecordsPanel extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(medicalTable);
-        scrollPane.setBorder(
-                BorderFactory.createLineBorder(UniMisTheme.BORDER));
-
+        scrollPane.setBorder(BorderFactory.createLineBorder(UniMisTheme.BORDER));
         add(scrollPane, BorderLayout.CENTER);
+
+        // Action buttons: Approve and Reject at bottom
         JButton approveButton = new JButton("Approve Selected");
         approveButton.setFont(UniMisTheme.FONT_BODY);
         approveButton.setBackground(UniMisTheme.MEDIUM_GREEN);
         approveButton.setForeground(UniMisTheme.TEXT);
-
+        // [OOP - INTERFACE]: ActionListener lambda
         approveButton.addActionListener(e -> approveSelectedMedical());
 
         JButton rejectButton = new JButton("Reject Selected");
         rejectButton.setFont(UniMisTheme.FONT_BODY);
         rejectButton.setBackground(UniMisTheme.DANGER);
         rejectButton.setForeground(Color.WHITE);
-
+        // [OOP - INTERFACE]: ActionListener lambda
         rejectButton.addActionListener(e -> rejectSelectedMedical());
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -178,42 +171,40 @@ public class MedicalRecordsPanel extends JPanel {
 
         add(bottomPanel, BorderLayout.SOUTH);
 
+        // Initial data load: populate courses then load matching medical records
         loadCourses();
         loadMedicalRecords();
     }
 
-
+    /**
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method loading data through MedicalDAO.
+     */
     private void loadMedicalRecords() {
         tableModel.setRowCount(0);
 
         try {
-            String selectedStatus =
-                    statusFilter.getSelectedItem().toString();
+            String selectedStatus = statusFilter.getSelectedItem().toString();
 
-            String selectedCourse =
-                    courseFilter.getSelectedItem() == null
-                            ? "All Courses"
-                            : courseFilter.getSelectedItem().toString();
+            String selectedCourse = courseFilter.getSelectedItem() == null
+                    ? "All Courses"
+                    : courseFilter.getSelectedItem().toString();
 
             int courseId = 0;
-
             if (!selectedCourse.equals("All Courses")) {
-                java.util.Map<String, Integer> courses =
-                        new MedicalDAO().getAllCourses();
-
+                java.util.Map<String, Integer> courses = new MedicalDAO().getAllCourses();
                 courseId = courses.get(selectedCourse);
             }
 
             String searchText = searchField.getText();
 
-            List<Medical> records =
-                    new MedicalDAO().searchMedicalRecords(
-                            selectedStatus,
-                            courseId,
-                            searchText
-                    );
+            currentRecords = new MedicalDAO().searchMedicalRecords(
+                    selectedStatus,
+                    courseId,
+                    searchText
+            );
 
-            for (Medical medical : records) {
+            // Add each record as a table row
+            for (Medical medical : currentRecords) {
                 tableModel.addRow(new Object[]{
                         medical.getMedicalId(),
                         medical.getRegistrationNo(),
@@ -236,10 +227,10 @@ public class MedicalRecordsPanel extends JPanel {
         }
     }
 
-
-
+    /**
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method encapsulating approval workflow.
+     */
     private void approveSelectedMedical() {
-
         int selectedRow = medicalTable.getSelectedRow();
 
         if (selectedRow == -1) {
@@ -271,13 +262,11 @@ public class MedicalRecordsPanel extends JPanel {
         );
 
         if (comment == null) {
-            return;
+            return; // User clicked Cancel
         }
 
         try {
-            long medicalId = Long.parseLong(
-                    tableModel.getValueAt(modelRow, 0).toString()
-            );
+            long medicalId = Long.parseLong(tableModel.getValueAt(modelRow, 0).toString());
 
             boolean success = new AttendanceDAO().approveMedical(
                     medicalId,
@@ -290,7 +279,7 @@ public class MedicalRecordsPanel extends JPanel {
                         this,
                         "Medical record approved successfully."
                 );
-                loadMedicalRecords();
+                loadMedicalRecords(); // Refresh table view
             }
 
         } catch (SQLException ex) {
@@ -303,9 +292,10 @@ public class MedicalRecordsPanel extends JPanel {
         }
     }
 
-
+    /**
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method encapsulating rejection workflow.
+     */
     private void rejectSelectedMedical() {
-
         int selectedRow = medicalTable.getSelectedRow();
 
         if (selectedRow == -1) {
@@ -337,7 +327,7 @@ public class MedicalRecordsPanel extends JPanel {
         );
 
         if (comment == null) {
-            return;
+            return; // User clicked Cancel
         }
 
         if (comment.trim().isEmpty()) {
@@ -351,9 +341,7 @@ public class MedicalRecordsPanel extends JPanel {
         }
 
         try {
-            long medicalId = Long.parseLong(
-                    tableModel.getValueAt(modelRow, 0).toString()
-            );
+            long medicalId = Long.parseLong(tableModel.getValueAt(modelRow, 0).toString());
 
             boolean success = new AttendanceDAO().rejectMedical(
                     medicalId,
@@ -387,11 +375,14 @@ public class MedicalRecordsPanel extends JPanel {
         }
     }
 
-
-
-
-
+    /**
+     * [OOP - ENCAPSULATION]: Private method building the modal dialog for detailed view,
+     * showing record fields, document path, and a button to view the document/image.
+     */
     private void showMedicalDetails(int row) {
+        String docPath = (row >= 0 && row < currentRecords.size())
+                ? currentRecords.get(row).getDocumentPath()
+                : "";
 
         String details =
                 "Medical ID: " + tableModel.getValueAt(row, 0) + "\n\n" +
@@ -401,7 +392,8 @@ public class MedicalRecordsPanel extends JPanel {
                         "Course Name: " + tableModel.getValueAt(row, 4) + "\n\n" +
                         "Medical Date: " + tableModel.getValueAt(row, 5) + "\n\n" +
                         "Reason: " + tableModel.getValueAt(row, 6) + "\n\n" +
-                        "Status: " + tableModel.getValueAt(row, 7);
+                        "Status: " + tableModel.getValueAt(row, 7) + "\n\n" +
+                        "Document Path: " + (docPath == null || docPath.isBlank() ? "No document attached" : docPath);
 
         JTextArea textArea = new JTextArea(details);
         textArea.setEditable(false);
@@ -414,23 +406,59 @@ public class MedicalRecordsPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setPreferredSize(new Dimension(500, 350));
 
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        JButton viewDocButton = new JButton("View Document / Image");
+        viewDocButton.setFont(UniMisTheme.FONT_BODY);
+        viewDocButton.addActionListener(e -> openDocument(docPath));
+        panel.add(viewDocButton, BorderLayout.SOUTH);
+
         JOptionPane.showMessageDialog(
                 this,
-                scrollPane,
+                panel,
                 "Medical Record Details",
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
 
+    /**
+     * Opens the medical document, image, or URL in the default application or web browser.
+     */
+    private void openDocument(String path) {
+        if (path == null || path.isBlank() || path.equalsIgnoreCase("null")) {
+            JOptionPane.showMessageDialog(this, "No document attached to this medical record.");
+            return;
+        }
 
+        try {
+            if (path.startsWith("http://") || path.startsWith("https://")) {
+                Desktop.getDesktop().browse(new URI(path.trim()));
+            } else {
+                File file = new File(path.trim());
+                if (!file.exists()) {
+                    file = new File(System.getProperty("user.dir"), path.trim());
+                }
+                if (file.exists()) {
+                    Desktop.getDesktop().open(file);
+                } else {
+                    JOptionPane.showMessageDialog(this, "File not found on disk at:\n" + file.getAbsolutePath());
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Could not open document:\n" + ex.getMessage());
+        }
+    }
+
+    /**
+     * Loads all courses from the database to populate the course filter combo box.
+     */
     private void loadCourses() {
         try {
             courseFilter.removeAllItems();
             courseFilter.addItem("All Courses");
 
-            java.util.Map<String, Integer> courses =
-                    new MedicalDAO().getAllCourses();
-
+            java.util.Map<String, Integer> courses = new MedicalDAO().getAllCourses();
             for (String courseCode : courses.keySet()) {
                 courseFilter.addItem(courseCode);
             }
@@ -444,7 +472,4 @@ public class MedicalRecordsPanel extends JPanel {
             );
         }
     }
-
-
-
 }

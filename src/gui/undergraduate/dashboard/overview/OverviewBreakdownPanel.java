@@ -9,12 +9,15 @@ import java.awt.*;
 
 /**
  * Mid-section analytics cards rendering multi-colored progress bars and quick academic status.
+ * Displays attendance distribution tiers (Safe, Borderline, At-Risk) and semester quick status metrics.
  */
 public class OverviewBreakdownPanel extends JPanel {
 
+    // Card border and corner radius constants
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
+    // Attendance Distribution components
     private final JLabel modulesTotalSubLabel;
     private final JLabel safeLabel;
     private final JProgressBar safeBar;
@@ -23,17 +26,21 @@ public class OverviewBreakdownPanel extends JPanel {
     private final JLabel atRiskLabel;
     private final JProgressBar atRiskBar;
 
+    // Academic Quick Status components
     private final JLabel pendingMedLabel;
     private final JLabel caBelow40Label;
     private final JLabel weeklySlotsLabel;
 
     public OverviewBreakdownPanel() {
+        // Transparent container with a 1x2 grid layout and fixed height constraints
         setOpaque(false);
         setLayout(new GridLayout(1, 2, 14, 0));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 215));
         setPreferredSize(new Dimension(0, 215));
 
-        // 1. Left Card: Attendance Distribution
+        // -------------------------------------------------------------
+        // 1. Left Card: Attendance Distribution Breakdown
+        // -------------------------------------------------------------
         JPanel attCard = createCurvedCard();
         attCard.setLayout(new BoxLayout(attCard, BoxLayout.Y_AXIS));
 
@@ -52,21 +59,26 @@ public class OverviewBreakdownPanel extends JPanel {
         attCard.add(modulesTotalSubLabel);
         attCard.add(Box.createVerticalStrut(14));
 
+        // Safe tier progress row (>80% attendance)
         safeLabel = new JLabel("0 modules (0.0%)");
         safeBar = createBar(AdminTheme.FOREST_GREEN);
         attCard.add(createProgressRow("Above 80% (Eligibility Safe)", safeLabel, safeBar));
         attCard.add(Box.createVerticalStrut(10));
 
+        // Borderline tier progress row (Exactly 80% attendance)
         borderLabel = new JLabel("0 modules (0.0%)");
         borderBar = createBar(AdminTheme.WARNING);
         attCard.add(createProgressRow("Exactly 80% (Borderline)", borderLabel, borderBar));
         attCard.add(Box.createVerticalStrut(10));
 
+        // At-risk tier progress row (<80% attendance)
         atRiskLabel = new JLabel("0 modules (0.0%)");
         atRiskBar = createBar(AdminTheme.DANGER);
         attCard.add(createProgressRow("Below 80% (Not Eligible)", atRiskLabel, atRiskBar));
 
-        // 2. Right Card: Academic Quick Status
+        // -------------------------------------------------------------
+        // 2. Right Card: Academic Quick Status Overview
+        // -------------------------------------------------------------
         JPanel statusCard = createCurvedCard();
         statusCard.setLayout(new BoxLayout(statusCard, BoxLayout.Y_AXIS));
 
@@ -99,6 +111,9 @@ public class OverviewBreakdownPanel extends JPanel {
         add(statusCard);
     }
 
+    /**
+     * Updates analytics metrics and progress bar values based on dashboard DTO data.
+     */
     public void updateMetrics(DashboardMetricsDTO dto, int timetableSlotsCount) {
         if (dto == null) return;
         int total = dto.enrolledCount;
@@ -124,6 +139,9 @@ public class OverviewBreakdownPanel extends JPanel {
         weeklySlotsLabel.setText(timetableSlotsCount + " Sessions");
     }
 
+    /**
+     * Factory method creating a customized slender progress bar with theme colors.
+     */
     private JProgressBar createBar(Color color) {
         JProgressBar bar = new JProgressBar(0, 100);
         bar.setValue(0);
@@ -134,6 +152,9 @@ public class OverviewBreakdownPanel extends JPanel {
         return bar;
     }
 
+    /**
+     * Creates an individual progress row consisting of a header label, percentage value, and bar.
+     */
     private JPanel createProgressRow(String label, JLabel valLbl, JProgressBar bar) {
         JPanel row = new JPanel(new BorderLayout(0, 4));
         row.setOpaque(false);
@@ -157,6 +178,9 @@ public class OverviewBreakdownPanel extends JPanel {
         return row;
     }
 
+    /**
+     * Creates a status metric row featuring a vertical color indicator bar, title, and metric value.
+     */
     private JPanel createStatusRow(String label, JLabel valLbl, Color indicatorColor) {
         JPanel row = new JPanel(new BorderLayout(8, 0));
         row.setOpaque(false);
@@ -185,6 +209,9 @@ public class OverviewBreakdownPanel extends JPanel {
         return row;
     }
 
+    /**
+     * Factory method creating a rounded white card panel with custom anti-aliased border painting.
+     */
     private JPanel createCurvedCard() {
         JPanel card = new JPanel() {
             @Override

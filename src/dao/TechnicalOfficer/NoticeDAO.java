@@ -8,8 +8,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * [OOP - ABSTRACTION]: Data Access Object for retrieving campus notices.
+ * Encapsulates the SQL query filtering logic (role targeting, department matching, and expiration date checks).
+ */
 public class NoticeDAO {
 
+    /**
+     * [OOP - ABSTRACTION]: Retrieves all active notices targeted to Technical Officers.
+     *
+     * @param userId The user ID of the logged-in Technical Officer
+     * @return List of Object arrays representing notice records sorted by newest published first
+     * @throws SQLException if a database query error occurs
+     */
     public List<Object[]> getNoticesForTechnicalOfficer(
             long userId) throws SQLException {
 
@@ -30,7 +41,6 @@ public class NoticeDAO {
                         "OR n.expires_at >= NOW()) " +
                         "ORDER BY n.published_at DESC";
 
-
         try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
 
             stmt.setLong(1, userId);
@@ -38,8 +48,6 @@ public class NoticeDAO {
             try (ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-
-
                     Object[] notice = {
                             rs.getLong("notice_id"),
                             rs.getString("title"),
@@ -52,7 +60,6 @@ public class NoticeDAO {
                     };
 
                     notices.add(notice);
-
                 }
             }
         }
