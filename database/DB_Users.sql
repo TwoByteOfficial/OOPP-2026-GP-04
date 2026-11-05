@@ -159,7 +159,7 @@ GRANT SELECT ON unimis.enrollments      TO 'unimisug'@'localhost';
 -- Attendance and medical details (read-only)
 GRANT SELECT ON unimis.attendance_sessions TO 'unimisug'@'localhost';
 GRANT SELECT ON unimis.attendance_records  TO 'unimisug'@'localhost';
-GRANT SELECT ON unimis.medicals            TO 'unimisug'@'localhost';
+GRANT SELECT,INSERT ON unimis.medicals     TO 'unimisug'@'localhost';
 
 -- Timetables, notices, grading reference data (read-only)
 GRANT SELECT ON unimis.timetable_entries TO 'unimisug'@'localhost';

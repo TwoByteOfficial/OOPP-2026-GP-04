@@ -3,7 +3,14 @@ package model;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+/**
+ * Model representing a student's medical certificate submission.
+ * Technical Officers review these submissions to approve or reject student absences
+ * and automatically update the corresponding attendance record.
+ */
 public class Medical {
+
+    // [OOP - ENCAPSULATION]: Private variables to protect sensitive medical request data.
     private long medicalId;
     private long studentId;
     private int courseId;
@@ -21,67 +28,65 @@ public class Medical {
     private String courseCode;
     private String courseName;
 
+    /**
+     * Default constructor.
+     */
     public Medical() {}
 
-    public Medical(long medicalId, long studentId, int courseId, Long attendanceRecordId, Date medicalDate, String reason, String documentPath, String approvalStatus, Timestamp submittedAt, Long reviewedBy, Timestamp reviewedAt, String reviewComment) {
+    /**
+     * [OOP - POLYMORPHISM (OVERLOADING)]: Overloaded constructor providing flexible initialization.
+     */
+    public Medical(long medicalId, long studentId, int courseId, Long attendanceRecordId, 
+                   Date medicalDate, String reason, String documentPath, String approvalStatus, 
+                   Timestamp submittedAt, Long reviewedBy, Timestamp reviewedAt, String reviewComment) {
     }
 
+    // [OOP - ENCAPSULATION]: Public accessor and mutator methods (Getters/Setters).
     public long getMedicalId() { return medicalId; }
     public void setMedicalId(long medicalId) { this.medicalId = medicalId; }
+
     public long getStudentId() { return studentId; }
     public void setStudentId(long studentId) { this.studentId = studentId; }
+
     public int getCourseId() { return courseId; }
     public void setCourseId(int courseId) { this.courseId = courseId; }
+
     public Long getAttendanceRecordId() { return attendanceRecordId; }
     public void setAttendanceRecordId(Long attendanceRecordId) { this.attendanceRecordId = attendanceRecordId; }
+
     public Date getMedicalDate() { return medicalDate; }
     public void setMedicalDate(Date medicalDate) { this.medicalDate = medicalDate; }
+
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
+
     public String getDocumentPath() { return documentPath; }
     public void setDocumentPath(String documentPath) { this.documentPath = documentPath; }
+
     public String getApprovalStatus() { return approvalStatus; }
     public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
+
     public Timestamp getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(Timestamp submittedAt) { this.submittedAt = submittedAt; }
+
     public Long getReviewedBy() { return reviewedBy; }
     public void setReviewedBy(Long reviewedBy) { this.reviewedBy = reviewedBy; }
+
     public Timestamp getReviewedAt() { return reviewedAt; }
     public void setReviewedAt(Timestamp reviewedAt) { this.reviewedAt = reviewedAt; }
+
     public String getReviewComment() { return reviewComment; }
     public void setReviewComment(String reviewComment) { this.reviewComment = reviewComment; }
-    public String getRegistrationNo() {
-        return registrationNo;
-    }
 
-    public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
-    }
+    public String getRegistrationNo() { return registrationNo; }
+    public void setRegistrationNo(String registrationNo) { this.registrationNo = registrationNo; }
 
-    public String getStudentName() {
-        return studentName;
-    }
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
 
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
-    }
+    public String getCourseCode() { return courseCode; }
+    public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
 
-    public String getCourseCode() {
-        return courseCode;
-    }
-
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode;
-    }
-
-
-    public String getCourseName() {
-        return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
-
+    public String getCourseName() { return courseName; }
+    public void setCourseName(String courseName) { this.courseName = courseName; }
 }

@@ -1,4 +1,3 @@
-
 package gui.technical;
 
 import dao.TechnicalOfficer.NoticeDAO;
@@ -15,8 +14,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to display official campus notices.
+ * 
+ * [OOP - ABSTRACTION]: Uses NoticeDAO to retrieve filtered campus notices without exposing
+ * database queries or connection logic to the presentation layer.
+ */
 public class NoticesPanel extends JPanel {
 
+    // [OOP - ENCAPSULATION]: Private table components and collections
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final List<Object[]> notices;
@@ -24,22 +30,26 @@ public class NoticesPanel extends JPanel {
     private final JComboBox<String> roleFilter;
     private final JComboBox<String> typeFilter;
 
+    /**
+     * Constructs the Notices panel and loads relevant notices for the logged-in officer.
+     *
+     * @param userId Database user ID of the Technical Officer
+     */
     public NoticesPanel(long userId) {
 
         setLayout(new BorderLayout(0, 14));
         setBackground(UniMisTheme.LIGHT_BG);
         setBorder(new EmptyBorder(24, 28, 24, 28));
 
-        // Heading
+        // Section header
         JLabel heading = new JLabel("Notices");
         heading.setFont(UniMisTheme.FONT_H2);
         heading.setForeground(UniMisTheme.TEXT);
 
-        // Filters
+        // Filter dropdowns setup
         roleFilter = new JComboBox<>(new String[]{
                 "Any Target Role", "All", "Technical Officer"
         });
-
 
         typeFilter = new JComboBox<>(new String[]{
                 "All Types", "General", "Academic", "Exam",
@@ -48,7 +58,6 @@ public class NoticesPanel extends JPanel {
 
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 5));
         filterPanel.setOpaque(false);
-
         filterPanel.add(new JLabel("Target Role:"));
         filterPanel.add(roleFilter);
         filterPanel.add(new JLabel("Notice Type:"));
@@ -63,11 +72,13 @@ public class NoticesPanel extends JPanel {
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Table
+        // Configure table columns
         String[] columns = {
                 "Title", "Target Role", "Notice Type", "Published At"
         };
 
+        // [OOP - INHERITANCE & POLYMORPHISM (OVERRIDING)]:
+        // Subclasses DefaultTableModel anonymously and overrides isCellEditable() to make table read-only.
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -90,9 +101,6 @@ public class NoticesPanel extends JPanel {
         table.getTableHeader().setForeground(UniMisTheme.TEXT);
         table.getTableHeader().setReorderingAllowed(false);
 
-        // Make the Title column wider
-//        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
         table.getColumnModel().getColumn(0).setPreferredWidth(380);
         table.getColumnModel().getColumn(1).setPreferredWidth(150);
         table.getColumnModel().getColumn(2).setPreferredWidth(130);
@@ -102,10 +110,10 @@ public class NoticesPanel extends JPanel {
         table.setRowSorter(sorter);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(
-                BorderFactory.createLineBorder(UniMisTheme.BORDER));
+        scrollPane.setBorder(BorderFactory.createLineBorder(UniMisTheme.BORDER));
 
         JButton viewButton = new JButton("View Notice");
+        // [OOP - INTERFACE]: java.awt.event.ActionListener lambda implementation
         viewButton.addActionListener(e -> viewSelectedNotice());
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -119,10 +127,10 @@ public class NoticesPanel extends JPanel {
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // Load notices
+        // Load notices from the database
         List<Object[]> loadedNotices;
-
         try {
+            // [OOP - ABSTRACTION]: Querying NoticeDAO
             NoticeDAO dao = new NoticeDAO();
             loadedNotices = dao.getNoticesForTechnicalOfficer(userId);
 
@@ -142,44 +150,39 @@ public class NoticesPanel extends JPanel {
                     "Database Error",
                     JOptionPane.ERROR_MESSAGE
             );
-
             loadedNotices = new ArrayList<>();
         }
 
         notices = loadedNotices;
 
-        // Keep newest notices first
+        // Default sort: newest published date first
         sorter.setSortKeys(java.util.Collections.singletonList(
                 new RowSorter.SortKey(3, SortOrder.DESCENDING)
         ));
 
-        // Filter by target role
+        // [OOP - INTERFACE]: ActionListeners on filters
         roleFilter.addActionListener(e -> applyFilters());
-
-        // Filter by notice type
         typeFilter.addActionListener(e -> applyFilters());
 
-        // Double-click a notice to view its details
+        // [OOP - INTERFACE & INHERITANCE]: MouseAdapter subclass overriding mouseClicked
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2
-                        && SwingUtilities.isLeftMouseButton(e)) {
+                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
                     viewSelectedNotice();
                 }
             }
         });
     }
 
+    /**
+     * [OOP - ENCAPSULATION]: Private method applying filters to TableRowSorter.
+     */
     private void applyFilters() {
-
         List<RowFilter<Object, Object>> filters = new ArrayList<>();
 
-        String selectedRole =
-                String.valueOf(roleFilter.getSelectedItem());
-
-        String selectedType =
-                String.valueOf(typeFilter.getSelectedItem());
+        String selectedRole = String.valueOf(roleFilter.getSelectedItem());
+        String selectedType = String.valueOf(typeFilter.getSelectedItem());
 
         if (!selectedRole.equals("Any Target Role")) {
             filters.add(RowFilter.regexFilter(
@@ -202,8 +205,10 @@ public class NoticesPanel extends JPanel {
         }
     }
 
+    /**
+     * [OOP - ENCAPSULATION]: Private method building the full modal dialog.
+     */
     private void viewSelectedNotice() {
-
         int selectedRow = table.getSelectedRow();
 
         if (selectedRow == -1) {
@@ -219,7 +224,6 @@ public class NoticesPanel extends JPanel {
         int modelRow = table.convertRowIndexToModel(selectedRow);
         Object[] notice = notices.get(modelRow);
 
-        // Notice details window
         JDialog dialog = new JDialog(
                 (Frame) SwingUtilities.getWindowAncestor(this),
                 "Notice Details",
@@ -242,20 +246,16 @@ public class NoticesPanel extends JPanel {
 
         contentPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // Notice information
         JPanel infoPanel = new JPanel(new GridLayout(0, 2, 12, 10));
         infoPanel.setOpaque(false);
 
         addDetail(infoPanel, "Target Role", notice[4]);
         addDetail(infoPanel, "Notice Type", notice[3]);
         addDetail(infoPanel, "Published At", notice[5]);
-        addDetail(infoPanel, "Expires At",
-                notice[6] == null ? "No expiry date" : notice[6]);
+        addDetail(infoPanel, "Expires At", notice[6] == null ? "No expiry date" : notice[6]);
         addDetail(infoPanel, "Status", notice[7]);
 
-        // Notice content
-        JTextArea contentArea = new JTextArea(
-                String.valueOf(notice[2]));
+        JTextArea contentArea = new JTextArea(String.valueOf(notice[2]));
         contentArea.setEditable(false);
         contentArea.setLineWrap(true);
         contentArea.setWrapStyleWord(true);
@@ -266,8 +266,7 @@ public class NoticesPanel extends JPanel {
         contentArea.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JScrollPane contentScrollPane = new JScrollPane(contentArea);
-        contentScrollPane.setBorder(
-                BorderFactory.createTitledBorder("Notice Content"));
+        contentScrollPane.setBorder(BorderFactory.createTitledBorder("Notice Content"));
 
         JPanel detailsCenter = new JPanel(new BorderLayout(0, 16));
         detailsCenter.setOpaque(false);
@@ -293,13 +292,11 @@ public class NoticesPanel extends JPanel {
     }
 
     private void addDetail(JPanel panel, String label, Object value) {
-
         JLabel nameLabel = new JLabel(label + ":");
         nameLabel.setFont(UniMisTheme.FONT_BODY_BOLD);
         nameLabel.setForeground(UniMisTheme.TEXT);
 
-        JLabel valueLabel = new JLabel(
-                value == null ? "—" : String.valueOf(value));
+        JLabel valueLabel = new JLabel(value == null ? "—" : String.valueOf(value));
         valueLabel.setFont(UniMisTheme.FONT_BODY);
         valueLabel.setForeground(UniMisTheme.TEXT);
 

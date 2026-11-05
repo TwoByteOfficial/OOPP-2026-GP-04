@@ -6,8 +6,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * [OOP - ABSTRACTION]: Data Access Object for the Technical Officer Dashboard.
+ * Gathers and abstracts aggregated statistics and analytics (student counts, pending medical count,
+ * today's sessions, and attendance status breakdown) filtered by the officer's department.
+ */
 public class TODashboardDAO {
 
+    /**
+     * [OOP - ABSTRACTION]: Abstracts complex SQL aggregate query counting department undergraduates.
+     *
+     * @param userId The user ID of the Technical Officer
+     * @return Number of active undergraduate students in the same department
+     * @throws SQLException if a query execution error occurs
+     */
     public int getDepartmentUndergraduateCount(long userId)
             throws SQLException {
 
@@ -35,7 +47,13 @@ public class TODashboardDAO {
         return 0;
     }
 
-
+    /**
+     * [OOP - ABSTRACTION]: Abstracts SQL query counting pending medical certificates.
+     *
+     * @param userId The user ID of the Technical Officer
+     * @return Count of pending medical submissions
+     * @throws SQLException if a database query error occurs
+     */
     public int getPendingMedicalCount(long userId)
             throws SQLException {
 
@@ -63,7 +81,13 @@ public class TODashboardDAO {
         return 0;
     }
 
-
+    /**
+     * Counts the number of distinct students with recorded attendance in the officer's department.
+     *
+     * @param userId The user ID of the Technical Officer
+     * @return Number of distinct students with attendance entries
+     * @throws SQLException if a database query error occurs
+     */
     public int getAttendanceProfileCount(long userId)
             throws SQLException {
 
@@ -91,7 +115,13 @@ public class TODashboardDAO {
         return 0;
     }
 
-
+    /**
+     * Counts class or lab sessions scheduled for today in the timetable for the officer's department.
+     *
+     * @param userId The user ID of the Technical Officer
+     * @return Count of scheduled timetable sessions today
+     * @throws SQLException if a query error occurs
+     */
     public int getTodaySessionsCount(long userId)
             throws SQLException {
 
@@ -117,7 +147,14 @@ public class TODashboardDAO {
         return 0;
     }
 
-
+    /**
+     * [OOP - ABSTRACTION]: Aggregates attendance statistics into an integer array
+     * without exposing SQL conditional SUM expressions to the UI.
+     *
+     * @param userId The user ID of the Technical Officer
+     * @return Array of 5 integers representing total and status breakdown
+     * @throws SQLException if a query execution error occurs
+     */
     public int[] getAttendanceOverview(long userId) throws SQLException {
 
         String sql =
