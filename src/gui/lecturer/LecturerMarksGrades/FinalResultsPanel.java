@@ -45,7 +45,7 @@ public class FinalResultsPanel extends JPanel {
         selectorPanel.setOpaque(false);
 
         JLabel courseLabel = new JLabel("Select Course:");
-        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(300, 34));
@@ -77,13 +77,13 @@ public class FinalResultsPanel extends JPanel {
 
         resultsTable = new JTable(tableModel);
         resultsTable.setRowHeight(34);
-        resultsTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        resultsTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
         resultsTable.setSelectionBackground(PALE_GREEN);
         resultsTable.setSelectionForeground(DEEP_GREEN);
         resultsTable.setGridColor(BORDER_GREEN);
         resultsTable.setFillsViewportHeight(true);
 
-        resultsTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
+        resultsTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
         resultsTable.getTableHeader().setBackground(PALE_GREEN);
         resultsTable.getTableHeader().setForeground(DEEP_GREEN);
 

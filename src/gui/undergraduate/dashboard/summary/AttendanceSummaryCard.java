@@ -4,7 +4,15 @@ import gui.admin.AdminTheme;
 
 import java.awt.Color;
 
+/**
+ * Summary metric card displaying student overall attendance percentage and exam eligibility status.
+ * Dynamically highlights in green if eligible (>=80%) or red if at risk (<80%).
+ */
 public class AttendanceSummaryCard extends SummaryCardPanel {
+
+    /**
+     * Initializes attendance summary card with icon, dynamic color theme, formatted percentage, and status subtitle.
+     */
     public AttendanceSummaryCard(double attendancePercentage) {
         super(
                 "📊",

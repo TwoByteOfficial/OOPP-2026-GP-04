@@ -26,6 +26,9 @@ public class LecturerSidebar extends JPanel {
             new Color(200, 230, 201);
     private static final Color DANGER =
             new Color(220, 53, 69);
+    private static final Color DANGER_HOVER =
+            new Color(180, 35, 50);
+
 
     public LecturerSidebar() {
         setLayout(new BorderLayout());
@@ -52,7 +55,7 @@ public class LecturerSidebar extends JPanel {
         brand.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel subtitle = new JLabel("LECTURER PORTAL");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         subtitle.setForeground(Colors.DEEP_GREEN);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -156,7 +159,7 @@ public class LecturerSidebar extends JPanel {
             super(text);
             this.logoutButton = logoutButton;
 
-            setFont(new Font("Segoe UI", Font.BOLD, 15));
+            setFont(new Font("Segoe UI", Font.BOLD, 19));
             setHorizontalAlignment(SwingConstants.LEFT);
             setForeground(logoutButton ? Color.WHITE : Colors.DEEP_GREEN);
             setContentAreaFilled(false);
@@ -189,6 +192,7 @@ public class LecturerSidebar extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
+
             g2.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON
@@ -197,7 +201,7 @@ public class LecturerSidebar extends JPanel {
             Color background;
 
             if (logoutButton) {
-                background = DANGER;
+                background = hovered ? DANGER_HOVER : DANGER;
             } else if (selected) {
                 background = HOVER_BACKGROUND;
             } else if (hovered) {
@@ -207,9 +211,11 @@ public class LecturerSidebar extends JPanel {
             }
 
             g2.setColor(background);
+
             g2.fillRoundRect(
                     0, 0, getWidth(), getHeight(), 8, 8
             );
+
             g2.dispose();
 
             super.paintComponent(g);

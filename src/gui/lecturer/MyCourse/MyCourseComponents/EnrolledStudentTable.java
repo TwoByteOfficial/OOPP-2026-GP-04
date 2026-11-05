@@ -1,4 +1,3 @@
-
 package gui.lecturer.MyCourse.MyCourseComponents;
 
 import javax.swing.*;
@@ -35,7 +34,7 @@ public class EnrolledStudentTable extends JPanel {
 
         table = new JTable(tableModel);
         table.setRowHeight(32);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        table.setFont(new Font("SansSerif", Font.PLAIN, 16));
         table.setSelectionBackground(new Color(232, 245, 233));
         table.setSelectionForeground(Color.BLACK);
         table.setGridColor(BORDER_GREEN);
@@ -43,7 +42,7 @@ public class EnrolledStudentTable extends JPanel {
         table.setFillsViewportHeight(true);
 
         table.getTableHeader().setFont(
-                new Font("SansSerif", Font.BOLD, 13)
+                new Font("SansSerif", Font.BOLD, 16)
         );
         table.getTableHeader().setForeground(DEEP_GREEN);
         table.getTableHeader().setReorderingAllowed(false);

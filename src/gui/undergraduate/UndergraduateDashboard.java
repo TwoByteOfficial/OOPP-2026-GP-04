@@ -2,34 +2,47 @@ package gui.undergraduate;
 
 import gui.admin.AdminTheme;
 import gui.login.Login;
-import gui.undergraduate.dashboard.UGDashboardPanel;
-import gui.undergraduate.courses.UGCoursesPanel;
 import gui.undergraduate.attendance.UGAttendancePanel;
+import gui.undergraduate.courses.UGCoursesPanel;
+import gui.undergraduate.dashboard.UGDashboardPanel;
 import gui.undergraduate.grades.UGGradesPanel;
 import gui.undergraduate.medicals.UGMedicalsPanel;
-import gui.undergraduate.timetable.UGTimetablePanel;
 import gui.undergraduate.notices.UGNoticesPanel;
 import gui.undergraduate.profile.UGProfilePanel;
+import gui.undergraduate.timetable.UGTimetablePanel;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * 1 - Undergraduate Main Dashboard Frame
- * UniMis Management Information System
+ * Main Undergraduate Dashboard Frame.
+ * Handles primary sidebar navigation and card switching across student modules.
+ * Coordinates user session attributes, instantiates student view panels, manages
+ * screen transitions via {@link CardLayout}, and coordinates session logout workflows.
  */
 public class UndergraduateDashboard extends JFrame {
 
+    // Authenticated student session details
     private final long userId;
     private final String username;
     private final String fullName;
     private final String email;
     private final String role;
 
+    // View switching layout and container
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel contentCards = new JPanel(cardLayout);
     private UGSidebarPanel sidebar;
 
+    /**
+     * Constructs the primary undergraduate dashboard window with specified session credentials.
+     *
+     * @param userId   Unique primary key identifier of the authenticated user
+     * @param username Institutional login username (e.g., student registration index)
+     * @param fullName Full legal name of the student
+     * @param email    Institutional email address
+     * @param role     System security role designation (e.g., "Undergraduate")
+     */
     public UndergraduateDashboard(long userId, String username, String fullName, String email, String role) {
         super(Login.APP_TITLE);
         this.userId = userId;
@@ -38,6 +51,7 @@ public class UndergraduateDashboard extends JFrame {
         this.email = email;
         this.role = role;
 
+        // Frame window properties and boundary constraints
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1280, 800);
         setMinimumSize(new Dimension(1024, 650));
@@ -46,21 +60,28 @@ public class UndergraduateDashboard extends JFrame {
         initUI();
     }
 
+    /**
+     * Initializes root window layout, side navigation panel, and student module card decks.
+     */
     private void initUI() {
         JPanel root = new JPanel(new BorderLayout());
         root.setBackground(AdminTheme.LIGHT_BG);
 
-        // Sidebar Navigation
+        // -------------------------------------------------------------
+        // Sidebar Navigation Assembly
+        // -------------------------------------------------------------
         sidebar = new UGSidebarPanel(this::navigateTo, this::handleLogout);
         root.add(sidebar, BorderLayout.WEST);
 
-        // Content Area (CardLayout)
+        // -------------------------------------------------------------
+        // Central Content Card Deck Assembly
+        // -------------------------------------------------------------
         contentCards.setOpaque(false);
 
-        // 1.1 - Dashboard View add
+        // Main Student Overview Dashboard
         contentCards.add(new UGDashboardPanel(userId, username, fullName, role, this::navigateTo), "dashboard");
 
-        //  tabs  placeholders
+        // Individual Academic & Profile Sub-Modules
         contentCards.add(new UGCoursesPanel(userId, username), "courses");
         contentCards.add(new UGAttendancePanel(userId, username), "attendance");
         contentCards.add(new UGGradesPanel(userId, username), "grades");
@@ -73,32 +94,22 @@ public class UndergraduateDashboard extends JFrame {
         setContentPane(root);
     }
 
+    /**
+     * Switches the active center panel to the card matching the specified key and updates sidebar highlighting.
+     *
+     * @param tabKey Unique string identifier of the destination module card
+     */
     public void navigateTo(String tabKey) {
         cardLayout.show(contentCards, tabKey);
-        sidebar.setActiveTab(tabKey);
+        if (sidebar != null) {
+            sidebar.setActiveTab(tabKey);
+        }
     }
 
-    private JPanel createPlaceholderPanel(String title) {
-        JPanel p = new JPanel(new GridBagLayout());
-        p.setBackground(AdminTheme.LIGHT_BG);
-
-        JPanel card = AdminTheme.card();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-
-        JLabel titleLbl = AdminTheme.heading(title);
-        titleLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel descLbl = AdminTheme.muted("This module is currently linked and ready for implementation.");
-        descLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        card.add(titleLbl);
-        card.add(Box.createVerticalStrut(8));
-        card.add(descLbl);
-
-        p.add(card);
-        return p;
-    }
-
+    /**
+     * Prompts the user with a confirmation dialog before terminating the active session
+     * and restoring the authentication login interface.
+     */
     private void handleLogout() {
         int opt = JOptionPane.showConfirmDialog(
                 this,
