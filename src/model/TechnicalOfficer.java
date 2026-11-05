@@ -2,30 +2,29 @@ package model;
 
 /**
  * Model representing a Technical Officer in the university system.
- * Extends the base User class with technical officer specific attributes
- * such as staff code, job designation, and assigned computer/hardware laboratories.
+ * 
+ * [OOP - INHERITANCE]: Extends the base class 'User'. TechnicalOfficer inherits all core 
+ * account attributes (userId, username, email, fullName, etc.) while adding specialized fields 
+ * specific to a technical officer (staff code, designation, assigned laboratories).
  */
 public class TechnicalOfficer extends User {
 
-    // Unique staff code assigned to the technical officer (e.g., "TO1001")
+    // [OOP - ENCAPSULATION]: Fields are declared private to ensure data hiding.
     private String technicalOfficerCode;
-
-    // Job designation or title (e.g., "Senior Technical Officer")
     private String designation;
-
-    // Laboratories managed by this officer (e.g., "Network Lab, Electronics Lab")
     private String assignedLabs;
 
     /**
      * Default constructor.
-     * Automatically sets the user role to "Technical Officer".
+     * Inherited method setRole() from User is called to set the specific role.
      */
     public TechnicalOfficer() {
         setRole("Technical Officer");
     }
 
     /**
-     * Parameterized constructor for quick initialization.
+     * [OOP - POLYMORPHISM (OVERLOADING)]: Constructor overloading allows creating 
+     * a TechnicalOfficer object with different sets of initial arguments (Compile-time polymorphism).
      *
      * @param userId               The user ID from the users table
      * @param technicalOfficerCode Unique technical officer code
@@ -34,8 +33,7 @@ public class TechnicalOfficer extends User {
     public TechnicalOfficer(long userId, String technicalOfficerCode, String designation) {
     }
 
-    // --- Getters and Setters ---
-
+    // [OOP - ENCAPSULATION]: Getters and Setters provide controlled access to private fields.
     public String getTechnicalOfficerCode() { return technicalOfficerCode; }
     public void setTechnicalOfficerCode(String technicalOfficerCode) { this.technicalOfficerCode = technicalOfficerCode; }
 

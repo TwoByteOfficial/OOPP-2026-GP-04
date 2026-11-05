@@ -8,25 +8,13 @@ import java.sql.Timestamp;
  */
 public class AttendanceRecord {
 
-    // Primary key of the attendance record in database
+    // [OOP - ENCAPSULATION]: Private member variables protect data integrity.
     private long attendanceRecordId;
-
-    // Foreign key pointing to the specific class session (lecture or practical)
     private long attendanceSessionId;
-
-    // Foreign key pointing to the undergraduate student (user_id)
     private long studentId;
-
-    // Status of attendance: "PRESENT", "ABSENT", or "EXCUSED"
     private String attendanceStatus;
-
-    // Optional remarks or notes (e.g., "Late by 15 mins", "Medical pending")
     private String remarks;
-
-    // User ID of the Technical Officer or Lecturer who recorded this attendance
     private Long recordedBy;
-
-    // Date and time when this attendance entry was submitted or updated
     private Timestamp recordedAt;
 
     /**
@@ -35,15 +23,15 @@ public class AttendanceRecord {
     public AttendanceRecord() {}
 
     /**
-     * Parameterized constructor for initializing an attendance record.
+     * [OOP - POLYMORPHISM (OVERLOADING)]: Overloaded constructor providing multiple ways
+     * to instantiate an AttendanceRecord object (Compile-time Polymorphism).
      */
     public AttendanceRecord(long attendanceRecordId, long attendanceSessionId, long studentId, 
                             String attendanceStatus, String remarks, Long recordedBy, 
                             Timestamp recordedAt, Timestamp updatedAt) {
     }
 
-    // --- Getters and Setters ---
-
+    // [OOP - ENCAPSULATION]: Public getter and setter methods providing regulated access.
     public long getAttendanceRecordId() { return attendanceRecordId; }
     public void setAttendanceRecordId(long attendanceRecordId) { this.attendanceRecordId = attendanceRecordId; }
 

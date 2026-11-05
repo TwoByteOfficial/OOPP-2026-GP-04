@@ -12,16 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object (DAO) for managing student medical certificate submissions.
- * Provides methods for Technical Officers to view all submitted medicals, filter them
- * by status, search by student or course, and load courses for filter dropdowns.
+ * [OOP - ABSTRACTION]: Data Access Object for student medical certificate submissions.
+ * Encapsulates and abstracts database retrieval, filtering, and JOIN queries between 
+ * medicals, undergraduates, users, and courses tables.
  */
 public class MedicalDAO {
 
     /**
-     * Retrieves all student medical records from the database.
-     * Joins with users, undergraduates, and courses tables to include student names,
-     * registration numbers, and course codes.
+     * [OOP - ABSTRACTION]: Retrieves all medical records and automatically constructs 
+     * domain model objects from raw database rows.
      *
      * @return List of all Medical records sorted by newest submission first
      * @throws SQLException if a query execution error occurs
@@ -73,7 +72,6 @@ public class MedicalDAO {
 
     /**
      * Retrieves medical records filtered by a specific approval status.
-     * If the status is "All", delegates to getAllMedicalRecords().
      *
      * @param status The status to filter by ("Pending", "Approved", "Rejected", or "All")
      * @return List of matching Medical records ordered by submission date descending
@@ -134,9 +132,9 @@ public class MedicalDAO {
     }
 
     /**
-     * Searches medical records using multiple criteria simultaneously:
-     * approval status, course filter, and free-text keyword search.
-     * The search keyword matches against student registration number, student name, or course code.
+     * [OOP - ABSTRACTION]: Advanced query abstraction.
+     * Searches medical records using multiple criteria simultaneously (status, course, keyword)
+     * without exposing SQL LIKE wildcard formatting or JDBC statements to the caller.
      *
      * @param status     Approval status filter ("All", "Pending", "Approved", "Rejected")
      * @param courseId   Course ID filter (or 0 for all courses)

@@ -12,26 +12,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Panel for Technical Officers to view, search, and process student medical submissions.
- * Allows officers to:
- * - Search by student registration number, name, or course code
- * - Filter by approval status (Pending, Approved, Rejected) or course
- * - Double-click any row to view full details
- * - Approve selected pending medicals (automatically updates linked attendance to PRESENT)
- * - Reject selected pending medicals with an explanation comment
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the medical records management view.
+ * 
+ * [OOP - ABSTRACTION]: Uses MedicalDAO and AttendanceDAO to fetch, search, and approve/reject
+ * medical submissions without writing SQL queries or managing database connections in the UI.
  */
 public class MedicalRecordsPanel extends JPanel {
 
-    // Table components for rendering medical submissions
+    // [OOP - ENCAPSULATION]: Private UI components and state
     private final DefaultTableModel tableModel;
     private final JTable medicalTable;
-
-    // Filter controls
     private final JComboBox<String> statusFilter;
     private final JComboBox<String> courseFilter;
     private final JTextField searchField;
-
-    // Logged-in Technical Officer's user ID (recorded as reviewer)
     private final long userId;
 
     /**
@@ -55,6 +48,7 @@ public class MedicalRecordsPanel extends JPanel {
         refreshButton.setFont(UniMisTheme.FONT_BODY);
         refreshButton.setBackground(UniMisTheme.MEDIUM_GREEN);
         refreshButton.setForeground(UniMisTheme.TEXT);
+        // [OOP - INTERFACE]: java.awt.event.ActionListener via lambda
         refreshButton.addActionListener(e -> loadMedicalRecords());
 
         // Status filter dropdown
@@ -74,7 +68,7 @@ public class MedicalRecordsPanel extends JPanel {
                 "Search registration number, student name, or course code"
         );
 
-        // Trigger table reload on filter changes or Enter key in search box
+        // [OOP - INTERFACE]: ActionListeners on filters
         statusFilter.addActionListener(e -> loadMedicalRecords());
         courseFilter.addActionListener(e -> loadMedicalRecords());
         searchField.addActionListener(e -> loadMedicalRecords());
@@ -115,7 +109,9 @@ public class MedicalRecordsPanel extends JPanel {
                 "Status"
         };
 
-        // Non-editable table model
+        // [OOP - INHERITANCE & POLYMORPHISM (OVERRIDING)]:
+        // Anonymous subclass of DefaultTableModel overriding isCellEditable()
+        // to disable inline table editing dynamically at runtime.
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -130,7 +126,8 @@ public class MedicalRecordsPanel extends JPanel {
         medicalTable.getTableHeader().setBackground(UniMisTheme.PASTEL_GREEN);
         medicalTable.setSelectionBackground(UniMisTheme.FRESH_GREEN);
 
-        // Double-click listener on table rows to view detailed submission view
+        // [OOP - INTERFACE & INHERITANCE]: MouseAdapter implements MouseListener interface;
+        // mouseClicked is overridden to detect double clicks.
         medicalTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -152,12 +149,14 @@ public class MedicalRecordsPanel extends JPanel {
         approveButton.setFont(UniMisTheme.FONT_BODY);
         approveButton.setBackground(UniMisTheme.MEDIUM_GREEN);
         approveButton.setForeground(UniMisTheme.TEXT);
+        // [OOP - INTERFACE]: ActionListener lambda
         approveButton.addActionListener(e -> approveSelectedMedical());
 
         JButton rejectButton = new JButton("Reject Selected");
         rejectButton.setFont(UniMisTheme.FONT_BODY);
         rejectButton.setBackground(UniMisTheme.DANGER);
         rejectButton.setForeground(Color.WHITE);
+        // [OOP - INTERFACE]: ActionListener lambda
         rejectButton.addActionListener(e -> rejectSelectedMedical());
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -173,8 +172,7 @@ public class MedicalRecordsPanel extends JPanel {
     }
 
     /**
-     * Loads medical records from the database applying the current filters
-     * (selected status, selected course, and search keyword) and populates the table.
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method loading data through MedicalDAO.
      */
     private void loadMedicalRecords() {
         tableModel.setRowCount(0);
@@ -225,9 +223,7 @@ public class MedicalRecordsPanel extends JPanel {
     }
 
     /**
-     * Approves the currently selected medical record.
-     * Verifies that the record is in 'Pending' status, requests an optional review comment,
-     * updates the medical record in the database, and marks the linked attendance record to PRESENT.
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method encapsulating approval workflow.
      */
     private void approveSelectedMedical() {
         int selectedRow = medicalTable.getSelectedRow();
@@ -242,7 +238,6 @@ public class MedicalRecordsPanel extends JPanel {
             return;
         }
 
-        // Convert view index to model index to support sorted tables
         int modelRow = medicalTable.convertRowIndexToModel(selectedRow);
         String status = tableModel.getValueAt(modelRow, 7).toString();
 
@@ -293,9 +288,7 @@ public class MedicalRecordsPanel extends JPanel {
     }
 
     /**
-     * Rejects the currently selected medical record.
-     * Verifies that the record is in 'Pending' status, requires a reason for rejection,
-     * and updates the status to 'Rejected' in the database.
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method encapsulating rejection workflow.
      */
     private void rejectSelectedMedical() {
         int selectedRow = medicalTable.getSelectedRow();
@@ -310,7 +303,6 @@ public class MedicalRecordsPanel extends JPanel {
             return;
         }
 
-        // Convert view index to model index
         int modelRow = medicalTable.convertRowIndexToModel(selectedRow);
         String status = tableModel.getValueAt(modelRow, 7).toString();
 
@@ -379,10 +371,7 @@ public class MedicalRecordsPanel extends JPanel {
     }
 
     /**
-     * Displays complete submission details for a medical record in a popup dialog.
-     * Triggered when double-clicking a row in the table.
-     *
-     * @param row The model row index of the record
+     * [OOP - ENCAPSULATION]: Private method building the modal dialog for detailed view.
      */
     private void showMedicalDetails(int row) {
         String details =

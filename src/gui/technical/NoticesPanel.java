@@ -15,26 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Panel displaying official campus notices relevant to the Technical Officer.
- * Provides interactive features:
- * - Filter notices by target recipient role (All, Technical Officer)
- * - Filter notices by notice type (General, Academic, Exam, Attendance, Event, Emergency)
- * - Sort table columns (default sorts newest notices first)
- * - View full notice text in a modal dialog by double-clicking a row or clicking 'View Notice'
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to display official campus notices.
+ * 
+ * [OOP - ABSTRACTION]: Uses NoticeDAO to retrieve filtered campus notices without exposing
+ * database queries or connection logic to the presentation layer.
  */
 public class NoticesPanel extends JPanel {
 
-    // Table and model for displaying notice summaries
+    // [OOP - ENCAPSULATION]: Private table components and collections
     private final DefaultTableModel tableModel;
     private final JTable table;
-
-    // In-memory cache of full notice records loaded from database
     private final List<Object[]> notices;
-
-    // Sorter used for sorting by date and applying role/type filters
     private final TableRowSorter<DefaultTableModel> sorter;
-
-    // Filter dropdowns
     private final JComboBox<String> roleFilter;
     private final JComboBox<String> typeFilter;
 
@@ -85,6 +77,8 @@ public class NoticesPanel extends JPanel {
                 "Title", "Target Role", "Notice Type", "Published At"
         };
 
+        // [OOP - INHERITANCE & POLYMORPHISM (OVERRIDING)]:
+        // Subclasses DefaultTableModel anonymously and overrides isCellEditable() to make table read-only.
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -107,7 +101,6 @@ public class NoticesPanel extends JPanel {
         table.getTableHeader().setForeground(UniMisTheme.TEXT);
         table.getTableHeader().setReorderingAllowed(false);
 
-        // Column width configuration
         table.getColumnModel().getColumn(0).setPreferredWidth(380);
         table.getColumnModel().getColumn(1).setPreferredWidth(150);
         table.getColumnModel().getColumn(2).setPreferredWidth(130);
@@ -120,6 +113,7 @@ public class NoticesPanel extends JPanel {
         scrollPane.setBorder(BorderFactory.createLineBorder(UniMisTheme.BORDER));
 
         JButton viewButton = new JButton("View Notice");
+        // [OOP - INTERFACE]: java.awt.event.ActionListener lambda implementation
         viewButton.addActionListener(e -> viewSelectedNotice());
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -136,6 +130,7 @@ public class NoticesPanel extends JPanel {
         // Load notices from the database
         List<Object[]> loadedNotices;
         try {
+            // [OOP - ABSTRACTION]: Querying NoticeDAO
             NoticeDAO dao = new NoticeDAO();
             loadedNotices = dao.getNoticesForTechnicalOfficer(userId);
 
@@ -160,16 +155,16 @@ public class NoticesPanel extends JPanel {
 
         notices = loadedNotices;
 
-        // Default sort: newest published date first (column index 3 descending)
+        // Default sort: newest published date first
         sorter.setSortKeys(java.util.Collections.singletonList(
                 new RowSorter.SortKey(3, SortOrder.DESCENDING)
         ));
 
-        // Connect filter listeners
+        // [OOP - INTERFACE]: ActionListeners on filters
         roleFilter.addActionListener(e -> applyFilters());
         typeFilter.addActionListener(e -> applyFilters());
 
-        // Double-click row listener to view notice details
+        // [OOP - INTERFACE & INHERITANCE]: MouseAdapter subclass overriding mouseClicked
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -181,7 +176,7 @@ public class NoticesPanel extends JPanel {
     }
 
     /**
-     * Applies the selected Role and Notice Type filters to the table rows.
+     * [OOP - ENCAPSULATION]: Private method applying filters to TableRowSorter.
      */
     private void applyFilters() {
         List<RowFilter<Object, Object>> filters = new ArrayList<>();
@@ -192,14 +187,14 @@ public class NoticesPanel extends JPanel {
         if (!selectedRole.equals("Any Target Role")) {
             filters.add(RowFilter.regexFilter(
                     "^" + java.util.regex.Pattern.quote(selectedRole) + "$",
-                    1 // Column 1: Target Role
+                    1
             ));
         }
 
         if (!selectedType.equals("All Types")) {
             filters.add(RowFilter.regexFilter(
                     "^" + java.util.regex.Pattern.quote(selectedType) + "$",
-                    2 // Column 2: Notice Type
+                    2
             ));
         }
 
@@ -211,8 +206,7 @@ public class NoticesPanel extends JPanel {
     }
 
     /**
-     * Opens a modal dialog displaying the full notice details, including
-     * title, metadata (role, type, dates), and the full message content.
+     * [OOP - ENCAPSULATION]: Private method building the full modal dialog.
      */
     private void viewSelectedNotice() {
         int selectedRow = table.getSelectedRow();
@@ -227,11 +221,9 @@ public class NoticesPanel extends JPanel {
             return;
         }
 
-        // Convert sorted view index to underlying model index
         int modelRow = table.convertRowIndexToModel(selectedRow);
         Object[] notice = notices.get(modelRow);
 
-        // Build modal dialog
         JDialog dialog = new JDialog(
                 (Frame) SwingUtilities.getWindowAncestor(this),
                 "Notice Details",
@@ -254,7 +246,6 @@ public class NoticesPanel extends JPanel {
 
         contentPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // Metadata fields
         JPanel infoPanel = new JPanel(new GridLayout(0, 2, 12, 10));
         infoPanel.setOpaque(false);
 
@@ -264,7 +255,6 @@ public class NoticesPanel extends JPanel {
         addDetail(infoPanel, "Expires At", notice[6] == null ? "No expiry date" : notice[6]);
         addDetail(infoPanel, "Status", notice[7]);
 
-        // Full content text area
         JTextArea contentArea = new JTextArea(String.valueOf(notice[2]));
         contentArea.setEditable(false);
         contentArea.setLineWrap(true);
@@ -301,13 +291,6 @@ public class NoticesPanel extends JPanel {
         dialog.setVisible(true);
     }
 
-    /**
-     * Helper to add a formatted key-value pair to the info panel.
-     *
-     * @param panel Target container panel
-     * @param label The label name
-     * @param value The value to display
-     */
     private void addDetail(JPanel panel, String label, Object value) {
         JLabel nameLabel = new JLabel(label + ":");
         nameLabel.setFont(UniMisTheme.FONT_BODY_BOLD);
@@ -321,12 +304,6 @@ public class NoticesPanel extends JPanel {
         panel.add(valueLabel);
     }
 
-    /**
-     * Sanitizes special characters for HTML label rendering.
-     *
-     * @param text Raw input text
-     * @return HTML-safe string
-     */
     private String escapeHtml(String text) {
         return text.replace("&", "&amp;")
                 .replace("<", "&lt;")

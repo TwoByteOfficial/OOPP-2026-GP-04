@@ -3,14 +3,14 @@ package gui.technical.dashboard.summary;
 import gui.theme.UniMisTheme;
 
 /**
- * Summary metric card on the dashboard showing the number of lecture or lab sessions
- * scheduled for today according to the department timetable.
- * Styled with a deep green left accent border.
+ * [OOP - INHERITANCE]: Extends SummaryCardPanel to create a specialized card
+ * showing the number of sessions scheduled for today.
  */
 public class TodaySessionsCard extends SummaryCardPanel {
 
     /**
      * Constructs the Today's Sessions summary card.
+     * Invokes super() to pass specialized title and deep green accent color.
      *
      * @param value Count string to display (e.g., "3")
      */

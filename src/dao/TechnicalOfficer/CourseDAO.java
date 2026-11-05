@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object (DAO) for retrieving course information for Technical Officers.
- * Provides methods to load active courses, query courses by lecturer, and fetch course materials.
+ * [OOP - ABSTRACTION]: Data Access Object for retrieving course information.
+ * Encapsulates the SQL logic required to query course catalogs and course materials.
  */
 public class CourseDAO {
 
     /**
-     * Retrieves all courses currently marked as 'Active' in the system.
-     * Used to populate course selection combo boxes in technical officer panels (Attendance, Medicals, etc.).
+     * [OOP - ABSTRACTION]: Retrieves all active courses and transforms raw database tuples
+     * into a high-level List of Course objects.
      *
      * @return List of active Course objects ordered by course code
      * @throws SQLException if a database query error occurs
@@ -85,7 +85,8 @@ public class CourseDAO {
     }
 
     /**
-     * Helper method to map a single database ResultSet row to a Course object.
+     * [OOP - ENCAPSULATION]: Private helper method encapsulating the mapping logic
+     * from a ResultSet row to a Course domain model.
      *
      * @param rs The active ResultSet positioned at a valid row
      * @return A populated Course model object

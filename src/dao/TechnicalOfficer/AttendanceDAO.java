@@ -9,17 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object (DAO) for managing attendance operations for Technical Officers.
- * Handles saving batch attendance, retrieving course sessions, loading recorded attendance,
- * and processing medical approval/rejection updates with database transactions.
+ * [OOP - ABSTRACTION]: Data Access Object (DAO) Pattern.
+ * AttendanceDAO abstracts the complexity of raw SQL queries, database connections, 
+ * batch operations, and transaction management away from the UI layer. 
+ * High-level GUI panels interact with clean Java method signatures without knowing SQL details.
  */
 public class AttendanceDAO {
 
     /**
-     * Saves or updates a list of student attendance records in a single database batch.
-     * Uses a transaction to make sure either all records save successfully or none do.
-     * If an attendance record already exists for that session and student, it updates
-     * the attendance status and remarks instead of failing.
+     * [OOP - ABSTRACTION]: Abstracts batch database transactions.
+     * The GUI simply passes a List of records; this method manages SQL batching, 
+     * disabling auto-commit, executing, and committing or rolling back on error.
      *
      * @param records List of AttendanceRecord objects to save
      * @return true if the batch executed and committed successfully
@@ -66,8 +66,7 @@ public class AttendanceDAO {
     }
 
     /**
-     * Retrieves all attendance sessions scheduled for a given course and component.
-     * For example, gets all Lab/Practical sessions or Lecture/Theory sessions.
+     * [OOP - ABSTRACTION]: Hides SQL JOINs and parameter binding behind a clean method call.
      *
      * @param courseId  The course ID
      * @param component The session component (e.g., "Theory" or "Practical")
@@ -116,7 +115,6 @@ public class AttendanceDAO {
 
     /**
      * Retrieves existing attendance records already saved for a specific session.
-     * Used by the attendance table to display currently recorded statuses (Present/Absent/Excused).
      *
      * @param sessionId The attendance session ID
      * @return List of AttendanceRecord objects sorted by student ID
@@ -161,8 +159,9 @@ public class AttendanceDAO {
     }
 
     /**
-     * Approves a student's medical request and updates their attendance to PRESENT.
-     * This operation runs in a transaction across both the medicals table and attendance_records table.
+     * [OOP - ABSTRACTION]: Multi-table transactional abstraction.
+     * Encapsulates updates across both 'medicals' and 'attendance_records' tables 
+     * inside an atomic database transaction.
      *
      * @param medicalId  The ID of the medical submission
      * @param reviewerId The user ID of the Technical Officer approving the request
@@ -207,7 +206,6 @@ public class AttendanceDAO {
 
     /**
      * Rejects a pending medical request with reviewer ID, review timestamp, and review comment.
-     * Only updates the record if it is currently in 'Pending' status.
      *
      * @param medicalId  The ID of the medical submission
      * @param reviewerId The user ID of the Technical Officer rejecting the request
