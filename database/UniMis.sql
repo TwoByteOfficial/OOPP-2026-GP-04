@@ -75,6 +75,7 @@ CREATE TABLE users (
                        email VARCHAR(150) NOT NULL UNIQUE,
                        contact_no VARCHAR(20),
                        address VARCHAR(255),
+                       residence_address VARCHAR(255) NULL,
                        profile_picture VARCHAR(500),
                        department_id INT NULL,
                        user_status ENUM('Active', 'Inactive', 'Suspended') NOT NULL DEFAULT 'Active',

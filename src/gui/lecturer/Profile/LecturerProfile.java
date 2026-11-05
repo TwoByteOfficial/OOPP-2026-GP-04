@@ -1,3 +1,4 @@
+
 package gui.lecturer.Profile;
 
 import dao.Lecturer.LecturerProfileDAO;
@@ -13,6 +14,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.function.Consumer;
+import java.time.LocalDate;
+import java.time.DateTimeException;
+import java.time.Year;
+import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 
 import static gui.lecturer.SharedComponents.Colors.PROFILE_BACKGROUND;
 import static gui.lecturer.SharedComponents.Colors.PROFILE_BORDER;
@@ -45,10 +51,15 @@ public class LecturerProfile extends JPanel {
 
     private final JTextField fullNameField = new JTextField();
     private final JTextField nicField = new JTextField();
+    private final JTextField dobField = new JTextField();
     private final JTextField emailField = new JTextField();
     private final JTextField contactField = new JTextField();
     private final JTextField addressField = new JTextField();
+    private final JTextField residenceAddressField = new JTextField();
     private final JTextField specializationField = new JTextField();
+
+    private final JLabel birthdayCountdownLabel =
+            new JLabel("Birthday information will appear here.");
 
     private final JTextField profilePictureUrlField =
             new JTextField();
@@ -61,6 +72,9 @@ public class LecturerProfile extends JPanel {
     private final JLabel statusLabel = new JLabel("Ready");
 
     private String savedPictureUrl = "";
+
+    private static final DateTimeFormatter DOB_FORMAT =
+            DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
     public LecturerProfile(long userId) {
         this(userId, null, null);
@@ -87,11 +101,17 @@ public class LecturerProfile extends JPanel {
         setBackground(PROFILE_BACKGROUND);
         setBorder(new EmptyBorder(24, 28, 20, 28));
 
+        // NIC and DOB cannot be edited.
+        nicField.setEditable(false);
+        dobField.setEditable(false);
+
         // Page heading
         JPanel heading = new JPanel();
+
         heading.setLayout(
                 new BoxLayout(heading, BoxLayout.Y_AXIS)
         );
+
         heading.setOpaque(false);
 
         JLabel pageTitle =
@@ -100,6 +120,7 @@ public class LecturerProfile extends JPanel {
         pageTitle.setFont(
                 new Font("SansSerif", Font.BOLD, 28)
         );
+
         pageTitle.setForeground(PROFILE_DEEP_GREEN);
 
         JLabel subtitle = new JLabel(
@@ -109,6 +130,7 @@ public class LecturerProfile extends JPanel {
         subtitle.setFont(
                 new Font("SansSerif", Font.PLAIN, 16)
         );
+
         subtitle.setForeground(PROFILE_TEXT_GRAY);
 
         heading.add(pageTitle);
@@ -117,6 +139,7 @@ public class LecturerProfile extends JPanel {
 
         // Main card
         JPanel card = new JPanel(new BorderLayout(0, 18));
+
         card.setBackground(PROFILE_WHITE);
 
         card.setBorder(new CompoundBorder(
@@ -148,6 +171,7 @@ public class LecturerProfile extends JPanel {
 
         // Personal details form
         JPanel formGrid = new JPanel(new GridBagLayout());
+
         formGrid.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -158,7 +182,7 @@ public class LecturerProfile extends JPanel {
         gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Row 1
+        // Row 1: Title and Full Name
         addFormField(
                 formGrid, gbc, 0, 0,
                 "Title", titleCombo
@@ -169,31 +193,42 @@ public class LecturerProfile extends JPanel {
                 "Full Name", fullNameField
         );
 
-        // Row 2
+        // Row 2: NIC and DOB
         addFormField(
                 formGrid, gbc, 0, 1,
-                "NIC Number", nicField
+                "NIC Number (Read Only)", nicField
         );
 
         addFormField(
                 formGrid, gbc, 1, 1,
-                "Email Address", emailField
+                "Date of Birth (From NIC)", dobField
         );
 
-        // Row 3
+        // Row 3: Email and Contact
         addFormField(
                 formGrid, gbc, 0, 2,
-                "Contact Number", contactField
+                "Email Address", emailField
         );
 
         addFormField(
                 formGrid, gbc, 1, 2,
-                "Home / Office Address", addressField
+                "Contact Number", contactField
         );
 
-        // Row 4
+        // Row 4: Current and Residence Address
+        addFormField(
+                formGrid, gbc, 0, 3,
+                "Current Address", addressField
+        );
+
+        addFormField(
+                formGrid, gbc, 1, 3,
+                "Residence Address", residenceAddressField
+        );
+
+        // Row 5: Specialization
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
 
@@ -204,9 +239,14 @@ public class LecturerProfile extends JPanel {
 
         formGrid.add(specializationPanel, gbc);
 
+        // Birthday countdown panel
+        JPanel birthdayPanel = createBirthdayPanel();
+
         // Reset button
         JButton resetBtn = new JButton("Reset");
+
         styleButton(resetBtn, false);
+
         resetBtn.addActionListener(e -> loadProfile());
 
         // Save button
@@ -214,6 +254,7 @@ public class LecturerProfile extends JPanel {
                 new JButton("Save Profile Changes");
 
         styleButton(saveBtn, true);
+
         saveBtn.addActionListener(e -> saveProfile());
 
         JPanel buttonPanel = new JPanel(
@@ -221,24 +262,31 @@ public class LecturerProfile extends JPanel {
         );
 
         buttonPanel.setOpaque(false);
+
         buttonPanel.add(resetBtn);
         buttonPanel.add(saveBtn);
 
-        // Stack picture section above form
+        // Stack all profile sections vertically.
         JPanel formContent = new JPanel();
+
         formContent.setLayout(
                 new BoxLayout(formContent, BoxLayout.Y_AXIS)
         );
+
         formContent.setOpaque(false);
 
         readOnlyPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         pictureSection.setAlignmentX(Component.LEFT_ALIGNMENT);
+        birthdayPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         formGrid.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         formContent.add(readOnlyPanel);
         formContent.add(Box.createVerticalStrut(18));
 
         formContent.add(pictureSection);
+        formContent.add(Box.createVerticalStrut(18));
+
+        formContent.add(birthdayPanel);
         formContent.add(Box.createVerticalStrut(18));
 
         formContent.add(formGrid);
@@ -248,11 +296,13 @@ public class LecturerProfile extends JPanel {
 
         // Footer
         JPanel footer = new JPanel(new BorderLayout());
+
         footer.setOpaque(false);
 
         statusLabel.setFont(
                 new Font("SansSerif", Font.PLAIN, 15)
         );
+
         statusLabel.setForeground(PROFILE_TEXT_GRAY);
 
         footer.add(statusLabel, BorderLayout.WEST);
@@ -273,9 +323,51 @@ public class LecturerProfile extends JPanel {
         this.onLecturerNameUpdated = callback;
     }
 
+    /**
+     * Create birthday countdown panel.
+     */
+    private JPanel createBirthdayPanel() {
+
+        JPanel panel = new JPanel(
+                new BorderLayout(0, 8)
+        );
+
+        panel.setBackground(new Color(248, 252, 248));
+
+        panel.setBorder(new CompoundBorder(
+                new LineBorder(PROFILE_BORDER, 1, true),
+                new EmptyBorder(14, 18, 14, 18)
+        ));
+
+        JLabel heading = new JLabel("Next Birthday");
+
+        heading.setFont(
+                new Font("SansSerif", Font.BOLD, 18)
+        );
+
+        heading.setForeground(PROFILE_DEEP_GREEN);
+
+        birthdayCountdownLabel.setFont(
+                new Font("SansSerif", Font.PLAIN, 16)
+        );
+
+        birthdayCountdownLabel.setForeground(PROFILE_TEXT_GRAY);
+
+        panel.add(heading, BorderLayout.NORTH);
+        panel.add(birthdayCountdownLabel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    /**
+     * Create profile picture section.
+     */
     private JPanel createPictureSection() {
 
-        JPanel section = new JPanel(new BorderLayout(20, 0));
+        JPanel section = new JPanel(
+                new BorderLayout(20, 0)
+        );
+
         section.setBackground(new Color(248, 252, 248));
 
         section.setBorder(new CompoundBorder(
@@ -289,17 +381,24 @@ public class LecturerProfile extends JPanel {
         );
 
         previewArea.setOpaque(false);
-        previewArea.setPreferredSize(new Dimension(230, 210));
 
-        JLabel previewTitle = new JLabel("Profile Picture Preview");
+        previewArea.setPreferredSize(
+                new Dimension(230, 210)
+        );
+
+        JLabel previewTitle =
+                new JLabel("Profile Picture Preview");
+
         previewTitle.setFont(
                 new Font("SansSerif", Font.BOLD, 18)
         );
+
         previewTitle.setForeground(PROFILE_DEEP_GREEN);
 
         picturePreview.setOpaque(true);
         picturePreview.setBackground(PROFILE_WHITE);
         picturePreview.setForeground(PROFILE_TEXT_GRAY);
+
         picturePreview.setFont(
                 new Font("SansSerif", Font.PLAIN, 16)
         );
@@ -313,15 +412,19 @@ public class LecturerProfile extends JPanel {
 
         // URL and preview controls
         JPanel controls = new JPanel();
+
         controls.setLayout(
                 new BoxLayout(controls, BoxLayout.Y_AXIS)
         );
+
         controls.setOpaque(false);
 
         JLabel urlLabel = new JLabel("Profile Picture URL");
+
         urlLabel.setFont(
                 new Font("SansSerif", Font.BOLD, 16)
         );
+
         urlLabel.setForeground(PROFILE_DEEP_GREEN);
 
         profilePictureUrlField.setFont(
@@ -341,11 +444,18 @@ public class LecturerProfile extends JPanel {
                 new EmptyBorder(5, 10, 5, 10)
         ));
 
-        JButton previewButton = new JButton("Preview Picture");
-        styleButton(previewButton, true);
-        previewButton.addActionListener(e -> previewProfilePicture());
+        JButton previewButton =
+                new JButton("Preview Picture");
 
-        JButton clearButton = new JButton("Remove Picture");
+        styleButton(previewButton, true);
+
+        previewButton.addActionListener(
+                e -> previewProfilePicture()
+        );
+
+        JButton clearButton =
+                new JButton("Remove Picture");
+
         styleButton(clearButton, false);
 
         clearButton.addActionListener(e -> {
@@ -358,7 +468,9 @@ public class LecturerProfile extends JPanel {
         JPanel buttonRow = new JPanel(
                 new FlowLayout(FlowLayout.LEFT, 10, 0)
         );
+
         buttonRow.setOpaque(false);
+
         buttonRow.add(previewButton);
         buttonRow.add(clearButton);
 
@@ -369,6 +481,7 @@ public class LecturerProfile extends JPanel {
         helpText.setFont(
                 new Font("SansSerif", Font.PLAIN, 15)
         );
+
         helpText.setForeground(PROFILE_TEXT_GRAY);
 
         controls.add(Box.createVerticalStrut(25));
@@ -387,9 +500,11 @@ public class LecturerProfile extends JPanel {
     }
 
     private void styleInfoLabel(JLabel label) {
+
         label.setFont(
                 new Font("SansSerif", Font.BOLD, 15)
         );
+
         label.setForeground(PROFILE_DEEP_GREEN);
     }
 
@@ -425,16 +540,20 @@ public class LecturerProfile extends JPanel {
         panel.setOpaque(false);
 
         JLabel label = new JLabel(labelText);
+
         label.setFont(
                 new Font("SansSerif", Font.BOLD, 15)
         );
+
         label.setForeground(PROFILE_DEEP_GREEN);
 
         field.setFont(
                 new Font("SansSerif", Font.PLAIN, 18)
         );
 
-        field.setPreferredSize(new Dimension(180, 34));
+        field.setPreferredSize(
+                new Dimension(180, 34)
+        );
 
         if (field instanceof JTextField) {
 
@@ -474,6 +593,7 @@ public class LecturerProfile extends JPanel {
         ));
 
         button.setFocusPainted(false);
+
         button.setCursor(
                 Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
         );
@@ -501,6 +621,154 @@ public class LecturerProfile extends JPanel {
         }
     }
 
+    /**
+     * Calculate DOB using the lecturer NIC.
+     *
+     * Supports:
+     * Old NIC: 9 digits + V/X
+     * New NIC: 12 digits
+     */
+    private LocalDate calculateDobFromNic(String nic) {
+
+        if (nic == null || nic.isBlank()) {
+            return null;
+        }
+
+        nic = nic.trim().toUpperCase();
+
+        try {
+
+            int year;
+            int dayNumber;
+
+            // Old NIC format.
+            if (nic.matches("\\d{9}[VX]")) {
+
+                year = 1900 + Integer.parseInt(
+                        nic.substring(0, 2)
+                );
+
+                dayNumber = Integer.parseInt(
+                        nic.substring(2, 5)
+                );
+
+            }
+            // New NIC format.
+            else if (nic.matches("\\d{12}")) {
+
+                year = Integer.parseInt(
+                        nic.substring(0, 4)
+                );
+
+                dayNumber = Integer.parseInt(
+                        nic.substring(4, 7)
+                );
+
+            } else {
+
+                return null;
+            }
+
+            // Female NICs have a 500-day offset.
+            if (dayNumber > 500) {
+                dayNumber -= 500;
+            }
+
+            if (year < 1900 ||
+                    year > Year.now().getValue()) {
+                return null;
+            }
+
+            int maximumDays =
+                    Year.isLeap(year) ? 366 : 365;
+
+            if (dayNumber < 1 ||
+                    dayNumber > maximumDays) {
+                return null;
+            }
+
+            return LocalDate.ofYearDay(year, dayNumber);
+
+        } catch (NumberFormatException |
+                 DateTimeException e) {
+
+            return null;
+        }
+    }
+
+    /**
+     * Calculate the next birthday and remaining days.
+     */
+    private void updateBirthdayCountdown(LocalDate dob) {
+
+        if (dob == null) {
+
+            birthdayCountdownLabel.setText(
+                    "Birthday unavailable - please check the NIC number."
+            );
+
+            return;
+        }
+
+        LocalDate today = LocalDate.now();
+
+        int birthdayMonth = dob.getMonthValue();
+        int birthdayDay = dob.getDayOfMonth();
+
+        int currentYear = today.getYear();
+
+        LocalDate nextBirthday = getBirthdayInYear(
+                currentYear,
+                birthdayMonth,
+                birthdayDay
+        );
+
+        // If birthday is today or has passed,
+        // calculate the next year's birthday.
+        if (!nextBirthday.isAfter(today)) {
+
+            nextBirthday = getBirthdayInYear(
+                    currentYear + 1,
+                    birthdayMonth,
+                    birthdayDay
+            );
+        }
+
+        long daysRemaining =
+                ChronoUnit.DAYS.between(today, nextBirthday);
+
+        String formattedDate =
+                nextBirthday.format(DOB_FORMAT);
+
+        birthdayCountdownLabel.setText(
+                daysRemaining + " days remaining | " +
+                        formattedDate
+        );
+    }
+
+    /**
+     * Handle February 29 birthdays in non-leap years.
+     * This implementation uses February 28.
+     */
+    private LocalDate getBirthdayInYear(
+            int year,
+            int month,
+            int day
+    ) {
+
+        if (month == 2 &&
+                day == 29 &&
+                !Year.isLeap(year)) {
+
+            return LocalDate.of(year, 2, 28);
+        }
+
+        return LocalDate.of(year, month, day);
+    }
+
+    /**
+     * Load lecturer profile details from database.
+     */
     private void loadProfile() {
 
         statusLabel.setText("Loading profile details...");
@@ -527,38 +795,82 @@ public class LecturerProfile extends JPanel {
                 titleCombo.setSelectedItem(data[3]);
 
                 fullNameField.setText(
-                        data[4] == null ? "" : data[4].toString()
+                        data[4] == null
+                                ? "" : data[4].toString()
                 );
 
-                nicField.setText(
-                        data[5] == null ? "" : data[5].toString()
-                );
+                // Load NIC as read-only.
+                String nicValue = data[5] == null
+                        ? "" : data[5].toString();
+
+                nicField.setText(nicValue);
+                nicField.setEditable(false);
+
+                // Calculate DOB from NIC.
+                LocalDate dob =
+                        calculateDobFromNic(nicValue);
+
+                if (dob != null) {
+
+                    dobField.setText(
+                            dob.format(DOB_FORMAT)
+                    );
+
+                } else {
+
+                    dobField.setText(
+                            "Invalid NIC - DOB unavailable"
+                    );
+                }
+
+                dobField.setEditable(false);
+
+                // Update birthday countdown.
+                updateBirthdayCountdown(dob);
 
                 emailField.setText(
-                        data[6] == null ? "" : data[6].toString()
+                        data[6] == null
+                                ? "" : data[6].toString()
                 );
 
                 contactField.setText(
-                        data[7] == null ? "" : data[7].toString()
+                        data[7] == null
+                                ? "" : data[7].toString()
                 );
 
+                // Existing address is Current Address.
                 addressField.setText(
-                        data[8] == null ? "" : data[8].toString()
+                        data[8] == null
+                                ? "" : data[8].toString()
+                );
+
+                // New Residence Address (DAO index 12).
+                residenceAddressField.setText(
+                        data.length > 12 && data[12] != null
+                                ? data[12].toString()
+                                : ""
                 );
 
                 specializationField.setText(
-                        data[9] == null ? "" : data[9].toString()
+                        data[9] == null
+                                ? "" : data[9].toString()
                 );
 
-                savedPictureUrl = data.length > 11 && data[11] != null
-                        ? data[11].toString()
-                        : "";
+                savedPictureUrl =
+                        data.length > 11 && data[11] != null
+                                ? data[11].toString()
+                                : "";
 
-                profilePictureUrlField.setText(savedPictureUrl);
+                profilePictureUrlField.setText(
+                        savedPictureUrl
+                );
 
                 if (!savedPictureUrl.isBlank()) {
+
                     previewProfilePicture();
+
                 } else {
+
                     picturePreview.setIcon(null);
                     picturePreview.setText("No Profile Picture");
                 }
@@ -576,7 +888,9 @@ public class LecturerProfile extends JPanel {
 
         } catch (SQLException e) {
 
-            statusLabel.setText("Error loading profile.");
+            statusLabel.setText(
+                    "Error loading profile."
+            );
 
             JOptionPane.showMessageDialog(
                     this,
@@ -587,6 +901,9 @@ public class LecturerProfile extends JPanel {
         }
     }
 
+    /**
+     * Validate profile picture URL.
+     */
     private boolean isValidImageUrl(String value) {
 
         if (value == null || value.isBlank()) {
@@ -600,14 +917,19 @@ public class LecturerProfile extends JPanel {
         return value.matches("(?i)^https?://.+");
     }
 
+    /**
+     * Preview profile picture from URL.
+     */
     private void previewProfilePicture() {
 
         String urlText =
                 profilePictureUrlField.getText().trim();
 
         if (urlText.isEmpty()) {
+
             picturePreview.setIcon(null);
             picturePreview.setText("No Profile Picture");
+
             return;
         }
 
@@ -633,12 +955,16 @@ public class LecturerProfile extends JPanel {
                     throws Exception {
 
                 URL url = new URL(urlText);
-                URLConnection connection = url.openConnection();
+
+                URLConnection connection =
+                        url.openConnection();
 
                 connection.setConnectTimeout(5000);
                 connection.setReadTimeout(5000);
+
                 connection.setRequestProperty(
-                        "User-Agent", "UniMIS"
+                        "User-Agent",
+                        "UniMIS"
                 );
 
                 try (java.io.InputStream input =
@@ -656,6 +982,7 @@ public class LecturerProfile extends JPanel {
                     BufferedImage image = get();
 
                     if (image == null) {
+
                         throw new Exception(
                                 "The URL does not contain a supported image."
                         );
@@ -664,8 +991,13 @@ public class LecturerProfile extends JPanel {
                     int width = picturePreview.getWidth();
                     int height = picturePreview.getHeight();
 
-                    if (width <= 0) width = 230;
-                    if (height <= 0) height = 160;
+                    if (width <= 0) {
+                        width = 230;
+                    }
+
+                    if (height <= 0) {
+                        height = 160;
+                    }
 
                     double scale = Math.min(
                             (double) width / image.getWidth(),
@@ -673,11 +1005,13 @@ public class LecturerProfile extends JPanel {
                     );
 
                     int newWidth = Math.max(
-                            1, (int) (image.getWidth() * scale)
+                            1,
+                            (int) (image.getWidth() * scale)
                     );
 
                     int newHeight = Math.max(
-                            1, (int) (image.getHeight() * scale)
+                            1,
+                            (int) (image.getHeight() * scale)
                     );
 
                     Image scaled = image.getScaledInstance(
@@ -687,7 +1021,10 @@ public class LecturerProfile extends JPanel {
                     );
 
                     picturePreview.setText("");
-                    picturePreview.setIcon(new ImageIcon(scaled));
+
+                    picturePreview.setIcon(
+                            new ImageIcon(scaled)
+                    );
 
                     statusLabel.setText(
                             "Picture preview loaded."
@@ -696,6 +1033,7 @@ public class LecturerProfile extends JPanel {
                 } catch (Exception e) {
 
                     picturePreview.setIcon(null);
+
                     picturePreview.setText(
                             "Unable to load picture"
                     );
@@ -709,6 +1047,9 @@ public class LecturerProfile extends JPanel {
         }.execute();
     }
 
+    /**
+     * Save lecturer profile details.
+     */
     private void saveProfile() {
 
         String titleStr =
@@ -717,10 +1058,17 @@ public class LecturerProfile extends JPanel {
         String fullNameStr =
                 fullNameField.getText().trim();
 
-        String nicStr = nicField.getText().trim();
-        String emailStr = emailField.getText().trim();
-        String contactStr = contactField.getText().trim();
-        String addressStr = addressField.getText().trim();
+        String emailStr =
+                emailField.getText().trim();
+
+        String contactStr =
+                contactField.getText().trim();
+
+        String addressStr =
+                addressField.getText().trim();
+
+        String residenceAddressStr =
+                residenceAddressField.getText().trim();
 
         String specStr =
                 specializationField.getText().trim();
@@ -728,7 +1076,8 @@ public class LecturerProfile extends JPanel {
         String pictureUrl =
                 profilePictureUrlField.getText().trim();
 
-        if (fullNameStr.isEmpty() || emailStr.isEmpty()) {
+        if (fullNameStr.isEmpty() ||
+                emailStr.isEmpty()) {
 
             JOptionPane.showMessageDialog(
                     this,
@@ -754,15 +1103,16 @@ public class LecturerProfile extends JPanel {
 
         try {
 
+            // NIC is deliberately not passed to the DAO update.
             boolean success =
                     profileDAO.updateLecturerProfile(
                             userId,
                             titleStr,
                             fullNameStr,
-                            nicStr,
                             emailStr,
                             contactStr,
                             addressStr,
+                            residenceAddressStr,
                             specStr,
                             pictureUrl
                     );
@@ -775,7 +1125,8 @@ public class LecturerProfile extends JPanel {
                 if (onLecturerNameUpdated != null) {
 
                     String displayName =
-                            (titleStr == null ? "" : titleStr.trim())
+                            (titleStr == null
+                                    ? "" : titleStr.trim())
                                     + " "
                                     + fullNameStr;
 
@@ -786,7 +1137,10 @@ public class LecturerProfile extends JPanel {
 
                 // Update topbar profile picture.
                 if (onProfilePictureUpdated != null) {
-                    onProfilePictureUpdated.accept(pictureUrl);
+
+                    onProfilePictureUpdated.accept(
+                            pictureUrl
+                    );
                 }
 
                 // Refresh dashboard greeting.

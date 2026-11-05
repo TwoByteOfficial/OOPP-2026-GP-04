@@ -60,7 +60,17 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON unimis.* TO 'unimisadmin'@'localhost';
 -- update their own profile fields, but NOT username, password_hash, role,
 -- department_id or user_status.
 GRANT SELECT ON unimis.users TO 'unimislec'@'localhost';
-GRANT UPDATE (full_name, nic, date_of_birth, gender, email, contact_no, address, profile_picture)
+GRANT UPDATE (
+              full_name,
+              nic,
+              date_of_birth,
+              gender,
+              email,
+              contact_no,
+              address,
+              residence_address,
+              profile_picture
+    )
     ON unimis.users TO 'unimislec'@'localhost';
 GRANT SELECT ON unimis.lecturers TO 'unimislec'@'localhost';
 GRANT UPDATE (title, specialization) ON unimis.lecturers TO 'unimislec'@'localhost';
