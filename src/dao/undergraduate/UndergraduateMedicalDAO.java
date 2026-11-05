@@ -115,7 +115,8 @@ public class UndergraduateMedicalDAO {
     /**
      * Submits a medical excuse and links the matching attendance_record_id
      * to ensure attendance percentage updates upon approval.
-     * Looks up the corresponding session record for the date and course, then inserts the medical claim with 'Pending' status.
+     * Note: 'approval_status' is omitted from the INSERT query because the MySQL user 'unimisug'
+     * only has INSERT permission on allowed columns, and the database automatically defaults status to 'Pending'.
      *
      * @param studentId   Authenticated student primary key identifier
      * @param courseId    Enrolled course identifier
@@ -148,10 +149,10 @@ public class UndergraduateMedicalDAO {
         } catch (Exception ignored) {}
 
         // -------------------------------------------------------------
-        // Insert new medical submission record with initial Pending status
+        // Insert new medical submission (approval_status omitted to use schema default 'Pending')
         // -------------------------------------------------------------
-        String sql = "INSERT INTO medicals (student_id, course_id, attendance_record_id, medical_date, reason, document_path, approval_status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, 'Pending')";
+        String sql = "INSERT INTO medicals (student_id, course_id, attendance_record_id, medical_date, reason, document_path) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = DBConnection.UG_CON.prepareStatement(sql)) {
             ps.setLong(1, studentId);
@@ -175,7 +176,6 @@ public class UndergraduateMedicalDAO {
      * Retrieves lecture dates for a specific course module.
      * Prioritizes dates where the student was marked ABSENT.
      * If no absent dates exist, returns all session dates for the course from attendance_sessions.
-     * Provides deterministic past dates as fallback if no session records exist in the database.
      *
      * @param studentId Authenticated student primary key identifier
      * @param courseId  Enrolled course primary key identifier
