@@ -27,7 +27,7 @@ public class TechnicalOfficerProfileDAO {
         String sql =
                 "SELECT u.user_id, u.username, u.full_name, u.nic, " +
                         "u.date_of_birth, u.gender, u.email, u.contact_no, " +
-                        "u.address, u.department_id, u.user_status, " +
+                        "u.address, u.profile_picture, u.department_id, u.user_status, " +
                         "t.technical_officer_code, t.designation, t.assigned_labs " +
                         "FROM users u " +
                         "JOIN technical_officers t ON u.user_id = t.user_id " +
@@ -51,6 +51,7 @@ public class TechnicalOfficerProfileDAO {
                     officer.setEmail(rs.getString("email"));
                     officer.setContactNo(rs.getString("contact_no"));
                     officer.setAddress(rs.getString("address"));
+                    officer.setProfilePicture(rs.getString("profile_picture"));
                     officer.setDepartmentId((Integer) rs.getObject("department_id"));
                     officer.setUserStatus(rs.getString("user_status"));
 
@@ -103,6 +104,23 @@ public class TechnicalOfficerProfileDAO {
             stmt.setString(5, assignedLabs);
             stmt.setLong(6, userId);
 
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * [OOP - ABSTRACTION]: Updates the profile picture path or URL in the users table.
+     *
+     * @param userId         The user ID of the Technical Officer
+     * @param profilePicture The image file path or URL (or null to remove)
+     * @return true if updated successfully
+     * @throws SQLException if a database error occurs
+     */
+    public boolean updateProfilePicture(long userId, String profilePicture) throws SQLException {
+        String sql = "UPDATE users SET profile_picture = ? WHERE user_id = ? AND role = 'Technical Officer'";
+        try (PreparedStatement stmt = DBConnection.TO_CON.prepareStatement(sql)) {
+            stmt.setString(1, profilePicture);
+            stmt.setLong(2, userId);
             return stmt.executeUpdate() > 0;
         }
     }

@@ -1,5 +1,7 @@
 package gui.technical.dashboard.header;
 
+import gui.technical.TechnicalOfficerProfilePanel;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -13,6 +15,9 @@ public class DashboardHeaderPanel extends JPanel {
     private final Color NAVY = new Color(24, 58, 99);
     private final Color MUTED = new Color(105, 118, 135);
 
+    private final String fullName;
+    private final JLabel avatar;
+
     /**
      * Constructs the header panel.
      *
@@ -20,6 +25,8 @@ public class DashboardHeaderPanel extends JPanel {
      * @param role     User role name ("Technical Officer")
      */
     public DashboardHeaderPanel(String fullName, String role) {
+        this.fullName = fullName;
+        this.avatar = new JLabel(getInitials(fullName), SwingConstants.CENTER);
 
         setLayout(new BorderLayout(20, 0));
         setOpaque(false);
@@ -27,6 +34,24 @@ public class DashboardHeaderPanel extends JPanel {
 
         add(buildTitleSection(), BorderLayout.CENTER);
         add(buildUserSection(fullName, role), BorderLayout.EAST);
+    }
+
+    /**
+     * Updates the avatar square with a profile picture thumbnail or restores default initials.
+     *
+     * @param path The image file path or URL (or null)
+     */
+    public void setProfilePicture(String path) {
+        ImageIcon icon = TechnicalOfficerProfilePanel.loadThumbnail(path, 42, 42);
+        if (icon != null) {
+            avatar.setIcon(icon);
+            avatar.setText("");
+            avatar.setToolTipText(path);
+        } else {
+            avatar.setIcon(null);
+            avatar.setText(getInitials(fullName));
+            avatar.setToolTipText(null);
+        }
     }
 
     /**
@@ -65,7 +90,6 @@ public class DashboardHeaderPanel extends JPanel {
         userInfo.setBackground(Color.WHITE);
         userInfo.setBorder(new EmptyBorder(7, 10, 7, 12));
 
-        JLabel avatar = new JLabel(getInitials(fullName), SwingConstants.CENTER);
         avatar.setOpaque(true);
         avatar.setBackground(new Color(15, 118, 110));
         avatar.setForeground(Color.WHITE);

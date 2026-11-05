@@ -99,7 +99,7 @@ public class TechnicalOfficerDashboard extends JFrame {
         pageContainer.add(new MedicalRecordsPanel(userId), "Medical Records");
         pageContainer.add(new DepartmentTimetablePanel(userId), "Timetables");
         pageContainer.add(new NoticesPanel(userId), "Notices");
-        pageContainer.add(new TechnicalOfficerProfilePanel(userId), "My Profile");
+        pageContainer.add(new TechnicalOfficerProfilePanel(userId, dashboardPanel::updateProfilePicture), "My Profile");
 
         // Assemble root layout: sidebar on left (WEST), content pages in center
         JPanel root = new JPanel(new BorderLayout());

@@ -1,12 +1,14 @@
 package gui.technical.dashboard;
 
 import java.util.function.Consumer;
+import dao.TechnicalOfficer.TechnicalOfficerProfileDAO;
 import gui.theme.UniMisTheme;
 import gui.technical.dashboard.header.DashboardHeaderPanel;
 import gui.technical.dashboard.summary.DashboardSummaryPanel;
 import gui.technical.dashboard.actions.DashboardQuickActionsPanel;
 import gui.technical.dashboard.overview.DashboardOverviewPanel;
 import gui.technical.dashboard.bottom.DashboardBottomPanel;
+import model.TechnicalOfficer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -25,6 +27,7 @@ public class TODashboardPanel extends JPanel {
     private final String role;
     private final Consumer<String> navigationHandler;
     private final long userId;
+    private final DashboardHeaderPanel headerPanel;
 
     /**
      * Constructs the Technical Officer Dashboard landing page.
@@ -49,14 +52,39 @@ public class TODashboardPanel extends JPanel {
         setBackground(UniMisTheme.LIGHT_BG);
         setBorder(new EmptyBorder(24, 28, 24, 28));
 
-        // Welcome header banner
-        add(
-                new DashboardHeaderPanel(this.fullName, this.role),
-                BorderLayout.NORTH
-        );
+        // Welcome header banner with profile card avatar
+        headerPanel = new DashboardHeaderPanel(this.fullName, this.role);
+        add(headerPanel, BorderLayout.NORTH);
 
         // Core dashboard body
         add(buildDashboardContent(), BorderLayout.CENTER);
+
+        // Load initial profile picture thumbnail in the top right card
+        loadInitialProfilePicture();
+    }
+
+    /**
+     * Loads the existing profile picture from the database and updates the header avatar.
+     */
+    private void loadInitialProfilePicture() {
+        try {
+            TechnicalOfficer officer = new TechnicalOfficerProfileDAO().getProfile(userId);
+            if (officer != null && officer.getProfilePicture() != null) {
+                headerPanel.setProfilePicture(officer.getProfilePicture());
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * Updates the avatar profile picture in real-time when changed from My Profile.
+     *
+     * @param path The updated image file path or URL (or null if deleted)
+     */
+    public void updateProfilePicture(String path) {
+        if (headerPanel != null) {
+            headerPanel.setProfilePicture(path);
+        }
     }
 
     /**
