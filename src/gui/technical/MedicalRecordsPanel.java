@@ -8,7 +8,10 @@ import dao.TechnicalOfficer.AttendanceDAO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
+import java.net.URI;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +29,8 @@ public class MedicalRecordsPanel extends JPanel {
     private final JComboBox<String> courseFilter;
     private final JTextField searchField;
     private final long userId;
+
+    private List<Medical> currentRecords = new ArrayList<>();
 
     /**
      * Constructs the Medical Records panel.
@@ -192,14 +197,14 @@ public class MedicalRecordsPanel extends JPanel {
 
             String searchText = searchField.getText();
 
-            List<Medical> records = new MedicalDAO().searchMedicalRecords(
+            currentRecords = new MedicalDAO().searchMedicalRecords(
                     selectedStatus,
                     courseId,
                     searchText
             );
 
             // Add each record as a table row
-            for (Medical medical : records) {
+            for (Medical medical : currentRecords) {
                 tableModel.addRow(new Object[]{
                         medical.getMedicalId(),
                         medical.getRegistrationNo(),
@@ -371,9 +376,14 @@ public class MedicalRecordsPanel extends JPanel {
     }
 
     /**
-     * [OOP - ENCAPSULATION]: Private method building the modal dialog for detailed view.
+     * [OOP - ENCAPSULATION]: Private method building the modal dialog for detailed view,
+     * showing record fields, document path, and a button to view the document/image.
      */
     private void showMedicalDetails(int row) {
+        String docPath = (row >= 0 && row < currentRecords.size())
+                ? currentRecords.get(row).getDocumentPath()
+                : "";
+
         String details =
                 "Medical ID: " + tableModel.getValueAt(row, 0) + "\n\n" +
                         "Registration No: " + tableModel.getValueAt(row, 1) + "\n\n" +
@@ -382,7 +392,8 @@ public class MedicalRecordsPanel extends JPanel {
                         "Course Name: " + tableModel.getValueAt(row, 4) + "\n\n" +
                         "Medical Date: " + tableModel.getValueAt(row, 5) + "\n\n" +
                         "Reason: " + tableModel.getValueAt(row, 6) + "\n\n" +
-                        "Status: " + tableModel.getValueAt(row, 7);
+                        "Status: " + tableModel.getValueAt(row, 7) + "\n\n" +
+                        "Document Path: " + (docPath == null || docPath.isBlank() ? "No document attached" : docPath);
 
         JTextArea textArea = new JTextArea(details);
         textArea.setEditable(false);
@@ -395,12 +406,48 @@ public class MedicalRecordsPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setPreferredSize(new Dimension(500, 350));
 
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        JButton viewDocButton = new JButton("View Document / Image");
+        viewDocButton.setFont(UniMisTheme.FONT_BODY);
+        viewDocButton.addActionListener(e -> openDocument(docPath));
+        panel.add(viewDocButton, BorderLayout.SOUTH);
+
         JOptionPane.showMessageDialog(
                 this,
-                scrollPane,
+                panel,
                 "Medical Record Details",
                 JOptionPane.INFORMATION_MESSAGE
         );
+    }
+
+    /**
+     * Opens the medical document, image, or URL in the default application or web browser.
+     */
+    private void openDocument(String path) {
+        if (path == null || path.isBlank() || path.equalsIgnoreCase("null")) {
+            JOptionPane.showMessageDialog(this, "No document attached to this medical record.");
+            return;
+        }
+
+        try {
+            if (path.startsWith("http://") || path.startsWith("https://")) {
+                Desktop.getDesktop().browse(new URI(path.trim()));
+            } else {
+                File file = new File(path.trim());
+                if (!file.exists()) {
+                    file = new File(System.getProperty("user.dir"), path.trim());
+                }
+                if (file.exists()) {
+                    Desktop.getDesktop().open(file);
+                } else {
+                    JOptionPane.showMessageDialog(this, "File not found on disk at:\n" + file.getAbsolutePath());
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Could not open document:\n" + ex.getMessage());
+        }
     }
 
     /**
