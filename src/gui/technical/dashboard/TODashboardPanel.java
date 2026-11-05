@@ -13,17 +13,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Main overview panel for the Technical Officer.
- * Assembles all dashboard sections vertically inside a scrollable view:
- * 1. Header Panel: Greeting with officer's name and role badge
- * 2. Summary Panel: Metric cards (Undergraduates, Pending Medicals, Attendance, Today's Sessions)
- * 3. Quick Actions Panel: Direct shortcut buttons (Mark Attendance, Review Medicals, etc.)
- * 4. Overview Panel: Visual attendance chart breakdown and pending medical list
- * 5. Bottom Panel: Weekly timetable preview and latest published campus notices
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the main Technical Officer Dashboard container.
+ * 
+ * [OOP - ABSTRACTION]: Aggregates modular sub-panels (header, summary cards, quick actions,
+ * overview charts, timetable, notices), abstracting complex child layouts from the parent frame.
  */
 public class TODashboardPanel extends JPanel {
 
-    // Logged-in Technical Officer's information
+    // [OOP - ENCAPSULATION]: Private session state and navigation callback
     private final String fullName;
     private final String role;
     private final Consumer<String> navigationHandler;
@@ -35,7 +32,7 @@ public class TODashboardPanel extends JPanel {
      * @param userId            Database user ID of the officer
      * @param fullName          Full name of the officer
      * @param role              Role title ("Technical Officer")
-     * @param navigationHandler Callback to switch to other sidebar tabs
+     * @param navigationHandler [OOP - INTERFACE]: java.util.function.Consumer<String> callback
      */
     public TODashboardPanel(
             long userId,
@@ -63,9 +60,7 @@ public class TODashboardPanel extends JPanel {
     }
 
     /**
-     * Assembles the stacked vertical sections of the dashboard.
-     *
-     * @return JPanel containing summary cards, quick actions, charts, timetable, and notices
+     * [OOP - ENCAPSULATION]: Private helper assembling sub-panels into a vertical box layout.
      */
     private JPanel buildDashboardContent() {
 
@@ -73,16 +68,9 @@ public class TODashboardPanel extends JPanel {
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        // 1. KPI summary cards
         DashboardSummaryPanel summaryPanel = new DashboardSummaryPanel(userId);
-
-        // 2. Action buttons
         DashboardQuickActionsPanel quickActionsPanel = new DashboardQuickActionsPanel(navigationHandler);
-
-        // 3. Analytics & pending medical items
         DashboardOverviewPanel overviewPanel = new DashboardOverviewPanel(userId, navigationHandler);
-
-        // 4. Timetable & latest notices
         DashboardBottomPanel bottomPanel = new DashboardBottomPanel(userId);
 
         summaryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);

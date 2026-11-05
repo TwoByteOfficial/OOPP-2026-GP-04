@@ -6,9 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Bottom container panel for the Technical Officer Dashboard.
- * Arranges the weekly Department Timetable and the Latest Notices panels
- * side-by-side using a 2-column GridLayout.
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the bottom 2-column container.
  */
 public class DashboardBottomPanel extends JPanel {
 
@@ -19,15 +17,11 @@ public class DashboardBottomPanel extends JPanel {
      */
     public DashboardBottomPanel(long userId) {
 
-        // 1 row, 2 columns with 16px horizontal spacing
         setLayout(new GridLayout(1, 2, 16, 0));
         setOpaque(false);
         setBackground(UniMisTheme.LIGHT_BG);
 
-        // Left column: Department Timetable schedule
         add(new DepartmentTimetablePanel(userId));
-
-        // Right column: Latest campus notices
         add(new LatestNoticesPanel(userId));
     }
 }

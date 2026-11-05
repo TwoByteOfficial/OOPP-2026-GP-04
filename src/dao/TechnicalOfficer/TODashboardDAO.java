@@ -7,15 +7,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Data Access Object (DAO) for the Technical Officer Dashboard.
- * Gathers aggregated statistics and counts (student count, pending medical count,
+ * [OOP - ABSTRACTION]: Data Access Object for the Technical Officer Dashboard.
+ * Gathers and abstracts aggregated statistics and analytics (student counts, pending medical count,
  * today's sessions, and attendance status breakdown) filtered by the officer's department.
  */
 public class TODashboardDAO {
 
     /**
-     * Counts the total number of active undergraduate students in the Technical Officer's department.
-     * Displayed on the UndergraduateSummaryCard on the dashboard.
+     * [OOP - ABSTRACTION]: Abstracts complex SQL aggregate query counting department undergraduates.
      *
      * @param userId The user ID of the Technical Officer
      * @return Number of active undergraduate students in the same department
@@ -49,8 +48,7 @@ public class TODashboardDAO {
     }
 
     /**
-     * Counts the number of medical certificate requests awaiting review in the officer's department.
-     * Displayed on the PendingMedicalCard on the dashboard.
+     * [OOP - ABSTRACTION]: Abstracts SQL query counting pending medical certificates.
      *
      * @param userId The user ID of the Technical Officer
      * @return Count of pending medical submissions
@@ -85,7 +83,6 @@ public class TODashboardDAO {
 
     /**
      * Counts the number of distinct students with recorded attendance in the officer's department.
-     * Displayed on the AttendanceSummaryCard on the dashboard.
      *
      * @param userId The user ID of the Technical Officer
      * @return Number of distinct students with attendance entries
@@ -119,9 +116,7 @@ public class TODashboardDAO {
     }
 
     /**
-     * Counts the number of class or lab sessions scheduled for today (CURDATE())
-     * in the timetable for the officer's department.
-     * Displayed on the TodaySessionsCard on the dashboard.
+     * Counts class or lab sessions scheduled for today in the timetable for the officer's department.
      *
      * @param userId The user ID of the Technical Officer
      * @return Count of scheduled timetable sessions today
@@ -153,14 +148,8 @@ public class TODashboardDAO {
     }
 
     /**
-     * Aggregates attendance records across the officer's department into counts by status.
-     * Returns an array with indices:
-     * [0] Total records
-     * [1] PRESENT count
-     * [2] ABSENT count
-     * [3] MEDICAL count
-     * [4] LATE count
-     * Used by AttendanceOverviewPanel to render attendance statistics and progress bars.
+     * [OOP - ABSTRACTION]: Aggregates attendance statistics into an integer array
+     * without exposing SQL conditional SUM expressions to the UI.
      *
      * @param userId The user ID of the Technical Officer
      * @return Array of 5 integers representing total and status breakdown

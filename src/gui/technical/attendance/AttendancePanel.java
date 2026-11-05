@@ -19,50 +19,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Main attendance management panel for Technical Officers.
- * Allows officers to:
- * 1. Select a course, session component (Theory/Practical/Tutorial), and session date/number.
- * 2. Load enrolled students and any previously recorded attendance status.
- * 3. Mark individual student attendance (PRESENT / ABSENT) or apply bulk status to all students.
- * 4. Save the batch of attendance records to the database with the officer's auditor user ID.
- * 5. Warns before discarding unsaved attendance edits when switching courses or sessions.
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the Attendance Management interface.
+ * 
+ * [OOP - ABSTRACTION]: Interacts with the data tier entirely via DAOs (AttendanceDAO, CourseDAO, 
+ * EnrollmentDAO), abstracting all database queries, joins, and transactions away from the UI.
  */
 public class AttendancePanel extends JPanel {
 
-    // Dropdown selectors for Course, Component, and Session
+    // [OOP - ENCAPSULATION]: All UI selectors, lists, and state flags are declared private.
     private JComboBox<String> courseComboBox;
     private JComboBox<String> componentComboBox;
     private JComboBox<AttendanceSession> sessionComboBox;
 
-    // Student attendance table
     private JTable studentTable;
 
-    // In-memory lists of loaded courses and currently displayed undergraduates
     private List<Course> courses = new ArrayList<>();
     private List<Undergraduate> loadedStudents = new ArrayList<>();
 
-    // User ID of the logged-in Technical Officer (recorded in attendance_records as recorded_by)
     private final long userId;
 
-    // State flags for change tracking and avoiding cyclic listener events
     private boolean attendanceChanged = false;
     private boolean loadingAttendance = false;
     private boolean changingSelection = false;
 
-    // Tracks previously selected items to rollback if user cancels discarding unsaved changes
     private int previousCourseIndex = 0;
     private String previousComponent = "Select a component";
     private AttendanceSession previousSession = null;
 
     /**
-     * Parameterless constructor defaulting officer user ID to 0.
+     * [OOP - POLYMORPHISM (OVERLOADING)]: Default constructor overloading.
+     * Invokes the parameterized constructor with userId = 0.
      */
     public AttendancePanel() {
         this(0);
     }
 
     /**
-     * Primary constructor used by TechnicalOfficerDashboard.
+     * [OOP - POLYMORPHISM (OVERLOADING)]: Parameterized constructor accepting the logged-in user ID.
      *
      * @param userId The database user ID of the logged-in Technical Officer
      */
@@ -131,7 +124,7 @@ public class AttendancePanel extends JPanel {
         };
         JComboBox<String> setAllStatusComboBox = new JComboBox<>(allStatuses);
 
-        // Bulk status listener: updates column 3 for every row in the table
+        // [OOP - INTERFACE]: java.awt.event.ActionListener implementation via lambda
         setAllStatusComboBox.addActionListener(e -> {
             String selectedStatus = (String) setAllStatusComboBox.getSelectedItem();
 
@@ -144,29 +137,27 @@ public class AttendancePanel extends JPanel {
                 model.setValueAt(selectedStatus, row, 3);
             }
 
-            // Reset selector back to placeholder
             setAllStatusComboBox.setSelectedIndex(0);
         });
 
-        // Left side: load and save buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.add(loadButton);
         buttonPanel.add(saveButton);
 
-        // Right side: bulk attendance controls
         JPanel setAllPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 5));
         setAllPanel.setBackground(Color.WHITE);
         setAllPanel.add(setAllLabel);
         setAllPanel.add(setAllStatusComboBox);
 
-        // Top toolbar above the student table
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.setBackground(Color.WHITE);
         actionPanel.add(buttonPanel, BorderLayout.WEST);
         actionPanel.add(setAllPanel, BorderLayout.EAST);
 
-        // Configure table model: only column 3 (Attendance Status) is editable
+        // [OOP - INHERITANCE & POLYMORPHISM (OVERRIDING)]:
+        // Subclassing DefaultTableModel and overriding isCellEditable() so only
+        // column 3 (attendance status dropdown) is editable by the user.
         studentTable = new JTable(
                 new DefaultTableModel(
                         new String[]{
@@ -186,7 +177,6 @@ public class AttendancePanel extends JPanel {
         studentTable.setFont(new Font("Arial", Font.PLAIN, 16));
         studentTable.setRowHeight(30);
 
-        // Dropdown editor for the Attendance Status column in each table row
         String[] statuses = {
                 "Select Status",
                 "PRESENT",
@@ -199,7 +189,8 @@ public class AttendancePanel extends JPanel {
                 .getColumn(3)
                 .setCellEditor(new DefaultCellEditor(statusComboBox));
 
-        // Listen for user changes in the table to prompt for unsaved changes if navigating away
+        // [OOP - INTERFACE]: javax.swing.event.TableModelListener implementation via lambda
+        // listening to table model mutations dynamically at runtime.
         studentTable.getModel().addTableModelListener(e -> {
             if (!loadingAttendance
                     && e.getType() == TableModelEvent.UPDATE
@@ -217,7 +208,7 @@ public class AttendancePanel extends JPanel {
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // Course combobox selection listener
+        // [OOP - INTERFACE]: ActionListener lambda for course dropdown
         courseComboBox.addActionListener(e -> {
             if (changingSelection) {
                 return;
@@ -225,7 +216,6 @@ public class AttendancePanel extends JPanel {
 
             int newIndex = courseComboBox.getSelectedIndex();
 
-            // Prompt user if they have unsaved changes
             if (!confirmDiscardChanges()) {
                 changingSelection = true;
                 courseComboBox.setSelectedIndex(previousCourseIndex);
@@ -240,7 +230,7 @@ public class AttendancePanel extends JPanel {
             loadSessions();
         });
 
-        // Component selection listener (Theory vs Practical)
+        // [OOP - INTERFACE]: ActionListener lambda for component dropdown
         componentComboBox.addActionListener(e -> {
             if (changingSelection) {
                 return;
@@ -262,7 +252,7 @@ public class AttendancePanel extends JPanel {
             loadSessions();
         });
 
-        // Session selection listener
+        // [OOP - INTERFACE]: ActionListener lambda for session dropdown
         sessionComboBox.addActionListener(e -> {
             if (changingSelection) {
                 return;
@@ -283,9 +273,8 @@ public class AttendancePanel extends JPanel {
             clearStudentTable();
         });
 
-        // "Load Students" button handler
+        // [OOP - INTERFACE]: ActionListener lambda for Load Students button
         loadButton.addActionListener(e -> {
-            // Stop any active cell editing in the table before reloading
             if (studentTable.isEditing() && !studentTable.getCellEditor().stopCellEditing()) {
                 return;
             }
@@ -310,11 +299,11 @@ public class AttendancePanel extends JPanel {
             try {
                 Course selectedCourse = courses.get(selectedIndex - 1);
 
-                // 1. Fetch enrolled undergraduates for this course
+                // [OOP - ABSTRACTION]: Querying enrolled students via EnrollmentDAO
                 List<Undergraduate> students =
                         new EnrollmentDAO().getEnrolledStudentsByCourse(selectedCourse.getCourseId());
 
-                // 2. Fetch any already-recorded attendance for this specific session
+                // [OOP - ABSTRACTION]: Querying existing session records via AttendanceDAO
                 List<AttendanceRecord> records =
                         new AttendanceDAO().getAttendanceBySession(selectedSession.getAttendanceSessionId());
 
@@ -329,7 +318,6 @@ public class AttendancePanel extends JPanel {
                     for (Undergraduate student : students) {
                         String status = "Select Status";
 
-                        // Match student with existing database attendance record if available
                         for (AttendanceRecord record : records) {
                             if (record.getStudentId() == student.getUserId()) {
                                 status = record.getAttendanceStatus();
@@ -366,9 +354,8 @@ public class AttendancePanel extends JPanel {
             }
         });
 
-        // "Save Attendance" button handler
+        // [OOP - INTERFACE]: ActionListener lambda for Save Attendance button
         saveButton.addActionListener(e -> {
-            // Commit active table editing before collecting values
             if (studentTable.isEditing() && !studentTable.getCellEditor().stopCellEditing()) {
                 return;
             }
@@ -400,12 +387,10 @@ public class AttendancePanel extends JPanel {
                 AttendanceSession selectedSession = (AttendanceSession) sessionComboBox.getSelectedItem();
                 List<AttendanceRecord> records = new ArrayList<>();
 
-                // Build attendance records from table rows
                 for (int i = 0; i < loadedStudents.size(); i++) {
                     Undergraduate student = loadedStudents.get(i);
                     String status = studentTable.getValueAt(i, 3).toString();
 
-                    // Require explicit attendance status selection for all students
                     if (status.equals("Select Status")) {
                         JOptionPane.showMessageDialog(
                                 this,
@@ -419,7 +404,6 @@ public class AttendancePanel extends JPanel {
                     record.setStudentId(student.getUserId());
                     record.setAttendanceStatus(status);
 
-                    // Track which Technical Officer recorded the attendance
                     if (userId > 0) {
                         record.setRecordedBy(userId);
                     }
@@ -427,7 +411,7 @@ public class AttendancePanel extends JPanel {
                     records.add(record);
                 }
 
-                // Batch insert or update via DAO transaction
+                // [OOP - ABSTRACTION]: Delegating batch database update to AttendanceDAO
                 boolean success = new AttendanceDAO().recordAttendanceBatch(records);
 
                 if (success) {
@@ -452,12 +436,11 @@ public class AttendancePanel extends JPanel {
             }
         });
 
-        // Load courses on panel creation
         loadCourses();
     }
 
     /**
-     * Loads active courses from the database and fills the course dropdown.
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method loading courses via CourseDAO.
      */
     private void loadCourses() {
         try {
@@ -489,7 +472,7 @@ public class AttendancePanel extends JPanel {
     }
 
     /**
-     * Loads scheduled sessions for the currently selected course and component (Theory/Practical).
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Private method loading sessions via AttendanceDAO.
      */
     private void loadSessions() {
         int selectedIndex = courseComboBox.getSelectedIndex();
@@ -523,7 +506,6 @@ public class AttendancePanel extends JPanel {
                 sessionComboBox.addItem(session);
             }
 
-            // Automatically select first session in dropdown
             previousSession = (AttendanceSession) sessionComboBox.getSelectedItem();
 
         } catch (SQLException e) {
@@ -539,7 +521,7 @@ public class AttendancePanel extends JPanel {
     }
 
     /**
-     * Clears student table rows and resets internal change tracking.
+     * [OOP - ENCAPSULATION]: Private method clearing internal table state.
      */
     private void clearStudentTable() {
         loadingAttendance = true;
@@ -554,9 +536,7 @@ public class AttendancePanel extends JPanel {
     }
 
     /**
-     * Prompts the officer to confirm discarding unsaved table edits before switching selection.
-     *
-     * @return true if there are no unsaved changes or if the user confirmed discard
+     * [OOP - ENCAPSULATION]: Private method encapsulating dirty-check confirmation.
      */
     private boolean confirmDiscardChanges() {
         if (!attendanceChanged) {

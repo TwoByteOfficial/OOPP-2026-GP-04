@@ -12,34 +12,16 @@ import java.sql.Timestamp;
  */
 public class AttendanceSession {
 
-    // Unique primary key identifying the attendance session
+    // [OOP - ENCAPSULATION]: Private fields ensure encapsulation and prevent direct tampering.
     private long attendanceSessionId;
-
-    // Foreign key pointing to the course
     private int courseId;
-
-    // Component type: "Theory" or "Practical"
     private String component;
-
-    // Sequential number of the session (e.g., Session 1, Session 2)
     private int sessionNo;
-
-    // Date when the session took place
     private Date sessionDate;
-
-    // Starting time of the session
     private Time startTime;
-
-    // Finishing time of the session
     private Time endTime;
-
-    // Total duration in hours (e.g., 2.0)
     private BigDecimal durationHours;
-
-    // User ID of the lecturer or officer who conducted the session
     private Long conductedBy;
-
-    // Lesson topic or laboratory practical title covered in this session
     private String topic;
 
     /**
@@ -48,7 +30,7 @@ public class AttendanceSession {
     public AttendanceSession() {}
 
     /**
-     * Parameterized constructor for initializing an attendance session.
+     * [OOP - POLYMORPHISM (OVERLOADING)]: Constructor overloading with full parameter list.
      */
     public AttendanceSession(long attendanceSessionId, int courseId, String component, 
                              int sessionNo, Date sessionDate, Time startTime, Time endTime, 
@@ -56,8 +38,7 @@ public class AttendanceSession {
                              Timestamp createdAt) {
     }
 
-    // --- Getters and Setters ---
-
+    // [OOP - ENCAPSULATION]: Public getters and setters for controlled data access.
     public long getAttendanceSessionId() { return attendanceSessionId; }
     public void setAttendanceSessionId(long attendanceSessionId) { this.attendanceSessionId = attendanceSessionId; }
 
@@ -89,8 +70,9 @@ public class AttendanceSession {
     public void setTopic(String topic) { this.topic = topic; }
 
     /**
-     * Returns a human-readable string representation used in dropdown combo boxes.
-     * Example: "Session 1 - 2026-03-15"
+     * [OOP - POLYMORPHISM (OVERRIDING)]: Overriding Object's toString() method.
+     * At runtime, whenever Java needs a String representation of this object (such as
+     * in a JComboBox dropdown), this custom implementation is dynamically invoked (Dynamic Dispatch).
      */
     @Override
     public String toString() {

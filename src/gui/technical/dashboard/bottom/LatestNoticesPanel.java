@@ -12,8 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * Preview panel on the dashboard displaying up to the 5 most recently published notices.
- * Shows notice title, type (e.g. Academic, General), and publication date formatted as "dd MMM yyyy".
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the Latest Notices preview widget.
+ * 
+ * [OOP - ABSTRACTION]: Retrieves published notices via NoticeDAO.
  */
 public class LatestNoticesPanel extends JPanel {
 
@@ -28,17 +29,16 @@ public class LatestNoticesPanel extends JPanel {
         setBackground(UniMisTheme.WHITE);
         setBorder(new EmptyBorder(18, 18, 18, 18));
 
-        // Section header
         JLabel heading = new JLabel("Latest Notices");
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
         add(heading, BorderLayout.NORTH);
 
-        // Vertical container for notice items
         JPanel noticesPanel = new JPanel();
         noticesPanel.setOpaque(false);
         noticesPanel.setLayout(new BoxLayout(noticesPanel, BoxLayout.Y_AXIS));
 
+        // [OOP - ABSTRACTION]: Querying NoticeDAO
         try {
             NoticeDAO dao = new NoticeDAO();
             List<Object[]> notices = dao.getNoticesForTechnicalOfficer(userId);
@@ -49,7 +49,6 @@ public class LatestNoticesPanel extends JPanel {
                 message.setForeground(UniMisTheme.MUTED);
                 noticesPanel.add(message);
             } else {
-                // Display at most the top 5 notices
                 int count = Math.min(5, notices.size());
 
                 for (int i = 0; i < count; i++) {
@@ -81,7 +80,6 @@ public class LatestNoticesPanel extends JPanel {
 
                     noticesPanel.add(noticeItem);
 
-                    // Add a divider line between consecutive notices
                     if (i < count - 1) {
                         noticesPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
                     }

@@ -5,13 +5,11 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Top banner header displayed on the Technical Officer Dashboard.
- * Left side: Dashboard title and descriptive subtitle
- * Right side: Officer avatar with name initials, full name, and user role
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create a custom top greeting header.
  */
 public class DashboardHeaderPanel extends JPanel {
 
-    // Theme color palette for header
+    // [OOP - ENCAPSULATION]: Private color palette constants
     private final Color NAVY = new Color(24, 58, 99);
     private final Color MUTED = new Color(105, 118, 135);
 
@@ -27,17 +25,12 @@ public class DashboardHeaderPanel extends JPanel {
         setOpaque(false);
         setBorder(new EmptyBorder(0, 0, 8, 0));
 
-        // Center section: Title and subtitle
         add(buildTitleSection(), BorderLayout.CENTER);
-
-        // Right section: User badge with avatar
         add(buildUserSection(fullName, role), BorderLayout.EAST);
     }
 
     /**
-     * Builds the title section with dashboard heading and subtitle description.
-     *
-     * @return JPanel containing the titles
+     * [OOP - ENCAPSULATION]: Private helper method creating the title labels.
      */
     private JPanel buildTitleSection() {
 
@@ -61,11 +54,7 @@ public class DashboardHeaderPanel extends JPanel {
     }
 
     /**
-     * Builds the right-side user badge with initials circle, full name, and role.
-     *
-     * @param fullName Officer's full name
-     * @param role     Officer's role
-     * @return JPanel containing avatar and name details
+     * [OOP - ENCAPSULATION]: Private helper method creating the user avatar and badge.
      */
     private JPanel buildUserSection(String fullName, String role) {
 
@@ -76,7 +65,6 @@ public class DashboardHeaderPanel extends JPanel {
         userInfo.setBackground(Color.WHITE);
         userInfo.setBorder(new EmptyBorder(7, 10, 7, 12));
 
-        // Circular avatar showing officer initials
         JLabel avatar = new JLabel(getInitials(fullName), SwingConstants.CENTER);
         avatar.setOpaque(true);
         avatar.setBackground(new Color(15, 118, 110));
@@ -84,7 +72,6 @@ public class DashboardHeaderPanel extends JPanel {
         avatar.setFont(new Font("Segoe UI", Font.BOLD, 13));
         avatar.setPreferredSize(new Dimension(42, 42));
 
-        // Vertical stack of name and role
         JPanel details = new JPanel();
         details.setOpaque(false);
         details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
@@ -110,11 +97,7 @@ public class DashboardHeaderPanel extends JPanel {
     }
 
     /**
-     * Extracts uppercase 1- or 2-letter initials from a person's full name.
-     * For example: "Praveen Silva" -> "PS"
-     *
-     * @param name Input full name string
-     * @return Uppercase initials string, or "TO" if name is blank
+     * [OOP - ENCAPSULATION]: Private helper method extracting uppercase initials from names.
      */
     private String getInitials(String name) {
 

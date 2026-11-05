@@ -3,13 +3,14 @@ package gui.technical.dashboard.summary;
 import gui.theme.UniMisTheme;
 
 /**
- * Summary metric card on the dashboard showing the number of distinct student attendance profiles.
- * Styled with a forest green left accent border.
+ * [OOP - INHERITANCE]: Extends SummaryCardPanel, inheriting its layout, border styling,
+ * and setValue() method while supplying specialized configuration (title and accent color).
  */
 public class AttendanceSummaryCard extends SummaryCardPanel {
 
     /**
      * Constructs the Attendance Profiles card.
+     * Invokes the superclass constructor via super() (Inheritance).
      *
      * @param value Count string to display (e.g., "120")
      */
