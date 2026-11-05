@@ -15,28 +15,36 @@ import java.util.function.Consumer;
 
 /**
  * Grade records directory table displaying course units and semester grades.
- * Column widths are optimized to eliminate module title truncation.
+ * Dynamically sizes viewport to row count to eliminate bottom dead white space.
+ * Encapsulates full tabular presentation of modules, credits, grades, GPV, and completion states
+ * while handling course selection events for detail panel synchronization.
  */
 public class GradesDirectoryPanel extends JPanel {
 
+    // Styling constants for card rounding and border stroke
     private static final int CORNER_RADIUS = 16;
     private static final Color CARD_BORDER_COLOR = new Color(0xE0, 0xE6, 0xED);
 
+    // Table view, model, and scrolling container references
     private final JTable table;
     private final DefaultTableModel model;
+    private final JScrollPane scroll;
 
     public GradesDirectoryPanel(Consumer<String> onSelectCourse) {
+        // Base container layout configuration and inner card padding
         setOpaque(false);
-        setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(16, 18, 16, 18));
+        setLayout(new BorderLayout(0, 10));
+        setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        // Header Title Row
+        // -------------------------------------------------------------
+        // Header Title Row (Directory Caption & Selection Hint)
+        // -------------------------------------------------------------
         JPanel topRow = new JPanel(new BorderLayout());
         topRow.setOpaque(false);
 
         JLabel titleLbl = new JLabel("Semester Course Grade Directory");
         titleLbl.setFont(AdminTheme.font(Font.BOLD, 15));
-        titleLbl.setForeground(AdminTheme.FOREST_GREEN);
+        titleLbl.setForeground(AdminTheme.DEEP_GREEN);
 
         JLabel subLbl = new JLabel("Select a module to inspect GPA impact");
         subLbl.setFont(AdminTheme.font(Font.PLAIN, 12));
@@ -46,6 +54,9 @@ public class GradesDirectoryPanel extends JPanel {
         topRow.add(subLbl, BorderLayout.EAST);
         add(topRow, BorderLayout.NORTH);
 
+        // -------------------------------------------------------------
+        // Table Model Setup & Non-Editable Cell Override
+        // -------------------------------------------------------------
         String[] headers = {"Code", "Course Name", "Credits", "Grade", "GPV", "Status"};
         model = new DefaultTableModel(headers, 0) {
             @Override
@@ -54,6 +65,7 @@ public class GradesDirectoryPanel extends JPanel {
             }
         };
 
+        // Configure table typography, row height, and selection styles
         table = new JTable(model);
         table.setFont(AdminTheme.font(Font.PLAIN, 12));
         table.setRowHeight(36);
@@ -64,6 +76,7 @@ public class GradesDirectoryPanel extends JPanel {
         table.setSelectionForeground(AdminTheme.DEEP_GREEN);
         table.setFocusable(false);
 
+        // Configure table header appearance and styling
         JTableHeader th = table.getTableHeader();
         th.setFont(AdminTheme.font(Font.BOLD, 12));
         th.setBackground(AdminTheme.MINT);
@@ -76,7 +89,6 @@ public class GradesDirectoryPanel extends JPanel {
         table.getColumnModel().getColumn(0).setPreferredWidth(55);
         table.getColumnModel().getColumn(0).setMaxWidth(65);
 
-        // Course Name expanded to 235px to display full title without ellipsis
         table.getColumnModel().getColumn(1).setPreferredWidth(235);
 
         table.getColumnModel().getColumn(2).setPreferredWidth(45);
@@ -90,7 +102,7 @@ public class GradesDirectoryPanel extends JPanel {
 
         table.getColumnModel().getColumn(5).setPreferredWidth(65);
 
-        // Alignments: Left for Code & Course Name
+        // Alignments: Left for Code & Course Name with horizontal padding
         DefaultTableCellRenderer left = new DefaultTableCellRenderer();
         left.setBorder(new EmptyBorder(0, 8, 0, 8));
         table.getColumnModel().getColumn(0).setCellRenderer(left);
@@ -103,7 +115,7 @@ public class GradesDirectoryPanel extends JPanel {
         table.getColumnModel().getColumn(3).setCellRenderer(center);
         table.getColumnModel().getColumn(4).setCellRenderer(center);
 
-        // Custom status badge renderer
+        // Custom status badge renderer with color-coded label text
         table.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable tbl, Object val, boolean isSel, boolean hasFoc, int r, int c) {
@@ -112,14 +124,15 @@ public class GradesDirectoryPanel extends JPanel {
                 lbl.setFont(AdminTheme.font(Font.BOLD, 12));
                 String text = String.valueOf(val);
                 if ("Completed".equalsIgnoreCase(text)) {
-                    lbl.setForeground(new Color(0x2E, 0x7D, 0x32));
+                    lbl.setForeground(new Color(0x2E, 0x7D, 0x32)); // Green for completed
                 } else {
-                    lbl.setForeground(new Color(0xC6, 0xC6, 0x28));
+                    lbl.setForeground(new Color(0xC6, 0xC6, 0x28)); // Amber/Yellow for pending or repeat
                 }
                 return lbl;
             }
         });
 
+        // Row selection listener passing selected course code to consumer callback
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int row = table.getSelectedRow();
@@ -129,14 +142,30 @@ public class GradesDirectoryPanel extends JPanel {
             }
         });
 
-        JScrollPane scroll = new JScrollPane(table);
+        // Scrolling container setup with borderless look and disabled scrollbars
+        scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEAEAEA)));
         scroll.getViewport().setBackground(AdminTheme.WHITE);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
+        updateTableViewportHeight();
         add(scroll, BorderLayout.CENTER);
     }
 
+    /**
+     * Recalculates viewport height dynamically to wrap rows tightly without dead space.
+     */
+    private void updateTableViewportHeight() {
+        int rowCount = Math.max(model.getRowCount(), 1);
+        int totalHeight = rowCount * table.getRowHeight();
+        table.setPreferredScrollableViewportSize(new Dimension(table.getPreferredScrollableViewportSize().width, totalHeight));
+    }
+
+    /**
+     * Updates table rows by extracting attributes dynamically from a list of grade objects
+     * using reflection to support multiple DTO implementations.
+     */
     public void updateData(List<?> list) {
         model.setRowCount(0);
         if (list != null) {
@@ -154,23 +183,38 @@ public class GradesDirectoryPanel extends JPanel {
                 model.addRow(new Object[]{code, name, cred, grade, formattedGpv, status});
             }
         }
+        updateTableViewportHeight();
         selectFirstRow();
+        revalidate();
+        repaint();
     }
 
+    /**
+     * Convenience method to load grade data from StudentCourseGradeDTO lists.
+     */
     public void setGradesData(List<StudentCourseGradeDTO> list) {
         updateData(list);
     }
 
+    /**
+     * Alias method for updateData to support alternate naming conventions.
+     */
     public void setData(List<StudentCourseGradeDTO> list) {
         updateData(list);
     }
 
+    /**
+     * Programmatically selects the first row in the table if records exist.
+     */
     public void selectFirstRow() {
         if (table.getRowCount() > 0) {
             table.setRowSelectionInterval(0, 0);
         }
     }
 
+    /**
+     * Formats string numeric value into two decimal places or returns default placeholder.
+     */
     private String formatToTwoDecimals(String val) {
         try {
             double d = Double.parseDouble(val);
@@ -180,6 +224,10 @@ public class GradesDirectoryPanel extends JPanel {
         }
     }
 
+    /**
+     * Extracts string values from an object using reflection, attempting getter methods first,
+     * then public fields.
+     */
     private String extractString(Object obj, String getterName, String fieldName) {
         try {
             Method m = obj.getClass().getMethod(getterName);
@@ -195,6 +243,29 @@ public class GradesDirectoryPanel extends JPanel {
         }
     }
 
+    /**
+     * Computes preferred size dynamically according to row count and header height.
+     */
+    @Override
+    public Dimension getPreferredSize() {
+        Dimension d = super.getPreferredSize();
+        int rowCount = Math.max(model.getRowCount(), 1);
+        int tableHeight = 34 + (rowCount * table.getRowHeight());
+        d.height = 14 + 22 + 10 + tableHeight + 14 + 2;
+        return d;
+    }
+
+    /**
+     * Constrains maximum dimensions to preferred dimensions to prevent unnatural stretching.
+     */
+    @Override
+    public Dimension getMaximumSize() {
+        return getPreferredSize();
+    }
+
+    /**
+     * Paints an anti-aliased rounded white card background and outer perimeter border.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();

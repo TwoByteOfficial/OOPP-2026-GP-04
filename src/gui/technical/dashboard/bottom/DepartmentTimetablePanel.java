@@ -1,4 +1,3 @@
-
 package gui.technical.dashboard.bottom;
 
 import dao.TechnicalOfficer.TimetableDAO;
@@ -13,12 +12,23 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to display the weekly department timetable.
+ * 
+ * [OOP - ABSTRACTION]: Retrieves schedule data via TimetableDAO, hiding SQL details.
+ */
 public class DepartmentTimetablePanel extends JPanel {
 
+    // [OOP - ENCAPSULATION]: Private UI components and state
     private final DefaultTableModel tableModel;
     private final JLabel statusLabel;
     private JComboBox<String> dayFilter;
 
+    /**
+     * Constructs the department timetable view.
+     *
+     * @param userId The database user ID of the logged-in Technical Officer
+     */
     public DepartmentTimetablePanel(long userId) {
 
         setLayout(new BorderLayout(0, 14));
@@ -29,14 +39,10 @@ public class DepartmentTimetablePanel extends JPanel {
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
 
-
-
-
         String[] days = {
                 "All Days", "Monday", "Tuesday", "Wednesday",
                 "Thursday", "Friday"
         };
-
         dayFilter = new JComboBox<>(days);
 
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
@@ -49,18 +55,15 @@ public class DepartmentTimetablePanel extends JPanel {
         filterPanel.add(dayFilter);
 
         topPanel.add(filterPanel, BorderLayout.CENTER);
-
         add(topPanel, BorderLayout.NORTH);
-
-
-
-
 
         String[] columns = {
                 "Day", "Time", "Course Code", "Course Name",
                 "Component", "Lecturer", "Venue", "Batch"
         };
 
+        // [OOP - INHERITANCE & POLYMORPHISM (OVERRIDING)]:
+        // Subclasses DefaultTableModel anonymously, overriding isCellEditable() to return false.
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -69,7 +72,6 @@ public class DepartmentTimetablePanel extends JPanel {
         };
 
         JTable table = new JTable(tableModel);
-// Keep the columns wide enough to display their contents.
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(95);   // Day
@@ -81,15 +83,8 @@ public class DepartmentTimetablePanel extends JPanel {
         table.getColumnModel().getColumn(6).setPreferredWidth(130);  // Venue
         table.getColumnModel().getColumn(7).setPreferredWidth(70);   // Batch
 
-
-        TableRowSorter<DefaultTableModel> sorter =
-                new TableRowSorter<>(tableModel);
-
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
-
-
-
-
 
         table.setFont(UniMisTheme.FONT_TINY);
         table.setRowHeight(30);
@@ -105,14 +100,13 @@ public class DepartmentTimetablePanel extends JPanel {
         table.getTableHeader().setReorderingAllowed(false);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(
-                BorderFactory.createLineBorder(UniMisTheme.BORDER));
+        scrollPane.setBorder(BorderFactory.createLineBorder(UniMisTheme.BORDER));
 
         statusLabel = new JLabel("Loading timetable...");
         statusLabel.setFont(UniMisTheme.FONT_SMALL);
         statusLabel.setForeground(UniMisTheme.TEXT);
 
-
+        // [OOP - INTERFACE]: java.awt.event.ActionListener lambda implementation
         dayFilter.addActionListener(e -> {
             String selectedDay = (String) dayFilter.getSelectedItem();
 
@@ -124,12 +118,8 @@ public class DepartmentTimetablePanel extends JPanel {
                 );
             }
 
-            statusLabel.setText(
-                    "Timetable entries shown: " + table.getRowCount()
-            );
+            statusLabel.setText("Timetable entries shown: " + table.getRowCount());
         });
-
-
 
         JPanel contentPanel = new JPanel(new BorderLayout(0, 8));
         contentPanel.setBackground(UniMisTheme.WHITE);
@@ -141,27 +131,24 @@ public class DepartmentTimetablePanel extends JPanel {
         loadTimetable(userId);
     }
 
+    /**
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Loads timetable data via TimetableDAO.
+     */
     private void loadTimetable(long userId) {
 
         tableModel.setRowCount(0);
 
         try {
             TimetableDAO dao = new TimetableDAO();
-
-            List<TimetableEntry> entries =
-                    dao.getTimetableByDepartmentUser(userId);
+            List<TimetableEntry> entries = dao.getTimetableByDepartmentUser(userId);
 
             if (entries.isEmpty()) {
-                statusLabel.setText(
-                        "No timetable entries found for your department.");
+                statusLabel.setText("No timetable entries found for your department.");
                 return;
             }
 
             for (TimetableEntry entry : entries) {
-
-                String time =
-                        entry.getStartTime() + " - " + entry.getEndTime();
-
+                String time = entry.getStartTime() + " - " + entry.getEndTime();
                 String lecturer = entry.getLecturerName();
 
                 if (lecturer == null || lecturer.trim().isEmpty()) {
@@ -180,16 +167,14 @@ public class DepartmentTimetablePanel extends JPanel {
                 });
             }
 
-            statusLabel.setText(
-                    "Timetable entries found: " + entries.size());
+            statusLabel.setText("Timetable entries found: " + entries.size());
 
         } catch (SQLException e) {
             statusLabel.setText("Unable to load the timetable.");
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Could not load the department timetable.\n"
-                            + e.getMessage(),
+                    "Could not load the department timetable.\n" + e.getMessage(),
                     "Database Error",
                     JOptionPane.ERROR_MESSAGE
             );

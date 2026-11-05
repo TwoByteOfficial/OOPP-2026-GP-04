@@ -46,7 +46,7 @@ public class CASummaryPanel extends JPanel {
         selectorPanel.setOpaque(false);
 
         JLabel courseLabel = new JLabel("Select Course:");
-        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        courseLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         courseLabel.setForeground(DEEP_GREEN);
 
         courseCombo.setPreferredSize(new Dimension(300, 34));
@@ -74,13 +74,13 @@ public class CASummaryPanel extends JPanel {
 
         caTable = new JTable(tableModel);
         caTable.setRowHeight(34);
-        caTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        caTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
         caTable.setSelectionBackground(PALE_GREEN);
         caTable.setSelectionForeground(DEEP_GREEN);
         caTable.setGridColor(BORDER_GREEN);
         caTable.setFillsViewportHeight(true);
 
-        caTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        caTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
         caTable.getTableHeader().setBackground(PALE_GREEN);
         caTable.getTableHeader().setForeground(DEEP_GREEN);
 

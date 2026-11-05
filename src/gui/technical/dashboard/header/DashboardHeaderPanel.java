@@ -1,15 +1,24 @@
-
 package gui.technical.dashboard.header;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create a custom top greeting header.
+ */
 public class DashboardHeaderPanel extends JPanel {
 
+    // [OOP - ENCAPSULATION]: Private color palette constants
     private final Color NAVY = new Color(24, 58, 99);
     private final Color MUTED = new Color(105, 118, 135);
 
+    /**
+     * Constructs the header panel.
+     *
+     * @param fullName Full name of the logged-in officer
+     * @param role     User role name ("Technical Officer")
+     */
     public DashboardHeaderPanel(String fullName, String role) {
 
         setLayout(new BorderLayout(20, 0));
@@ -20,6 +29,9 @@ public class DashboardHeaderPanel extends JPanel {
         add(buildUserSection(fullName, role), BorderLayout.EAST);
     }
 
+    /**
+     * [OOP - ENCAPSULATION]: Private helper method creating the title labels.
+     */
     private JPanel buildTitleSection() {
 
         JPanel panel = new JPanel();
@@ -30,8 +42,7 @@ public class DashboardHeaderPanel extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 27));
         title.setForeground(NAVY);
 
-        JLabel subtitle = new JLabel(
-                "Attendance, medical records and department operations");
+        JLabel subtitle = new JLabel("Attendance, medical records and department operations");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         subtitle.setForeground(MUTED);
 
@@ -42,18 +53,19 @@ public class DashboardHeaderPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * [OOP - ENCAPSULATION]: Private helper method creating the user avatar and badge.
+     */
     private JPanel buildUserSection(String fullName, String role) {
 
-        JPanel section = new JPanel(new FlowLayout(
-                FlowLayout.RIGHT, 0, 0));
+        JPanel section = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         section.setOpaque(false);
 
         JPanel userInfo = new JPanel(new BorderLayout(10, 0));
         userInfo.setBackground(Color.WHITE);
         userInfo.setBorder(new EmptyBorder(7, 10, 7, 12));
 
-        JLabel avatar = new JLabel(
-                getInitials(fullName), SwingConstants.CENTER);
+        JLabel avatar = new JLabel(getInitials(fullName), SwingConstants.CENTER);
         avatar.setOpaque(true);
         avatar.setBackground(new Color(15, 118, 110));
         avatar.setForeground(Color.WHITE);
@@ -84,6 +96,9 @@ public class DashboardHeaderPanel extends JPanel {
         return section;
     }
 
+    /**
+     * [OOP - ENCAPSULATION]: Private helper method extracting uppercase initials from names.
+     */
     private String getInitials(String name) {
 
         if (name == null || name.isBlank()) {
@@ -93,11 +108,9 @@ public class DashboardHeaderPanel extends JPanel {
         String[] parts = name.trim().split("\\s+");
 
         if (parts.length == 1) {
-            return parts[0].substring(
-                    0, Math.min(2, parts[0].length())).toUpperCase();
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
         }
 
-        return (parts[0].charAt(0) + "" +
-                parts[parts.length - 1].charAt(0)).toUpperCase();
+        return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 }

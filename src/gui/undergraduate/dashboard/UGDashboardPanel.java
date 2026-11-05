@@ -21,14 +21,18 @@ import java.util.function.Consumer;
 
 /**
  * Main Overview Dashboard tab for Undergraduate Portal.
- * Uses a width-tracking viewport panel to prevent right-edge clipping.
+ * Visually calibrated to achieve exact pixel-level alignment with My Courses view.
+ * Coordinates user headers, metric cards, quick actions, analytics breakdown, and daily schedule widgets.
  */
 public class UGDashboardPanel extends JPanel {
 
+    // Authenticated user session state
     private final long userId;
     private final String username;
     private final String fullName;
     private final String role;
+
+    // Sub-view component references
     private final DashboardHeaderPanel headerPanel;
     private final SummaryCardPanel summaryCardPanel;
     private final OverviewBreakdownPanel overviewBreakdownPanel;
@@ -40,10 +44,11 @@ public class UGDashboardPanel extends JPanel {
         this.fullName = fullName;
         this.role = role;
 
+        // Base container styling and layout configuration
         setLayout(new BorderLayout());
         setBackground(AdminTheme.LIGHT_BG);
 
-        // Content panel tracks viewport width strictly
+        // Content panel tracks viewport width strictly to prevent horizontal layout shifting
         JPanel content = new JPanel() {
             @Override
             public Dimension getPreferredSize() {
@@ -57,49 +62,68 @@ public class UGDashboardPanel extends JPanel {
         };
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBorder(new EmptyBorder(16, 20, 16, 20));
 
-        // 1. Header (Welcome text and student avatar)
+        // Exact outer padding as UGCoursesPanel: Top 18px, Left 22px, Bottom 14px, Right 22px
+        content.setBorder(new EmptyBorder(18, 22, 14, 22));
+
+        // -------------------------------------------------------------
+        // 1. Header (Welcome text, student identity, and profile avatar)
+        // -------------------------------------------------------------
         headerPanel = new DashboardHeaderPanel(username, fullName, role);
         headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
         content.add(headerPanel);
-        content.add(Box.createVerticalStrut(14));
 
-        // 2. Summary Cards (4 Compact Stat Cards)
+        // Exact 16px vertical gap between Header and Summary Cards
+        content.add(Box.createVerticalStrut(16));
+
+        // -------------------------------------------------------------
+        // 2. Summary Cards (4 Compact Stat Cards, locked at 72px)
+        // -------------------------------------------------------------
         summaryCardPanel = new SummaryCardPanel();
         summaryCardPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        summaryCardPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 72));
         content.add(summaryCardPanel);
-        content.add(Box.createVerticalStrut(14));
+        content.add(Box.createVerticalStrut(12));
 
-        // 3. Quick Action Buttons
+        // -------------------------------------------------------------
+        // 3. Quick Action Buttons (Direct tab navigation shortcuts)
+        // -------------------------------------------------------------
         DashboardQuickActionsPanel quickActions = new DashboardQuickActionsPanel(onNavigate);
         quickActions.setAlignmentX(Component.LEFT_ALIGNMENT);
+        quickActions.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
         content.add(quickActions);
-        content.add(Box.createVerticalStrut(14));
+        content.add(Box.createVerticalStrut(12));
 
-        // 4. Attendance Distribution and Academic Status
+        // -------------------------------------------------------------
+        // 4. Attendance Distribution and Academic Status Analytics
+        // -------------------------------------------------------------
         overviewBreakdownPanel = new OverviewBreakdownPanel();
         overviewBreakdownPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(overviewBreakdownPanel);
-        content.add(Box.createVerticalStrut(14));
+        content.add(Box.createVerticalStrut(12));
 
-        // 5. Bottom Widgets (Enrolled modules & Notices)
+        // -------------------------------------------------------------
+        // 5. Bottom Widgets (Today's Lecture Schedule & Latest Notices)
+        // -------------------------------------------------------------
         bottomPanel = new DashboardBottomPanel(onNavigate);
         bottomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(bottomPanel);
 
+        // Scroll pane wrapper with clean borders and hidden scrollbars
         JScrollPane scrollPane = new JScrollPane(content);
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
         add(scrollPane, BorderLayout.CENTER);
 
+        // Initial data retrieval on dashboard load
         refreshDashboardData();
 
+        // Automatically trigger data refresh whenever the panel is re-displayed/switched into view
         addAncestorListener(new AncestorListener() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
@@ -114,20 +138,28 @@ public class UGDashboardPanel extends JPanel {
         });
     }
 
+    /**
+     * Queries database asynchronously on the Event Dispatch Thread (EDT)
+     * to fetch user profile, dashboard summary metrics, schedule slots, and notices.
+     */
     public void refreshDashboardData() {
         SwingUtilities.invokeLater(() -> {
             try {
+                // Fetch student profile metadata and update header labels and avatar
                 UserProfileData profile = UndergraduateProfileDAO.getProfile(userId, username);
                 if (profile != null && headerPanel != null) {
                     headerPanel.setStudentInfo(username, profile.getFullName(), role, profile.getProfilePicture());
                 }
 
+                // Query summary KPI metrics and update top 4 stat cards
                 DashboardMetricsDTO metrics = UndergraduateDashboardDAO.getDashboardMetrics(userId);
                 summaryCardPanel.updateDashboardMetrics(metrics);
 
+                // Fetch student timetable slots and update mid-section analytics bars
                 int slotsCount = UndergraduateTimetableDAO.getStudentWeeklyTimetable(userId).size();
                 overviewBreakdownPanel.updateMetrics(metrics, slotsCount);
 
+                // Reload today's lecture schedule and notices in bottom panel
                 bottomPanel.refreshData(userId);
             } catch (Exception e) {
                 e.printStackTrace();
