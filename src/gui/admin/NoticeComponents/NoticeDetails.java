@@ -3,12 +3,15 @@ package gui.admin.NoticeComponents;
 import model.Notice;
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 
 public class NoticeDetails extends JDialog {
 
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
     public NoticeDetails(Frame parent, Notice notice) {
         super(parent, "Official Announcement Details", true);
-        setSize(650, 520);
+        setSize(650, 560);
         setLocationRelativeTo(parent);
         setResizable(false);
         getContentPane().setBackground(Color.WHITE);
@@ -30,7 +33,8 @@ public class NoticeDetails extends JDialog {
         pnlContent.add(createMetaRow("Notice ID:", "NTC-" + notice.getNoticeId()));
         pnlContent.add(createMetaRow("Type:", notice.getNoticeType() != null ? notice.getNoticeType() : "General"));
         pnlContent.add(createMetaRow("Target Role:", notice.getTargetRole() != null ? notice.getTargetRole() : "All Roles"));
-        pnlContent.add(createMetaRow("Published Date:", notice.getPublishedAt() != null ? notice.getPublishedAt().toString() : "N/A"));
+        pnlContent.add(createMetaRow("Published Date:", notice.getPublishedAt() != null ? dateFormat.format(notice.getPublishedAt()) : "N/A"));
+        pnlContent.add(createMetaRow("Expire Date:", notice.getExpiresAt() != null ? dateFormat.format(notice.getExpiresAt()) : "No Expiry"));
         pnlContent.add(createMetaRow("Status:", notice.getStatus() != null ? notice.getStatus() : "Published"));
         pnlContent.add(Box.createVerticalStrut(12));
 

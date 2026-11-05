@@ -17,7 +17,7 @@ public class NoticeTable extends JTable {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     public NoticeTable() {
-        String[] columns = { "Notice ID", "Title", "Type", "Target Role", "Department", "Published Date", "Status" };
+        String[] columns = { "Notice ID", "Title", "Type", "Target Role", "Department", "Published Date", "Expire Date", "Status" };
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -57,7 +57,7 @@ public class NoticeTable extends JTable {
                     c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(0xF9, 0xFB, 0xF9));
                     c.setForeground(new Color(0x21, 0x25, 0x29));
                 }
-                if (column == 6) { // Status column
+                if (column == 7) { // Status column
                     setFont(new Font("Segoe UI", Font.BOLD, 15));
                     if ("Published".equalsIgnoreCase(String.valueOf(value))) {
                         setForeground(new Color(0x38, 0x8E, 0x3C));
@@ -71,7 +71,7 @@ public class NoticeTable extends JTable {
             }
         });
 
-        int[] widths = { 90, 360, 130, 150, 120, 170, 110 };
+        int[] widths = { 80, 280, 110, 130, 110, 140, 140, 100 };
         for (int i = 0; i < widths.length && i < getColumnModel().getColumnCount(); i++) {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
@@ -82,6 +82,7 @@ public class NoticeTable extends JTable {
         model.setRowCount(0);
         for (Notice n : notices) {
             String pubDate = n.getPublishedAt() != null ? dateFormat.format(n.getPublishedAt()) : "N/A";
+            String expDate = n.getExpiresAt() != null ? dateFormat.format(n.getExpiresAt()) : "No Expiry";
             String deptText = n.getDepartmentId() != null ? "Dept " + n.getDepartmentId() : "Faculty-Wide";
 
             model.addRow(new Object[]{
@@ -91,6 +92,7 @@ public class NoticeTable extends JTable {
                     n.getTargetRole() != null ? n.getTargetRole() : "All Roles",
                     deptText,
                     pubDate,
+                    expDate,
                     n.getStatus() != null ? n.getStatus() : "Published"
             });
         }

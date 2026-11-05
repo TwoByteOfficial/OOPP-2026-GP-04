@@ -5,6 +5,9 @@ import model.Notice;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 public class NoticeForm extends JDialog {
 
@@ -26,6 +29,10 @@ public class NoticeForm extends JDialog {
     private JComboBox<String> cmbDepartment;
     private JComboBox<String> cmbStatus;
 
+    private JSpinner spnPublishedAt;
+    private JSpinner spnExpiresAt;
+    private JCheckBox chkEnableExpiry;
+
     public NoticeForm(Frame parent, AdminNoticeDAO dao, Notice noticeToEdit, Runnable onSuccess) {
         this(parent, dao, noticeToEdit, 1L, onSuccess);
     }
@@ -37,7 +44,7 @@ public class NoticeForm extends JDialog {
         this.adminUserId = adminUserId;
         this.onSuccess = onSuccess;
 
-        setSize(720, 620);
+        setSize(740, 740);
         setLocationRelativeTo(parent);
         setResizable(false);
         getContentPane().setBackground(new Color(0xE8, 0xF5, 0xE9));
@@ -68,19 +75,19 @@ public class NoticeForm extends JDialog {
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.2;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.25;
         pnlForm.add(createLabel("Notice Title:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.8;
+        gbc.gridx = 1; gbc.weightx = 0.75;
         txtTitle = createTextField("");
         pnlForm.add(txtTitle, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.2;
+        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.25;
         pnlForm.add(createLabel("Content / Body:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.8;
-        txtContent = new JTextArea(5, 20);
+        gbc.gridx = 1; gbc.weightx = 0.75;
+        txtContent = new JTextArea(4, 20);
         txtContent.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         txtContent.setLineWrap(true);
         txtContent.setWrapStyleWord(true);
@@ -112,6 +119,33 @@ public class NoticeForm extends JDialog {
         pnlForm.add(cmbDepartment, gbc);
 
         gbc.gridx = 0; gbc.gridy = 5;
+        pnlForm.add(createLabel("Published Date:"), gbc);
+        gbc.gridx = 1;
+        spnPublishedAt = createDateSpinner(new Date());
+        pnlForm.add(spnPublishedAt, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 6;
+        pnlForm.add(createLabel("Expire Date:"), gbc);
+        gbc.gridx = 1;
+        JPanel pnlExpiry = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        pnlExpiry.setBackground(WHITE);
+        chkEnableExpiry = new JCheckBox("Set Expiry Date");
+        chkEnableExpiry.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        chkEnableExpiry.setBackground(WHITE);
+        chkEnableExpiry.setForeground(BLACK);
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 7);
+        spnExpiresAt = createDateSpinner(cal.getTime());
+        spnExpiresAt.setEnabled(false);
+
+        chkEnableExpiry.addActionListener(e -> spnExpiresAt.setEnabled(chkEnableExpiry.isSelected()));
+
+        pnlExpiry.add(chkEnableExpiry);
+        pnlExpiry.add(spnExpiresAt);
+        pnlForm.add(pnlExpiry, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 7;
         pnlForm.add(createLabel("Notice Status:"), gbc);
         gbc.gridx = 1;
         cmbStatus = new JComboBox<>(new String[]{ "Published", "Draft", "Archived" });
@@ -165,6 +199,16 @@ public class NoticeForm extends JDialog {
         return tf;
     }
 
+    private JSpinner createDateSpinner(Date defaultDate) {
+        SpinnerDateModel model = new SpinnerDateModel(defaultDate, null, null, Calendar.MINUTE);
+        JSpinner spinner = new JSpinner(model);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy-MM-dd HH:mm");
+        spinner.setEditor(editor);
+        spinner.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        spinner.setPreferredSize(new Dimension(220, 34));
+        return spinner;
+    }
+
     private void styleCombo(JComboBox<?> cb) {
         cb.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         cb.setBackground(WHITE);
@@ -178,6 +222,19 @@ public class NoticeForm extends JDialog {
         if (editNotice.getTargetRole() != null) cmbTargetRole.setSelectedItem(editNotice.getTargetRole());
         cmbDepartment.setSelectedIndex(editNotice.getDepartmentId() != null ? editNotice.getDepartmentId() : 0);
         if (editNotice.getStatus() != null) cmbStatus.setSelectedItem(editNotice.getStatus());
+
+        if (editNotice.getPublishedAt() != null) {
+            spnPublishedAt.setValue(new Date(editNotice.getPublishedAt().getTime()));
+        }
+
+        if (editNotice.getExpiresAt() != null) {
+            chkEnableExpiry.setSelected(true);
+            spnExpiresAt.setEnabled(true);
+            spnExpiresAt.setValue(new Date(editNotice.getExpiresAt().getTime()));
+        } else {
+            chkEnableExpiry.setSelected(false);
+            spnExpiresAt.setEnabled(false);
+        }
     }
 
     private void saveNotice() {
@@ -191,6 +248,20 @@ public class NoticeForm extends JDialog {
 
             Integer deptId = cmbDepartment.getSelectedIndex() == 0 ? null : cmbDepartment.getSelectedIndex();
 
+            Date pubDate = (Date) spnPublishedAt.getValue();
+            Timestamp publishedAt = new Timestamp(pubDate.getTime());
+
+            Timestamp expiresAt = null;
+            if (chkEnableExpiry.isSelected()) {
+                Date expDate = (Date) spnExpiresAt.getValue();
+                expiresAt = new Timestamp(expDate.getTime());
+
+                if (expiresAt.before(publishedAt)) {
+                    JOptionPane.showMessageDialog(this, "Expire Date cannot be earlier than Published Date!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
             if (editNotice == null) {
                 Notice n = new Notice();
                 n.setTitle(title);
@@ -199,6 +270,8 @@ public class NoticeForm extends JDialog {
                 n.setTargetRole((String) cmbTargetRole.getSelectedItem());
                 n.setDepartmentId(deptId);
                 n.setPublishedBy(adminUserId);
+                n.setPublishedAt(publishedAt);
+                n.setExpiresAt(expiresAt);
                 n.setStatus((String) cmbStatus.getSelectedItem());
 
                 noticeDAO.createNotice(n);
@@ -209,6 +282,8 @@ public class NoticeForm extends JDialog {
                 editNotice.setNoticeType((String) cmbType.getSelectedItem());
                 editNotice.setTargetRole((String) cmbTargetRole.getSelectedItem());
                 editNotice.setDepartmentId(deptId);
+                editNotice.setPublishedAt(publishedAt);
+                editNotice.setExpiresAt(expiresAt);
                 editNotice.setStatus((String) cmbStatus.getSelectedItem());
 
                 noticeDAO.updateNotice(editNotice);
