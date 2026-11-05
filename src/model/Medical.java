@@ -10,43 +10,19 @@ import java.sql.Timestamp;
  */
 public class Medical {
 
-    // Unique primary key of the medical record
+    // [OOP - ENCAPSULATION]: Private variables to protect sensitive medical request data.
     private long medicalId;
-
-    // User ID of the student who submitted the medical certificate
     private long studentId;
-
-    // Course ID for which the medical is submitted
     private int courseId;
-
-    // Related attendance record ID (linked when medical covers a specific session)
     private Long attendanceRecordId;
-
-    // Date covered by the medical certificate
     private Date medicalDate;
-
-    // Reason provided by the student for absence (illness description)
     private String reason;
-
-    // File path or filename of the uploaded medical document/scan
     private String documentPath;
-
-    // Approval status: "Pending", "Approved", or "Rejected"
     private String approvalStatus;
-
-    // Timestamp when the student submitted this medical request
     private Timestamp submittedAt;
-
-    // User ID of the Technical Officer who reviewed and approved/rejected it
     private Long reviewedBy;
-
-    // Timestamp when the Technical Officer reviewed this submission
     private Timestamp reviewedAt;
-
-    // Feedback or reason provided by the Technical Officer upon review
     private String reviewComment;
-
-    // Display fields populated from database JOINs (used in tables and dialogs)
     private String registrationNo;
     private String studentName;
     private String courseCode;
@@ -58,15 +34,14 @@ public class Medical {
     public Medical() {}
 
     /**
-     * Parameterized constructor for initializing medical records.
+     * [OOP - POLYMORPHISM (OVERLOADING)]: Overloaded constructor providing flexible initialization.
      */
     public Medical(long medicalId, long studentId, int courseId, Long attendanceRecordId, 
                    Date medicalDate, String reason, String documentPath, String approvalStatus, 
                    Timestamp submittedAt, Long reviewedBy, Timestamp reviewedAt, String reviewComment) {
     }
 
-    // --- Getters and Setters ---
-
+    // [OOP - ENCAPSULATION]: Public accessor and mutator methods (Getters/Setters).
     public long getMedicalId() { return medicalId; }
     public void setMedicalId(long medicalId) { this.medicalId = medicalId; }
 

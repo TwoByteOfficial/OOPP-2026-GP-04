@@ -9,12 +9,14 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 /**
- * Base UI card component for displaying key metric summaries on the Technical Officer Dashboard.
- * Displays a large numeric value with a descriptive title label and an accent color border strip on the left.
+ * [OOP - INHERITANCE]:
+ * 1. Extends javax.swing.JPanel to inherit Swing container rendering and layout capabilities.
+ * 2. Acts as a base superclass for specific dashboard summary card types (AttendanceSummaryCard,
+ *    PendingMedicalCard, TodaySessionsCard, UndergraduateSummaryCard).
  */
 public class SummaryCardPanel extends JPanel {
 
-    // Label showing the prominent statistic value (e.g. "45", "12")
+    // [OOP - ENCAPSULATION]: Private label component protecting internal visual state.
     private JLabel valueLabel;
 
     /**
@@ -29,7 +31,6 @@ public class SummaryCardPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UniMisTheme.WHITE);
 
-        // Left accent border strip with inner padding
         setBorder(new CompoundBorder(
                 new MatteBorder(0, 5, 0, 0, accent),
                 new EmptyBorder(12, 16, 12, 16)
@@ -53,7 +54,7 @@ public class SummaryCardPanel extends JPanel {
     }
 
     /**
-     * Updates the displayed metric value dynamically (e.g., after database query completes).
+     * [OOP - ENCAPSULATION]: Public setter method allowing controlled updates to valueLabel.
      *
      * @param value New value string to display
      */

@@ -9,9 +9,9 @@ import java.awt.*;
 import java.sql.SQLException;
 
 /**
- * Attendance Overview widget displayed on the Technical Officer Dashboard.
- * Fetches department-level attendance totals and status breakdown (Total, Present, Absent, Medical, Late)
- * from TODashboardDAO and displays them in a clean summary list.
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create the Attendance Overview widget.
+ * 
+ * [OOP - ABSTRACTION]: Uses TODashboardDAO to aggregate and display department attendance metrics.
  */
 public class AttendanceOverviewPanel extends JPanel {
 
@@ -26,7 +26,6 @@ public class AttendanceOverviewPanel extends JPanel {
         setBackground(UniMisTheme.WHITE);
         setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        // Section header
         JLabel heading = new JLabel("Attendance Overview");
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
@@ -36,7 +35,7 @@ public class AttendanceOverviewPanel extends JPanel {
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        // Query aggregated attendance numbers for the officer's department
+        // [OOP - ABSTRACTION]: Delegating attendance calculation to TODashboardDAO
         try {
             TODashboardDAO dao = new TODashboardDAO();
             int[] counts = dao.getAttendanceOverview(userId);
@@ -60,11 +59,7 @@ public class AttendanceOverviewPanel extends JPanel {
     }
 
     /**
-     * Helper to render a single statistic entry row with consistent styling.
-     *
-     * @param panel Target container panel
-     * @param label Metric description label
-     * @param count Numeric total value
+     * [OOP - ENCAPSULATION]: Private helper method creating styled statistic labels.
      */
     private void addStat(JPanel panel, String label, int count) {
 

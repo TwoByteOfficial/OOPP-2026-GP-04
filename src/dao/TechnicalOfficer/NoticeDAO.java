@@ -9,18 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object (DAO) for retrieving notices relevant to Technical Officers.
- * Filters notices by publication status, recipient role, officer's department, and expiration date.
+ * [OOP - ABSTRACTION]: Data Access Object for retrieving campus notices.
+ * Encapsulates the SQL query filtering logic (role targeting, department matching, and expiration date checks).
  */
 public class NoticeDAO {
 
     /**
-     * Retrieves all active notices targeted to Technical Officers.
-     * Criteria applied:
-     * - Notice must have status = 'Published'
-     * - Target role must be either 'All' or 'Technical Officer'
-     * - Department must match the officer's department or be null (faculty-wide)
-     * - Expiration date must either be null or in the future
+     * [OOP - ABSTRACTION]: Retrieves all active notices targeted to Technical Officers.
      *
      * @param userId The user ID of the logged-in Technical Officer
      * @return List of Object arrays representing notice records sorted by newest published first
@@ -53,7 +48,6 @@ public class NoticeDAO {
             try (ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    // Pack notice attributes into an Object array for easy table consumption
                     Object[] notice = {
                             rs.getLong("notice_id"),
                             rs.getString("title"),

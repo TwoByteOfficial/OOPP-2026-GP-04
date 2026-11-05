@@ -8,16 +8,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Data Access Object (DAO) for managing Technical Officer profile information.
- * Handles fetching officer details from both users and technical_officers tables,
- * and saving profile updates made through the user interface.
+ * [OOP - ABSTRACTION]: Data Access Object for Technical Officer profile operations.
+ * Isolates and abstracts database persistence for officer records across both 
+ * the 'users' and 'technical_officers' tables.
  */
 public class TechnicalOfficerProfileDAO {
 
     /**
-     * Retrieves the complete profile of a Technical Officer by user ID.
-     * Joins the users table with the technical_officers table to load both personal
-     * and employment details (assigned labs, designation, code).
+     * [OOP - ABSTRACTION]: Queries joined user and technical_officer tables 
+     * and maps the result into a polymorphic TechnicalOfficer instance.
      *
      * @param userId The user ID of the Technical Officer
      * @return Populated TechnicalOfficer object, or null if no matching officer is found
@@ -68,9 +67,7 @@ public class TechnicalOfficerProfileDAO {
     }
 
     /**
-     * Updates editable profile fields for a Technical Officer.
-     * Updates full name, email, contact number, and address in the users table,
-     * and assigned labs in the technical_officers table.
+     * [OOP - ABSTRACTION]: Abstracts the multi-table UPDATE query for user and technical_officers tables.
      *
      * @param userId       The user ID of the Technical Officer
      * @param fullName     Updated full name

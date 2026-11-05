@@ -7,13 +7,10 @@ import java.awt.*;
 import java.sql.SQLException;
 
 /**
- * Summary cards container row on the Technical Officer Dashboard.
- * Arranges 4 key metric indicator cards horizontally:
- * 1. UndergraduateSummaryCard - Count of active undergraduates in the department
- * 2. AttendanceSummaryCard    - Count of distinct student attendance profiles
- * 3. PendingMedicalCard        - Count of pending medical records awaiting review
- * 4. TodaySessionsCard        - Count of class/lab sessions scheduled for today
- * Fetches metrics asynchronously from TODashboardDAO and updates each card.
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel.
+ * 
+ * [OOP - POLYMORPHISM]: Holds and renders different SummaryCardPanel subclasses polymorphically.
+ * Containers accept specialized card instances via the polymorphic Component type.
  */
 public class DashboardSummaryPanel extends JPanel {
 
@@ -24,11 +21,10 @@ public class DashboardSummaryPanel extends JPanel {
      */
     public DashboardSummaryPanel(long userId) {
 
-        // 1 row, 4 equal columns with 15px horizontal spacing
         setLayout(new GridLayout(1, 4, 15, 0));
         setOpaque(false);
 
-        // Initialize cards with placeholder values
+        // [OOP - POLYMORPHISM]: Instantiating specific subclasses of SummaryCardPanel
         UndergraduateSummaryCard undergraduateCard = new UndergraduateSummaryCard("—");
         AttendanceSummaryCard attendanceCard = new AttendanceSummaryCard("—");
         PendingMedicalCard medicalCard = new PendingMedicalCard("—");
@@ -39,7 +35,6 @@ public class DashboardSummaryPanel extends JPanel {
         add(medicalCard);
         add(sessionsCard);
 
-        // Load live statistics from database
         loadSummaryCounts(
                 userId,
                 undergraduateCard,
@@ -50,13 +45,7 @@ public class DashboardSummaryPanel extends JPanel {
     }
 
     /**
-     * Queries TODashboardDAO for the latest department counts and updates each card's display value.
-     *
-     * @param userId            Technical Officer user ID
-     * @param undergraduateCard Target undergraduate card
-     * @param attendanceCard    Target attendance card
-     * @param medicalCard       Target medical card
-     * @param sessionsCard      Target today's sessions card
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Queries TODashboardDAO for metrics and updates card values.
      */
     private void loadSummaryCounts(
             long userId,
@@ -86,7 +75,6 @@ public class DashboardSummaryPanel extends JPanel {
         } catch (SQLException e) {
             e.printStackTrace();
 
-            // Fallback display if database query fails
             undergraduateCard.setValue("—");
             attendanceCard.setValue("—");
             medicalCard.setValue("—");

@@ -8,30 +8,29 @@ import java.awt.*;
 import java.util.function.Consumer;
 
 /**
- * Sidebar navigation component for the Technical Officer Dashboard.
- * Displays the university brand logo, navigation buttons for each section,
- * and a styled logout button in the footer.
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to create a custom reusable UI component
+ * for sidebar navigation in the Technical Officer portal.
  */
 public class TOSidebarPanel extends JPanel {
 
-    // Callback invoked when a navigation button is clicked to switch views
+    // [OOP - INTERFACE]: Uses Java standard functional interface Consumer<String> 
+    // to pass page navigation commands without tightly coupling to the dashboard frame.
     private final Consumer<String> navigationHandler;
 
-    // Theme color constants used for sidebar styling
+    // [OOP - ENCAPSULATION]: Private constants and state protect sidebar visual styling.
     private final Color SIDEBAR_BG = UniMisTheme.MEDIUM_GREEN;
     private final Color BUTTON_BG = UniMisTheme.PASTEL_GREEN;
     private final Color SELECTED_BG = UniMisTheme.MINT;
     private final Color BUTTON_TEXT = UniMisTheme.TEXT;
 
-    // Tracks the currently active navigation button to update highlight colors
     private JButton selectedButton;
 
     /**
      * Constructs the Technical Officer sidebar.
      *
      * @param fullName          Name of the officer to display in header
-     * @param navigationHandler Callback to switch between pages
-     * @param logoutHandler     Callback to handle the logout action
+     * @param navigationHandler [OOP - INTERFACE]: Callback interface for navigation
+     * @param logoutHandler     [OOP - INTERFACE]: java.lang.Runnable interface callback for logout
      */
     public TOSidebarPanel(
             String fullName,
@@ -52,9 +51,7 @@ public class TOSidebarPanel extends JPanel {
     }
 
     /**
-     * Builds the top brand section with system name and portal title.
-     *
-     * @return JPanel containing brand title and subtitle
+     * [OOP - ENCAPSULATION]: Private helper method encapsulating brand header construction.
      */
     private JPanel buildBrand() {
         JPanel brand = new JPanel();
@@ -77,9 +74,7 @@ public class TOSidebarPanel extends JPanel {
     }
 
     /**
-     * Builds the vertical list of navigation buttons for each page.
-     *
-     * @return JPanel containing stacked navigation buttons
+     * [OOP - ENCAPSULATION]: Private method encapsulating navigation button list assembly.
      */
     private JPanel buildNavigation() {
         JPanel navigation = new JPanel();
@@ -99,11 +94,7 @@ public class TOSidebarPanel extends JPanel {
 
     /**
      * Helper to create and style a single navigation button.
-     *
-     * @param parent   Container panel to add the button to
-     * @param label    Button text displayed to the user
-     * @param page     Internal page identifier passed to navigationHandler
-     * @param selected Whether this button starts selected by default
+     * [OOP - INTERFACE]: Implements java.awt.event.ActionListener via lambda expression (e -> ...).
      */
     private void addNavigationButton(
             JPanel parent, String label, String page, boolean selected) {
@@ -126,7 +117,7 @@ public class TOSidebarPanel extends JPanel {
             selectedButton = button;
         }
 
-        // On click: highlight button and notify parent container to display selected page
+        // [OOP - INTERFACE]: ActionListener lambda expression
         button.addActionListener(e -> {
             setSelectedButton(button);
             navigationHandler.accept(page);
@@ -137,9 +128,7 @@ public class TOSidebarPanel extends JPanel {
     }
 
     /**
-     * Updates visual highlight styling so only the clicked button appears active.
-     *
-     * @param button The button to make active
+     * [OOP - ENCAPSULATION]: Private helper managing button selection colors internally.
      */
     private void setSelectedButton(JButton button) {
         if (selectedButton != null) {
@@ -154,9 +143,6 @@ public class TOSidebarPanel extends JPanel {
 
     /**
      * Programmatically selects a sidebar button matching the given page name.
-     * Used when navigation is triggered from outside the sidebar (e.g., Quick Actions).
-     *
-     * @param pageName The name of the target page
      */
     public void selectPage(String pageName) {
         for (Component component : getComponents()) {
@@ -173,10 +159,7 @@ public class TOSidebarPanel extends JPanel {
     }
 
     /**
-     * Builds the bottom footer containing the red Logout button.
-     *
-     * @param logoutHandler Runnable called when logout is clicked
-     * @return JPanel containing the logout button
+     * [OOP - INTERFACE]: Uses Runnable functional interface to invoke logout callback.
      */
     private JPanel buildFooter(Runnable logoutHandler) {
         JPanel footer = new JPanel(new BorderLayout());
@@ -197,6 +180,7 @@ public class TOSidebarPanel extends JPanel {
         logout.setFocusPainted(false);
         logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        // [OOP - INTERFACE]: ActionListener lambda triggering Runnable.run()
         logout.addActionListener(e -> logoutHandler.run());
 
         footer.add(logout, BorderLayout.CENTER);

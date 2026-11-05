@@ -3,14 +3,14 @@ package gui.technical.dashboard.summary;
 import gui.theme.UniMisTheme;
 
 /**
- * Summary metric card on the dashboard showing the count of pending medical certificates
- * submitted by students awaiting Technical Officer approval.
- * Styled with a medium green left accent border.
+ * [OOP - INHERITANCE]: Extends SummaryCardPanel to create a specialized metric card
+ * for pending medical certificate requests.
  */
 public class PendingMedicalCard extends SummaryCardPanel {
 
     /**
      * Constructs the Pending Medicals summary card.
+     * Invokes super() to pass specialized title and medium green accent color.
      *
      * @param value Count string to display (e.g., "5")
      */

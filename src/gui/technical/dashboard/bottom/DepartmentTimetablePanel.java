@@ -13,15 +13,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Panel displaying the weekly academic timetable for the Technical Officer's department.
- * Features:
- * - Day filter (All Days, Monday, Tuesday, Wednesday, Thursday, Friday)
- * - Horizontal scrolling table with Day, Time, Course, Component, Lecturer, Venue, Batch
- * - Row counter showing the number of timetable sessions loaded
+ * [OOP - INHERITANCE]: Extends javax.swing.JPanel to display the weekly department timetable.
+ * 
+ * [OOP - ABSTRACTION]: Retrieves schedule data via TimetableDAO, hiding SQL details.
  */
 public class DepartmentTimetablePanel extends JPanel {
 
-    // Table model and UI components
+    // [OOP - ENCAPSULATION]: Private UI components and state
     private final DefaultTableModel tableModel;
     private final JLabel statusLabel;
     private JComboBox<String> dayFilter;
@@ -37,12 +35,10 @@ public class DepartmentTimetablePanel extends JPanel {
         setBackground(UniMisTheme.WHITE);
         setBorder(new EmptyBorder(18, 18, 18, 18));
 
-        // Section header
         JLabel heading = new JLabel("Department Timetable");
         heading.setFont(UniMisTheme.FONT_H3);
         heading.setForeground(UniMisTheme.TEXT);
 
-        // Day of week filter dropdown
         String[] days = {
                 "All Days", "Monday", "Tuesday", "Wednesday",
                 "Thursday", "Friday"
@@ -61,12 +57,13 @@ public class DepartmentTimetablePanel extends JPanel {
         topPanel.add(filterPanel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-        // Configure columns
         String[] columns = {
                 "Day", "Time", "Course Code", "Course Name",
                 "Component", "Lecturer", "Venue", "Batch"
         };
 
+        // [OOP - INHERITANCE & POLYMORPHISM (OVERRIDING)]:
+        // Subclasses DefaultTableModel anonymously, overriding isCellEditable() to return false.
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -77,7 +74,6 @@ public class DepartmentTimetablePanel extends JPanel {
         JTable table = new JTable(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        // Set column widths to comfortably display descriptions and names
         table.getColumnModel().getColumn(0).setPreferredWidth(95);   // Day
         table.getColumnModel().getColumn(1).setPreferredWidth(150);  // Time
         table.getColumnModel().getColumn(2).setPreferredWidth(100);  // Course Code
@@ -110,7 +106,7 @@ public class DepartmentTimetablePanel extends JPanel {
         statusLabel.setFont(UniMisTheme.FONT_SMALL);
         statusLabel.setForeground(UniMisTheme.TEXT);
 
-        // Filter listener: filters rows by Day of Week column (column 0)
+        // [OOP - INTERFACE]: java.awt.event.ActionListener lambda implementation
         dayFilter.addActionListener(e -> {
             String selectedDay = (String) dayFilter.getSelectedItem();
 
@@ -132,14 +128,11 @@ public class DepartmentTimetablePanel extends JPanel {
 
         add(contentPanel, BorderLayout.CENTER);
 
-        // Load timetable entries from database
         loadTimetable(userId);
     }
 
     /**
-     * Loads the department timetable for the officer from the database via TimetableDAO.
-     *
-     * @param userId Logged-in Technical Officer's database user ID
+     * [OOP - ENCAPSULATION & ABSTRACTION]: Loads timetable data via TimetableDAO.
      */
     private void loadTimetable(long userId) {
 
